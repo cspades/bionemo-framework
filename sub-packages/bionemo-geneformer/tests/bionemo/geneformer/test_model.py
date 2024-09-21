@@ -40,7 +40,7 @@ from bionemo.core.data.resamplers import PRNGResampleDataset
 from bionemo.core.utils.batching_utils import pad_token_ids
 from bionemo.core.utils.dtypes import get_autocast_dtype
 from bionemo.core.utils.random_utils import random_numpy_context
-from bionemo.geneformer.api import GeneformerConfig, GeneformerModel
+from bionemo.geneformer.api import GeneformerConfig, GeneformerModel, GeneformerNeMo1LightningModuleConnector
 from bionemo.geneformer.data.singlecell.datamodule import SingleCellDataModule
 from bionemo.geneformer.data.singlecell.dataset import SingleCellDataset
 from bionemo.geneformer.data.singlecell.preprocess import GeneformerPreprocess
@@ -48,6 +48,7 @@ from bionemo.geneformer.model.finetune_token_regressor import (
     FineTuneSeqLenBioBertConfig,
     LoRAForGeneFormerTokenRegressor,
 )
+from bionemo.geneformer.tokenizer.gene_tokenizer import GeneTokenizer
 from bionemo.llm.data import collate
 from bionemo.llm.model.biobert.lightning import BioBertLightningModule
 from bionemo.llm.model.biobert.model import BiobertSpecOption
@@ -137,7 +138,7 @@ def geneformer_config():
         hidden_dropout=0.02,
         init_method_std=0.02,
         kv_channels=None,
-        apply_query_key_layer_scaling=False,
+        apply_query_key_layer_scaling=True,
         make_vocab_size_divisible_by=128,
         masked_softmax_fusion=True,  # TODO(@jstjohn) check this
         fp16_lm_cross_entropy=False,
@@ -149,11 +150,11 @@ def geneformer_config():
         layernorm_epsilon=1.0e-12,
         activation_func=F.gelu,  # TODO(@jstjohn) check this
         qk_layernorm=False,  # TODO(@jstjohn) check this
-        apply_residual_connection_post_layernorm=True,  # False is new default, True was BERT pub.
+        apply_residual_connection_post_layernorm=False,  # False is new default, True was BERT pub.
         bias_activation_fusion=True,  # TODO(@jstjohn) check this
         bias_dropout_fusion=True,  # TODO(@jstjohn) check this
         get_attention_mask_from_fusion=False,
-        attention_dropout=0.1,
+        attention_dropout=0.02,  # on closer inspection this was in the config!
         share_embeddings_and_output_weights=True,
         enable_autocast=False,  # This has to be set to True if we use the mixed precision plugin
         biobert_spec_option=BiobertSpecOption.bert_layer_with_transformer_engine_spec
@@ -432,6 +433,13 @@ def test_geneformer_nemo1_v_nemo2_inference_golden_values(
         mask=expected_vals["expected_pad_masks"],
         min_correlation=0.9999,
     )
+
+
+@pytest.mark.needs_gpu
+def test_nemo1_checkpoint_conversion(geneformer_config: GeneformerConfig, cells: List[List[str]], seed: int = 42):
+    converter = GeneformerNeMo1LightningModuleConnector(nemo1_checkpoint_path)
+    assert isinstance(converter.tokenizer, GeneTokenizer)
+    assert converter.config == geneformer_config
 
 
 @pytest.mark.skipif(USE_TE, reason="This per-layer test does not yet support TE mapping.")
