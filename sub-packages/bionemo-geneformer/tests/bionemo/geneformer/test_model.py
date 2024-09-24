@@ -16,6 +16,7 @@
 import functools
 import tarfile
 from copy import deepcopy
+from dataclasses import fields
 from pathlib import Path
 from typing import List, Tuple
 
@@ -154,7 +155,7 @@ def geneformer_config():
         bias_activation_fusion=True,  # TODO(@jstjohn) check this
         bias_dropout_fusion=True,  # TODO(@jstjohn) check this
         get_attention_mask_from_fusion=False,
-        attention_dropout=0.02,  # on closer inspection this was in the config!
+        attention_dropout=0.1,  # historically ignored in nemo1, always set to 0.1
         share_embeddings_and_output_weights=True,
         enable_autocast=False,  # This has to be set to True if we use the mixed precision plugin
         biobert_spec_option=BiobertSpecOption.bert_layer_with_transformer_engine_spec
@@ -435,11 +436,32 @@ def test_geneformer_nemo1_v_nemo2_inference_golden_values(
     )
 
 
+def compare_dataclasses(left, right):
+    differences = []
+    for field in fields(left):
+        field_name = field.name
+        left_value = getattr(left, field_name)
+        right_value = getattr(right, field_name)
+        if left_value != right_value:
+            differences.append({"field": field_name, "left_value": left_value, "right_value": right_value})
+    return differences
+
+
 @pytest.mark.needs_gpu
-def test_nemo1_checkpoint_conversion(geneformer_config: GeneformerConfig, cells: List[List[str]], seed: int = 42):
-    converter = GeneformerNeMo1LightningModuleConnector(nemo1_checkpoint_path)
-    assert isinstance(converter.tokenizer, GeneTokenizer)
-    assert converter.config == geneformer_config
+def test_nemo1_checkpoint_conversion(
+    tmpdir: Path, geneformer_config: GeneformerConfig, cells: List[List[str]], seed: int = 42
+):
+    with megatron_parallel_state_utils.distributed_model_parallel_state(32):
+        converter = GeneformerNeMo1LightningModuleConnector(nemo1_checkpoint_path)
+        assert isinstance(converter.tokenizer, GeneTokenizer)
+        diffs = compare_dataclasses(converter.config, geneformer_config)
+        skip_fields = {"nemo1_ckpt_path", "return_only_hidden_states", "init_method", "output_layer_init_method"}
+        filt = [d for d in diffs if d["field"] not in skip_fields]
+        assert filt == []
+        out_config = tmpdir / "out_config"
+        converter.apply(out_config)  # currently crashes in here during self.nemo_save(out_path, trainer)
+        assert io.is_distributed_ckpt(out_config / "checkpoint")
+        assert False  # TODO test weights are the right ones.
 
 
 @pytest.mark.skipif(USE_TE, reason="This per-layer test does not yet support TE mapping.")

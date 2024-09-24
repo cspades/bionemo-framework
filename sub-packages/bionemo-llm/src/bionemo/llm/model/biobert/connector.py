@@ -38,7 +38,7 @@ from bionemo.llm.utils.weight_utils import nemo1_to_nemo2_biobert_key_mapping
 class GenericBioBertNeMo1LightningModuleConnector(
     io.ModelConnector[Dict[str, torch.Tensor], BioBertLightningModule], Generic[MegatronBioBertModelT], ABC
 ):
-    """A generic ModuleConnector for going between nemo1 and nemo2 checkpoints of BERT based models. This is a Path object
+    """A generic ModuleConnector for going between nemo1 and nemo2 checkpoints of BERT based models. This is a Path object.
 
     Typically you need to
 
@@ -112,12 +112,20 @@ class GenericBioBertNeMo1LightningModuleConnector(
         nemo1_settings = self.get_nemo1_config()
         cfg_class = self.get_config_class()
         autocast_dtype = get_autocast_dtype(nemo1_settings["precision"])
+        overrides = {
+            "params_dtype": autocast_dtype,
+            "pipeline_dtype": autocast_dtype,
+            "autocast_dtype": autocast_dtype,
+            "attention_dropout": 0.1,
+            "fp32_residual_connection": False,
+            "bias_activation_fusion": True,
+            "bias_dropout_fusion": True,
+            "share_embeddings_and_output_weights": True,
+            "fp16": autocast_dtype == torch.float16,
+            "bf16": autocast_dtype == torch.bfloat16,
+        }
         output = cfg_class(
-            params_dtype=autocast_dtype,
-            pipeline_dtype=autocast_dtype,
-            autocast_dtype=autocast_dtype,
-            fp16=autocast_dtype == torch.float16,
-            bf16=autocast_dtype == torch.bfloat16,
-            **{k: v for k, v in nemo1_settings.items() if k in dir(cfg_class)},
+            **overrides,
+            **{k: v for k, v in nemo1_settings.items() if k in dir(cfg_class) and k not in overrides},
         )
         return output
