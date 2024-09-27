@@ -11,9 +11,9 @@ from abc import ABC, abstractmethod
 from typing import List, Tuple, Optional
 from torch.nn.utils.rnn import pad_sequence
 from loguru import logger
-from utils.utils import t2n
-from model.diffuser import CategoricalBaseDiffuser, CategoricalBaseDiffusionConfig
-from utils.utils import t2n, TRAIN, VALIDATION, INFERENCE, SAMPLING
+from bionemo.rldif.utils.utils import t2n
+from bionemo.rldif.model.diffuser import CategoricalBaseDiffuser, CategoricalBaseDiffusionConfig
+from bionemo.rldif.utils.utils import t2n, TRAIN, VALIDATION, INFERENCE, SAMPLING
 
 class CategoricalDiffusionConfig(CategoricalBaseDiffusionConfig):
     name: str

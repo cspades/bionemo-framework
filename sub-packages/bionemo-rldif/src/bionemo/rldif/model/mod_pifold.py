@@ -12,7 +12,7 @@ from torch_scatter import scatter_sum, scatter_softmax, scatter_mean
 import numpy as np
 from torch_geometric.data import Batch as GraphBatch, Data as GraphData
 from bionemo.rldif.utils.utils import t2n, TRAIN, VALIDATION, INFERENCE, SAMPLING
-from model.categorical_diffuser import (
+from bionemo.rldif.model.categorical_diffuser import (
     CategoricalDiffuser,
     CategoricalDiffusionConfig,
 )
@@ -35,24 +35,25 @@ https://github.com/A4Bio/PiFold/blob/main/methods/prodesign_module.py
 """
 
 class RLDIFConfig():
-    T: 150
-    t_delta: 1
-    num_categories: 20
-    node_features: 128
-    edge_features: 128
-    hidden_dim: 128
-    dropout: 0.1
-    num_encoder_layers: 10
-    k_neighbors: 30
-    virtual_num: 3
-    node_dist: True
-    node_angle: True
-    node_direct: True
-    edge_dist: True
-    edge_angle: True
-    edge_direct: True
-    updating_edges: 4
-    diffusion_mode: True
+    def __init__(self):
+        self.T = 150
+        self.t_delta = 1
+        self.num_categories = 20
+        self.node_features = 128
+        self.edge_features = 128
+        self.hidden_dim = 128
+        self.dropout = 0.1
+        self.num_encoder_layers = 10
+        self.k_neighbors = 30
+        self.virtual_num = 3
+        self.node_dist = True
+        self.node_angle = True
+        self.node_direct = True
+        self.edge_dist = True
+        self.edge_angle = True
+        self.edge_direct = True
+        self.updating_edges = 4
+        self.diffusion_mode = True
         
 
 class InverseFoldingDiffusionPiFoldModel(CategoricalDiffuser, nn.Module):

@@ -9,7 +9,7 @@ readme = "README.md"
 description = "BioNeMo RLDIF"
 authors = [{ name = "Flagship Pioneering", email = "oviessmann@flagshippioneering.com" }]
 dynamic = ["version"]
-dependencies = ['bionemo-core']
+dependencies = ['bionemo-core', 'torch-scatter']
 
 [tool.setuptools.packages.find]
 where = ["src"]

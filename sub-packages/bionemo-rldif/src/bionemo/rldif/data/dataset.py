@@ -25,9 +25,6 @@ class RLDIFDataset(Dataset):
         super().__init__()
         self.RS = []
 
-        if pdb_paths is not None:
-            raise Exception("Must provide list of pdb paths to process")
-
         iterator = tqdm(pdb_paths)
 
         for block in iterator:
