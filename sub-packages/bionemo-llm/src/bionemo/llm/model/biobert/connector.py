@@ -31,7 +31,6 @@ from nemo.lightning import io, teardown
 from bionemo.core.utils.dtypes import get_autocast_dtype
 from bionemo.llm.model.biobert.lightning import BioBertLightningModule
 from bionemo.llm.model.biobert.model import BioBertGenericConfig, MegatronBioBertModelT
-from bionemo.llm.model.biobert.transformer_specs import BiobertSpecOption
 from bionemo.llm.utils.weight_utils import nemo1_to_nemo2_biobert_key_mapping
 
 
@@ -86,20 +85,24 @@ class GenericBioBertNeMo1LightningModuleConnector(
     def convert_state(self, source: Dict[str, torch.Tensor], target: BioBertLightningModule) -> BioBertLightningModule:
         """Convert the input state_dict keys from nemo1 biobert to nemo2 biobert."""
         te_mapping = self.is_te_mapping(target)  # check for TE layers.
-        #target.module.cpu()
+        # target.module.cpu()
         new_state_dict_from_old = {}
         for k, v in source.items():
             new_key = nemo1_to_nemo2_biobert_key_mapping(k, new_model_prefix="", te_mapping=te_mapping)
             new_state_dict_from_old[new_key] = v
-        for k,v in new_state_dict_from_old.items():
+        for k, v in new_state_dict_from_old.items():
             if v.device == torch.device("meta"):
                 raise ValueError(v)
         target.module.load_state_dict(new_state_dict_from_old, strict=not te_mapping, assign=True)
         meta_tensors_keys = [
-            k for (k,t) in target.module.state_dict().items() if isinstance(t, torch.Tensor) and t.device.type == 'meta'
+            k
+            for (k, t) in target.module.state_dict().items()
+            if isinstance(t, torch.Tensor) and t.device.type == "meta"
         ]
         if len(meta_tensors_keys) != 0:
-           raise ValueError(f"The following tensors were left on device='meta': {meta_tensors_keys}")
+            raise ValueError(
+                f"The following tensors were left on device='meta', so weights did not get applied: {meta_tensors_keys}"
+            )
         return target
 
     @property
