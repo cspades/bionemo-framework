@@ -65,15 +65,9 @@ class GenericBioBertNeMo1LightningModuleConnector(
             ckpt_file = old_ckpt.extractfile("./model_weights.ckpt")
             old_weights = torch.load(ckpt_file)
         target = self.init()
-        trainer = self.nemo_setup(target, lazy_init=False)
+        trainer = self.nemo_setup(target)
         target.trainer = trainer
         self.convert_state(old_weights, target)
-        # Ideally by this point the model will have no meta tensors after conversion.
-        meta_tensors_keys = [
-            k for (k,t) in target.module.state_dict().items() if isinstance(t, torch.Tensor) and t.device.type == 'meta'
-        ]
-        if len(meta_tensors_keys) != 0:
-            raise ValueError(f"The following tensors were left on device='meta': {meta_tensors_keys}")
         self.nemo_save(output_path, trainer)
 
         print(f"Converted NeMo1, model at {self} saved to {output_path}")
@@ -86,20 +80,26 @@ class GenericBioBertNeMo1LightningModuleConnector(
     @staticmethod
     def is_te_mapping(model: BioBertLightningModule) -> bool:
         """Check for TE layers, for now infer this from the config."""
-        return model.config.biobert_spec_option in {
-            BiobertSpecOption.bert_layer_with_transformer_engine_spec,
-            BiobertSpecOption.bert_layer_with_transformer_engine_and_qk_ln_spec,
-        }
+        # TODO come up with a more robust way of determining this.
+        return "transformer_engine" in model.config.biobert_spec_option.value
 
     def convert_state(self, source: Dict[str, torch.Tensor], target: BioBertLightningModule) -> BioBertLightningModule:
         """Convert the input state_dict keys from nemo1 biobert to nemo2 biobert."""
         te_mapping = self.is_te_mapping(target)  # check for TE layers.
-        target.module.cpu()
+        #target.module.cpu()
         new_state_dict_from_old = {}
         for k, v in source.items():
             new_key = nemo1_to_nemo2_biobert_key_mapping(k, new_model_prefix="", te_mapping=te_mapping)
             new_state_dict_from_old[new_key] = v
-        target.module.load_state_dict(new_state_dict_from_old, strict=not te_mapping)
+        for k,v in new_state_dict_from_old.items():
+            if v.device == torch.device("meta"):
+                raise ValueError(v)
+        target.module.load_state_dict(new_state_dict_from_old, strict=not te_mapping, assign=True)
+        meta_tensors_keys = [
+            k for (k,t) in target.module.state_dict().items() if isinstance(t, torch.Tensor) and t.device.type == 'meta'
+        ]
+        if len(meta_tensors_keys) != 0:
+           raise ValueError(f"The following tensors were left on device='meta': {meta_tensors_keys}")
         return target
 
     @property
