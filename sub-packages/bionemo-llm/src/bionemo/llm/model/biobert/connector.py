@@ -65,9 +65,15 @@ class GenericBioBertNeMo1LightningModuleConnector(
             ckpt_file = old_ckpt.extractfile("./model_weights.ckpt")
             old_weights = torch.load(ckpt_file)
         target = self.init()
-        trainer = self.nemo_setup(target)
+        trainer = self.nemo_setup(target, lazy_init=False)
         target.trainer = trainer
         self.convert_state(old_weights, target)
+        # Ideally by this point the model will have no meta tensors after conversion.
+        meta_tensors_keys = [
+            k for (k,t) in target.module.state_dict().items() if isinstance(t, torch.Tensor) and t.device.type == 'meta'
+        ]
+        if len(meta_tensors_keys) != 0:
+            raise ValueError(f"The following tensors were left on device='meta': {meta_tensors_keys}")
         self.nemo_save(output_path, trainer)
 
         print(f"Converted NeMo1, model at {self} saved to {output_path}")
