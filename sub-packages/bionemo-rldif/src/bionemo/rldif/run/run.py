@@ -1,16 +1,8 @@
-import argparse
-import yaml
-import json
-from model.mod_pifold import InverseFoldingDiffusionPiFoldModel, RLDIFConfig
-import os
-import torch
-from data.dataset import RLDIFDataset
-from utils.utils import Config, load_config
 from tqdm import tqdm
 import numpy as np
 import pandas as pd
 
-def test(model, dataloader, num_samples = 4, foldfunction = None):
+def RLDIF_Generator(model, dataloader, num_samples = 4, foldfunction = None):
 
     alphabet = "ACDEFGHIKLMNPQRSTVWY"
     index_to_AA = {i: a for i, a in enumerate(alphabet)}
@@ -89,15 +81,4 @@ def test(model, dataloader, num_samples = 4, foldfunction = None):
 
     df = pd.DataFrame(results)
     return df 
-
-
-if __name__ == '__main__':
-    config = RLDIFConfig()
-    model = InverseFoldingDiffusionPiFoldModel(config).cuda()
-    model.initialize()
-    pdb_file_paths = ['dfasdfasdfasdf']
-    dataloader = RLDIFDataset(pdb_file_paths).return_dataloader(model)
-    result = test(model, dataloader, num_samples = 4)
-    print(result)
-
 

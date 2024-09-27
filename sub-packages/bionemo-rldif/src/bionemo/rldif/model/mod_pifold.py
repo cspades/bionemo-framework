@@ -1,8 +1,7 @@
 import time
 import torch
 import torch.nn as nn
-from utils.pifold_utils import (
-    _full_dist,
+from bionemo.rldif.utils.pifold_utils import (
     _dihedrals,
     _orientations_coarse_gl_tuple,
     _get_rbf,
@@ -12,7 +11,7 @@ import torch.nn.functional as F
 from torch_scatter import scatter_sum, scatter_softmax, scatter_mean
 import numpy as np
 from torch_geometric.data import Batch as GraphBatch, Data as GraphData
-from utils.utils import t2n, TRAIN, VALIDATION, INFERENCE, SAMPLING
+from bionemo.rldif.utils.utils import t2n, TRAIN, VALIDATION, INFERENCE, SAMPLING
 from model.categorical_diffuser import (
     CategoricalDiffuser,
     CategoricalDiffusionConfig,
