@@ -50,8 +50,11 @@ class GeneformerNeMo1LightningModuleConnector(GenericBioBertNeMo1LightningModule
     def tokenizer(self):
         nemo1_settings = self.get_nemo1_config()
         fmt_vocab, vocab_tar_path = nemo1_settings["tokenizer"]["vocab_file"].split(":")
-        fmt_medians, medians_tar_path = nemo1_settings["data"]["medians_file"].split(":")
-        assert fmt_vocab == fmt_medians and fmt_vocab == "nemo"
+        assert fmt_vocab == "nemo"
+        # TODO add another function to pull out the medians file from a nemo1 checkpoint, if the user wants it.
+        #  It's not needed for checkpoint conversion though.
+        # fmt_medians, medians_tar_path = nemo1_settings["data"]["medians_file"].split(":")
+        # assert fmt_vocab == fmt_medians and fmt_vocab == "nemo"
         nemo1_path = str(self)
         with tarfile.open(nemo1_path, "r") as old_ckpt:
             vocab_gene_ens_dict = json.loads(old_ckpt.extractfile(f"./{vocab_tar_path}").readlines()[0])

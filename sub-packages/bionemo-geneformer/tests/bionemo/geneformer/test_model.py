@@ -115,7 +115,7 @@ CELLS_FOR_TEST: List[List[str]] = [
 ]
 
 MODEL_PRECISION: str = "bf16-mixed"
-USE_TE: bool = False  # TODO use this for high level decisions around whether we're ready to switch to TE
+USE_TE: bool = True  # TODO use this for high level decisions around whether we're ready to switch to TE
 
 
 @pytest.fixture()
@@ -139,7 +139,7 @@ def geneformer_config():
         hidden_dropout=0.02,
         init_method_std=0.02,
         kv_channels=None,
-        apply_query_key_layer_scaling=True,
+        apply_query_key_layer_scaling=False,
         make_vocab_size_divisible_by=128,
         masked_softmax_fusion=True,  # TODO(@jstjohn) check this
         fp16_lm_cross_entropy=False,
@@ -452,7 +452,7 @@ def test_nemo1_checkpoint_conversion(
     tmpdir: Path, geneformer_config: GeneformerConfig, cells: List[List[str]], seed: int = 42
 ):
     with megatron_parallel_state_utils.distributed_model_parallel_state(32):
-        converter = GeneformerNeMo1LightningModuleConnector(nemo1_checkpoint_path)
+        converter = GeneformerNeMo1LightningModuleConnector(nemo1_release_checkpoint_path)
         assert isinstance(converter.tokenizer, GeneTokenizer)
         diffs = compare_dataclasses(converter.config, geneformer_config)
         skip_fields = {"nemo1_ckpt_path", "return_only_hidden_states", "init_method", "output_layer_init_method"}
@@ -460,8 +460,15 @@ def test_nemo1_checkpoint_conversion(
         assert filt == []
         out_config = tmpdir / "out_config"
         converter.apply(out_config)  # currently crashes in here during self.nemo_save(out_path, trainer)
-        assert io.is_distributed_ckpt(out_config / "checkpoint")
-        assert False  # TODO test weights are the right ones.
+        assert io.is_distributed_ckpt(out_config / "weights")
+        geneformer_config_logit = deepcopy(geneformer_config)
+        # Set up the model to return logits and switch to the released 10M checkpoint
+        geneformer_config_logit.set_hparam("return_only_hidden_states", False)  # return logits
+        geneformer_config_logit.set_hparam("initial_ckpt_path", str(out_config))  # release checkpoint is important
+
+        mean_loss = _get_loss_from_model(geneformer_config_logit, seed)
+        target: float = 2.368649959564209
+        assert mean_loss < target or mean_loss == pytest.approx(target, abs=1e-2, rel=None)
 
 
 @pytest.mark.skipif(USE_TE, reason="This per-layer test does not yet support TE mapping.")

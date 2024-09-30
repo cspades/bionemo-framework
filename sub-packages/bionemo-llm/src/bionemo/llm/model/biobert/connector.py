@@ -66,6 +66,7 @@ class GenericBioBertNeMo1LightningModuleConnector(
             old_weights = torch.load(ckpt_file)
         target = self.init()
         trainer = self.nemo_setup(target)
+        target.trainer = trainer
         self.convert_state(old_weights, target)
         self.nemo_save(output_path, trainer)
 
@@ -87,6 +88,7 @@ class GenericBioBertNeMo1LightningModuleConnector(
     def convert_state(self, source: Dict[str, torch.Tensor], target: BioBertLightningModule) -> BioBertLightningModule:
         """Convert the input state_dict keys from nemo1 biobert to nemo2 biobert."""
         te_mapping = self.is_te_mapping(target)  # check for TE layers.
+        target.module.cpu()
         new_state_dict_from_old = {}
         for k, v in source.items():
             new_key = nemo1_to_nemo2_biobert_key_mapping(k, new_model_prefix="", te_mapping=te_mapping)
@@ -124,6 +126,7 @@ class GenericBioBertNeMo1LightningModuleConnector(
             "fp32_residual_connection": False,
             "bias_activation_fusion": True,
             "bias_dropout_fusion": True,
+            "apply_query_key_layer_scaling": False,
             "share_embeddings_and_output_weights": True,
             "fp16": autocast_dtype == torch.float16,
             "bf16": autocast_dtype == torch.bfloat16,
