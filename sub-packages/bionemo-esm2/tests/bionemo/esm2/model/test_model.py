@@ -17,7 +17,6 @@ import gc
 import io
 import tarfile
 from copy import deepcopy
-from dataclasses import fields
 from pathlib import Path
 from typing import List, Tuple
 from unittest import mock
@@ -26,6 +25,7 @@ import pytest
 import torch
 import torch.utils
 import torch.utils.data
+from megatron.core.transformer.module import Float16Module
 from nemo.collections.common.tokenizers.huggingface.auto_tokenizer import AutoTokenizer
 from nemo.lightning import io as nio
 from torch import Tensor
@@ -44,6 +44,7 @@ from bionemo.testing import megatron_parallel_state_utils
 from bionemo.testing.data.load import load
 
 
+HF_TARGET_LOSS: float = 2.9279041290283203
 SEED: int = 42
 
 nemo1_checkpoint_path: Path = load("esm2/nv_650m:1.0")
@@ -280,50 +281,56 @@ def test_esm2_loss(esm2_650M_config_w_ckpt, dummy_protein_dataset, dummy_parquet
             hf_mean_loss = _compute_loss(hf_model, train_dataloader)
             print(f"hf_mean_loss: {hf_mean_loss}")
         else:
-            hf_mean_loss = torch.tensor(2.9279041290283203).cuda()
+            hf_mean_loss = torch.tensor(HF_TARGET_LOSS).cuda()
 
         torch.testing.assert_close(mean_loss, hf_mean_loss, atol=1e-4, rtol=0.0)
-
-
-def compare_dataclasses(left, right):
-    differences = []
-    for field in fields(left):
-        field_name = field.name
-        left_value = getattr(left, field_name)
-        right_value = getattr(right, field_name)
-        if left_value != right_value:
-            differences.append({"field": field_name, "left_value": left_value, "right_value": right_value})
-    return differences
 
 
 @pytest.mark.needs_gpu
 def test_nemo1_checkpoint_conversion(
     tmpdir: Path,
-    esm2_config,
     esm2_650M_config_w_ckpt,
     dummy_protein_dataset,
     dummy_parquet_train_val_inputs,
     seed: int = 42,
 ):
     train_cluster_path, valid_cluster_path = dummy_parquet_train_val_inputs
-    with megatron_parallel_state_utils.distributed_model_parallel_state(SEED):
+    with (
+        torch.inference_mode(),
+        megatron_parallel_state_utils.distributed_model_parallel_state(seed),
+        random_numpy_context(seed),
+    ):
         nemo1_checkpoint_path = esm2_650M_config_w_ckpt.nemo1_ckpt_path
         converter = ESM2NeMo1LightningModuleConnector(nemo1_checkpoint_path)
         tokenizer = converter.tokenizer
         assert isinstance(tokenizer, BioNeMoESMTokenizer)
-        # diffs = compare_dataclasses(converter.config, esm2_config)
+        # NOTE: uncomment the following block if you want to debug differences in the two configs.
+        # from bionemo.testing.utils import compare_dataclasses
+        # diffs = compare_dataclasses(converter.config, esm2_650M_config_w_ckpt)
         # skip_fields = {"nemo1_ckpt_path", "return_only_hidden_states", "init_method", "output_layer_init_method"}
         # filt = [d for d in diffs if d["field"] not in skip_fields]
         # assert filt == []
         out_config = tmpdir / "out_config"
         converter.apply(out_config)  # currently crashes in here during self.nemo_save(out_path, trainer)
+    # since converter.apply(...) launches a new trainer which messes with global state, make sure we do the model
+    #  evaluation in a fresh megatron context.
+    with (
+        torch.inference_mode(),
+        megatron_parallel_state_utils.distributed_model_parallel_state(seed),
+        random_numpy_context(seed),
+    ):
         assert nio.is_distributed_ckpt(out_config / "weights")
-        esm2_config_logit = deepcopy(esm2_config)
+        esm2_config_logit = nio.reinit(esm2_650M_config_w_ckpt)
         # Set up the model to return logits and switch to the released 10M checkpoint
-        esm2_config_logit.set_hparam("return_only_hidden_states", False)  # return logits
+        # esm2_config_logit.set_hparam("return_only_hidden_states", False)  # return logits
         esm2_config_logit.set_hparam("initial_ckpt_path", str(out_config))  # release checkpoint is important
 
         model = esm2_config_logit.configure_model(tokenizer).cuda()
+        model = (
+            Float16Module(model.config, model)  # needed for auto-cast from megatron
+            if model.config.autocast_dtype in {torch.float16, torch.bfloat16}
+            else model
+        )
 
         # Initialize the data module.
         data_module = ESMDataModule(
@@ -331,10 +338,12 @@ def test_nemo1_checkpoint_conversion(
             train_database_path=dummy_protein_dataset,
             valid_cluster_path=valid_cluster_path,
             valid_database_path=dummy_protein_dataset,
-            global_batch_size=4,
+            global_batch_size=2,
             micro_batch_size=2,
             min_seq_length=None,
             max_seq_length=1024,
+            num_workers=0,
+            persistent_workers=False,
             seed=seed,
         )
         assert data_module is not None
@@ -354,6 +363,6 @@ def test_nemo1_checkpoint_conversion(
 
         mean_loss = _compute_loss(model, train_dataloader, vocab_size=tokenizer.vocab_size)
 
-        hf_mean_loss = torch.tensor(2.9279041290283203).cuda()
-
-        torch.testing.assert_close(mean_loss, hf_mean_loss, atol=1e-4, rtol=0.0)
+        hf_mean_loss = torch.tensor(HF_TARGET_LOSS).cuda()
+        # Looser abs tolerance to account for bfloat16
+        torch.testing.assert_close(mean_loss, hf_mean_loss, atol=2e-3, rtol=0.0)

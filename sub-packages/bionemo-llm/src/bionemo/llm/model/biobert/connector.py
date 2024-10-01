@@ -37,12 +37,11 @@ from bionemo.llm.utils.weight_utils import nemo1_to_nemo2_biobert_key_mapping
 class GenericBioBertNeMo1LightningModuleConnector(
     io.ModelConnector[Dict[str, torch.Tensor], BioBertLightningModule], Generic[MegatronBioBertModelT], ABC
 ):
-    """A generic ModuleConnector for going between nemo1 and nemo2 checkpoints of BERT based models. This is a Path object.
+    """A generic ModuleConnector for going between nemo1 and nemo2 checkpoints of BERT based models.
 
-    Typically you need to
-
-    Args:
-        io: _description_
+    Provide a single argument to input that is the path to the nemo1 checkpoint. Note that io.ModelConnector inherits
+        from `pathlib.Path`. Call `object.apply(nemo2_output_path)` to convert the checkpoint pointed to by the
+        input path to the output path.
     """
 
     @abstractmethod

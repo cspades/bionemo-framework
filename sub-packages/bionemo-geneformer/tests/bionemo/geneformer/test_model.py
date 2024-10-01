@@ -16,7 +16,6 @@
 import functools
 import tarfile
 from copy import deepcopy
-from dataclasses import fields
 from pathlib import Path
 from typing import List, Tuple
 
@@ -57,7 +56,11 @@ from bionemo.llm.utils.weight_utils import nemo1_to_nemo2_biobert_key_mapping
 from bionemo.testing import megatron_parallel_state_utils
 from bionemo.testing.callbacks import MetricTracker
 from bionemo.testing.data.load import load
-from bionemo.testing.utils import assert_matrix_correlation_above_value, assert_matrix_mape_below_value
+from bionemo.testing.utils import (
+    assert_matrix_correlation_above_value,
+    assert_matrix_mape_below_value,
+    compare_dataclasses,
+)
 
 
 nemo1_checkpoint_path: Path = load("geneformer/qa")
@@ -434,17 +437,6 @@ def test_geneformer_nemo1_v_nemo2_inference_golden_values(
         mask=expected_vals["expected_pad_masks"],
         min_correlation=0.9999,
     )
-
-
-def compare_dataclasses(left, right):
-    differences = []
-    for field in fields(left):
-        field_name = field.name
-        left_value = getattr(left, field_name)
-        right_value = getattr(right, field_name)
-        if left_value != right_value:
-            differences.append({"field": field_name, "left_value": left_value, "right_value": right_value})
-    return differences
 
 
 @pytest.mark.needs_gpu
