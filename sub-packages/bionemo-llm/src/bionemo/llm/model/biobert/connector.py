@@ -84,7 +84,6 @@ class GenericBioBertNeMo1LightningModuleConnector(
     def convert_state(self, source: Dict[str, torch.Tensor], target: BioBertLightningModule) -> BioBertLightningModule:
         """Convert the input state_dict keys from nemo1 biobert to nemo2 biobert."""
         te_mapping = self.is_te_mapping(target)  # check for TE layers.
-        # target.module.cpu()
         new_state_dict_from_old = {}
         for k, v in source.items():
             new_key = nemo1_to_nemo2_biobert_key_mapping(k, new_model_prefix="", te_mapping=te_mapping)
@@ -92,7 +91,12 @@ class GenericBioBertNeMo1LightningModuleConnector(
         for k, v in new_state_dict_from_old.items():
             if v.device == torch.device("meta"):
                 raise ValueError(v)
-        target.module.load_state_dict(new_state_dict_from_old, strict=not te_mapping, assign=True)
+        result = target.module.load_state_dict(new_state_dict_from_old, strict=not te_mapping, assign=True)
+        if te_mapping:
+            # Custom alternative to strict here, allow _extra_state keys but otherwise
+            #  there are problems
+            if result.unexpected_keys != [] or (result.missing_keys != [] and any(["._extra_state" not in k for k in result.missing_keys])):
+                raise ValueError(f"There are mismatches other than _extra_state in loading: {result}")
         meta_tensors_keys = [
             k
             for (k, t) in target.module.state_dict().items()
