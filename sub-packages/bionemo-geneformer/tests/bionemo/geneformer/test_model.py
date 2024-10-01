@@ -171,7 +171,7 @@ def geneformer_config():
 
 
 @pytest.mark.skipif(not torch.cuda.is_available(), reason="Need cuda to run this test.")
-@pytest.mark.skip(reason="This test only works when executed by itself")
+@pytest.mark.skip(reason="This test only works when executed by itself. FIXME issue #226.")
 def test_nemo1_checkpoint_conversion(
     tmpdir: Path, geneformer_config: GeneformerConfig, cells: List[List[str]], seed: int = 42
 ):

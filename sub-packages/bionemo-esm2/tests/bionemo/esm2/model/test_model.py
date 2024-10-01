@@ -132,7 +132,7 @@ def _compute_loss(model, dataloader, vocab_size=None):
 
 
 @pytest.mark.skipif(not torch.cuda.is_available(), reason="Need a cuda device to run this")
-@pytest.mark.skip(reason="This test only works when executed by itself")
+@pytest.mark.skip(reason="This test only works when executed by itself. FIXME issue #226")
 def test_nemo1_checkpoint_conversion(
     tmpdir: Path,
     esm2_650M_config_w_ckpt,
