@@ -130,7 +130,9 @@ def _compute_loss(model, dataloader, vocab_size=None):
     mean_loss: Tensor = loss / n
     return mean_loss
 
-@pytest.mark.needs_gpu
+
+@pytest.mark.skipif(not torch.cuda.is_available(), reason="Need a cuda device to run this")
+@pytest.mark.skip(reason="This test only works when executed by itself")
 def test_nemo1_checkpoint_conversion(
     tmpdir: Path,
     esm2_650M_config_w_ckpt,
@@ -149,19 +151,19 @@ def test_nemo1_checkpoint_conversion(
         tokenizer = converter.tokenizer
         assert isinstance(tokenizer, BioNeMoESMTokenizer)
         # NOTE: uncomment the following block if you want to debug differences in the two configs.
-        #from bionemo.testing.utils import compare_dataclasses
-        #diffs = compare_dataclasses(converter.config, esm2_650M_config_w_ckpt)
-        #skip_fields = {"nemo1_ckpt_path", "return_only_hidden_states", "init_method", "output_layer_init_method"}
-        #filt = [d for d in diffs if d["field"] not in skip_fields]
-        #assert filt == []
+        # from bionemo.testing.utils import compare_dataclasses
+        # diffs = compare_dataclasses(converter.config, esm2_650M_config_w_ckpt)
+        # skip_fields = {"nemo1_ckpt_path", "return_only_hidden_states", "init_method", "output_layer_init_method"}
+        # filt = [d for d in diffs if d["field"] not in skip_fields]
+        # assert filt == []
         out_config = tmpdir / "out_config"
         converter.apply(out_config)  # currently crashes in here during self.nemo_save(out_path, trainer)
         # FIXME: why does the loaded state `ctx.model.config` start off with pipeline_dtype=None?
         #  maybe this happens when it does not need to be set during the first config being built.
-        #ctx = nio.load_context(out_config / 'context')
-        #diffs2 = compare_dataclasses(converter.config, ctx.model.config)
-        #assert diffs2 == []
-        #assert filt == []
+        # ctx = nio.load_context(out_config / 'context')
+        # diffs2 = compare_dataclasses(converter.config, ctx.model.config)
+        # assert diffs2 == []
+        # assert filt == []
     # since converter.apply(...) launches a new trainer which messes with global state, make sure we do the model
     #  evaluation in a fresh megatron context.
     with (
@@ -219,7 +221,9 @@ def test_nemo1_checkpoint_conversion(
 
 
 def test_esm2_650m_checkpoint(esm2_config):
-    with megatron_parallel_state_utils.distributed_model_parallel_state(), tarfile.open(nemo1_checkpoint_path, "r") as ckpt, torch.no_grad():
+    with megatron_parallel_state_utils.distributed_model_parallel_state(), tarfile.open(
+        nemo1_checkpoint_path, "r"
+    ) as ckpt, torch.no_grad():
         tokenizer = get_tokenizer()
         esm2_model = esm2_config.configure_model(tokenizer)
 

@@ -95,7 +95,9 @@ class GenericBioBertNeMo1LightningModuleConnector(
         if te_mapping:
             # Custom alternative to strict here, allow _extra_state keys but otherwise
             #  there are problems
-            if result.unexpected_keys != [] or (result.missing_keys != [] and any(["._extra_state" not in k for k in result.missing_keys])):
+            if result.unexpected_keys != [] or (
+                result.missing_keys != [] and any("._extra_state" not in k for k in result.missing_keys)
+            ):
                 raise ValueError(f"There are mismatches other than _extra_state in loading: {result}")
         meta_tensors_keys = [
             k

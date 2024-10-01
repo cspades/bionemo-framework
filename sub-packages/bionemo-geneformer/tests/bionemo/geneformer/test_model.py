@@ -119,7 +119,8 @@ CELLS_FOR_TEST: List[List[str]] = [
 
 MODEL_PRECISION: str = "bf16-mixed"
 USE_TE: bool = True  # TODO use this for high level decisions around whether we're ready to switch to TE
-TARGET_MEAN_LOSS:float = 2.368649959564209
+TARGET_MEAN_LOSS: float = 2.368649959564209
+
 
 @pytest.fixture()
 def cells() -> List[List[str]]:
@@ -168,7 +169,9 @@ def geneformer_config():
         return_only_hidden_states=True,  # This is what we did in nemo1 for inference
     )
 
-@pytest.mark.needs_gpu
+
+@pytest.mark.skipif(not torch.cuda.is_available(), reason="Need cuda to run this test.")
+@pytest.mark.skip(reason="This test only works when executed by itself")
 def test_nemo1_checkpoint_conversion(
     tmpdir: Path, geneformer_config: GeneformerConfig, cells: List[List[str]], seed: int = 42
 ):
@@ -459,6 +462,7 @@ def test_geneformer_nemo1_v_nemo2_inference_golden_values(
         mask=expected_vals["expected_pad_masks"],
         min_correlation=0.9999,
     )
+
 
 @pytest.mark.skipif(USE_TE, reason="This per-layer test does not yet support TE mapping.")
 def test_geneformer_inference_nemo1_v_nemo2_golden_values_by_layer(
