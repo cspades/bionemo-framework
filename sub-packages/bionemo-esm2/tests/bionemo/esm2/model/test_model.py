@@ -17,13 +17,17 @@ import gc
 import io
 import tarfile
 from copy import deepcopy
+from dataclasses import fields
 from pathlib import Path
 from typing import List, Tuple
 from unittest import mock
 
 import pytest
 import torch
+import torch.utils
+import torch.utils.data
 from nemo.collections.common.tokenizers.huggingface.auto_tokenizer import AutoTokenizer
+from nemo.lightning import io as nio
 from torch import Tensor
 from transformers import EsmForMaskedLM
 
@@ -31,13 +35,16 @@ from bionemo.core.utils.dtypes import get_autocast_dtype
 from bionemo.core.utils.random_utils import random_numpy_context
 from bionemo.esm2.api import ESM2Config, ESM2Model
 from bionemo.esm2.data.datamodule import ESMDataModule
-from bionemo.esm2.data.tokenizer import get_tokenizer
+from bionemo.esm2.data.tokenizer import BioNeMoESMTokenizer, get_tokenizer
 from bionemo.esm2.model.embedding import ESM2Embedding
+from bionemo.esm2.model.model import ESM2NeMo1LightningModuleConnector
 from bionemo.llm.model.biobert.model import MegatronBioBertModel
 from bionemo.llm.utils.weight_utils import nemo1_to_nemo2_biobert_key_mapping
 from bionemo.testing import megatron_parallel_state_utils
 from bionemo.testing.data.load import load
 
+
+SEED: int = 42
 
 nemo1_checkpoint_path: Path = load("esm2/nv_650m:1.0")
 
@@ -65,19 +72,19 @@ def reduce_hiddens(hiddens: Tensor, attention_mask: Tensor) -> Tensor:
 
 @pytest.fixture(scope="module")
 def esm2_config() -> ESM2Config:
-    with megatron_parallel_state_utils.distributed_model_parallel_state():
+    with megatron_parallel_state_utils.distributed_model_parallel_state(SEED):
         yield ESM2Config()
 
 
 @pytest.fixture(scope="module")
 def esm2_650M_config_w_ckpt() -> ESM2Config:
-    with megatron_parallel_state_utils.distributed_model_parallel_state():
+    with megatron_parallel_state_utils.distributed_model_parallel_state(SEED):
         yield ESM2Config(nemo1_ckpt_path=nemo1_checkpoint_path)
 
 
 @pytest.fixture(scope="module")
 def esm2_model(esm2_config) -> ESM2Model:
-    with megatron_parallel_state_utils.distributed_model_parallel_state():
+    with megatron_parallel_state_utils.distributed_model_parallel_state(SEED):
         tokenizer = get_tokenizer()
         model = esm2_config.configure_model(tokenizer)
         yield model
@@ -274,5 +281,79 @@ def test_esm2_loss(esm2_650M_config_w_ckpt, dummy_protein_dataset, dummy_parquet
             print(f"hf_mean_loss: {hf_mean_loss}")
         else:
             hf_mean_loss = torch.tensor(2.9279041290283203).cuda()
+
+        torch.testing.assert_close(mean_loss, hf_mean_loss, atol=1e-4, rtol=0.0)
+
+
+def compare_dataclasses(left, right):
+    differences = []
+    for field in fields(left):
+        field_name = field.name
+        left_value = getattr(left, field_name)
+        right_value = getattr(right, field_name)
+        if left_value != right_value:
+            differences.append({"field": field_name, "left_value": left_value, "right_value": right_value})
+    return differences
+
+
+@pytest.mark.needs_gpu
+def test_nemo1_checkpoint_conversion(
+    tmpdir: Path,
+    esm2_config,
+    esm2_650M_config_w_ckpt,
+    dummy_protein_dataset,
+    dummy_parquet_train_val_inputs,
+    seed: int = 42,
+):
+    train_cluster_path, valid_cluster_path = dummy_parquet_train_val_inputs
+    with megatron_parallel_state_utils.distributed_model_parallel_state(SEED):
+        nemo1_checkpoint_path = esm2_650M_config_w_ckpt.nemo1_ckpt_path
+        converter = ESM2NeMo1LightningModuleConnector(nemo1_checkpoint_path)
+        tokenizer = converter.tokenizer
+        assert isinstance(tokenizer, BioNeMoESMTokenizer)
+        # diffs = compare_dataclasses(converter.config, esm2_config)
+        # skip_fields = {"nemo1_ckpt_path", "return_only_hidden_states", "init_method", "output_layer_init_method"}
+        # filt = [d for d in diffs if d["field"] not in skip_fields]
+        # assert filt == []
+        out_config = tmpdir / "out_config"
+        converter.apply(out_config)  # currently crashes in here during self.nemo_save(out_path, trainer)
+        assert nio.is_distributed_ckpt(out_config / "weights")
+        esm2_config_logit = deepcopy(esm2_config)
+        # Set up the model to return logits and switch to the released 10M checkpoint
+        esm2_config_logit.set_hparam("return_only_hidden_states", False)  # return logits
+        esm2_config_logit.set_hparam("initial_ckpt_path", str(out_config))  # release checkpoint is important
+
+        model = esm2_config_logit.configure_model(tokenizer).cuda()
+
+        # Initialize the data module.
+        data_module = ESMDataModule(
+            train_cluster_path=train_cluster_path,
+            train_database_path=dummy_protein_dataset,
+            valid_cluster_path=valid_cluster_path,
+            valid_database_path=dummy_protein_dataset,
+            global_batch_size=4,
+            micro_batch_size=2,
+            min_seq_length=None,
+            max_seq_length=1024,
+            seed=seed,
+        )
+        assert data_module is not None
+        data_module.trainer = mock.Mock()
+        data_module.trainer.max_epochs = 1
+        data_module.trainer.max_steps = 10
+        data_module.trainer.val_check_interval = 2
+        data_module.trainer.limit_val_batches = 1
+
+        data_module.setup()
+
+        train_dataloader = data_module.train_dataloader()
+        assert isinstance(train_dataloader, torch.utils.data.DataLoader)
+
+        val_dataloader = data_module.val_dataloader()
+        assert isinstance(val_dataloader, torch.utils.data.DataLoader)
+
+        mean_loss = _compute_loss(model, train_dataloader, vocab_size=tokenizer.vocab_size)
+
+        hf_mean_loss = torch.tensor(2.9279041290283203).cuda()
 
         torch.testing.assert_close(mean_loss, hf_mean_loss, atol=1e-4, rtol=0.0)

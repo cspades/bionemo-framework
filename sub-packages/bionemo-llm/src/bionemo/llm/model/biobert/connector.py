@@ -121,12 +121,8 @@ class GenericBioBertNeMo1LightningModuleConnector(
                 raise ValueError("Config cannot be None in nemo1 checkpoint")
             return yaml.safe_load(config_yaml.read())
 
-    @property
-    def config(self) -> BioBertGenericConfig[MegatronBioBertModelT]:
-        """Convert and return the nemo2 config from the nemo1 config."""
-        nemo1_settings = self.get_nemo1_config()
-        cfg_class = self.get_config_class()
-        autocast_dtype = get_autocast_dtype(nemo1_settings["precision"])
+    def get_config_overrides(self, autocast_dtype: torch.dtype) -> Dict[str, Any]:
+        """Override this method in your child class if you need alternative overrides."""
         overrides = {
             "params_dtype": autocast_dtype,
             "pipeline_dtype": autocast_dtype,
@@ -140,6 +136,15 @@ class GenericBioBertNeMo1LightningModuleConnector(
             "fp16": autocast_dtype == torch.float16,
             "bf16": autocast_dtype == torch.bfloat16,
         }
+        return overrides
+
+    @property
+    def config(self) -> BioBertGenericConfig[MegatronBioBertModelT]:
+        """Convert and return the nemo2 config from the nemo1 config."""
+        nemo1_settings = self.get_nemo1_config()
+        cfg_class = self.get_config_class()
+        autocast_dtype = get_autocast_dtype(nemo1_settings["precision"])
+        overrides = self.get_config_overrides(autocast_dtype)
         output = cfg_class(
             **overrides,
             **{k: v for k, v in nemo1_settings.items() if k in dir(cfg_class) and k not in overrides},
