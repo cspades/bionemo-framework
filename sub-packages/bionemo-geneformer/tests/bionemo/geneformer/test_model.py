@@ -119,7 +119,7 @@ CELLS_FOR_TEST: List[List[str]] = [
 
 MODEL_PRECISION: str = "bf16-mixed"
 USE_TE: bool = True  # TODO use this for high level decisions around whether we're ready to switch to TE
-
+TARGET_MEAN_LOSS:float = 2.368649959564209
 
 @pytest.fixture()
 def cells() -> List[List[str]]:
@@ -167,6 +167,28 @@ def geneformer_config():
         nemo1_ckpt_path=str(nemo1_checkpoint_path),
         return_only_hidden_states=True,  # This is what we did in nemo1 for inference
     )
+
+@pytest.mark.needs_gpu
+def test_nemo1_checkpoint_conversion(
+    tmpdir: Path, geneformer_config: GeneformerConfig, cells: List[List[str]], seed: int = 42
+):
+    with megatron_parallel_state_utils.distributed_model_parallel_state(32):
+        converter = GeneformerNeMo1LightningModuleConnector(nemo1_release_checkpoint_path)
+        assert isinstance(converter.tokenizer, GeneTokenizer)
+        diffs = compare_dataclasses(converter.config, geneformer_config)
+        skip_fields = {"nemo1_ckpt_path", "return_only_hidden_states", "init_method", "output_layer_init_method"}
+        filt = [d for d in diffs if d["field"] not in skip_fields]
+        assert filt == []
+        out_config = tmpdir / "out_config"
+        converter.apply(out_config)  # currently crashes in here during self.nemo_save(out_path, trainer)
+        assert io.is_distributed_ckpt(out_config / "weights")
+        geneformer_config_logit = deepcopy(geneformer_config)
+        # Set up the model to return logits and switch to the released 10M checkpoint
+        geneformer_config_logit.set_hparam("return_only_hidden_states", False)  # return logits
+        geneformer_config_logit.set_hparam("initial_ckpt_path", str(out_config))  # release checkpoint is important
+
+        mean_loss = _get_loss_from_model(geneformer_config_logit, seed)
+        assert mean_loss < TARGET_MEAN_LOSS or mean_loss == pytest.approx(TARGET_MEAN_LOSS, abs=1e-2, rel=None)
 
 
 def test_nemo1_nemo2_weight_shapes_match(geneformer_config, seed: int = 42):
@@ -437,31 +459,6 @@ def test_geneformer_nemo1_v_nemo2_inference_golden_values(
         mask=expected_vals["expected_pad_masks"],
         min_correlation=0.9999,
     )
-
-
-@pytest.mark.needs_gpu
-def test_nemo1_checkpoint_conversion(
-    tmpdir: Path, geneformer_config: GeneformerConfig, cells: List[List[str]], seed: int = 42
-):
-    with megatron_parallel_state_utils.distributed_model_parallel_state(32):
-        converter = GeneformerNeMo1LightningModuleConnector(nemo1_release_checkpoint_path)
-        assert isinstance(converter.tokenizer, GeneTokenizer)
-        diffs = compare_dataclasses(converter.config, geneformer_config)
-        skip_fields = {"nemo1_ckpt_path", "return_only_hidden_states", "init_method", "output_layer_init_method"}
-        filt = [d for d in diffs if d["field"] not in skip_fields]
-        assert filt == []
-        out_config = tmpdir / "out_config"
-        converter.apply(out_config)  # currently crashes in here during self.nemo_save(out_path, trainer)
-        assert io.is_distributed_ckpt(out_config / "weights")
-        geneformer_config_logit = deepcopy(geneformer_config)
-        # Set up the model to return logits and switch to the released 10M checkpoint
-        geneformer_config_logit.set_hparam("return_only_hidden_states", False)  # return logits
-        geneformer_config_logit.set_hparam("initial_ckpt_path", str(out_config))  # release checkpoint is important
-
-        mean_loss = _get_loss_from_model(geneformer_config_logit, seed)
-        target: float = 2.368649959564209
-        assert mean_loss < target or mean_loss == pytest.approx(target, abs=1e-2, rel=None)
-
 
 @pytest.mark.skipif(USE_TE, reason="This per-layer test does not yet support TE mapping.")
 def test_geneformer_inference_nemo1_v_nemo2_golden_values_by_layer(
@@ -768,8 +765,7 @@ def test_inference_loss_10m_released_checkpoint(geneformer_config: GeneformerCon
     #  the target is defined as described above for the 10M checkpoint based on our first pass
     #  of the megatron implementation. Since we manually passed experiment 1 this experiment
     #  will define our initial "golden value" test target.
-    target: float = 2.368649959564209
-    assert mean_loss < target or mean_loss == pytest.approx(target, abs=1e-2, rel=None)
+    assert mean_loss < TARGET_MEAN_LOSS or mean_loss == pytest.approx(TARGET_MEAN_LOSS, abs=1e-2, rel=None)
 
 
 def test_inference_loss_10m_released_checkpoint_wrong_activation(geneformer_config: GeneformerConfig, seed: int = 42):
