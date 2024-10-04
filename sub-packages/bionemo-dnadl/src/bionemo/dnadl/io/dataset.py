@@ -27,7 +27,7 @@
 import os
 from abc import ABC
 from pathlib import Path
-from typing import Any, Callable, Optional, List
+from typing import Any, Callable, List, Optional
 
 import polars as pl
 import pysam
@@ -37,7 +37,7 @@ from torch.utils.data import Dataset
 
 from bionemo.dnadl.tools.genome_editing import create_personal_sequence
 from bionemo.dnadl.tools.genome_interval import GenomeInterval
-from bionemo.dnadl.tools.vcf import read_variants_in_interval, SampleId
+from bionemo.dnadl.tools.vcf import SampleId, read_variants_in_interval
 
 
 DNATokenizer = Callable[[str], torch.Tensor]
@@ -112,9 +112,8 @@ class GenomeIntervalDataset(GenomeDataset):
 
         Args:
             genome: Genome object
-            bed_file_df: A bed file in the form of a polars DataFrame
+            bed_file_df: A bed file in the form of a polars DataFrame with chrom, start, and end columns at least
             context_length: Size of the window
-            filter_df_fn: Function that allows for filtering lines in the bed file
             chr_bed_to_fasta_map: Mapping between chromosome names in the bed file and the fasta file
             **kwargs: Additional arguments
         """
@@ -152,7 +151,11 @@ class VCFDataset(GenomeDataset):
     """Dataset that creates sequences based on a VCF. It needs a genome and a bed file to specify the windows."""
 
     def __init__(
-        self, vcf_file: str | Path, genome_interval_dataset: GenomeIntervalDataset, sample_ids: Optional[List[SampleId]]=None, **kwargs: Any
+        self,
+        vcf_file: str | Path,
+        genome_interval_dataset: GenomeIntervalDataset,
+        sample_ids: Optional[List[SampleId]] = None,
+        **kwargs: Any,
     ):
         """Initialize the class."""
         super().__init__(**kwargs)
