@@ -24,8 +24,10 @@
 # without an express license agreement from NVIDIA CORPORATION or
 # its affiliates is strictly prohibited.
 
+import os
 from abc import ABC
 from pathlib import Path
+from typing import Any, Callable
 
 import polars as pl
 import pysam
@@ -38,73 +40,89 @@ from bionemo.dnadl.tools.genome_interval import GenomeInterval
 from bionemo.dnadl.tools.vcf import read_variants_in_interval
 
 
-class DNATokenizer(ABC):
-    """Abstract class for DNA tokenizers."""
-
-    def __call__(self, seq: str) -> torch.tensor:
-        """Tokenize a DNA sequence."""
-        ...
+DNATokenizer = Callable[[str], torch.Tensor]
 
 
 class Genome:
     """Class that creates a genome object from a fasta file. It can be used to extract sequences from the genome."""
 
-    def __init__(self, fasta_file: str):
+    def __init__(self, fasta_file: str | os.PathLike):
         """Instantiate the class."""
         fasta_file = Path(fasta_file)
         assert fasta_file.exists(), "path to fasta file must exist"
         self.seqs = Fasta(str(fasta_file))
 
-    def _adjust_interval(self, interval: GenomeInterval, context_length: int) -> GenomeInterval:
+    def adjust_interval(self, interval: GenomeInterval, context_length: int) -> GenomeInterval:
         """Used to extend an interval by a fixed amount on both sides."""
         start, end = interval.start, interval.end
         interval_length = interval.end - interval.start
         chromosome_length = len(self.seqs[interval.chromosome])
-        if interval_length < context_length:
-            extra_seq = context_length - interval_length
-            extra_left_seq = extra_seq // 2
-            extra_right_seq = extra_seq - extra_left_seq
+        if interval_length >= context_length:
+            return interval
 
-            start -= extra_left_seq
-            end += extra_right_seq
+        extra_seq = context_length - interval_length
+        extra_left_seq = extra_seq // 2
+        extra_right_seq = extra_seq - extra_left_seq
 
-            if start <= 0:
-                start = 1
+        start -= extra_left_seq
+        end += extra_right_seq
 
-            if end > chromosome_length:
-                end = chromosome_length
+        if start <= 0:
+            start = 1
 
-            return GenomeInterval(interval.chromosome, start, end)
-        return interval
+        if end > chromosome_length:
+            end = chromosome_length
 
-    def __call__(
-        self,
-        genome_interval: GenomeInterval,
-    ) -> str:
+        return GenomeInterval(interval.chromosome, start, end)
+
+    def extract_sequence(self, genome_interval: GenomeInterval) -> str:
         """Extract a sequence from the genome."""
         return str(self.seqs[genome_interval.chromosome][genome_interval.start : genome_interval.end])
 
 
-class GenomeIntervalDataset(Dataset):
+class GenomeDataset(Dataset, ABC):
+    """Abstract class for datasets that return a DNA sequence."""
+
+    def __init__(self, tokenizer: DNATokenizer):
+        """Instantiate the class."""
+        self.tokenizer = tokenizer
+
+    def __getitem__(self, ind: int) -> torch.tensor:
+        """Get an item from the dataset."""
+        sequence = self.get_dna_sequence(ind)
+        return self.tokenizer(sequence)
+
+    def get_dna_sequence(self, ind: int) -> str:
+        """Get the DNA sequence."""
+        ...
+
+
+class GenomeIntervalDataset(GenomeDataset):
     """Datasets that extract sequences from a genome based on a bed file."""
 
     def __init__(
         self,
         genome: Genome,
-        tokenizer: DNATokenizer,
-        bed_file: Path,
+        bed_file_df: pl.DataFrame,
         context_length: int | None = None,
-        filter_df_fn=lambda x: x,
         chr_bed_to_fasta_map: dict = {},
+        **kwargs: Any,
     ):
-        """Instantiate the class."""
-        super().__init__()
-        bed_path = Path(bed_file)
-        assert bed_path.exists(), "path to .bed file must exist"
+        """Instantiate the class.
 
-        df = pl.read_csv(str(bed_path), separator=" ", has_header=False)
-        df = filter_df_fn(df)
-        self.df = df
+        Args:
+            genome: Genome object
+            bed_file_df: A bed file in the form of a polars DataFrame
+            context_length: Size of the window
+            filter_df_fn: Function that allows for filtering lines in the bed file
+            chr_bed_to_fasta_map: Mapping between chromosome names in the bed file and the fasta file
+            **kwargs: Additional arguments
+        """
+        super().__init__(**kwargs)
+        assert {"chrom", "start", "end"}.issubset(
+            bed_file_df.columns
+        ), "bed file df must contain columns ['chrom', 'start', 'end']"
+        self.bed_file_df = bed_file_df
 
         # if the chromosome name in the bed file is different than the keyname in the fasta
         # can remap on the fly
@@ -112,36 +130,33 @@ class GenomeIntervalDataset(Dataset):
         self.context_length = context_length
         self.genome = genome
 
-    def __len__(self):
+    def __len__(self) -> int:
         """Return the length of the dataset."""
-        return len(self.df)
+        return len(self.bed_file_df)
 
-    def _get_interval(self, ind: int) -> GenomeInterval:
+    def get_interval(self, ind: int) -> GenomeInterval:
         """Get the interval from the bed file."""
-        chrom = self.chr_bed_to_fasta_map.get(self.df.row(ind)[0], self.df.row(ind)[0])
-        genome_interval = GenomeInterval(chrom, self.df.row(ind)[1], self.df.row(ind)[2])
+        chrom = self.chr_bed_to_fasta_map.get(self.bed_file_df["chrom"][ind], self.bed_file_df["chrom"][ind])
+        genome_interval = GenomeInterval(chrom, self.bed_file_df["start"][ind], self.bed_file_df["end"][ind])
         if self.context_length is not None:
-            genome_interval = self.genome._adjust_interval(genome_interval, self.context_length)
+            return self.genome.adjust_interval(genome_interval, self.context_length)
         return genome_interval
 
-    def _get_dna_sequence(self, ind: int) -> str:
+    def get_dna_sequence(self, ind: int) -> str:
         """Get the DNA sequence from the genome."""
-        genome_interval = self._get_interval(ind)
-        return self.genome(genome_interval)
-
-    def __getitem__(self, ind: int) -> torch.tensor:
-        """Get an item from the dataset."""
-        sequence = self._get_dna_sequence(ind)
-        return self.tokenizer(sequence)
+        genome_interval = self.get_interval(ind)
+        return self.genome.extract_sequence(genome_interval)
 
 
-class VCFDataset(GenomeIntervalDataset):
+class VCFDataset(GenomeDataset):
     """Dataset that creates sequences based on a VCF. It needs a genome and a bed file to specify the windows."""
 
-    def __init__(self, vcf_file: str, sample_ids=None, **kwargs):
+    def __init__(
+        self, vcf_file: str | Path, genome_interval_dataset: GenomeIntervalDataset, sample_ids=None, **kwargs: Any
+    ):
         """Initialize the class."""
         super().__init__(**kwargs)
-
+        self.genome_interval_dataset = genome_interval_dataset
         self.vcf_file = Path(vcf_file)
         assert self.vcf_file.exists(), "path to VCF file must exist"
 
@@ -156,15 +171,15 @@ class VCFDataset(GenomeIntervalDataset):
 
     def __len__(self) -> int:
         """Return the length of the dataset."""
-        return super().__len__() * len(self.sample_ids)
+        return len(self.genome_interval_dataset) * len(self.sample_ids)
 
-    def _get_dna_sequence(self, ind: int) -> str:
+    def get_dna_sequence(self, ind: int) -> str:
         """Get an item from the dataset."""
         interval_index = ind // len(self.sample_ids)
         sample_index = ind % len(self.sample_ids)
 
-        ref_sequence = super()._get_dna_sequence(interval_index)
-        interval = super()._get_interval(interval_index)
+        ref_sequence = self.genome_interval_dataset.get_dna_sequence(interval_index)
+        interval = self.genome_interval_dataset.get_interval(interval_index)
         sample_variants = read_variants_in_interval(interval, self.vcf_file, self.sample_ids)[
             self.sample_ids[sample_index]
         ]

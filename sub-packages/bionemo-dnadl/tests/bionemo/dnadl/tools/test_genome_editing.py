@@ -14,14 +14,15 @@
 # limitations under the License.
 
 
-from bionemo.dnadl.tools.genome_editing import _mutate
+import pandas as pd
+
+from bionemo.dnadl.tools.genome_editing import create_personal_sequence
 from bionemo.dnadl.tools.genome_interval import GenomeInterval
 
 
 def test_mutate():
     sequence = "AAAAAAAAAAAAAAAAAAAA"
     interval = GenomeInterval("chr1", 1, 10)
-    alternate = "G"
-    reference = "A"
-    position = 5
-    assert _mutate(sequence, interval, alternate, reference, position) == "AAAGAAAAAAAAAAAAAAAA"
+    variants_df = pd.DataFrame([{"POS": 5, "REF": "A", "ALT": "G"}, {"POS": 2, "REF": "AA", "ALT": "TC"}])
+
+    assert create_personal_sequence(sequence, interval, variants_df) == "TCAGAAAAAAAAAAAAAAAA"

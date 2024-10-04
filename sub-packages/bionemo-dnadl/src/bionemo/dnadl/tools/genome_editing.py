@@ -22,8 +22,8 @@ from bionemo.dnadl.tools.genome_interval import GenomeInterval
 def create_personal_sequence(ref_sequence: str, interval: GenomeInterval, variants: pd.DataFrame) -> str:
     """Create a personal sequence by introducing mutations in the reference sequence."""
     personal_sequence = ref_sequence
-    for i, row in variants.iterrows():
-        personal_sequence = _mutate(personal_sequence, interval, row["ALT"], row["REF"], row["POS"])
+    for row in variants.itertuples():
+        personal_sequence = _mutate(personal_sequence, interval, row.ALT, row.REF, row.POS)
 
     return personal_sequence
 
