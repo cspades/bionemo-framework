@@ -210,7 +210,7 @@ def print_resources():
         print(f"{resource_name}\t{','.join(sources)}")
 
 
-def entrypoint():
+def main_cli():
     """Allows a user to get a specific artifact from the command line."""
     parser = argparse.ArgumentParser(
         description="Retrieve the local path to the requested artifact name or list resources."
@@ -289,4 +289,4 @@ def entrypoint():
 
 
 if __name__ == "__main__":
-    entrypoint()
+    main_cli()
