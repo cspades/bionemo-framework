@@ -61,7 +61,7 @@ setup: check_preconditions
   @echo "Authenticating with NGC registry: nvcr.io"
   # WARNING! Do not show the user's ** PRIVATE API KEY ** on the CLI!
   # WARNING! Make sure the login command is prefixed with '@' -- this prevents `just` from echoing the command out!
-  @docker login nvcr.io --username '$oauthtoken' --password "${NGC_CLI_API_KEY}"
+  @docker login nvcr.io --username '$oauthtoken' --password ${NGC_CLI_API_KEY}
   @echo "Pulling updated cache..."
   docker pull ${IMAGE_REPO}:${CACHE_TAG} || true
 
