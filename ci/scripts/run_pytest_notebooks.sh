@@ -21,4 +21,4 @@ fi
 
 echo "Running pytest tests"
 
-pytest --nbval-lax docs/bionemo/notebooks/*former*.ipynb docs/bionemo/notebooks/*esm2*.ipynb
+pytest --nbval-lax $BIONEMO_HOME/docs/bionemo/notebooks/*former*.ipynb docs/bionemo/notebooks/*esm2*.ipynb
