@@ -19,6 +19,6 @@ if ! set_bionemo_home; then
     exit 1
 fi
 
-echo "Running pytest tests"
+echo "Running pytest notebook tests"
 
 pytest --nbval-lax $BIONEMO_HOME/docs/bionemo/notebooks/*former*.ipynb $BIONEMO_HOME/docs/bionemo/notebooks/*esm2*.ipynb
