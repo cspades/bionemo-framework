@@ -54,13 +54,13 @@ check_preconditions:
       exit 1
   fi
 
+# WARNING! Do not show the user's ** PRIVATE API KEY ** on the CLI!
+# WARNING! Make sure the login command is prefixed with '@' -- this prevents `just` from echoing the command out!
 
 # Checks for installed programs (docker, git, etc.), their versions, and grabs the latest cache image.
 setup: check_preconditions
   ./internal/scripts/setup_env_file.sh
   @echo "Authenticating with NGC registry: nvcr.io"
-  # WARNING! Do not show the user's ** PRIVATE API KEY ** on the CLI!
-  # WARNING! Make sure the login command is prefixed with '@' -- this prevents `just` from echoing the command out!
   @docker login nvcr.io --username '$oauthtoken' --password ${NGC_CLI_API_KEY}
   @echo "Pulling updated cache..."
   docker pull ${IMAGE_REPO}:${CACHE_TAG} || true

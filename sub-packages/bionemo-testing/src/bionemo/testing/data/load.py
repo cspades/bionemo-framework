@@ -13,7 +13,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-
+import argparse
 import contextlib
 import shutil
 import sys
@@ -197,8 +197,6 @@ def _get_processor(extension: str, unpack: bool | None, decompress: bool | None)
 
 def main_cli():
     """Allows a user to get a specific artifact from the command line."""
-    import argparse
-
     parser = argparse.ArgumentParser(
         description="Retrieve the local path to the requested artifact name or list resources."
     )
@@ -223,10 +221,17 @@ def main_cli():
         help='Backend to use, NVIDIA users should set this to "pbss".',
     )
 
+    parser.add_argument(
+        "--all",
+        action="store_true",
+        default=False,
+        help="Download all resources. Ignores all other options.",
+    )
+
     # Parse the command line arguments
     args = parser.parse_args()
 
-    if args.list_resources:
+    def print_resources():
         print("#resource_name\tsource_options")
         for resource_name, resource in sorted(get_all_resources().items()):
             sources = []
@@ -235,15 +240,24 @@ def main_cli():
             if resource.pbss is not None:
                 sources.append("pbss")
             print(f"{resource_name}\t{','.join(sources)}")
-        sys.exit(0)  # Successful exit
 
-    if args.artifact_name:
-        # Get the local path for the provided artifact name
-        local_path = load(args.artifact_name, source=args.source)
-        # Print the result
-        print(local_path)
+    if args.all:
+        print("Downloading all resources:")
+        print_resources()
+        print("-" * 80)
+
     else:
-        parser.error("You must provide an artifact name if --list-resources is not set.")
+        if args.list_resources:
+            print_resources()
+            sys.exit(0)  # Successful exit
+
+        if args.artifact_name:
+            # Get the local path for the provided artifact name
+            local_path = load(args.artifact_name, source=args.source)
+            # Print the result
+            print(local_path)
+        else:
+            parser.error("You must provide an artifact name if --list-resources is not set.")
 
 
 if __name__ == "__main__":
