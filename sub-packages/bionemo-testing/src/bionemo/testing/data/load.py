@@ -18,9 +18,10 @@ import contextlib
 import shutil
 import sys
 import tempfile
+import traceback
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Literal
+from typing import Literal, Optional, Sequence
 
 import boto3
 import ngcsdk
@@ -30,6 +31,9 @@ from tqdm import tqdm
 
 from bionemo.core import BIONEMO_CACHE_DIR
 from bionemo.testing.data.resource import Resource, get_all_resources
+
+
+__all__: Sequence[str] = ("load",)
 
 
 def default_pbss_client():
@@ -195,7 +199,19 @@ def _get_processor(extension: str, unpack: bool | None, decompress: bool | None)
         return None
 
 
-def main_cli():
+def print_resources():
+    """Prints all available downloadable resources & their sources to STDOUT."""
+    print("#resource_name\tsource_options")
+    for resource_name, resource in sorted(get_all_resources().items()):
+        sources = []
+        if resource.ngc is not None:
+            sources.append("ngc")
+        if resource.pbss is not None:
+            sources.append("pbss")
+        print(f"{resource_name}\t{','.join(sources)}")
+
+
+def entrypoint():
     """Allows a user to get a specific artifact from the command line."""
     parser = argparse.ArgumentParser(
         description="Retrieve the local path to the requested artifact name or list resources."
@@ -231,34 +247,58 @@ def main_cli():
     # Parse the command line arguments
     args = parser.parse_args()
 
-    def print_resources():
-        print("#resource_name\tsource_options")
-        for resource_name, resource in sorted(get_all_resources().items()):
-            sources = []
-            if resource.ngc is not None:
-                sources.append("ngc")
-            if resource.pbss is not None:
-                sources.append("pbss")
-            print(f"{resource_name}\t{','.join(sources)}")
+    try:
+        maybe_error_message = main_error_message(
+            download_all=args.all,
+            list_resources=args.list_resources,
+            artifact_name=args.artifact_name,
+            source=args.source,
+        )
+    except Exception as err:
+        traceback.print_exc()
+        maybe_error_message = f"Unexpected failure: ${err}"
 
-    if args.all:
+    if maybe_error_message is not None:
+        parser.error(maybe_error_message)
+    else:
+        sys.exit(0)  # Successful exit
+
+
+def main_error_message(
+    *, download_all: bool, list_resources: bool, artifact_name: Optional[str], source: str
+) -> Optional[str]:
+    """Runs main script logic. Returns a non-empty string containg an error message on failure."""
+    if download_all:
         print("Downloading all resources:")
         print_resources()
         print("-" * 80)
 
-    else:
-        if args.list_resources:
-            print_resources()
-            sys.exit(0)  # Successful exit
+        resource_to_local: dict[str, Path] = {}
+        for resource_name in tqdm(
+            sorted(get_all_resources()),
+            desc="Downloading Resources",
+        ):
+            local_path = load(artifact_name, source=source)
+            resource_to_local[resource_name] = local_path
 
-        if args.artifact_name:
+        print("-" * 80)
+        print("All resources downloaded:")
+        for resource_name, local_path in sorted(resource_to_local.items()):
+            print(f"  {resource_name}: {str(local_path.absolute())}")
+
+    else:
+        if list_resources:
+            print_resources()
+
+        elif artifact_name is not None:
             # Get the local path for the provided artifact name
-            local_path = load(args.artifact_name, source=args.source)
+            local_path = load(artifact_name, source=source)
             # Print the result
             print(local_path)
         else:
-            parser.error("You must provide an artifact name if --list-resources is not set.")
+            return "You must provide an artifact name if --list-resources is not set!"
+    return None
 
 
 if __name__ == "__main__":
-    main_cli()
+    entrypoint()
