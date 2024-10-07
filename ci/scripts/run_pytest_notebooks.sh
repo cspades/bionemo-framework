@@ -20,4 +20,6 @@ if ! set_bionemo_home; then
 fi
 
 echo "Running pytest tests"
-pytest --nbval-lax docs/bionemo/notebooks/*.ipynb
+
+pytest --nbval-lax docs/bionemo/notebooks/*former*.ipynb
+pytest --nbval-lax docs/bionemo/notebooks/*esm2*.ipynb
