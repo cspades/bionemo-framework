@@ -91,9 +91,9 @@ assert_clean_git_repo:
 
 ###############################################################################
 
-[private]
 # General image build command. Assumes executation @ repo. root and use with the Dockerfile's targets.
-build image_tag target skip_if_exists=false: setup assert_clean_git_repo
+[private]
+build image_tag target skip_if_exists='false': setup assert_clean_git_repo
   #!/usr/bin/env bash
 
   IMAGE_NAME="${IMAGE_REPO}:{{image_tag}}"
