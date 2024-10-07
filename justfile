@@ -58,6 +58,10 @@ check_preconditions:
 # Checks for installed programs (docker, git, etc.), their versions, and grabs the latest cache image.
 setup: check_preconditions
   ./internal/scripts/setup_env_file.sh
+  @echo "Authenticating with NGC registry: nvcr.io"
+  # WARNING! Do not show the user's ** PRIVATE API KEY ** on the CLI!
+  # WARNING! Make sure the login command is prefixed with '@' -- this prevents `just` from echoing the command out!
+  @docker login nvcr.io --username '$oauthtoken' --password "${NGC_CLI_API_KEY}"
   @echo "Pulling updated cache..."
   docker pull ${IMAGE_REPO}:${CACHE_TAG} || true
 
@@ -88,25 +92,35 @@ assert_clean_git_repo:
 ###############################################################################
 
 [private]
-build image_tag target: setup assert_clean_git_repo
-  DOCKER_BUILDKIT=1 docker buildx build \
-  -t ${IMAGE_REPO}:{{image_tag}} \
-  --target={{target}} \
-  --load \
-  --cache-to type=inline \
-  --cache-from ${IMAGE_REPO}:${CACHE_TAG} \
-  --label com.nvidia.bionemo.git_sha=${COMMIT} \
-  --label com.nvidia.bionemo.created_at=${DATE} \
-  -f ./Dockerfile \
-  .
+# General image build command. Assumes executation @ repo. root and use with the Dockerfile's targets.
+build image_tag target skip_if_exists=false: setup assert_clean_git_repo
+  #!/usr/bin/env bash
+
+  IMAGE_NAME="${IMAGE_REPO}:{{image_tag}}"
+  if [[ "{{skip_if_exists}}" == "true" && -z "$(docker images -q ${IMAGE_NAME} 2> /dev/null)" ]]; then
+    echo "Image already exists, skipping build for: ${IMAGE_NAME}"
+  else
+    set -euo pipefail
+    set -x
+    DOCKER_BUILDKIT=1 docker buildx build \
+      -t ${IMAGE_NAME} \
+      --target={{target}} \
+      --load \
+      --cache-to type=inline \
+      --cache-from ${IMAGE_REPO}:${CACHE_TAG} \
+      --label com.nvidia.bionemo.git_sha=${COMMIT} \
+      --label com.nvidia.bionemo.created_at=${DATE} \
+      -f ./Dockerfile \
+      .
+  fi
 
 # Builds the release image.
 build-release:
-  @just build ${IMAGE_TAG} release
+  @just build ${IMAGE_TAG} release skip_if_exists=true
 
 # Builds the development image.
 build-dev:
-  @just build ${DEV_IMAGE_TAG} development
+  @just build ${DEV_IMAGE_TAG} development skip_if_exists=true
 
 ###############################################################################
 
