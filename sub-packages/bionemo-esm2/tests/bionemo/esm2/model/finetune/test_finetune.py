@@ -36,7 +36,7 @@ from bionemo.testing import megatron_parallel_state_utils
 from bionemo.testing.callbacks import MetricTracker
 
 
-@pytest.fixture(scope="module")
+@pytest.fixture
 def esm2_2layer_config() -> Generator[ESM2Config, None, None]:
     with megatron_parallel_state_utils.distributed_model_parallel_state():
         yield ESM2Config(num_layers=3, hidden_size=128)
