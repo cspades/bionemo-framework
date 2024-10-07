@@ -18,10 +18,9 @@ import contextlib
 import shutil
 import sys
 import tempfile
-import traceback
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Literal, Optional, Sequence
+from typing import Literal, Sequence
 
 import boto3
 import ngcsdk
@@ -247,27 +246,12 @@ def entrypoint():
     # Parse the command line arguments
     args = parser.parse_args()
 
-    try:
-        maybe_error_message = main_error_message(
-            download_all=args.all,
-            list_resources=args.list_resources,
-            artifact_name=args.artifact_name,
-            source=args.source,
-        )
-    except Exception as err:
-        traceback.print_exc()
-        maybe_error_message = f"Unexpected failure: ${err}"
+    download_all = args.all
+    list_resources = args.list_resources
+    artifact_name = args.artifact_name
+    source = args.source
 
-    if maybe_error_message is not None:
-        parser.error(maybe_error_message)
-    else:
-        sys.exit(0)  # Successful exit
-
-
-def main_error_message(
-    *, download_all: bool, list_resources: bool, artifact_name: Optional[str], source: str
-) -> Optional[str]:
-    """Runs main script logic. Returns a non-empty string containg an error message on failure."""
+    # main script logic
     if download_all:
         print("Downloading all resources:")
         print_resources()
@@ -278,7 +262,7 @@ def main_error_message(
             sorted(get_all_resources()),
             desc="Downloading Resources",
         ):
-            local_path = load(artifact_name, source=source)
+            local_path = load(resource_name, source=source)
             resource_to_local[resource_name] = local_path
 
         print("-" * 80)
@@ -290,14 +274,18 @@ def main_error_message(
         if list_resources:
             print_resources()
 
-        elif artifact_name is not None:
+        elif artifact_name is not None and len(artifact_name) > 0:
             # Get the local path for the provided artifact name
             local_path = load(artifact_name, source=source)
             # Print the result
             print(local_path)
         else:
-            return "You must provide an artifact name if --list-resources is not set!"
-    return None
+            parser.error("You must provide an artifact name if --list-resources or --all is not set!")
+
+    # Any exceptions encountered above will cause the program to exist w/ a non-zero exit code.
+    # Additionally, the `parser.error` call will end the program with a non-zero exit code.
+
+    sys.exit(0)  # Successful exit
 
 
 if __name__ == "__main__":
