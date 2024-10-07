@@ -278,7 +278,7 @@ def main_cli():
             # Get the local path for the provided artifact name
             local_path = load(artifact_name, source=source)
             # Print the result
-            print(local_path)
+            print(str(local_path.absolute()))
         else:
             parser.error("You must provide an artifact name if --list-resources or --all is not set!")
 
