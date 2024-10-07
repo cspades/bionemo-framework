@@ -25,17 +25,23 @@ def _clear_cache(raise_on_cuda_tensor=False):
     torch.cuda.empty_cache()
 
     for obj in gc.get_objects():
+        cuda_objs = []
         try:
             if not isinstance(obj, torch.Tensor):
                 continue
             if not obj.is_cuda:
                 continue
-            obj_str = str(obj)
+            cuda_objs.append(str(obj))
             del obj
-            if raise_on_cuda_tensor:
-                raise AssertionError(f"Found a CUDA tensor in memory after test: {obj_str}")
+
         except ReferenceError:
             pass
+
+        if cuda_objs:
+            gc.collect()
+            torch.cuda.empty_cache()
+            if raise_on_cuda_tensor:
+                raise RuntimeError(f"Found {len(cuda_objs)} CUDA tensors after clearing the cache: {cuda_objs}")
 
 
 @pytest.fixture(scope="module", autouse=True)
