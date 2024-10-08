@@ -7,6 +7,8 @@ set dotenv-load
 set export
 
 # don't fail fast here --> the `setup` command will check this!
+LOCAL_REPO_PATH := `realpath $(pwd)`
+DOCKER_REPO_PATH := '/workspace/bionemo2'
 COMMIT := `git rev-parse HEAD || true`
 IMAGE_TAG := "bionemo2-" + COMMIT
 DEV_IMAGE_TAG := "dev-" + IMAGE_TAG
@@ -15,12 +17,8 @@ DATE := if os() == "macos" {
 } else if os_family() == "unix" {
   shell('date --iso-8601=seconds -u')
 } else {
-  error("Unrecognized operating system! os: {{os()}} | os_family:{{os_family()}}")
+  error("Unrecognized operating system! os: {{os()}} | os_family: {{os_family()}}")
 }
-
-LOCAL_ENV := '.env'
-DOCKER_REPO_PATH := '/workspace/bionemo2'
-LOCAL_REPO_PATH := `realpath $(pwd)`
 
 
 #
@@ -33,34 +31,68 @@ default:
 
 ###############################################################################
 
-# Prints criotical environment & justfile variables
+# Prints known in-use environment & justfile variables. Use to check what variable values are used.
 env:
-    @echo "COMMIT: {{COMMIT}}"
-    @echo "DATE:   {{DATE}}"
-    @echo "DATE:   {{DATE}}"
-    @echo "LOCAL_RESULTS_PATH: {{LOCAL_RESULTS_PATH}}"
-    @echo "DOCKER_RESULTS_PATH: {{DOCKER_RESULTS_PATH}}"
-    @echo "LOCAL_DATA_PATH: {{LOCAL_DATA_PATH}}"
-    @echo "DOCKER_DATA_PATH: {{DOCKER_DATA_PATH}}"
-    @echo "LOCAL_MODELS_PATH: {{LOCAL_MODELS_PATH}}"
-    @echo "DOCKER_MODELS_PATH: {{DOCKER_MODELS_PATH}}"
-    @display_wandb := if WANDB_API_KEY == "" { "ERROR: WANDB_API_KEY is not set !!!" } else { "*********" }
-    @echo "WANDB_API_KEY: {{display_wandb}}"
-    @echo "JUPYTER_PORT: {{JUPYTER_PORT}}"
-    @echo "REGISTRY: {{REGISTRY}}"
-    @echo "REGISTRY_USER: {{REGISTRY_USER}}"
-    @echo "DEV_CONT_NAME: {{DEV_CONT_NAME}}"
-    @display_ngc := if NGC_CLI_API_KEY == "" { "ERROR: NGC_CLI_API_KEY is not set !!!"  } else { "*********" }
-    @echo "NGC_CLI_API_KEY: {{display_ngc}}"
-    @echo "NGC_CLI_ORG: {{NGC_CLI_ORG}}"
-    @echo "NGC_CLI_TEAM: {{NGC_CLI_TEAM}}"
-    @echo "NGC_CLI_FORMAT_TYPE: {{NGC_CLI_FORMAT_TYPE}}"
-    @echo "AWS_ENDPOINT_URL: {{AWS_ENDPOINT_URL}}"
-    @display_aws_access := if AWS_ACCESS_KEY_ID == "" { "ERROR: AWS_ACCESS_KEY_ID is not set !!!" } else { "*********" }
-    @echo "AWS_ACCESS_KEY_ID: {{display_aws_access}}"
-    @display_aws_secret := if AWS_SECRET_ACCESS_KEY == "" { "ERROR: AWS_SECRET_ACCESS_KEY is not set !!!" } else { "*********" }
-    @echo "AWS_SECRET_ACCESS_KEY: {{display_aws_secret}}"
-    @echo "AWS_REGION: {{AWS_REGION}}"
+    #!/usr/bin/env bash
+
+    set -eo pipefail
+
+    # Hide sensitive information !!
+    #
+    # Do not display passwords, api keys, etc. Replace with '*' tokens.
+
+    # w&b
+    if [[ "${WANDB_API_KEY}" != "" && "${WANDB_API_KEY}" != "NotSpecified" ]]; then
+        display_wandb="************************************"
+    fi
+    # ngc
+    if [[ "${NGC_CLI_API_KEY}" != "" && "${NGC_CLI_API_KEY}" != "NotSpecified" ]]; then
+        display_ngc="************************************"
+    fi
+    # aws
+    if [[ "${AWS_ACCESS_KEY_ID}" != "" && "${AWS_ACCESS_KEY_ID}" != "NotSpecified" ]]; then
+        display_aws_access="************************************"
+    fi
+    if [[ "${AWS_SECRET_ACCESS_KEY}" != "" && "${AWS_SECRET_ACCESS_KEY}" != "NotSpecified" ]]; then
+        display_aws_secret="************************************"
+    fi
+
+    # Print out all of the known used environment variables.
+    # This is best-effort, but it is driven by looking at the:
+    #     - .env file
+    #     - variables defined in this justfile
+    #
+    # Any unset variable will display and error instead of an empty string.
+    #
+    # NOTE: this relies on `set dotenv-load` & `set export` being enabled in this justfile!
+
+    # from justfile
+    echo "COMMIT:                 ${COMMIT:=!! ERROR - not set !!}"
+    echo "DATE:                   ${DATE:=!! ERROR - not set !!}"
+    echo "IMAGE_TAG:              ${IMAGE_TAG:=!! ERROR - not set !!}"
+    echo "DEV_IMAGE_TAG:          ${DEV_IMAGE_TAG:=!! ERROR - not set !!}"
+    echo "LOCAL_REPO_PATH:        ${LOCAL_REPO_PATH:=!! ERROR - not set !!}"
+    echo "DOCKER_REPO_PATH:       ${DOCKER_REPO_PATH:=!! ERROR - not set !!}"
+    # from .env file
+    echo "LOCAL_RESULTS_PATH:     ${LOCAL_RESULTS_PATH:=!! ERROR - not set !!}"
+    echo "DOCKER_RESULTS_PATH:    ${DOCKER_RESULTS_PATH:=!! ERROR - not set !!}"
+    echo "LOCAL_DATA_PATH:        ${LOCAL_DATA_PATH:=!! ERROR - not set !!}"
+    echo "DOCKER_DATA_PATH:       ${DOCKER_DATA_PATH:=!! ERROR - not set !!}"
+    echo "LOCAL_MODELS_PATH:      ${LOCAL_MODELS_PATH:=!! ERROR - not set !!}"
+    echo "DOCKER_MODELS_PATH:     ${DOCKER_MODELS_PATH:=!! ERROR - not set !!}"
+    echo "WANDB_API_KEY:          ${display_wandb:=!! ERROR - not set !!}"
+    echo "JUPYTER_PORT:           ${JUPYTER_PORT:=!! ERROR - not set !!}"
+    echo "REGISTRY:               ${REGISTRY:=!! ERROR - not set !!}"
+    echo "REGISTRY_USER:          ${REGISTRY_USER:=!! ERROR - not set !!}"
+    echo "DEV_CONT_NAME:          ${DEV_CONT_NAME:=!! ERROR - not set !!}"
+    echo "NGC_CLI_API_KEY:        ${display_ngc:=!! ERROR - not set !!}"
+    echo "NGC_CLI_ORG:            ${NGC_CLI_ORG:=!! ERROR - not set !!}"
+    echo "NGC_CLI_TEAM:           ${NGC_CLI_TEAM:=!! ERROR - not set !!}"
+    echo "NGC_CLI_FORMAT_TYPE:    ${NGC_CLI_FORMAT_TYPE:=!! ERROR - not set !!}"
+    echo "AWS_ENDPOINT_URL:       ${AWS_ENDPOINT_URL:=!! ERROR - not set !!}"
+    echo "AWS_ACCESS_KEY_ID:      ${display_aws_access:=!! ERROR - not set !!}"
+    echo "AWS_SECRET_ACCESS_KEY:  ${display_aws_secret:=!! ERROR - not set !!}"
+    echo "AWS_REGION:             ${AWS_REGION:=!! ERROR - not set !!}"
 
 
 [private]
