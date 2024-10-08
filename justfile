@@ -145,8 +145,8 @@ run is_dev is_interactive image_tag cmd: setup
   -e TMPDIR=/tmp/ \
   -e NUMBA_CACHE_DIR=/tmp/ \
   -e BIONEMO_HOME=$DOCKER_REPO_PATH \
-  -e WANDB_API_KEY=$WANDB_API_KEY \
-  -e NGC_CLI_API_KEY=$NGC_CLI_API_KEY \
+  -e WANDB_API_KEY \
+  -e NGC_CLI_API_KEY \
   -e NGC_CLI_ORG=$NGC_CLI_ORG \
   -e NGC_CLI_TEAM=$NGC_CLI_TEAM \
   -e NGC_CLI_FORMAT_TYPE=$NGC_CLI_FORMAT_TYPE \
