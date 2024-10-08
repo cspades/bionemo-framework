@@ -10,16 +10,58 @@ set export
 COMMIT := `git rev-parse HEAD || true`
 IMAGE_TAG := "bionemo2-" + COMMIT
 DEV_IMAGE_TAG := "dev-" + IMAGE_TAG
-DATE := `date --iso-8601=seconds -u`
+DATE := if os() == "macos" {
+  shell('date -u +"%Y-%m-%dT%H:%M:%SZ"')
+} else if os_family() == "unix" {
+  shell('date --iso-8601=seconds -u')
+} else {
+  error("Unrecognized operating system! os: {{os()}} | os_family:{{os_family()}}")
+}
+
 LOCAL_ENV := '.env'
 DOCKER_REPO_PATH := '/workspace/bionemo2'
 LOCAL_REPO_PATH := `realpath $(pwd)`
+
+
+#
+# MAKE SURE default IS THE FIRST RECIPE
+#
 
 [private]
 default:
   @just --list
 
 ###############################################################################
+
+# Prints criotical environment & justfile variables
+env:
+    @echo "COMMIT: {{COMMIT}}"
+    @echo "DATE:   {{DATE}}"
+    @echo "DATE:   {{DATE}}"
+    @echo "LOCAL_RESULTS_PATH: {{LOCAL_RESULTS_PATH}}"
+    @echo "DOCKER_RESULTS_PATH: {{DOCKER_RESULTS_PATH}}"
+    @echo "LOCAL_DATA_PATH: {{LOCAL_DATA_PATH}}"
+    @echo "DOCKER_DATA_PATH: {{DOCKER_DATA_PATH}}"
+    @echo "LOCAL_MODELS_PATH: {{LOCAL_MODELS_PATH}}"
+    @echo "DOCKER_MODELS_PATH: {{DOCKER_MODELS_PATH}}"
+    @display_wandb := if WANDB_API_KEY == "" { "ERROR: WANDB_API_KEY is not set !!!" } else { "*********" }
+    @echo "WANDB_API_KEY: {{display_wandb}}"
+    @echo "JUPYTER_PORT: {{JUPYTER_PORT}}"
+    @echo "REGISTRY: {{REGISTRY}}"
+    @echo "REGISTRY_USER: {{REGISTRY_USER}}"
+    @echo "DEV_CONT_NAME: {{DEV_CONT_NAME}}"
+    @display_ngc := if NGC_CLI_API_KEY == "" { "ERROR: NGC_CLI_API_KEY is not set !!!"  } else { "*********" }
+    @echo "NGC_CLI_API_KEY: {{display_ngc}}"
+    @echo "NGC_CLI_ORG: {{NGC_CLI_ORG}}"
+    @echo "NGC_CLI_TEAM: {{NGC_CLI_TEAM}}"
+    @echo "NGC_CLI_FORMAT_TYPE: {{NGC_CLI_FORMAT_TYPE}}"
+    @echo "AWS_ENDPOINT_URL: {{AWS_ENDPOINT_URL}}"
+    @display_aws_access := if AWS_ACCESS_KEY_ID == "" { "ERROR: AWS_ACCESS_KEY_ID is not set !!!" } else { "*********" }
+    @echo "AWS_ACCESS_KEY_ID: {{display_aws_access}}"
+    @display_aws_secret := if AWS_SECRET_ACCESS_KEY == "" { "ERROR: AWS_SECRET_ACCESS_KEY is not set !!!" } else { "*********" }
+    @echo "AWS_SECRET_ACCESS_KEY: {{display_aws_secret}}"
+    @echo "AWS_REGION: {{AWS_REGION}}"
+
 
 [private]
 check_preconditions:
