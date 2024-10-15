@@ -135,7 +135,7 @@ check_preconditions:
 setup: check_preconditions
   ./internal/scripts/setup_env_file.sh
   @echo "Authenticating with NGC registry: nvcr.io"
-  @docker login nvcr.io --username '$oauthtoken' --password ${NGC_CLI_API_KEY}
+  @docker login nvcr.io --username '$oauthtoken' --password ${NGC_CLI_API_KEY} || docker login nvcr.io
   @echo "Pulling updated cache..."
   docker pull ${IMAGE_REPO}:${CACHE_TAG} || true
 
