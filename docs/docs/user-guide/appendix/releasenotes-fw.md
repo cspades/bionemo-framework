@@ -3,17 +3,17 @@
 
 ## BioNeMo Framework v2.0
 
-New Features:
+### New Features:
 * ESM2 implementation
   * State of the art training performance and equivalent accuracy to the reference implementation
   * 650M, and 3B scale checkpoints available which mirror the reference model
   * Flexible fine-tuning examples that can be copied and modified to accomplish a wide variety of downstream tasks
-* First version of our NeMo v2 based reference implementation which re-imagines bionemo as a repository of megatron models, dataloaders, and training recipes which make use of NeMo v2 for training loops. 
+* First version of our NeMo v2 based reference implementation which re-imagines bionemo as a repository of megatron models, dataloaders, and training recipes which make use of NeMo v2 for training loops.
   * Modular design and permissible Apache 2 OSS licenses enables the import and use of our framework in proprietary applications.
   * NeMo2 training abstractions allows the user to focus on the model implementation while the training strategy handles distribution and model parallelism.
 * Documentation and documentation build system for BioNeMo 2.
 
-Known Issues:
+###  Known Issues:
 * PEFT support is not yet fully functional.
 * Partial implementation of Geneformer is present, use at your own risk. It will be optimized and officially released in the future.
 * Command line interface is currently based on one-off training recipes and scripts. We are working on a configuration based approach that will be released in the future.
