@@ -1,7 +1,10 @@
 [
   {
     "version": "1.10",
-    "title": "1.10"
+    "title": "1.10",
+    "aliases": [
+      "BioNeMo 1"
+    ]
   },
   {
     "version": "2.0",
