@@ -1,0 +1,1135 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>ESM2: Preparing Workspace and Data for Pre-training &#8212; NVIDIA BioNeMo Framework</title>
+    
+  <!-- Loaded before other Sphinx assets -->
+  <link href="_static/styles/theme.css?digest=1999514e3f237ded88cf" rel="stylesheet">
+<link href="_static/styles/pydata-sphinx-theme.css?digest=1999514e3f237ded88cf" rel="stylesheet">
+
+    
+  <link rel="stylesheet"
+    href="_static/vendor/fontawesome/5.13.0/css/all.min.css">
+  <link rel="preload" as="font" type="font/woff2" crossorigin
+    href="_static/vendor/fontawesome/5.13.0/webfonts/fa-solid-900.woff2">
+  <link rel="preload" as="font" type="font/woff2" crossorigin
+    href="_static/vendor/fontawesome/5.13.0/webfonts/fa-brands-400.woff2">
+
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
+    <link rel="stylesheet" href="_static/styles/sphinx-book-theme.css?digest=62ba249389abaaa9ffc34bf36a076bdc1d65ee18" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="_static/mystnb.4510f1fc1dee50b3e5859aac5469c37c29e427902b24a333a5f9fcb2f0b3ac41.css" />
+    <link rel="stylesheet" type="text/css" href="_static/copybutton.css" />
+    <link rel="stylesheet" type="text/css" href="_static/tabs.css" />
+    <link rel="stylesheet" type="text/css" href="_static/custom.css" />
+    <link rel="stylesheet" type="text/css" href="_static/design-style.1e8bd061cd6da7fc9cf755528e8ffc24.min.css" />
+    
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="_static/scripts/pydata-sphinx-theme.js?digest=1999514e3f237ded88cf">
+
+    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+    <script src="_static/jquery.js"></script>
+    <script src="_static/underscore.js"></script>
+    <script src="_static/doctools.js"></script>
+    <script src="_static/clipboard.min.js"></script>
+    <script src="_static/copybutton.js"></script>
+    <script src="https://js.hcaptcha.com/1/api.js"></script>
+    <script src="//assets.adobedtm.com/5d4962a43b79/c1061d2c5e7b/launch-191c2462b890.min.js"></script>
+    <script src="_static/scripts/sphinx-book-theme.js?digest=f31d14ad54b65d19161ba51d4ffff3a77ae00456"></script>
+    <script src="_static/design-tabs.js"></script>
+    <link rel="canonical" href="https://docs.nvidia.com/bionemo-framework/0.4.0/preprocessing-bcp-training-esm2nv.html" />
+    <link rel="shortcut icon" href="_static/nvidia-logo-vert-rgb-blk-for-screen.png"/>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" /> 
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="docsearch:language" content="None">
+    
+
+    <!-- Google Analytics -->
+      
+<style type="text/css">
+  ul.ablog-archive {
+    list-style: none;
+    overflow: auto;
+    margin-left: 0px;
+  }
+  ul.ablog-archive li {
+    float: left;
+    margin-right: 5px;
+    font-size: 80%;
+  }
+  ul.postlist a {
+    font-style: italic;
+  }
+  ul.postlist-style-disc {
+    list-style-type: disc;
+  }
+  ul.postlist-style-none {
+    list-style-type: none;
+  }
+  ul.postlist-style-circle {
+    list-style-type: circle;
+  }
+</style>
+
+  </head>
+  <body data-spy="scroll" data-target="#bd-toc-nav" data-offset="60">
+<!-- Checkboxes to toggle the left sidebar -->
+<input type="checkbox" class="sidebar-toggle" name="__navigation" id="__navigation" aria-label="Toggle navigation sidebar">
+<label class="overlay overlay-navbar" for="__navigation">
+    <div class="visually-hidden">Toggle navigation sidebar</div>
+</label>
+<!-- Checkboxes to toggle the in-page toc -->
+<input type="checkbox" class="sidebar-toggle" name="__page-toc" id="__page-toc" aria-label="Toggle in-page Table of Contents">
+<label class="overlay overlay-pagetoc" for="__page-toc">
+    <div class="visually-hidden">Toggle in-page Table of Contents</div>
+</label>
+<!-- Headers at the top -->
+<div class="announcement header-item noprint"></div>
+<div class="header header-item noprint"></div>
+
+    
+    <div class="container-fluid" id="banner"></div>
+
+    
+
+    <div class="container-xl">
+      <div class="row">
+          
+<!-- Sidebar -->
+<div class="bd-sidebar noprint" id="site-navigation">
+    <div class="bd-sidebar__content">
+        <div class="bd-sidebar__top"><div class="navbar-brand-box">
+    <a class="navbar-brand text-wrap" href="index.html">
+      
+        <!-- `logo` is deprecated in Sphinx 4.0, so remove this when we stop supporting 3 -->
+        
+      
+      
+      <img src="_static/nvidia-logo-horiz-rgb-blk-for-screen.png" class="logo" alt="logo">
+      
+      
+      <h1 class="site-logo" id="site-title">NVIDIA BioNeMo Framework</h1>
+      
+    </a>
+</div><form class="bd-search d-flex align-items-center" action="search.html" method="get">
+  <i class="icon fas fa-search"></i>
+  <input type="search" class="form-control" name="q" id="search-input" placeholder="Search the docs ..." aria-label="Search the docs ..." autocomplete="off" >
+</form><nav class="bd-links" id="bd-docs-nav" aria-label="Main">
+    <div class="bd-toc-item active">
+        <p aria-level="2" class="caption" role="heading">
+ <span class="caption-text">
+  GETTING STARTED
+ </span>
+</p>
+<ul class="nav bd-sidenav">
+ <li class="toctree-l1">
+  <a class="reference internal" href="index.html">
+   What is BioNeMo?
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="pre-reqs.html">
+   Hardware and Software Prerequisites
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="access-startup.html">
+   Access and Startup
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="initialization-guide.html">
+   Initialization Guide
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="tutorial-list.html">
+   BioNeMo Framework Tutorials
+  </a>
+ </li>
+</ul>
+<p aria-level="2" class="caption" role="heading">
+ <span class="caption-text">
+  BioNeMo CORE
+ </span>
+</p>
+<ul class="nav bd-sidenav">
+ <li class="toctree-l1">
+  <a class="reference internal" href="bionemo-fw-for-model-training-fw.html">
+   Fundamentals
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="data-module-fw.html">
+   Data Module
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="dwnstr-task-validation.html">
+   Validation with a Downstream Task
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="inference-triton-fw.html">
+   Inference with Nvidia Triton Server
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="deep-dive-esm1-pytriton-inference.html">
+   Example of PyTriton Inference
+  </a>
+ </li>
+</ul>
+<p aria-level="2" class="caption" role="heading">
+ <span class="caption-text">
+  BEST PRACTICES
+ </span>
+</p>
+<ul class="nav bd-sidenav">
+ <li class="toctree-l1">
+  <a class="reference internal" href="hyperparameters-fw.html">
+   Hyperparameter Usage and Tuning
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="parallelism-fw.html">
+   Training Parallelism
+  </a>
+ </li>
+</ul>
+<p aria-level="2" class="caption" role="heading">
+ <span class="caption-text">
+  MODELS
+ </span>
+</p>
+<ul class="nav bd-sidenav">
+ <li class="toctree-l1">
+  <a class="reference internal" href="models/diffdock.html">
+   DiffDock
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="models/dnabert.html">
+   DNABERT
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="models/dsmbind.html">
+   Model Overview
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="models/equidock.html">
+   EquiDock
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="models/esm1-nv.html">
+   ESM-1nv
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="models/esm2-nv.html">
+   ESM-2nv
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="models/geneformer.html">
+   Geneformer
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="models/megamolbart.html">
+   MegaMolBART
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="models/molmim.html">
+   MolMIM
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="models/openfold.html">
+   OpenFold
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="models/prott5nv.html">
+   Prott5nv
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="models/model-benchmarks.html">
+   Model Benchmarks
+  </a>
+ </li>
+</ul>
+<p aria-level="2" class="caption" role="heading">
+ <span class="caption-text">
+  DATASETS
+ </span>
+</p>
+<ul class="nav bd-sidenav">
+ <li class="toctree-l1">
+  <a class="reference internal" href="datasets/uniprot.html">
+   UniProt Dataset
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="datasets/CELLxGENE.html">
+   CELLxGENE
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="datasets/zinc15.html">
+   ZINC-15 Dataset
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="datasets/pdb.html">
+   The Protein Data Bank (PDB)
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="datasets/GRCh38.p13.html">
+   Human Reference Genome Version GRCh38.p13
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="datasets/openproteinset.html">
+   OpenProteinSet
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="datasets/moleculenet-physchem.html">
+   MoleculeNet Physical Chemistry Datasets - Lipophilicity, FreeSolv, ESOL
+  </a>
+ </li>
+</ul>
+<p aria-level="2" class="caption" role="heading">
+ <span class="caption-text">
+  TUTORIALS
+ </span>
+</p>
+<ul class="nav bd-sidenav">
+ <li class="toctree-l1">
+  <a class="reference internal" href="preprocessing-bcp-training-diffdock.html">
+   DiffDock: Preparing Workspace and Data for Pre-training
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="notebooks/esm2nv-mutant-design.html">
+   Zero-Shot Protein Design Using ESM-2nv
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="notebooks/MMB_GenerativeAI_Inference_with_examples.html">
+   BioNeMo - MegaMolBART Inferencing for Generative Chemistry
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="notebooks/MolMIM_GenerativeAI_local_inference_with_examples.html">
+   MolMIM Inferencing for Generative Chemistry and Downstream Prediction
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="notebooks/ZINC15-data-preprocessing.html">
+   ZINC Training Dataset Setup for small molecule language models
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="notebooks/bionemo-finetuning-overview.html">
+   Finetune pre-trained models in BioNeMo
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="notebooks/cma_es_guided_molecular_optimization_molmim.html">
+   MolMIM Property Guided Molecular Optimization Using CMA-ES
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="notebooks/custom-dataset-class-fw.html">
+   Adding the OAS Dataset: Modifying the Dataset Class
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="notebooks/custom-dataset-dataloader.html">
+   Adding the OAS Dataset: Customizing Dataset Object and Dataloader Functions
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="notebooks/custom-dataset-preprocessing-fw.html">
+   Adding the OAS Dataset: Downloading and Preprocessing
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="notebooks/encoder-finetuning-notebook-fw.html">
+   Encoder Fine-tuning
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="notebooks/model_training_diffdock.html">
+   DiffDock Model Training using BioNeMo
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="notebooks/model_training_equidock.html">
+   EquiDock Model Training using BioNeMo
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="notebooks/model_training_esm1nv.html">
+   ESM1nv Model Training using BioNeMo
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="notebooks/model_training_esm2nv.html">
+   ESM-2nv: Data Preprocessing and Model Training Using BioNeMo
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="notebooks/model_training_mmb.html">
+   MegaMolBART Model Training using BioNeMo
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="notebooks/model_training_molmim.html">
+   Train MolMIM from scratch on your own data using the BioNeMo Framework
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="notebooks/physchem-notebook-fw.html">
+   Finetuning LLM in BioNeMo for a Downstream Task
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="notebooks/protein-esm2nv-clustering.html">
+   Generating Embeddings for Protein Clustering
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="notebooks/retrosynthesis-notebook.html">
+   Training LLM for a Custom Downstram Task: Retrosynthesis Prediction using MegaMolBART
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="notebooks/esm2_FLIP_finetuning.html">
+   Fine-Tune ESM-2nv on FLIP Data for Sequence-Level Classification, Regression, Token-Level Classification, and with LoRA Adapters
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="notebooks/esm2_oas_inferencing.html">
+   Performing inference on OAS sequences with ESM-2nv
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="notebooks/esm2_paratope_finetuning.html">
+   Pretrain from Scratch, Continue Training from an Existing Checkpoint, and Fine-tune ESM-2nv on Custom Data
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="notebooks/dnabert_inference.html">
+   Generating and visualizing embeddings with DNABert
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="notebooks/dnabert_pretrain_finetune.html">
+   Pretrain, Fine-tune, and Perform Inference with DNABERT for Splice Site Prediction
+  </a>
+ </li>
+</ul>
+<p aria-level="2" class="caption" role="heading">
+ <span class="caption-text">
+  APPENDIX
+ </span>
+</p>
+<ul class="nav bd-sidenav">
+ <li class="toctree-l1">
+  <a class="reference internal" href="faq-fw.html">
+   Frequently Asked Questions (FAQ)
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="bibliography-fw.html">
+   Bibliography
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="releasenotes-fw.html">
+   Release Notes
+  </a>
+ </li>
+</ul>
+
+    </div>
+</nav></div>
+        <div class="bd-sidebar__bottom">
+             <!-- To handle the deprecated key -->
+            
+        </div>
+    </div>
+    <div id="rtd-footer-container"></div>
+</div>
+
+
+          
+
+
+          
+<!-- A tiny helper pixel to detect if we've scrolled -->
+<div class="sbt-scroll-pixel-helper"></div>
+<!-- Main content -->
+<div class="col py-0 content-container">
+    
+    <div class="header-article row sticky-top noprint">
+        
+
+
+
+<div class="col py-1 d-flex header-article-main">
+    <div class="header-article__left">
+        
+        <label for="__navigation"
+  class="headerbtn"
+  data-toggle="tooltip"
+data-placement="right"
+title="Toggle navigation"
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fas fa-bars"></i>
+  </span>
+
+</label>
+
+        
+    </div>
+    <div class="header-article__right">
+<button onclick="toggleFullScreen()"
+  class="headerbtn"
+  data-toggle="tooltip"
+data-placement="bottom"
+title="Fullscreen mode"
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fas fa-expand"></i>
+  </span>
+
+</button>
+<label for="__page-toc"
+  class="headerbtn headerbtn-page-toc"
+  
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fas fa-list"></i>
+  </span>
+
+</label>
+
+    </div>
+</div>
+
+<!-- Table of contents -->
+<div class="col-md-3 bd-toc show noprint">
+    <div class="tocsection onthispage pt-5 pb-3">
+        <i class="fas fa-list"></i> Contents
+    </div>
+    <nav id="bd-toc-nav" aria-label="Page">
+        <ul class="visible nav section-nav flex-column">
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#part-1-create-a-workspace">
+   Part 1: Create a Workspace
+  </a>
+  <ul class="visible nav section-nav flex-column">
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#step-1-1-add-variables-to-your-environment">
+     Step 1.1: Add Variables to Your Environment
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#step-1-2-command-to-create-a-workspace">
+     Step 1.2: Command to create a workspace
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#step-1-3-mount-the-ngc-workspace-to-a-directory-on-your-machine">
+     Step 1.3: Mount the NGC Workspace To a Directory on Your Machine
+    </a>
+   </li>
+  </ul>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#part-2-download-the-dataset">
+   Part 2: Download the Dataset
+  </a>
+  <ul class="visible nav section-nav flex-column">
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#step-2-1-start-an-interactive-job-on-an-ngc-compute-instance">
+     Step 2.1: Start an Interactive Job on an NGC Compute Instance
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#step-2-2-configure-ngc-client-on-ngc-host">
+     Step 2.2: Configure NGC client on NGC host
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#step-2-3-download-raw-data">
+     Step 2.3: Download Raw Data
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#step-2-4-copy-raw-dataset-to-your-ngc-worksapce">
+     Step 2.4: Copy Raw Dataset to your NGC Worksapce
+    </a>
+   </li>
+  </ul>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#part-3-preprocess-the-raw-dataset">
+   Part 3: Preprocess the Raw Dataset
+  </a>
+  <ul class="visible nav section-nav flex-column">
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#step-3-1-setup">
+     Step 3.1:  Setup
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#step-3-2-pre-process-the-pre-train-data">
+     Step 3.2: Pre-process the Pre-train Data
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#step-3-3-run-pre-processing-of-flip-data">
+     Step 3.3: Run Pre-processing of FLIP Data
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#step-3-4-verify-that-the-data-pre-processing-is-successful">
+     Step 3.4: Verify that the data pre-processing is successful
+    </a>
+   </li>
+  </ul>
+ </li>
+</ul>
+
+    </nav>
+</div>
+    </div>
+    <div class="article row">
+        <div class="col pl-md-3 pl-lg-5 content-container">
+            <!-- Table of contents that is only displayed when printing the page -->
+            <div id="jb-print-docs-body" class="onlyprint">
+                <h1>ESM2: Preparing Workspace and Data for Pre-training</h1>
+                <!-- Table of contents -->
+                <div id="print-main-content">
+                    <div id="jb-print-toc">
+                        
+                        <div>
+                            <h2> Contents </h2>
+                        </div>
+                        <nav aria-label="Page">
+                            <ul class="visible nav section-nav flex-column">
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#part-1-create-a-workspace">
+   Part 1: Create a Workspace
+  </a>
+  <ul class="visible nav section-nav flex-column">
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#step-1-1-add-variables-to-your-environment">
+     Step 1.1: Add Variables to Your Environment
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#step-1-2-command-to-create-a-workspace">
+     Step 1.2: Command to create a workspace
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#step-1-3-mount-the-ngc-workspace-to-a-directory-on-your-machine">
+     Step 1.3: Mount the NGC Workspace To a Directory on Your Machine
+    </a>
+   </li>
+  </ul>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#part-2-download-the-dataset">
+   Part 2: Download the Dataset
+  </a>
+  <ul class="visible nav section-nav flex-column">
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#step-2-1-start-an-interactive-job-on-an-ngc-compute-instance">
+     Step 2.1: Start an Interactive Job on an NGC Compute Instance
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#step-2-2-configure-ngc-client-on-ngc-host">
+     Step 2.2: Configure NGC client on NGC host
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#step-2-3-download-raw-data">
+     Step 2.3: Download Raw Data
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#step-2-4-copy-raw-dataset-to-your-ngc-worksapce">
+     Step 2.4: Copy Raw Dataset to your NGC Worksapce
+    </a>
+   </li>
+  </ul>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#part-3-preprocess-the-raw-dataset">
+   Part 3: Preprocess the Raw Dataset
+  </a>
+  <ul class="visible nav section-nav flex-column">
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#step-3-1-setup">
+     Step 3.1:  Setup
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#step-3-2-pre-process-the-pre-train-data">
+     Step 3.2: Pre-process the Pre-train Data
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#step-3-3-run-pre-processing-of-flip-data">
+     Step 3.3: Run Pre-processing of FLIP Data
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#step-3-4-verify-that-the-data-pre-processing-is-successful">
+     Step 3.4: Verify that the data pre-processing is successful
+    </a>
+   </li>
+  </ul>
+ </li>
+</ul>
+
+                        </nav>
+                    </div>
+                </div>
+            </div>
+            <main id="main-content" role="main">
+                
+              <div>
+                 <div class="tex2jax_ignore mathjax_ignore section" id="esm2-preparing-workspace-and-data-for-pre-training">
+<h1>ESM2: Preparing Workspace and Data for Pre-training<a class="headerlink" href="#esm2-preparing-workspace-and-data-for-pre-training" title="Permalink to this headline">#</a></h1>
+<p>This section outlines the steps to</p>
+<ol class="arabic simple">
+<li><p>Create your <a class="reference external" href="https://bc.ngc.nvidia.com/workspaces">NGC workspace</a></p></li>
+<li><p>Download the raw pre-training dataset for ESM2nv to an NGC compute host.</p></li>
+<li><p>Pre-process the raw dataset on an NGC compute host, and copy the
+pre-processed dataset to your NGC workspace.</p></li>
+</ol>
+<p>For these steps, we use the NVIDIA NGC platform.  The NGC workspace provides
+persistent storage for the pre-processed dataset.</p>
+<p>Your NGC workspace, and ESM2nv pre-processed dataset, support an ESM2nv
+pre-training job using the template script <code class="docutils literal notranslate"><span class="pre">&lt;BioNeMo_Workspace&gt;/examples/protein/esm2nv/scripts/pretrain_esm2_bcp.sh</span></code>.  This script can be configured to consume the
+pre-processed dataset directly from the NGC worskpace.</p>
+<p>For more information about how to launch ESM2nv training using a BCP script,
+you can check <span class="xref myst">Running BioNeMo on DGX-Cloud using BCP</span>
+tutorial.</p>
+<p>The commands below expect that you have the NGC CLI <a class="reference external" href="https://docs.nvidia.com/base-command-platform/user-guide/latest/index.html#installing-ngc-cli">installed</a> and <a class="reference external" href="https://docs.nvidia.com/base-command-platform/user-guide/latest/#configuring-the-cli-for-your-use">configured</a>
+on your machine.  All of the commands below can then be run outside of a BioNeMo Docker
+container.  Your machine serves as a terminal for submitting NGC commands.</p>
+<p>NOTE: If this is your first time, make sure to follow the instructions on the <a class="reference internal" href="pre-reqs.html"><span class="doc std std-doc">pre-requisites documentation</span></a> page!</p>
+<div class="section" id="part-1-create-a-workspace">
+<h2>Part 1: Create a Workspace<a class="headerlink" href="#part-1-create-a-workspace" title="Permalink to this headline">#</a></h2>
+<div class="section" id="step-1-1-add-variables-to-your-environment">
+<h3>Step 1.1: Add Variables to Your Environment<a class="headerlink" href="#step-1-1-add-variables-to-your-environment" title="Permalink to this headline">#</a></h3>
+<p>From a shell on your machine, run the commands below to</p>
+<ol class="arabic simple">
+<li><p>override NGC settings established in the step <a class="reference external" href="https://docs.nvidia.com/base-command-platform/user-guide/latest/#configuring-the-cli-for-your-use">configure</a></p></li>
+<li><p>provide arguments to <code class="docutils literal notranslate"><span class="pre">ngc</span></code> commands below.</p></li>
+</ol>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># shell on your machine</span>
+<span class="nb">export</span><span class="w"> </span><span class="nv">NGC_CLI_ORG</span><span class="o">=</span>nvidia
+<span class="nb">export</span><span class="w"> </span><span class="nv">NGC_CLI_TEAM</span><span class="o">=</span>clara
+<span class="nb">export</span><span class="w"> </span><span class="nv">BIONEMO_IMAGE</span><span class="o">=</span>nvcr.io/nvidia/clara/bionemo-framework:latest
+<span class="nb">export</span><span class="w"> </span><span class="nv">ACE</span><span class="o">=</span>nv-us-east-2
+</pre></div>
+</div>
+<p>Note:</p>
+<ol class="arabic simple">
+<li><p>If you followed the <span class="xref myst">Quickstart Guide</span>, you may already
+have an .env file set up with the needed variables above, except for ACE. If so,
+run <code class="docutils literal notranslate"><span class="pre">source</span> <span class="pre">&lt;path</span> <span class="pre">to</span> <span class="pre">bionemo</span> <span class="pre">repo&gt;/.env</span></code>, and then run the assignment
+statement for ACE above.  Make sure to replace <code class="docutils literal notranslate"><span class="pre">nv-us-east-2</span></code> with your
+preferred ACE.</p></li>
+<li><p>The NGC_CLI_ORG value is <code class="docutils literal notranslate"><span class="pre">nvidia</span></code>, and the prefix appearing in the name of
+the docker image is also <code class="docutils literal notranslate"><span class="pre">nvidia</span></code>.</p></li>
+<li><p>Your NGC CLI api key will be available to <code class="docutils literal notranslate"><span class="pre">ngc</span></code> command invocations below, if you’ve
+<a class="reference external" href="https://docs.nvidia.com/base-command-platform/user-guide/latest/#configuring-the-cli-for-your-use">configured</a> the NGC CLI.</p></li>
+</ol>
+</div>
+<div class="section" id="step-1-2-command-to-create-a-workspace">
+<h3>Step 1.2: Command to create a workspace<a class="headerlink" href="#step-1-2-command-to-create-a-workspace" title="Permalink to this headline">#</a></h3>
+<p>Create a new NGC workspace by running the following commands. Make sure to
+replace <code class="docutils literal notranslate"><span class="pre">my_ngc_workspace</span></code> with your desired workspace name.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># shell on your machine</span>
+<span class="nv">NGC_WORKSPACE_NAME</span><span class="o">=</span>my_ngc_workspace
+ngc<span class="w"> </span>workspace<span class="w"> </span>create<span class="w"> </span>--name<span class="w"> </span><span class="s2">&quot;</span><span class="si">${</span><span class="nv">NGC_WORKSPACE_NAME</span><span class="si">}</span><span class="s2">&quot;</span><span class="w"> </span>--ace<span class="w"> </span><span class="s2">&quot;</span><span class="si">${</span><span class="nv">ACE</span><span class="si">}</span><span class="s2">&quot;</span><span class="w"> </span>--org<span class="w"> </span>nvidian
+</pre></div>
+</div>
+<p>Store the workspace ID provided after creating the workspace in a location
+on your machine. You will need this ID for mounting data and running jobs.
+Also, run the below to add the workspace ID to your environment for Part 2
+and 3.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nb">export</span><span class="w"> </span><span class="nv">WKSP_ID</span><span class="o">=</span>??
+</pre></div>
+</div>
+</div>
+<div class="section" id="step-1-3-mount-the-ngc-workspace-to-a-directory-on-your-machine">
+<h3>Step 1.3: Mount the NGC Workspace To a Directory on Your Machine<a class="headerlink" href="#step-1-3-mount-the-ngc-workspace-to-a-directory-on-your-machine" title="Permalink to this headline">#</a></h3>
+<p>Mount the NGC workspace to a directory on your machine using the following
+command.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>mkdir<span class="w"> </span>~/ngc_workspace_mount
+ngc<span class="w"> </span>workspace<span class="w"> </span>mount<span class="w"> </span><span class="s2">&quot;</span><span class="si">${</span><span class="nv">WKSP_ID</span><span class="si">}</span><span class="s2">&quot;</span><span class="w"> </span>~/ngc_workspace_mount<span class="w"> </span>--mode<span class="w"> </span>RW<span class="w"> </span>--org<span class="w"> </span>nvidian
+</pre></div>
+</div>
+<p>Note:</p>
+<ol class="arabic simple">
+<li><p>Data transfer between the NGC workspace and your machine’s hard-drive can be
+slow, so we do not recommend it.</p></li>
+<li><p>With this mount, you can issue commands, like <code class="docutils literal notranslate"><span class="pre">ls</span></code> and <code class="docutils literal notranslate"><span class="pre">du</span></code> from your
+machine’s os to explore the contents of your workspace.</p></li>
+<li><p>You can choose another location in your machine’s filesystem to serve as
+the mount point.</p></li>
+</ol>
+</div>
+</div>
+<div class="section" id="part-2-download-the-dataset">
+<h2>Part 2: Download the Dataset<a class="headerlink" href="#part-2-download-the-dataset" title="Permalink to this headline">#</a></h2>
+<div class="section" id="step-2-1-start-an-interactive-job-on-an-ngc-compute-instance">
+<h3>Step 2.1: Start an Interactive Job on an NGC Compute Instance<a class="headerlink" href="#step-2-1-start-an-interactive-job-on-an-ngc-compute-instance" title="Permalink to this headline">#</a></h3>
+<p>With the variables above in the environment on your machine, run the command
+below to submit a request to NGC achieving</p>
+<ol class="arabic simple">
+<li><p>Allocate a compute instance</p></li>
+<li><p>Start a docker container with the <code class="docutils literal notranslate"><span class="pre">BIONEMO_IMAGE</span></code></p></li>
+<li><p>Mount your NGC workspace to the container at <code class="docutils literal notranslate"><span class="pre">/ngc_workspace</span></code></p></li>
+</ol>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># shell on your machine</span>
+<span class="nv">INSTANCE_TYPE</span><span class="o">=</span>dgxa100.80g.1.norm
+ngc<span class="w"> </span>base-command<span class="w"> </span>job<span class="w"> </span>run<span class="w"> </span>--name<span class="w"> </span><span class="s2">&quot;my_interactive_session&quot;</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--priority<span class="w"> </span>HIGH<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--order<span class="w"> </span><span class="m">1</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--preempt<span class="w"> </span>RESUMABLE<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--min-timeslice<span class="w"> </span>0s<span class="se">\</span>
+<span class="w">    </span>--total-runtime<span class="w"> </span>86400s<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--ace<span class="w"> </span><span class="s2">&quot;</span><span class="si">${</span><span class="nv">ACE</span><span class="si">}</span><span class="s2">&quot;</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--instance<span class="w"> </span><span class="s2">&quot;</span><span class="si">${</span><span class="nv">INSTANCE_TYPE</span><span class="si">}</span><span class="s2">&quot;</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--image<span class="w"> </span><span class="s2">&quot;</span><span class="si">${</span><span class="nv">BIONEMO_IMAGE</span><span class="si">}</span><span class="s2">&quot;</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--org<span class="w"> </span><span class="s2">&quot;</span><span class="si">${</span><span class="nv">NGC_CLI_ORG</span><span class="si">}</span><span class="s2">&quot;</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--team<span class="w"> </span><span class="s2">&quot;</span><span class="si">${</span><span class="nv">NGC_CLI_TEAM</span><span class="si">}</span><span class="s2">&quot;</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--workspace<span class="w"> </span><span class="s2">&quot;</span><span class="si">${</span><span class="nv">WKSP_ID</span><span class="si">}</span><span class="s2">:/ngc_workspace_mount:RW&quot;</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--result<span class="w"> </span>/results<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--commandline<span class="w"> </span><span class="s2">&quot;sleep infinity&quot;</span>
+</pre></div>
+</div>
+<p>If successfull, you will see output like</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>----------------------------------------------------------
+<span class="w"> </span>Job<span class="w"> </span>Information
+<span class="w">   </span>Id:<span class="w"> </span>job-id-with-7-digits
+<span class="w">   </span>Name:<span class="w"> </span>my_interactive_session
+<span class="w">   </span>Number<span class="w"> </span>of<span class="w"> </span>Replicas:<span class="w"> </span><span class="m">1</span>
+</pre></div>
+</div>
+<p>Store the <code class="docutils literal notranslate"><span class="pre">Id</span></code> to a shell variable</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nb">export</span><span class="w"> </span><span class="nv">JOB_ID</span><span class="o">=</span>job-id-with-7-digits
+</pre></div>
+</div>
+<p>In a separate shell instance, submit a request to NGC to start a
+shell in the NGC-hosted container</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># shell in your machine</span>
+ngc<span class="w"> </span>batch<span class="w"> </span><span class="nb">exec</span><span class="w"> </span><span class="s2">&quot;</span><span class="si">${</span><span class="nv">JOB_ID</span><span class="si">}</span><span class="s2">&quot;</span>
+</pre></div>
+</div>
+<p>If successfull, you’ll see a command prompt like</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># shell in the NGC-hosted container</span>
+root@your-job-id:/workspace#
+</pre></div>
+</div>
+<p>Please run the command below to adjust terminal:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">resize</span>
+</pre></div>
+</div>
+<p>Note:</p>
+<ol class="arabic simple">
+<li><p>The command-line environment in the NGC-hosted BIONEMO_IMAGE container is
+very minimal.  If you notice the terminal behaving unusually, you can try
+running <code class="docutils literal notranslate"><span class="pre">resize</span></code> again.</p></li>
+<li><p>An NGC job, configured as above, will terminate after a duration equal
+to <code class="docutils literal notranslate"><span class="pre">total-runtime</span></code>, or roughly 24h after creation, whichever is earlier.
+There is a runtime cutoff at 24h, not controlled by the user.  The contents
+of your NGC workspace storage will persist.</p></li>
+<li><p>In the separate shell instance, NGC CLI credentials will be provided from the
+the <a class="reference external" href="https://docs.nvidia.com/base-command-platform/user-guide/latest/#configuring-the-cli-for-your-use">configuring</a> step.</p></li>
+</ol>
+</div>
+<div class="section" id="step-2-2-configure-ngc-client-on-ngc-host">
+<h3>Step 2.2: Configure NGC client on NGC host<a class="headerlink" href="#step-2-2-configure-ngc-client-on-ngc-host" title="Permalink to this headline">#</a></h3>
+<p>From your shell on the NGC host, configure the NGC client with the values of
+your NGC org, team, api key, and ace, by running</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>ngc<span class="w"> </span>config<span class="w"> </span><span class="nb">set</span>
+</pre></div>
+</div>
+<p>and enter your NGC user information.  For the setting <code class="docutils literal notranslate"><span class="pre">format</span> <span class="pre">type</span></code>,
+the setting <code class="docutils literal notranslate"><span class="pre">ascii</span></code> is typical.</p>
+<p>If successfull, you will see output similar to</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>Successfully<span class="w"> </span>saved<span class="w"> </span>NGC<span class="w"> </span>configuration<span class="w"> </span>to<span class="w"> </span>/root/.ngc/config
+</pre></div>
+</div>
+<p>Note:</p>
+<ol class="arabic simple">
+<li><p>You can check your settings with <code class="docutils literal notranslate"><span class="pre">ngc</span> <span class="pre">config</span> <span class="pre">current</span></code>.</p></li>
+</ol>
+</div>
+<div class="section" id="step-2-3-download-raw-data">
+<h3>Step 2.3: Download Raw Data<a class="headerlink" href="#step-2-3-download-raw-data" title="Permalink to this headline">#</a></h3>
+<p>In this step, we download the raw data to the hard-drive local to your
+NGC compute instance, not to your NGC workspace storage.</p>
+<p>First, let’s confirm that your NGC client is configured to have visibility
+to the pre-training dataset named  <code class="docutils literal notranslate"><span class="pre">uniref50_90_202104_esm2nv</span></code>.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nv">DATASET_NAME</span><span class="o">=</span>nvidia/clara/uniref50_90_202104_esm2nv
+<span class="nv">DATASET_DIR_NAME</span><span class="o">=</span>uniref50_90_202104_esm2nv_v1.0
+ngc<span class="w"> </span>registry<span class="w"> </span>resource<span class="w"> </span>list<span class="w"> </span><span class="s2">&quot;</span><span class="si">${</span><span class="nv">DATASET_NAME</span><span class="si">}</span><span class="s2">&quot;</span>
+</pre></div>
+</div>
+<p>If successful, you will see output similar to:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>root@5639990:/workspace#<span class="w"> </span>ngc<span class="w"> </span>registry<span class="w"> </span>resource<span class="w"> </span>list<span class="w"> </span><span class="nv">$DATASET_NAME</span>
++------------------------+--------------------------+----------------+-------------+-----------+-----------+---------------+------------+
+<span class="p">|</span><span class="w"> </span>Name<span class="w">                   </span><span class="p">|</span><span class="w"> </span>Repository<span class="w">               </span><span class="p">|</span><span class="w"> </span>Latest<span class="w"> </span>Version<span class="w"> </span><span class="p">|</span><span class="w"> </span>Application<span class="w"> </span><span class="p">|</span><span class="w"> </span>Framework<span class="w"> </span><span class="p">|</span><span class="w"> </span>Precision<span class="w"> </span><span class="p">|</span><span class="w"> </span>Last<span class="w"> </span>Modified<span class="w"> </span><span class="p">|</span><span class="w"> </span>Permission<span class="w"> </span><span class="p">|</span>
++------------------------+--------------------------+----------------+-------------+-----------+-----------+---------------+------------+
+<span class="p">|</span><span class="w"> </span>ESM2nv<span class="w"> </span>Uniref<span class="w"> </span>Training<span class="w"> </span><span class="p">|</span><span class="w"> </span>nvidia/clara/uniref50_90<span class="w"> </span><span class="p">|</span><span class="w"> </span><span class="m">1</span>.0<span class="w">            </span><span class="p">|</span><span class="w"> </span>OTHER<span class="w">       </span><span class="p">|</span><span class="w"> </span>Other<span class="w">     </span><span class="p">|</span><span class="w"> </span>OTHER<span class="w">     </span><span class="p">|</span><span class="w"> </span>Nov<span class="w"> </span><span class="m">28</span>,<span class="w"> </span><span class="m">2023</span><span class="w">  </span><span class="p">|</span><span class="w"> </span>unlocked<span class="w">   </span><span class="p">|</span>
+<span class="p">|</span><span class="w"> </span>Data<span class="w">                   </span><span class="p">|</span><span class="w"> </span>_202104_esm2nv<span class="w">           </span><span class="p">|</span><span class="w">                </span><span class="p">|</span><span class="w">             </span><span class="p">|</span><span class="w">           </span><span class="p">|</span><span class="w">           </span><span class="p">|</span><span class="w">               </span><span class="p">|</span><span class="w">            </span><span class="p">|</span>
++------------------------+--------------------------+----------------+-------------+-----------+-----------+---------------+------------+
+</pre></div>
+</div>
+<p>The following command downloads the pre-training dataset named
+<code class="docutils literal notranslate"><span class="pre">uniref50_90_202104_esm2nv</span></code> into the local directory
+<code class="docutils literal notranslate"><span class="pre">/workspace/data_from_ngc</span></code> as a subdirectory <code class="docutils literal notranslate"><span class="pre">uniref50_90_202104_esm2nv_v1.0</span></code>.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># shell in NGC-hosted container</span>
+mkdir<span class="w"> </span>/workspace/data_from_ngc
+ngc<span class="w"> </span>registry<span class="w"> </span>resource<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>download-version<span class="w"> </span><span class="s2">&quot;</span><span class="si">${</span><span class="nv">DATASET_NAME</span><span class="si">}</span><span class="s2">&quot;</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--dest<span class="w"> </span>/workspace/data_from_ngc
+</pre></div>
+</div>
+<p>If successfull, you will see output similar to</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>Getting files to download...
+⠙ ╸━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ • 0.6/48.9 GiB • Remaining: 0:18:33 • 46.7 MB/s • Elapsed: 0:00:14 • Total: 5 - Completed: 2 - Failed: 0
+</pre></div>
+</div>
+<p>Note:</p>
+<ol class="arabic simple">
+<li><p>Time estimate: &lt; 1h.  The data size is ~49GB.</p></li>
+<li><p>The <code class="docutils literal notranslate"><span class="pre">/workspace</span> <span class="pre">directory</span></code> is file-system space local to the compute instance,
+and is intended to be your sandbox, but only for the duration of the NGC
+interactive job.</p></li>
+<li><p>We download to the NGC compute instance, rather than your machine, to
+use the fast data transfer between the NGC compute instance and the NGC
+workspace.</p></li>
+<li><p>The name of the dataset <code class="docutils literal notranslate"><span class="pre">DATASET_NAME</span></code> is different from the name of
+download subdirectory name <code class="docutils literal notranslate"><span class="pre">DATASET_DIR_NAME</span></code>.  Please check the name of the
+subdirectory after download and update the environment variable <code class="docutils literal notranslate"><span class="pre">DATASET_DIR_NAME</span></code>.</p></li>
+</ol>
+</div>
+<div class="section" id="step-2-4-copy-raw-dataset-to-your-ngc-worksapce">
+<h3>Step 2.4: Copy Raw Dataset to your NGC Worksapce<a class="headerlink" href="#step-2-4-copy-raw-dataset-to-your-ngc-worksapce" title="Permalink to this headline">#</a></h3>
+<p>After downloading, copy the dataset from the NGC compute instance to the NGC
+workspace, for use exterior to the current NGC interactive session</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># shell in NGC-hosted container</span>
+mkdir<span class="w"> </span>/ngc_workspace_mount/data_from_ngc
+cp<span class="w"> </span>-r<span class="w"> </span><span class="s2">&quot;/workspace/data_from_ngc/</span><span class="si">${</span><span class="nv">DATASET_DIR_NAME</span><span class="si">}</span><span class="s2">&quot;</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>/ngc_workspace_mount/data_from_ngc/
+</pre></div>
+</div>
+<p>Note:</p>
+<ol class="arabic simple">
+<li><p>Time estimated: &lt; 1 min.</p></li>
+<li><p>We copy to the workspace, so that you may split your work session over
+multiple days, which will require a separate interactive NGC compute job.</p></li>
+</ol>
+<p>At this point, you can continue to Part 3 with your NGC compute job.  Alternatively,
+you can terminate the NGC job created in Step 2.1, and do Part 3 with a separate
+NGC compute job.</p>
+</div>
+</div>
+<div class="section" id="part-3-preprocess-the-raw-dataset">
+<h2>Part 3: Preprocess the Raw Dataset<a class="headerlink" href="#part-3-preprocess-the-raw-dataset" title="Permalink to this headline">#</a></h2>
+<p>Part 3 can be done in the same interactive session as Part 2, or in a separate
+interactive session.  The raw dataset will be obtained from the copy on
+your workspace.</p>
+<div class="section" id="step-3-1-setup">
+<h3>Step 3.1:  Setup<a class="headerlink" href="#step-3-1-setup" title="Permalink to this headline">#</a></h3>
+<p>To start an interactive job with an NGC compute instance, repeat Step 1.1 from
+your machine and set</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nb">export</span><span class="w"> </span><span class="nv">WKSP_ID</span><span class="o">=</span>??
+</pre></div>
+</div>
+<p>and then repeat Step 2.1</p>
+</div>
+<div class="section" id="step-3-2-pre-process-the-pre-train-data">
+<h3>Step 3.2: Pre-process the Pre-train Data<a class="headerlink" href="#step-3-2-pre-process-the-pre-train-data" title="Permalink to this headline">#</a></h3>
+<p>In this step, we’ll run a pre-processing bash script that</p>
+<ol class="arabic simple">
+<li><p>Copies the raw dataset from your NGC workspace to the local hard-drive on
+the ngc compute instance.</p></li>
+<li><p>Runs the preprocesing task</p></li>
+<li><p>Copies the pre-processed back to your NGC workspace.</p></li>
+</ol>
+<p>From the shell in the NGC-hosted container, run</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># shell in NGC-hosted container</span>
+<span class="nb">export</span><span class="w"> </span><span class="nv">DATASET_DIR</span><span class="o">=</span>uniref50_90_202104_esm2nv_v1.0<span class="w">  </span><span class="c1"># subdirectory created in Part 1</span>
+<span class="nb">export</span><span class="w"> </span><span class="nv">DATA_DIR_IN_REMOTE_HD</span><span class="o">=</span>/ngc_workspace_mount/data_from_ngc
+<span class="nb">export</span><span class="w"> </span><span class="nv">DATA_DIR_IN_LOCAL_HD</span><span class="o">=</span>/workspace/data_from_ngc
+<span class="nb">export</span><span class="w"> </span><span class="nv">SCRIPT_DIR</span><span class="o">=</span><span class="s2">&quot;</span><span class="si">${</span><span class="nv">BIONEMO_HOME</span><span class="si">}</span><span class="s2">/examples/protein/esm2nv/scripts&quot;</span>
+<span class="nb">cd</span><span class="w"> </span>/workspace
+<span class="s2">&quot;</span><span class="si">${</span><span class="nv">SCRIPT_DIR</span><span class="si">}</span><span class="s2">/preprocess_esm2_bcp.sh&quot;</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span><span class="p">&amp;</span>&gt;<span class="w"> </span><span class="s2">&quot;/ngc_workspace_mount/preprocess_esm2_bcp_</span><span class="k">$(</span>date<span class="w"> </span>+<span class="s1">&#39;%Y%d%mT%H%M%S&#39;</span><span class="k">)</span><span class="s2">.log&quot;</span><span class="w"> </span><span class="p">&amp;</span>
+</pre></div>
+</div>
+<p>The output pre-processed dataset location is written at the end of the log file,
+and will have the form <code class="docutils literal notranslate"><span class="pre">/ngc_workspace_mount/data_from_ngc/${DATASET_DIR}_preproc</span></code>.</p>
+<p>Note:</p>
+<ol class="arabic simple">
+<li><p>Time estimate: &lt; 1h.</p></li>
+<li><p>You can monitor the progress (and view possible errors) of the
+preprocessing task from your machine (not the NGC host), with your
+NGC workspace mounted, by opening the log file in a text editor, or with the
+linux command <code class="docutils literal notranslate"><span class="pre">tail</span></code>.</p></li>
+<li><p>From the shell in the NGC-hosted container, the variable <code class="docutils literal notranslate"><span class="pre">BIONEMO_HOME</span></code>
+should be set by default, you do not have to set it.  The expected value
+is <code class="docutils literal notranslate"><span class="pre">/workspace/bionemo</span></code>.</p></li>
+<li><p>The script <code class="docutils literal notranslate"><span class="pre">preprocess_esm2_bcp.sh</span></code> does not require <code class="docutils literal notranslate"><span class="pre">NGC_CLI_ORG</span></code>,
+<code class="docutils literal notranslate"><span class="pre">NGC_CLI_TEAM</span></code>, or <code class="docutils literal notranslate"><span class="pre">NGC_CLI_API_KEY</span></code> in the calling shell environment.</p></li>
+</ol>
+</div>
+<div class="section" id="step-3-3-run-pre-processing-of-flip-data">
+<h3>Step 3.3: Run Pre-processing of FLIP Data<a class="headerlink" href="#step-3-3-run-pre-processing-of-flip-data" title="Permalink to this headline">#</a></h3>
+<p>If you want to enable validation in the loop of downstream tasks, you should
+pre-process the FLIP data. FLIP data is automatically downloaded from a public
+facing <a class="reference external" href="http://data.bioembeddings.com/public/FLIP/fasta/">URL</a></p>
+<p>From the shell in the NGC-hosted container, run</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># shell in NGC-hosted container</span>
+<span class="nb">cd</span><span class="w"> </span>/workspace
+python<span class="w"> </span><span class="s2">&quot;</span><span class="si">${</span><span class="nv">BIONEMO_HOME</span><span class="si">}</span><span class="s2">/examples/protein/downstream/downstream_flip.py&quot;</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span><span class="nv">do_training</span><span class="o">=</span>False<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>++model.data.preprocessed_data_path<span class="o">=</span>/workspace/data_from_ngc/FLIP
+cp<span class="w"> </span>-r<span class="w"> </span>/workspace/data_from_ngc/FLIP<span class="w"> </span><span class="s2">&quot;/ngc_workspace_mount/data_from_ngc/&quot;</span>
+</pre></div>
+</div>
+<p>Ensure that you have your NGC workspace ID, relevant paths, and configurations
+set correctly.</p>
+<p>Note:</p>
+<ol class="arabic simple">
+<li><p>From the shell in the NGC-hosted container, the variable BIONEMO_HOME should
+be set by default, you do not have to set it.</p></li>
+</ol>
+</div>
+<div class="section" id="step-3-4-verify-that-the-data-pre-processing-is-successful">
+<h3>Step 3.4: Verify that the data pre-processing is successful<a class="headerlink" href="#step-3-4-verify-that-the-data-pre-processing-is-successful" title="Permalink to this headline">#</a></h3>
+<p>On your machine, view the contents of the output data directories on the
+mounted NGC workspace. If needed, follow Step 1.3 to re-mount the workspace
+onto your NGC-CLI-installed machine.</p>
+<p>For example</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># shell on your machine</span>
+ls<span class="w"> </span>~/ngc_workspace_mount/data_from_ngc/uniref50_90_202104_esm2nv_v1.0_preproc
+</pre></div>
+</div>
+<p>Below is an example directory structure you should see for pre-processed
+ESM-2nv Pre-train data.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>├── README.md
+├── uf50
+│  ├── test
+│  ├── train
+│  └── val
+├── uf90
+│  └── uf90_csvs
+├── mapping.tsv
+├── uniref50_train_filt.fasta
+├── uniref50_valid.fasta
+├── uniref90membersandreps_ur50trainfiltreps.fasta
+</pre></div>
+</div>
+<p>For the FLIP data</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># shell on your machine</span>
+ls<span class="w"> </span>~/ngc_workspace_mount/data_from_ngc/FLIP
+</pre></div>
+</div>
+<p>should show a directory structure like</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>FLIP
+└── secondary_structure
+    ├── test
+    │   └── x000.csv
+    ├── train
+    │   └── x000.csv
+    └── val
+        └── x000.csv
+</pre></div>
+</div>
+<p>Note:</p>
+<ol class="arabic simple">
+<li><p>You may observe that the <code class="docutils literal notranslate"><span class="pre">ls</span></code> command is slower when applied to the NGC
+workspace mounted to your machine, than when applied to a directory local to
+your machine’s hard drive.</p></li>
+<li><p>The subdirectory name <code class="docutils literal notranslate"><span class="pre">uniref50_90_202104_esm2nv_v1.0_preproc</span></code> may
+need to be adjusted so that the prefix matches the value of <code class="docutils literal notranslate"><span class="pre">DATASET_DIR_NAME</span></code>,
+see Note 4 in Step 2.3.</p></li>
+</ol>
+</div>
+</div>
+</div>
+
+<div class="section">
+   
+</div>
+
+              </div>
+              
+            </main>
+            <footer class="footer-article noprint">
+                
+    <!-- Previous / next buttons -->
+<div class='prev-next-area'>
+</div>
+            </footer>
+        </div>
+    </div>
+    <div class="footer-content row">
+        <footer class="col footer"><p>
+  
+    By NVIDIA<br/>
+  
+      &copy; Copyright 2023-2024 NVIDIA CORPORATION &amp; AFFILIATES. All rights reserved..<br/>
+    Last updated on Oct 17, 2024.<br/>
+</p>
+        </footer>
+    </div>
+    
+</div>
+
+
+      </div>
+    </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="_static/scripts/pydata-sphinx-theme.js?digest=1999514e3f237ded88cf"></script>
+
+
+  </body>
+</html>

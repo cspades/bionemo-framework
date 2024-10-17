@@ -1,0 +1,995 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Validation with a Downstream Task &#8212; NVIDIA BioNeMo Framework</title>
+    
+  <!-- Loaded before other Sphinx assets -->
+  <link href="_static/styles/theme.css?digest=1999514e3f237ded88cf" rel="stylesheet">
+<link href="_static/styles/pydata-sphinx-theme.css?digest=1999514e3f237ded88cf" rel="stylesheet">
+
+    
+  <link rel="stylesheet"
+    href="_static/vendor/fontawesome/5.13.0/css/all.min.css">
+  <link rel="preload" as="font" type="font/woff2" crossorigin
+    href="_static/vendor/fontawesome/5.13.0/webfonts/fa-solid-900.woff2">
+  <link rel="preload" as="font" type="font/woff2" crossorigin
+    href="_static/vendor/fontawesome/5.13.0/webfonts/fa-brands-400.woff2">
+
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
+    <link rel="stylesheet" href="_static/styles/sphinx-book-theme.css?digest=62ba249389abaaa9ffc34bf36a076bdc1d65ee18" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="_static/mystnb.4510f1fc1dee50b3e5859aac5469c37c29e427902b24a333a5f9fcb2f0b3ac41.css" />
+    <link rel="stylesheet" type="text/css" href="_static/copybutton.css" />
+    <link rel="stylesheet" type="text/css" href="_static/tabs.css" />
+    <link rel="stylesheet" type="text/css" href="_static/custom.css" />
+    <link rel="stylesheet" type="text/css" href="_static/design-style.1e8bd061cd6da7fc9cf755528e8ffc24.min.css" />
+    
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="_static/scripts/pydata-sphinx-theme.js?digest=1999514e3f237ded88cf">
+
+    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+    <script src="_static/jquery.js"></script>
+    <script src="_static/underscore.js"></script>
+    <script src="_static/doctools.js"></script>
+    <script src="_static/clipboard.min.js"></script>
+    <script src="_static/copybutton.js"></script>
+    <script src="https://js.hcaptcha.com/1/api.js"></script>
+    <script src="//assets.adobedtm.com/5d4962a43b79/c1061d2c5e7b/launch-191c2462b890.min.js"></script>
+    <script src="_static/scripts/sphinx-book-theme.js?digest=f31d14ad54b65d19161ba51d4ffff3a77ae00456"></script>
+    <script src="_static/design-tabs.js"></script>
+    <link rel="canonical" href="https://docs.nvidia.com/bionemo-framework/0.4.0/dwnstr-task-validation.html" />
+    <link rel="shortcut icon" href="_static/nvidia-logo-vert-rgb-blk-for-screen.png"/>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Inference with Nvidia Triton Server" href="inference-triton-fw.html" />
+    <link rel="prev" title="Data Module" href="data-module-fw.html" /> 
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="docsearch:language" content="None">
+    
+
+    <!-- Google Analytics -->
+      
+<style type="text/css">
+  ul.ablog-archive {
+    list-style: none;
+    overflow: auto;
+    margin-left: 0px;
+  }
+  ul.ablog-archive li {
+    float: left;
+    margin-right: 5px;
+    font-size: 80%;
+  }
+  ul.postlist a {
+    font-style: italic;
+  }
+  ul.postlist-style-disc {
+    list-style-type: disc;
+  }
+  ul.postlist-style-none {
+    list-style-type: none;
+  }
+  ul.postlist-style-circle {
+    list-style-type: circle;
+  }
+</style>
+
+  </head>
+  <body data-spy="scroll" data-target="#bd-toc-nav" data-offset="60">
+<!-- Checkboxes to toggle the left sidebar -->
+<input type="checkbox" class="sidebar-toggle" name="__navigation" id="__navigation" aria-label="Toggle navigation sidebar">
+<label class="overlay overlay-navbar" for="__navigation">
+    <div class="visually-hidden">Toggle navigation sidebar</div>
+</label>
+<!-- Checkboxes to toggle the in-page toc -->
+<input type="checkbox" class="sidebar-toggle" name="__page-toc" id="__page-toc" aria-label="Toggle in-page Table of Contents">
+<label class="overlay overlay-pagetoc" for="__page-toc">
+    <div class="visually-hidden">Toggle in-page Table of Contents</div>
+</label>
+<!-- Headers at the top -->
+<div class="announcement header-item noprint"></div>
+<div class="header header-item noprint"></div>
+
+    
+    <div class="container-fluid" id="banner"></div>
+
+    
+
+    <div class="container-xl">
+      <div class="row">
+          
+<!-- Sidebar -->
+<div class="bd-sidebar noprint" id="site-navigation">
+    <div class="bd-sidebar__content">
+        <div class="bd-sidebar__top"><div class="navbar-brand-box">
+    <a class="navbar-brand text-wrap" href="index.html">
+      
+        <!-- `logo` is deprecated in Sphinx 4.0, so remove this when we stop supporting 3 -->
+        
+      
+      
+      <img src="_static/nvidia-logo-horiz-rgb-blk-for-screen.png" class="logo" alt="logo">
+      
+      
+      <h1 class="site-logo" id="site-title">NVIDIA BioNeMo Framework</h1>
+      
+    </a>
+</div><form class="bd-search d-flex align-items-center" action="search.html" method="get">
+  <i class="icon fas fa-search"></i>
+  <input type="search" class="form-control" name="q" id="search-input" placeholder="Search the docs ..." aria-label="Search the docs ..." autocomplete="off" >
+</form><nav class="bd-links" id="bd-docs-nav" aria-label="Main">
+    <div class="bd-toc-item active">
+        <p aria-level="2" class="caption" role="heading">
+ <span class="caption-text">
+  GETTING STARTED
+ </span>
+</p>
+<ul class="nav bd-sidenav">
+ <li class="toctree-l1">
+  <a class="reference internal" href="index.html">
+   What is BioNeMo?
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="pre-reqs.html">
+   Hardware and Software Prerequisites
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="access-startup.html">
+   Access and Startup
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="initialization-guide.html">
+   Initialization Guide
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="tutorial-list.html">
+   BioNeMo Framework Tutorials
+  </a>
+ </li>
+</ul>
+<p aria-level="2" class="caption" role="heading">
+ <span class="caption-text">
+  BioNeMo CORE
+ </span>
+</p>
+<ul class="current nav bd-sidenav">
+ <li class="toctree-l1">
+  <a class="reference internal" href="bionemo-fw-for-model-training-fw.html">
+   Fundamentals
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="data-module-fw.html">
+   Data Module
+  </a>
+ </li>
+ <li class="toctree-l1 current active">
+  <a class="current reference internal" href="#">
+   Validation with a Downstream Task
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="inference-triton-fw.html">
+   Inference with Nvidia Triton Server
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="deep-dive-esm1-pytriton-inference.html">
+   Example of PyTriton Inference
+  </a>
+ </li>
+</ul>
+<p aria-level="2" class="caption" role="heading">
+ <span class="caption-text">
+  BEST PRACTICES
+ </span>
+</p>
+<ul class="nav bd-sidenav">
+ <li class="toctree-l1">
+  <a class="reference internal" href="hyperparameters-fw.html">
+   Hyperparameter Usage and Tuning
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="parallelism-fw.html">
+   Training Parallelism
+  </a>
+ </li>
+</ul>
+<p aria-level="2" class="caption" role="heading">
+ <span class="caption-text">
+  MODELS
+ </span>
+</p>
+<ul class="nav bd-sidenav">
+ <li class="toctree-l1">
+  <a class="reference internal" href="models/diffdock.html">
+   DiffDock
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="models/dnabert.html">
+   DNABERT
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="models/dsmbind.html">
+   Model Overview
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="models/equidock.html">
+   EquiDock
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="models/esm1-nv.html">
+   ESM-1nv
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="models/esm2-nv.html">
+   ESM-2nv
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="models/geneformer.html">
+   Geneformer
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="models/megamolbart.html">
+   MegaMolBART
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="models/molmim.html">
+   MolMIM
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="models/openfold.html">
+   OpenFold
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="models/prott5nv.html">
+   Prott5nv
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="models/model-benchmarks.html">
+   Model Benchmarks
+  </a>
+ </li>
+</ul>
+<p aria-level="2" class="caption" role="heading">
+ <span class="caption-text">
+  DATASETS
+ </span>
+</p>
+<ul class="nav bd-sidenav">
+ <li class="toctree-l1">
+  <a class="reference internal" href="datasets/uniprot.html">
+   UniProt Dataset
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="datasets/CELLxGENE.html">
+   CELLxGENE
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="datasets/zinc15.html">
+   ZINC-15 Dataset
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="datasets/pdb.html">
+   The Protein Data Bank (PDB)
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="datasets/GRCh38.p13.html">
+   Human Reference Genome Version GRCh38.p13
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="datasets/openproteinset.html">
+   OpenProteinSet
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="datasets/moleculenet-physchem.html">
+   MoleculeNet Physical Chemistry Datasets - Lipophilicity, FreeSolv, ESOL
+  </a>
+ </li>
+</ul>
+<p aria-level="2" class="caption" role="heading">
+ <span class="caption-text">
+  TUTORIALS
+ </span>
+</p>
+<ul class="nav bd-sidenav">
+ <li class="toctree-l1">
+  <a class="reference internal" href="preprocessing-bcp-training-diffdock.html">
+   DiffDock: Preparing Workspace and Data for Pre-training
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="notebooks/esm2nv-mutant-design.html">
+   Zero-Shot Protein Design Using ESM-2nv
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="notebooks/MMB_GenerativeAI_Inference_with_examples.html">
+   BioNeMo - MegaMolBART Inferencing for Generative Chemistry
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="notebooks/MolMIM_GenerativeAI_local_inference_with_examples.html">
+   MolMIM Inferencing for Generative Chemistry and Downstream Prediction
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="notebooks/ZINC15-data-preprocessing.html">
+   ZINC Training Dataset Setup for small molecule language models
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="notebooks/bionemo-finetuning-overview.html">
+   Finetune pre-trained models in BioNeMo
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="notebooks/cma_es_guided_molecular_optimization_molmim.html">
+   MolMIM Property Guided Molecular Optimization Using CMA-ES
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="notebooks/custom-dataset-class-fw.html">
+   Adding the OAS Dataset: Modifying the Dataset Class
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="notebooks/custom-dataset-dataloader.html">
+   Adding the OAS Dataset: Customizing Dataset Object and Dataloader Functions
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="notebooks/custom-dataset-preprocessing-fw.html">
+   Adding the OAS Dataset: Downloading and Preprocessing
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="notebooks/encoder-finetuning-notebook-fw.html">
+   Encoder Fine-tuning
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="notebooks/model_training_diffdock.html">
+   DiffDock Model Training using BioNeMo
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="notebooks/model_training_equidock.html">
+   EquiDock Model Training using BioNeMo
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="notebooks/model_training_esm1nv.html">
+   ESM1nv Model Training using BioNeMo
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="notebooks/model_training_esm2nv.html">
+   ESM-2nv: Data Preprocessing and Model Training Using BioNeMo
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="notebooks/model_training_mmb.html">
+   MegaMolBART Model Training using BioNeMo
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="notebooks/model_training_molmim.html">
+   Train MolMIM from scratch on your own data using the BioNeMo Framework
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="notebooks/physchem-notebook-fw.html">
+   Finetuning LLM in BioNeMo for a Downstream Task
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="notebooks/protein-esm2nv-clustering.html">
+   Generating Embeddings for Protein Clustering
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="notebooks/retrosynthesis-notebook.html">
+   Training LLM for a Custom Downstram Task: Retrosynthesis Prediction using MegaMolBART
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="notebooks/esm2_FLIP_finetuning.html">
+   Fine-Tune ESM-2nv on FLIP Data for Sequence-Level Classification, Regression, Token-Level Classification, and with LoRA Adapters
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="notebooks/esm2_oas_inferencing.html">
+   Performing inference on OAS sequences with ESM-2nv
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="notebooks/esm2_paratope_finetuning.html">
+   Pretrain from Scratch, Continue Training from an Existing Checkpoint, and Fine-tune ESM-2nv on Custom Data
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="notebooks/dnabert_inference.html">
+   Generating and visualizing embeddings with DNABert
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="notebooks/dnabert_pretrain_finetune.html">
+   Pretrain, Fine-tune, and Perform Inference with DNABERT for Splice Site Prediction
+  </a>
+ </li>
+</ul>
+<p aria-level="2" class="caption" role="heading">
+ <span class="caption-text">
+  APPENDIX
+ </span>
+</p>
+<ul class="nav bd-sidenav">
+ <li class="toctree-l1">
+  <a class="reference internal" href="faq-fw.html">
+   Frequently Asked Questions (FAQ)
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="bibliography-fw.html">
+   Bibliography
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="releasenotes-fw.html">
+   Release Notes
+  </a>
+ </li>
+</ul>
+
+    </div>
+</nav></div>
+        <div class="bd-sidebar__bottom">
+             <!-- To handle the deprecated key -->
+            
+        </div>
+    </div>
+    <div id="rtd-footer-container"></div>
+</div>
+
+
+          
+
+
+          
+<!-- A tiny helper pixel to detect if we've scrolled -->
+<div class="sbt-scroll-pixel-helper"></div>
+<!-- Main content -->
+<div class="col py-0 content-container">
+    
+    <div class="header-article row sticky-top noprint">
+        
+
+
+
+<div class="col py-1 d-flex header-article-main">
+    <div class="header-article__left">
+        
+        <label for="__navigation"
+  class="headerbtn"
+  data-toggle="tooltip"
+data-placement="right"
+title="Toggle navigation"
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fas fa-bars"></i>
+  </span>
+
+</label>
+
+        
+    </div>
+    <div class="header-article__right">
+<button onclick="toggleFullScreen()"
+  class="headerbtn"
+  data-toggle="tooltip"
+data-placement="bottom"
+title="Fullscreen mode"
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fas fa-expand"></i>
+  </span>
+
+</button>
+<label for="__page-toc"
+  class="headerbtn headerbtn-page-toc"
+  
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fas fa-list"></i>
+  </span>
+
+</label>
+
+    </div>
+</div>
+
+<!-- Table of contents -->
+<div class="col-md-3 bd-toc show noprint">
+    <div class="tocsection onthispage pt-5 pb-3">
+        <i class="fas fa-list"></i> Contents
+    </div>
+    <nav id="bd-toc-nav" aria-label="Page">
+        <ul class="visible nav section-nav flex-column">
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#overview">
+   Overview
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#input-data-format">
+   Input Data Format
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#supported-downstream-tasks">
+   Supported Downstream Tasks
+  </a>
+  <ul class="visible nav section-nav flex-column">
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#sequence-level-regression">
+     Sequence-Level Regression
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#sequence-level-classification">
+     Sequence-Level Classification
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#token-level-classification">
+     Token-Level Classification
+    </a>
+   </li>
+  </ul>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#downstream-task-model-architectures">
+   Downstream Task Model Architectures
+  </a>
+  <ul class="visible nav section-nav flex-column">
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#mlp-model">
+     MLP Model
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#convnet-model">
+     ConvNet model
+    </a>
+   </li>
+  </ul>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#intended-use">
+   Intended Use
+  </a>
+  <ul class="visible nav section-nav flex-column">
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#setup">
+     Setup
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#model-configuration">
+     Model Configuration
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#universal-parameters">
+     Universal Parameters
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#singlevaluepredictioncallback-parameters">
+     <code class="docutils literal notranslate">
+      <span class="pre">
+       SingleValuePredictionCallback
+      </span>
+     </code>
+     Parameters
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#pertokenpredictioncallback-parameters">
+     <code class="docutils literal notranslate">
+      <span class="pre">
+       PerTokenPredictionCallback
+      </span>
+     </code>
+     Parameters
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#optimization-parameters">
+     Optimization Parameters
+    </a>
+   </li>
+  </ul>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#logging-with-weights-biases-and-tensorboard">
+   Logging with Weights &amp; Biases and Tensorboard
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#limitations">
+   Limitations
+  </a>
+ </li>
+</ul>
+
+    </nav>
+</div>
+    </div>
+    <div class="article row">
+        <div class="col pl-md-3 pl-lg-5 content-container">
+            <!-- Table of contents that is only displayed when printing the page -->
+            <div id="jb-print-docs-body" class="onlyprint">
+                <h1>Validation with a Downstream Task</h1>
+                <!-- Table of contents -->
+                <div id="print-main-content">
+                    <div id="jb-print-toc">
+                        
+                        <div>
+                            <h2> Contents </h2>
+                        </div>
+                        <nav aria-label="Page">
+                            <ul class="visible nav section-nav flex-column">
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#overview">
+   Overview
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#input-data-format">
+   Input Data Format
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#supported-downstream-tasks">
+   Supported Downstream Tasks
+  </a>
+  <ul class="visible nav section-nav flex-column">
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#sequence-level-regression">
+     Sequence-Level Regression
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#sequence-level-classification">
+     Sequence-Level Classification
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#token-level-classification">
+     Token-Level Classification
+    </a>
+   </li>
+  </ul>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#downstream-task-model-architectures">
+   Downstream Task Model Architectures
+  </a>
+  <ul class="visible nav section-nav flex-column">
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#mlp-model">
+     MLP Model
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#convnet-model">
+     ConvNet model
+    </a>
+   </li>
+  </ul>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#intended-use">
+   Intended Use
+  </a>
+  <ul class="visible nav section-nav flex-column">
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#setup">
+     Setup
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#model-configuration">
+     Model Configuration
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#universal-parameters">
+     Universal Parameters
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#singlevaluepredictioncallback-parameters">
+     <code class="docutils literal notranslate">
+      <span class="pre">
+       SingleValuePredictionCallback
+      </span>
+     </code>
+     Parameters
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#pertokenpredictioncallback-parameters">
+     <code class="docutils literal notranslate">
+      <span class="pre">
+       PerTokenPredictionCallback
+      </span>
+     </code>
+     Parameters
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#optimization-parameters">
+     Optimization Parameters
+    </a>
+   </li>
+  </ul>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#logging-with-weights-biases-and-tensorboard">
+   Logging with Weights &amp; Biases and Tensorboard
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#limitations">
+   Limitations
+  </a>
+ </li>
+</ul>
+
+                        </nav>
+                    </div>
+                </div>
+            </div>
+            <main id="main-content" role="main">
+                
+              <div>
+                 <div class="tex2jax_ignore mathjax_ignore section" id="validation-with-a-downstream-task">
+<h1>Validation with a Downstream Task<a class="headerlink" href="#validation-with-a-downstream-task" title="Permalink to this headline">#</a></h1>
+<div class="section" id="overview">
+<h2>Overview<a class="headerlink" href="#overview" title="Permalink to this headline">#</a></h2>
+<p>Validation with a downstream task allows the performance of model embeddings to be assessed on a downstream task of choice during the validation step of model training. To enable this functionality, labeled train and test datasets for a downstream task must be provided. A lightweight predictive ML model is trained and tested on provided datasets at the end of every validation epoch. Loss and metrics for the task are added to the Weights and Biases dashboard.</p>
+<p>Validation with a downstream task is useful for monitoring model training progress with metrics that are meaningful for the intended model purpose, such as secondary structure prediction accuracy for ProtT5nv and ESM-1nv or physchem property prediction error for MegaMolBART.</p>
+</div>
+<div class="section" id="input-data-format">
+<h2>Input Data Format<a class="headerlink" href="#input-data-format" title="Permalink to this headline">#</a></h2>
+<p>Downstream task validation requires labeled training and test dataset for the downstream task of choice. Files are expected to be in the <code class="docutils literal notranslate"><span class="pre">.csv</span></code> format. The content of the files depends on the type of a downstream task.</p>
+</div>
+<div class="section" id="supported-downstream-tasks">
+<h2>Supported Downstream Tasks<a class="headerlink" href="#supported-downstream-tasks" title="Permalink to this headline">#</a></h2>
+<p>BioNeMo framework supports a wide range of tasks for validation, and these tasks can be customized as desired. Supported tasks can be broken down into the following categories:</p>
+<div class="section" id="sequence-level-regression">
+<h3>Sequence-Level Regression<a class="headerlink" href="#sequence-level-regression" title="Permalink to this headline">#</a></h3>
+<p>Prediction of a single continuous value from sequence embeddings. The downstream task dataset should contain one continuous value per input sequence (protein sequence or SMILES string). An example task is a physchem property prediction such as lipophilicity. Below is the sample dataset for lipophilicity. The <code class="docutils literal notranslate"><span class="pre">smiles</span></code> column provides the input data (SMILES strings) and <code class="docutils literal notranslate"><span class="pre">exp</span></code> provides the experimentally determined octanol/water distribution coefficient.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>CMPD_CHEMBLID,exp,smiles
+CHEMBL596271,3.54,Cn1c<span class="o">(</span>CN2CCN<span class="o">(</span>CC2<span class="o">)</span>c3ccc<span class="o">(</span>Cl<span class="o">)</span>cc3<span class="o">)</span>nc4ccccc14
+CHEMBL1951080,-1.18,COc1cc<span class="o">(</span>OC<span class="o">)</span>c<span class="o">(</span>cc1NC<span class="o">(=</span>O<span class="o">)</span>CSCC<span class="o">(=</span>O<span class="o">)</span>O<span class="o">)</span>S<span class="o">(=</span>O<span class="o">)(=</span>O<span class="o">)</span>N2C<span class="o">(</span>C<span class="o">)</span>CCc3ccccc23
+CHEMBL1771,3.69,COC<span class="o">(=</span>O<span class="o">)[</span>C@@H<span class="o">](</span>N1CCc2sccc2C1<span class="o">)</span>c3ccccc3Cl
+CHEMBL234951,3.37,OC<span class="o">[</span>C@H<span class="o">](</span>O<span class="o">)</span>CN1C<span class="o">(=</span>O<span class="o">)</span>C<span class="o">(</span>Cc2ccccc12<span class="o">)</span>NC<span class="o">(=</span>O<span class="o">)</span>c3cc4cc<span class="o">(</span>Cl<span class="o">)</span>sc4<span class="o">[</span>nH<span class="o">]</span><span class="m">3</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="sequence-level-classification">
+<h3>Sequence-Level Classification<a class="headerlink" href="#sequence-level-classification" title="Permalink to this headline">#</a></h3>
+<p>Prediction of a class label from sequence embeddings can be binary or multi-class classification. The downstream task datasets should contain one label per input sequence (protein sequence or SMILES string). An example task is prediction of protein subcellular localization. Below is the sample dataset for subcellular localization. <code class="docutils literal notranslate"><span class="pre">sequence</span></code> column supplies protein amino acid sequence, and <code class="docutils literal notranslate"><span class="pre">scl_label</span></code> column supplies class label of the protein’s subcellular localization in text format. This text labels are converted into numeric class labels as the dataset object is created.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>id,sequence,scl_label
+Sequence0,MGCMKSKQTFPFPTIYEGEKQHESEEPFMPEERCLPRMASPVNVKEEVKEPPGTNTVILEYAHRLSQDILCDALQQWACNNIKYHDIPYIESEGP,Cell_membrane
+Sequence1,MFTLKKSQLLLFFPGTINLSLCQDETNAEEERRDEEVAKMEEIKRGLLSGILGAGKHIVCGLSGLC,Extracellular
+Sequence2,MSVPIDRINTVDTLANTLESNLKFFPEKIHFNIRGKLIVIDRVELPILPTTVLALLFPNGFHLLLKHEGGDVSSCFKCHKIDPSICKWILDTYLPLFKK,Cytoplasm
+Sequence13,MLFLKLVASVLALMTIVPAQAGLIGKRKPKVMIINMFSLEANAWLSQMDDLYANNITVVGLNRLYPQVHCNTQQTICQMTTGEGKSNAAS,Endoplasmic_reticulum
+</pre></div>
+</div>
+</div>
+<div class="section" id="token-level-classification">
+<h3>Token-Level Classification<a class="headerlink" href="#token-level-classification" title="Permalink to this headline">#</a></h3>
+<p>Prediction of a class label for each token in the input sequence from sequence hidden states. Supports multiple classification heads, each can be binary or multi-class classification task. Additionally supports masking some token positions. Masked positions are excluded from loss and accuracy calculation both for training and testing. The downstream task dataset should contain a class label for each token in the input sequence. Optional masks of 0s and 1s can be provided. Example task is secondary structure prediction. Below is the sample dataset for secondary structure prediction. <code class="docutils literal notranslate"><span class="pre">sequence</span></code> column supplies protein amino acid sequence, <code class="docutils literal notranslate"><span class="pre">3state</span></code> column supplies secondary structure class labels for each amino acid in the protein sequence (<code class="docutils literal notranslate"><span class="pre">C</span></code> – coil, <code class="docutils literal notranslate"><span class="pre">H</span></code> – helix, <code class="docutils literal notranslate"><span class="pre">E</span></code> – sheet), and the <code class="docutils literal notranslate"><span class="pre">resolved</span></code> column provides info if the residue at this position is resolved, that will be used as mask.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>id,sequence,3state,resolved
+1es5-A,VTKPTIAAVGGYAMNNGTGTTLYTKAADTRRSTGSTTKIMTAKVVLAQSNLNLDAKVTIQKAYSDYVVANNASQAHLIVGDKVTVRQLLYGLMLPSGCDAAYALADKYGSGSTRAARVKSFIGKMNTAATNLGLHNTHFDSFDGIGNGANYSTPRDLTKIASSAMKNSTFRTVVKTKAYTAKTVTKTGSIRTMDTWKNTNGLLSSYSGAIGVKTGAGPEAKYCLVFAATRGGKTVIGTVLASTSIPARESDATKIMNYGFAL,CCCCCCCCCEEEEEECCCCCEEEEECCCCCECCHHHHHHHHHHHHHCCCCCCCCCEEECCHHHHHHHHHCCCCCCCCCCCCEEEHHHHHHHHHCCCCHHHHHHHHHHHCCCCCHHHHHHHHHHHHHHHHHHCCCCCCECCCCCCCCCCCCEECHHHHHHHHHHHCCCHHHHHHHCCCEECCEEECCCCCEEECCCEECCCCHHHHCCCEEEEEEEEECCCEEEEEEEEEECCEEEEEEEEEECCHHHHHHHHHHHHHHHHHC,0011111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111
+2a6h-E,MAEPGIDKLFGMVDSKYRLTVVVAKRAQQLLRHGFKNTVLEPEERPKMQTLEGLFDDPNAETWAMKELLTGRLVFGENLVPEDRLQKEMERIYPGEREE,CCCCCHHHHHHHCCCHHHHHHHHHHHHHHHHHCCCCCCCCCCCCCCCCCCCCHHHCCCCCHHHHHHHHCCCCCCCCCCCCCCCHHHHHHHHHCCCCCCC,011111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111000
+5b1a-P,MTHQTHAYHMVNPSPWPLTGALSALLMTSGLTMWFHFNSMTLLMIGLTTNMLTMYQWWRDVIRESTFQGHHTPAVQKGLRYGMILFIISEVLFFTGFFWAFYHSSLAPTPELGGCWPPTGIHPLNPLEVPLLNTSVLLASGVSITWAHHSLMEGDRKHMLQALFITITLGVYFTLLQASEYYEAPFTISDGVYGSTFFVATGFHGLHVIIGSTFLIVCFFRQLKFHFTSNHHFGFEAAAWYWHFVDVVWLFLYVSIYWWGS,CCCCCCCCCCCCCCCHHHHHHHHHHHHHHHHHHHHHCCCCHHHHHHHHHHHHHHHHHHHHHHHHHHHCCCCCHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHCCCHHHCCCCCCCCCCCCCCCCHHHHHHHHHHHHHHHHHHHHHHHHCCCHHHHHHHHHHHHHHHHHHHHHHHHHHHHCCCCCCCHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHCCCCCCCCCHHHHHHHHHHHHHHHHHHHHHHHHHHHCC,001111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111
+</pre></div>
+</div>
+</div>
+</div>
+<div class="section" id="downstream-task-model-architectures">
+<h2>Downstream Task Model Architectures<a class="headerlink" href="#downstream-task-model-architectures" title="Permalink to this headline">#</a></h2>
+<p>BioNeMo framework offers two lightweight predictive model architectures for downstream task validation – multi-layer perceptron model (MLP model) and a convolutional network (ConvNet). The MLP model is always used for sequence-level tasks, and ConvNet is always used for token-level tasks.</p>
+<div class="section" id="mlp-model">
+<h3>MLP Model<a class="headerlink" href="#mlp-model" title="Permalink to this headline">#</a></h3>
+<p>The MLP model is a fully connected neural network architecture with three hidden layers and an output prediction head. The first hidden layer is the same size as the embeddings vector, and the second and third layers have sizes <code class="docutils literal notranslate"><span class="pre">256</span></code> and <code class="docutils literal notranslate"><span class="pre">128</span></code> respectively. The size of the prediction head is either <code class="docutils literal notranslate"><span class="pre">1</span></code> for regression tasks or the number of classes for the classification tasks.</p>
+<p>Additionally, <code class="docutils literal notranslate"><span class="pre">ReLU</span></code> activation function and a dropout with <code class="docutils literal notranslate"><span class="pre">p=0.1</span></code> are applied after each hidden layer transformation.</p>
+<p>MLP model architecture is not part of the YAML configuration file but can be manually adjusted in <code class="docutils literal notranslate"><span class="pre">bionemo/model/core/mlp_model.py</span></code> if desired.</p>
+</div>
+<div class="section" id="convnet-model">
+<h3>ConvNet model<a class="headerlink" href="#convnet-model" title="Permalink to this headline">#</a></h3>
+<p>The ConvNet model architecture consists of 2D convolutional layer with <code class="docutils literal notranslate"><span class="pre">in_channels</span></code> equal to the embeddings vector size, <code class="docutils literal notranslate"><span class="pre">out_channels=32</span></code>, <code class="docutils literal notranslate"><span class="pre">kernel_size=(7,</span> <span class="pre">1)</span></code> and <code class="docutils literal notranslate"><span class="pre">padding=(3,</span> <span class="pre">0)</span></code>. The convolutional layer is followed by the <code class="docutils literal notranslate"><span class="pre">ReLU</span></code> activation function and a dropout with <code class="docutils literal notranslate"><span class="pre">p=0.25</span></code>. The last layers are configurable classification prediction heads. The YAML configuration file specifies the number of heads and classes for each head. Other architectural parameters of the ConvNet are not part of the configuration file but can be manually adjusted in <code class="docutils literal notranslate"><span class="pre">bionemo/model/core/cnn.py</span></code> if desired.</p>
+</div>
+</div>
+<div class="section" id="intended-use">
+<h2>Intended Use<a class="headerlink" href="#intended-use" title="Permalink to this headline">#</a></h2>
+<div class="section" id="setup">
+<h3>Setup<a class="headerlink" href="#setup" title="Permalink to this headline">#</a></h3>
+<p>Validation with a downstream task is implemented in the form of a callback that is called at the end of every validation epoch. Parameters for the callback must be provided in the YAML configuration file. The callback is set up and added to the trainer with the following commands at the beginning of the training script:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span>
+<span class="kn">from</span> <span class="nn">bionemo.callbacks</span> <span class="kn">import</span> <span class="n">setup_dwnstr_task_validation_callbacks</span>
+
+
+<span class="k">def</span> <span class="nf">main</span><span class="p">(</span><span class="n">cfg</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+  <span class="n">callbacks</span> <span class="o">=</span> <span class="n">setup_dwnstr_task_validation_callbacks</span><span class="p">(</span><span class="n">cfg</span><span class="p">)</span>
+  <span class="n">trainer</span> <span class="o">=</span> <span class="n">setup_trainer</span><span class="p">(</span><span class="n">cfg</span><span class="p">,</span> <span class="n">callbacks</span><span class="o">=</span><span class="n">callbacks</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Downstream task validation is defined in the <code class="docutils literal notranslate"><span class="pre">model.dwnstr_task_validation</span></code> section of the YAML configuration file. The parameter <code class="docutils literal notranslate"><span class="pre">model.dwnstr_task_validation.enabled</span></code> can be set to <code class="docutils literal notranslate"><span class="pre">True</span></code> to enable the feature, or to <code class="docutils literal notranslate"><span class="pre">False</span> </code> to disable it:</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">model</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">dwnstr_task_validation</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">enabled</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">True</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="model-configuration">
+<h3>Model Configuration<a class="headerlink" href="#model-configuration" title="Permalink to this headline">#</a></h3>
+<p>If downstream task validation is enabled, a set of parameters must be specified in <code class="docutils literal notranslate"><span class="pre">model.dwnstr_task_validation.dataset</span></code>. These parameters can be split into three categories – universal, task-specific, and optimization.</p>
+</div>
+<div class="section" id="universal-parameters">
+<h3>Universal Parameters<a class="headerlink" href="#universal-parameters" title="Permalink to this headline">#</a></h3>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">class</span></code> defines a type of callback. Available options are: <code class="docutils literal notranslate"><span class="pre">bionemo.model.core.dwnstr_task_callbacks.SingleValuePredictionCallback</span></code> for sequence-level classification or regression and <code class="docutils literal notranslate"><span class="pre">bionemo.model.core.dwnstr_task_callbacks.PerTokenPredictionCallback</span></code> for token-level classification.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">task_type</span></code> defines a type of downstream task. Available options are <code class="docutils literal notranslate"><span class="pre">classification</span></code> or <code class="docutils literal notranslate"><span class="pre">regression</span></code>. <code class="docutils literal notranslate"><span class="pre">PerTokenPredictionCallback</span></code> supports only <code class="docutils literal notranslate"><span class="pre">classification</span></code>.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">infer_target</span></code> defines the inference class for embeddings extraction and must match the main model architecture. Available options are:</p>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">bionemo.model.molecule.megamolbart.infer.MegaMolBARTInference</span></code> for MegaMolBART</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">bionemo.model.protein.prott5nv.infer.ProtT5nvInference</span></code> for ProtT5nv</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">bionemo.model.protein.esm1nv.infer.ESM1nvInference</span></code> for ESM-1nv</p></li>
+</ul>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">max_seq_length</span></code> defines the maximum sequence length for the downstream task. Sequences longer than <code class="docutils literal notranslate"><span class="pre">max_seq_length</span></code> are omitted from training and testing. This parameter is usually inferred from the main model’s sequence length.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">emb_batch_size</span></code> defines the value of batch size used to compute embeddings for the downstream task datasets. This value can usually be larger than the main model’s micro-batch size since gradients are not computed during the inference.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">batch_size</span></code> defines the batch size of the downstream task model.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">num_epochs</span></code> defines the number of epochs for which the downstream task model is trained.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">dataset_path</span></code> defines the location of datasets for the downstream task. This directory is expected to contain two subdirectories with the names <code class="docutils literal notranslate"><span class="pre">train</span></code> and <code class="docutils literal notranslate"><span class="pre">test</span></code>, each containing CSV files for train and test subsets, respectively.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">dataset.train</span></code> defines the file name or range of file names with the training subset without <code class="docutils literal notranslate"><span class="pre">.csv</span></code> extension.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">dataset.test</span></code> defines the file name or range of file names with the test subset without <code class="docutils literal notranslate"><span class="pre">.csv</span></code> extension.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">random_seed</span></code> defines the random seed value for the downstream task model.</p></li>
+</ul>
+</div>
+<div class="section" id="singlevaluepredictioncallback-parameters">
+<h3><code class="docutils literal notranslate"><span class="pre">SingleValuePredictionCallback</span></code> Parameters<a class="headerlink" href="#singlevaluepredictioncallback-parameters" title="Permalink to this headline">#</a></h3>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">sequence_column</span></code> defines the name of a column in train and test files containing input sequences.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">target_column</span></code> defines the name of a column in train and test files containing target values.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">num_classes</span></code> defines the number of class labels in the target and must be provided only in case of <code class="docutils literal notranslate"><span class="pre">task_type:</span> <span class="pre">classification</span></code> in the <code class="docutils literal notranslate"><span class="pre">SingleValuePredictionCallback</span></code>.</p></li>
+</ul>
+<p>An example of <code class="docutils literal notranslate"><span class="pre">SingleValuePredictionCallback</span></code> can be found in <code class="docutils literal notranslate"><span class="pre">/workspace/bionemo/examples/molecule/megamolbart/conf/pretrain_base.yaml</span></code>.</p>
+</div>
+<div class="section" id="pertokenpredictioncallback-parameters">
+<h3><code class="docutils literal notranslate"><span class="pre">PerTokenPredictionCallback</span></code> Parameters<a class="headerlink" href="#pertokenpredictioncallback-parameters" title="Permalink to this headline">#</a></h3>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">sequence_col</span></code> defines the name of a column in train and test files containing input sequences.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">target_column</span></code> defines the list with names of columns in train and test files containing class labels for each classification task.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">target_sizes</span></code> defines the list with the number of classes for each classification task.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">mask_col</span></code> defines the list with names of columns in train and test files used as masks for each classification task. Should be set to `null`` for any classification task where masking is not needed.</p></li>
+</ul>
+<p>Example usage of <code class="docutils literal notranslate"><span class="pre">PerTokenPredictionCallback</span></code> can be found in <code class="docutils literal notranslate"><span class="pre">/workspace/bionemo/examples/protein/esm1nv/conf/pretrain_small.yaml</span></code>.</p>
+</div>
+<div class="section" id="optimization-parameters">
+<h3>Optimization Parameters<a class="headerlink" href="#optimization-parameters" title="Permalink to this headline">#</a></h3>
+<p>Optimization parameters are provided in <code class="docutils literal notranslate"><span class="pre">model.dwnstr_task_validation.dataset.optim</span></code> section of the YAML configuration file and include all optimizers and learning rate schedulers supported in NeMo. More details on NeMo optimizers and learning rate schedulers can be found in the <a class="reference external" href="https://docs.nvidia.com/deeplearning/nemo/user-guide/docs/en/stable/core/core.html#optimization">NeMo User Guide</a>.</p>
+</div>
+</div>
+<div class="section" id="logging-with-weights-biases-and-tensorboard">
+<h2>Logging with Weights &amp; Biases and Tensorboard<a class="headerlink" href="#logging-with-weights-biases-and-tensorboard" title="Permalink to this headline">#</a></h2>
+<p>Test metrics from the downstream task validation step are automatically added to the experiment’s W&amp;B and/or Tensorboard dashboards if these options are enable in the configuration file. The following metrics are logged:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">dwnstr_task_val_loss</span></code> – loss computed on the test subset of the downstream task. This metric is logged regardless of the task type, but every task has its type of loss:</p>
+<ul>
+<li><p>cross-entropy loss for sequence-level classification</p></li>
+<li><p>MSE loss for sequence-level regression</p></li>
+<li><p>per-token masked cross-entropy loss for token-level classification. <code class="docutils literal notranslate"><span class="pre">PerTokenMaskedCrossEntropyLoss</span></code> is implemented in BioNeMo and can be found at <code class="docutils literal notranslate"><span class="pre">bionemo/model/core/cnn.py</span></code>.</p></li>
+</ul>
+</li>
+<li><p>Overall classification accuracy is only logged for classification tasks. In the case of sequence-level classification, a single chart is created. A chart for each classification task is created for token-level classification.</p></li>
+<li><p>Regression MSE is only logged for regression tasks. A single chart is created in this case.</p></li>
+</ul>
+</div>
+<div class="section" id="limitations">
+<h2>Limitations<a class="headerlink" href="#limitations" title="Permalink to this headline">#</a></h2>
+<p>Validation with a downstream task can be enabled during pre-training with data parallelism and/or tensor parallelism enabled. However, the downstream task model is trained on a single GPU on the rank 0 node, even when the main model is trained using multi-GPUs or multi-nodes. While the downstream task model is being trained, other processes are waiting for this training to complete. For efficient usage of computational resources, it is recommended to minimize the duration and frequency of validation epochs of downstream task model training. The frequency of the validation epoch can be controlled <code class="docutils literal notranslate"><span class="pre">trainer.val_check_interval</span></code> parameter.</p>
+<p>Finally, <em>token-level regression</em> is not currently implemented, although the existing token-level classification example could be modified to support regression.</p>
+</div>
+</div>
+
+<div class="section">
+   
+</div>
+
+              </div>
+              
+            </main>
+            <footer class="footer-article noprint">
+                
+    <!-- Previous / next buttons -->
+<div class='prev-next-area'>
+    <a class='left-prev' id="prev-link" href="data-module-fw.html" title="previous page">
+        <i class="fas fa-angle-left"></i>
+        <div class="prev-next-info">
+            <p class="prev-next-subtitle">previous</p>
+            <p class="prev-next-title">Data Module</p>
+        </div>
+    </a>
+    <a class='right-next' id="next-link" href="inference-triton-fw.html" title="next page">
+    <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">Inference with Nvidia Triton Server</p>
+    </div>
+    <i class="fas fa-angle-right"></i>
+    </a>
+</div>
+            </footer>
+        </div>
+    </div>
+    <div class="footer-content row">
+        <footer class="col footer"><p>
+  
+    By NVIDIA<br/>
+  
+      &copy; Copyright 2023-2024 NVIDIA CORPORATION &amp; AFFILIATES. All rights reserved..<br/>
+    Last updated on Oct 17, 2024.<br/>
+</p>
+        </footer>
+    </div>
+    
+</div>
+
+
+      </div>
+    </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="_static/scripts/pydata-sphinx-theme.js?digest=1999514e3f237ded88cf"></script>
+
+
+  </body>
+</html>

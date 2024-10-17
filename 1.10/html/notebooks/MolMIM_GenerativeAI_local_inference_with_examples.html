@@ -1,0 +1,1471 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>MolMIM Inferencing for Generative Chemistry and Downstream Prediction &#8212; NVIDIA BioNeMo Framework</title>
+    
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../_static/styles/theme.css?digest=1999514e3f237ded88cf" rel="stylesheet">
+<link href="../_static/styles/pydata-sphinx-theme.css?digest=1999514e3f237ded88cf" rel="stylesheet">
+
+    
+  <link rel="stylesheet"
+    href="../_static/vendor/fontawesome/5.13.0/css/all.min.css">
+  <link rel="preload" as="font" type="font/woff2" crossorigin
+    href="../_static/vendor/fontawesome/5.13.0/webfonts/fa-solid-900.woff2">
+  <link rel="preload" as="font" type="font/woff2" crossorigin
+    href="../_static/vendor/fontawesome/5.13.0/webfonts/fa-brands-400.woff2">
+
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
+    <link rel="stylesheet" href="../_static/styles/sphinx-book-theme.css?digest=62ba249389abaaa9ffc34bf36a076bdc1d65ee18" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="../_static/mystnb.4510f1fc1dee50b3e5859aac5469c37c29e427902b24a333a5f9fcb2f0b3ac41.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/copybutton.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/tabs.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/custom.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/design-style.1e8bd061cd6da7fc9cf755528e8ffc24.min.css" />
+    
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=1999514e3f237ded88cf">
+
+    <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+    <script src="../_static/jquery.js"></script>
+    <script src="../_static/underscore.js"></script>
+    <script src="../_static/doctools.js"></script>
+    <script src="../_static/clipboard.min.js"></script>
+    <script src="../_static/copybutton.js"></script>
+    <script src="https://js.hcaptcha.com/1/api.js"></script>
+    <script src="//assets.adobedtm.com/5d4962a43b79/c1061d2c5e7b/launch-191c2462b890.min.js"></script>
+    <script src="../_static/scripts/sphinx-book-theme.js?digest=f31d14ad54b65d19161ba51d4ffff3a77ae00456"></script>
+    <script src="../_static/design-tabs.js"></script>
+    <script>window.MathJax = {"options": {"processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+    <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <link rel="canonical" href="https://docs.nvidia.com/bionemo-framework/0.4.0/notebooks/MolMIM_GenerativeAI_local_inference_with_examples.html" />
+    <link rel="shortcut icon" href="../_static/nvidia-logo-vert-rgb-blk-for-screen.png"/>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="ZINC Training Dataset Setup for small molecule language models" href="ZINC15-data-preprocessing.html" />
+    <link rel="prev" title="BioNeMo - MegaMolBART Inferencing for Generative Chemistry" href="MMB_GenerativeAI_Inference_with_examples.html" /> 
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="docsearch:language" content="None">
+    
+
+    <!-- Google Analytics -->
+      
+<style type="text/css">
+  ul.ablog-archive {
+    list-style: none;
+    overflow: auto;
+    margin-left: 0px;
+  }
+  ul.ablog-archive li {
+    float: left;
+    margin-right: 5px;
+    font-size: 80%;
+  }
+  ul.postlist a {
+    font-style: italic;
+  }
+  ul.postlist-style-disc {
+    list-style-type: disc;
+  }
+  ul.postlist-style-none {
+    list-style-type: none;
+  }
+  ul.postlist-style-circle {
+    list-style-type: circle;
+  }
+</style>
+
+  </head>
+  <body data-spy="scroll" data-target="#bd-toc-nav" data-offset="60">
+<!-- Checkboxes to toggle the left sidebar -->
+<input type="checkbox" class="sidebar-toggle" name="__navigation" id="__navigation" aria-label="Toggle navigation sidebar">
+<label class="overlay overlay-navbar" for="__navigation">
+    <div class="visually-hidden">Toggle navigation sidebar</div>
+</label>
+<!-- Checkboxes to toggle the in-page toc -->
+<input type="checkbox" class="sidebar-toggle" name="__page-toc" id="__page-toc" aria-label="Toggle in-page Table of Contents">
+<label class="overlay overlay-pagetoc" for="__page-toc">
+    <div class="visually-hidden">Toggle in-page Table of Contents</div>
+</label>
+<!-- Headers at the top -->
+<div class="announcement header-item noprint"></div>
+<div class="header header-item noprint"></div>
+
+    
+    <div class="container-fluid" id="banner"></div>
+
+    
+
+    <div class="container-xl">
+      <div class="row">
+          
+<!-- Sidebar -->
+<div class="bd-sidebar noprint" id="site-navigation">
+    <div class="bd-sidebar__content">
+        <div class="bd-sidebar__top"><div class="navbar-brand-box">
+    <a class="navbar-brand text-wrap" href="../index.html">
+      
+        <!-- `logo` is deprecated in Sphinx 4.0, so remove this when we stop supporting 3 -->
+        
+      
+      
+      <img src="../_static/nvidia-logo-horiz-rgb-blk-for-screen.png" class="logo" alt="logo">
+      
+      
+      <h1 class="site-logo" id="site-title">NVIDIA BioNeMo Framework</h1>
+      
+    </a>
+</div><form class="bd-search d-flex align-items-center" action="../search.html" method="get">
+  <i class="icon fas fa-search"></i>
+  <input type="search" class="form-control" name="q" id="search-input" placeholder="Search the docs ..." aria-label="Search the docs ..." autocomplete="off" >
+</form><nav class="bd-links" id="bd-docs-nav" aria-label="Main">
+    <div class="bd-toc-item active">
+        <p aria-level="2" class="caption" role="heading">
+ <span class="caption-text">
+  GETTING STARTED
+ </span>
+</p>
+<ul class="nav bd-sidenav">
+ <li class="toctree-l1">
+  <a class="reference internal" href="../index.html">
+   What is BioNeMo?
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../pre-reqs.html">
+   Hardware and Software Prerequisites
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../access-startup.html">
+   Access and Startup
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../initialization-guide.html">
+   Initialization Guide
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../tutorial-list.html">
+   BioNeMo Framework Tutorials
+  </a>
+ </li>
+</ul>
+<p aria-level="2" class="caption" role="heading">
+ <span class="caption-text">
+  BioNeMo CORE
+ </span>
+</p>
+<ul class="nav bd-sidenav">
+ <li class="toctree-l1">
+  <a class="reference internal" href="../bionemo-fw-for-model-training-fw.html">
+   Fundamentals
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../data-module-fw.html">
+   Data Module
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../dwnstr-task-validation.html">
+   Validation with a Downstream Task
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../inference-triton-fw.html">
+   Inference with Nvidia Triton Server
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../deep-dive-esm1-pytriton-inference.html">
+   Example of PyTriton Inference
+  </a>
+ </li>
+</ul>
+<p aria-level="2" class="caption" role="heading">
+ <span class="caption-text">
+  BEST PRACTICES
+ </span>
+</p>
+<ul class="nav bd-sidenav">
+ <li class="toctree-l1">
+  <a class="reference internal" href="../hyperparameters-fw.html">
+   Hyperparameter Usage and Tuning
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../parallelism-fw.html">
+   Training Parallelism
+  </a>
+ </li>
+</ul>
+<p aria-level="2" class="caption" role="heading">
+ <span class="caption-text">
+  MODELS
+ </span>
+</p>
+<ul class="nav bd-sidenav">
+ <li class="toctree-l1">
+  <a class="reference internal" href="../models/diffdock.html">
+   DiffDock
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../models/dnabert.html">
+   DNABERT
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../models/dsmbind.html">
+   Model Overview
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../models/equidock.html">
+   EquiDock
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../models/esm1-nv.html">
+   ESM-1nv
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../models/esm2-nv.html">
+   ESM-2nv
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../models/geneformer.html">
+   Geneformer
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../models/megamolbart.html">
+   MegaMolBART
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../models/molmim.html">
+   MolMIM
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../models/openfold.html">
+   OpenFold
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../models/prott5nv.html">
+   Prott5nv
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../models/model-benchmarks.html">
+   Model Benchmarks
+  </a>
+ </li>
+</ul>
+<p aria-level="2" class="caption" role="heading">
+ <span class="caption-text">
+  DATASETS
+ </span>
+</p>
+<ul class="nav bd-sidenav">
+ <li class="toctree-l1">
+  <a class="reference internal" href="../datasets/uniprot.html">
+   UniProt Dataset
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../datasets/CELLxGENE.html">
+   CELLxGENE
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../datasets/zinc15.html">
+   ZINC-15 Dataset
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../datasets/pdb.html">
+   The Protein Data Bank (PDB)
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../datasets/GRCh38.p13.html">
+   Human Reference Genome Version GRCh38.p13
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../datasets/openproteinset.html">
+   OpenProteinSet
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../datasets/moleculenet-physchem.html">
+   MoleculeNet Physical Chemistry Datasets - Lipophilicity, FreeSolv, ESOL
+  </a>
+ </li>
+</ul>
+<p aria-level="2" class="caption" role="heading">
+ <span class="caption-text">
+  TUTORIALS
+ </span>
+</p>
+<ul class="current nav bd-sidenav">
+ <li class="toctree-l1">
+  <a class="reference internal" href="../preprocessing-bcp-training-diffdock.html">
+   DiffDock: Preparing Workspace and Data for Pre-training
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="esm2nv-mutant-design.html">
+   Zero-Shot Protein Design Using ESM-2nv
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="MMB_GenerativeAI_Inference_with_examples.html">
+   BioNeMo - MegaMolBART Inferencing for Generative Chemistry
+  </a>
+ </li>
+ <li class="toctree-l1 current active">
+  <a class="current reference internal" href="#">
+   MolMIM Inferencing for Generative Chemistry and Downstream Prediction
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="ZINC15-data-preprocessing.html">
+   ZINC Training Dataset Setup for small molecule language models
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="bionemo-finetuning-overview.html">
+   Finetune pre-trained models in BioNeMo
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="cma_es_guided_molecular_optimization_molmim.html">
+   MolMIM Property Guided Molecular Optimization Using CMA-ES
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="custom-dataset-class-fw.html">
+   Adding the OAS Dataset: Modifying the Dataset Class
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="custom-dataset-dataloader.html">
+   Adding the OAS Dataset: Customizing Dataset Object and Dataloader Functions
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="custom-dataset-preprocessing-fw.html">
+   Adding the OAS Dataset: Downloading and Preprocessing
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="encoder-finetuning-notebook-fw.html">
+   Encoder Fine-tuning
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="model_training_diffdock.html">
+   DiffDock Model Training using BioNeMo
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="model_training_equidock.html">
+   EquiDock Model Training using BioNeMo
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="model_training_esm1nv.html">
+   ESM1nv Model Training using BioNeMo
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="model_training_esm2nv.html">
+   ESM-2nv: Data Preprocessing and Model Training Using BioNeMo
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="model_training_mmb.html">
+   MegaMolBART Model Training using BioNeMo
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="model_training_molmim.html">
+   Train MolMIM from scratch on your own data using the BioNeMo Framework
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="physchem-notebook-fw.html">
+   Finetuning LLM in BioNeMo for a Downstream Task
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="protein-esm2nv-clustering.html">
+   Generating Embeddings for Protein Clustering
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="retrosynthesis-notebook.html">
+   Training LLM for a Custom Downstram Task: Retrosynthesis Prediction using MegaMolBART
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="esm2_FLIP_finetuning.html">
+   Fine-Tune ESM-2nv on FLIP Data for Sequence-Level Classification, Regression, Token-Level Classification, and with LoRA Adapters
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="esm2_oas_inferencing.html">
+   Performing inference on OAS sequences with ESM-2nv
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="esm2_paratope_finetuning.html">
+   Pretrain from Scratch, Continue Training from an Existing Checkpoint, and Fine-tune ESM-2nv on Custom Data
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="dnabert_inference.html">
+   Generating and visualizing embeddings with DNABert
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="dnabert_pretrain_finetune.html">
+   Pretrain, Fine-tune, and Perform Inference with DNABERT for Splice Site Prediction
+  </a>
+ </li>
+</ul>
+<p aria-level="2" class="caption" role="heading">
+ <span class="caption-text">
+  APPENDIX
+ </span>
+</p>
+<ul class="nav bd-sidenav">
+ <li class="toctree-l1">
+  <a class="reference internal" href="../faq-fw.html">
+   Frequently Asked Questions (FAQ)
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../bibliography-fw.html">
+   Bibliography
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../releasenotes-fw.html">
+   Release Notes
+  </a>
+ </li>
+</ul>
+
+    </div>
+</nav></div>
+        <div class="bd-sidebar__bottom">
+             <!-- To handle the deprecated key -->
+            
+        </div>
+    </div>
+    <div id="rtd-footer-container"></div>
+</div>
+
+
+          
+
+
+          
+<!-- A tiny helper pixel to detect if we've scrolled -->
+<div class="sbt-scroll-pixel-helper"></div>
+<!-- Main content -->
+<div class="col py-0 content-container">
+    
+    <div class="header-article row sticky-top noprint">
+        
+
+
+
+<div class="col py-1 d-flex header-article-main">
+    <div class="header-article__left">
+        
+        <label for="__navigation"
+  class="headerbtn"
+  data-toggle="tooltip"
+data-placement="right"
+title="Toggle navigation"
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fas fa-bars"></i>
+  </span>
+
+</label>
+
+        
+    </div>
+    <div class="header-article__right">
+<button onclick="toggleFullScreen()"
+  class="headerbtn"
+  data-toggle="tooltip"
+data-placement="bottom"
+title="Fullscreen mode"
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fas fa-expand"></i>
+  </span>
+
+</button>
+<label for="__page-toc"
+  class="headerbtn headerbtn-page-toc"
+  
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fas fa-list"></i>
+  </span>
+
+</label>
+
+    </div>
+</div>
+
+<!-- Table of contents -->
+<div class="col-md-3 bd-toc show noprint">
+    <div class="tocsection onthispage pt-5 pb-3">
+        <i class="fas fa-list"></i> Contents
+    </div>
+    <nav id="bd-toc-nav" aria-label="Page">
+        <ul class="visible nav section-nav flex-column">
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#demo-objectives">
+   Demo Objectives
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#setup">
+   Setup
+  </a>
+  <ul class="visible nav section-nav flex-column">
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#import-required-libraries">
+     Import Required Libraries
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#home-directory">
+     Home Directory
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#download-model-checkpoints">
+     Download Model Checkpoints
+    </a>
+   </li>
+  </ul>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#molmim-inference-functions">
+   MolMIM Inference Functions
+  </a>
+  <ul class="visible nav section-nav flex-column">
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#load-configurations">
+     Load Configurations
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#smiles-examples-with-rdkit">
+     SMILES Examples with RDKit
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#from-smiles-to-hidden-state">
+     From SMILES to Hidden State
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#from-smiles-to-embedding">
+     From SMILES to Embedding
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#hidden-state-to-smiles">
+     Hidden State to SMILES
+    </a>
+   </li>
+  </ul>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#molecular-generation-and-chemical-space-exploration">
+   Molecular Generation and Chemical Space Exploration
+  </a>
+  <ul class="visible nav section-nav flex-column">
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#define-generation-function">
+     Define Generation Function
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#generate-and-visualize-analogous-small-molecules">
+     Generate and Visualize Analogous Small Molecules
+    </a>
+   </li>
+  </ul>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#downstream-prediction-model-using-learned-embeddings-from-molmim">
+   Downstream Prediction Model Using Learned Embeddings from MolMIM
+  </a>
+  <ul class="visible nav section-nav flex-column">
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#data-loading-and-preprocessing">
+     Data Loading and Preprocessing
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#obtain-embeddings">
+     Obtain Embeddings
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#svr-model-predicting-esol-using-molmim-embeddings">
+     SVR Model: Predicting ESOL Using MolMIM Embeddings
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#results">
+     Results
+    </a>
+   </li>
+  </ul>
+ </li>
+</ul>
+
+    </nav>
+</div>
+    </div>
+    <div class="article row">
+        <div class="col pl-md-3 pl-lg-5 content-container">
+            <!-- Table of contents that is only displayed when printing the page -->
+            <div id="jb-print-docs-body" class="onlyprint">
+                <h1>MolMIM Inferencing for Generative Chemistry and Downstream Prediction</h1>
+                <!-- Table of contents -->
+                <div id="print-main-content">
+                    <div id="jb-print-toc">
+                        
+                        <div>
+                            <h2> Contents </h2>
+                        </div>
+                        <nav aria-label="Page">
+                            <ul class="visible nav section-nav flex-column">
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#demo-objectives">
+   Demo Objectives
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#setup">
+   Setup
+  </a>
+  <ul class="visible nav section-nav flex-column">
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#import-required-libraries">
+     Import Required Libraries
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#home-directory">
+     Home Directory
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#download-model-checkpoints">
+     Download Model Checkpoints
+    </a>
+   </li>
+  </ul>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#molmim-inference-functions">
+   MolMIM Inference Functions
+  </a>
+  <ul class="visible nav section-nav flex-column">
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#load-configurations">
+     Load Configurations
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#smiles-examples-with-rdkit">
+     SMILES Examples with RDKit
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#from-smiles-to-hidden-state">
+     From SMILES to Hidden State
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#from-smiles-to-embedding">
+     From SMILES to Embedding
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#hidden-state-to-smiles">
+     Hidden State to SMILES
+    </a>
+   </li>
+  </ul>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#molecular-generation-and-chemical-space-exploration">
+   Molecular Generation and Chemical Space Exploration
+  </a>
+  <ul class="visible nav section-nav flex-column">
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#define-generation-function">
+     Define Generation Function
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#generate-and-visualize-analogous-small-molecules">
+     Generate and Visualize Analogous Small Molecules
+    </a>
+   </li>
+  </ul>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#downstream-prediction-model-using-learned-embeddings-from-molmim">
+   Downstream Prediction Model Using Learned Embeddings from MolMIM
+  </a>
+  <ul class="visible nav section-nav flex-column">
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#data-loading-and-preprocessing">
+     Data Loading and Preprocessing
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#obtain-embeddings">
+     Obtain Embeddings
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#svr-model-predicting-esol-using-molmim-embeddings">
+     SVR Model: Predicting ESOL Using MolMIM Embeddings
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#results">
+     Results
+    </a>
+   </li>
+  </ul>
+ </li>
+</ul>
+
+                        </nav>
+                    </div>
+                </div>
+            </div>
+            <main id="main-content" role="main">
+                
+              <div>
+                 <div class="tex2jax_ignore mathjax_ignore section" id="molmim-inferencing-for-generative-chemistry-and-downstream-prediction">
+<h1>MolMIM Inferencing for Generative Chemistry and Downstream Prediction<a class="headerlink" href="#molmim-inferencing-for-generative-chemistry-and-downstream-prediction" title="Permalink to this headline">#</a></h1>
+<p>Note: This notebook was tested on a single A100 GPU using BioNeMo Framework v1.6.</p>
+<div class="section" id="demo-objectives">
+<h2>Demo Objectives<a class="headerlink" href="#demo-objectives" title="Permalink to this headline">#</a></h2>
+<ol class="arabic simple">
+<li><p><strong>MolMIM inferencing and integration with RDKit</strong></p>
+<ul class="simple">
+<li><p>Objective: Generate hidden state representations and embeddings from SMILES strings</p></li>
+</ul>
+</li>
+<li><p><strong>Molecular generation</strong></p>
+<ul class="simple">
+<li><p>Objective: Explore the chemical space by generating new molecules based on a seed SMILES string</p></li>
+</ul>
+</li>
+<li><p><strong>Downstream prediction using MolMIM embeddings</strong></p>
+<ul class="simple">
+<li><p>Objective: Generate an ESOL water solubility prediction model from MolMIM embeddings</p></li>
+</ul>
+</li>
+</ol>
+</div>
+<div class="section" id="setup">
+<h2>Setup<a class="headerlink" href="#setup" title="Permalink to this headline">#</a></h2>
+<p>Please ensure that you have read through the Getting Started section, can run the BioNeMo Framework docker container, and have configured the NGC Command Line Interface (CLI). It is assumed that this notebook is being executed from within the container.</p>
+<div class="alert alert-block alert-info"> <b>NOTE</b> Some of the cells below generate long text output.  We're using <pre>%%capture --no-display --no-stderr cell_output</pre> to suppress this output.  Comment or delete this line in the cells below to restore full output.</div>
+<div class="section" id="import-required-libraries">
+<h3>Import Required Libraries<a class="headerlink" href="#import-required-libraries" title="Permalink to this headline">#</a></h3>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="o">%%capture</span> --no-display --no-stderr cell_output
+
+<span class="kn">import</span> <span class="nn">os</span>
+
+<span class="c1"># RDKit for handling/manipulating chemical data</span>
+<span class="kn">from</span> <span class="nn">rdkit</span> <span class="kn">import</span> <span class="n">Chem</span>
+<span class="kn">from</span> <span class="nn">rdkit.Chem</span> <span class="kn">import</span> <span class="n">AllChem</span><span class="p">,</span> <span class="n">Draw</span>
+
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">from</span> <span class="nn">sklearn.model_selection</span> <span class="kn">import</span> <span class="n">train_test_split</span>
+<span class="kn">from</span> <span class="nn">sklearn.svm</span> <span class="kn">import</span> <span class="n">SVR</span>
+<span class="kn">from</span> <span class="nn">sklearn.metrics</span> <span class="kn">import</span> <span class="n">mean_squared_error</span><span class="p">,</span> <span class="n">r2_score</span>
+
+<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+
+<span class="kn">from</span> <span class="nn">bionemo.utils.hydra</span> <span class="kn">import</span> <span class="n">load_model_config</span>
+<span class="kn">from</span> <span class="nn">bionemo.model.molecule.molmim.infer</span> <span class="kn">import</span> <span class="n">MolMIMInference</span>
+
+<span class="kn">import</span> <span class="nn">warnings</span>
+<span class="n">warnings</span><span class="o">.</span><span class="n">filterwarnings</span><span class="p">(</span><span class="s1">&#39;ignore&#39;</span><span class="p">)</span>
+<span class="n">warnings</span><span class="o">.</span><span class="n">simplefilter</span><span class="p">(</span><span class="s1">&#39;ignore&#39;</span><span class="p">)</span>
+
+<span class="kn">import</span> <span class="nn">logging</span>
+<span class="n">logging</span><span class="o">.</span><span class="n">basicConfig</span><span class="p">(</span><span class="n">level</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">INFO</span><span class="p">)</span>
+<span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="s2">&quot;nemo_logger&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">setLevel</span><span class="p">(</span><span class="n">logging</span><span class="o">.</span><span class="n">ERROR</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+<div class="section" id="home-directory">
+<h3>Home Directory<a class="headerlink" href="#home-directory" title="Permalink to this headline">#</a></h3>
+<p>Set the home directory as follows:</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">bionemo_home</span> <span class="o">=</span> <span class="s2">&quot;/workspace/bionemo&quot;</span>
+<span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s1">&#39;BIONEMO_HOME&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">bionemo_home</span>
+<span class="n">os</span><span class="o">.</span><span class="n">chdir</span><span class="p">(</span><span class="n">bionemo_home</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+<div class="section" id="download-model-checkpoints">
+<h3>Download Model Checkpoints<a class="headerlink" href="#download-model-checkpoints" title="Permalink to this headline">#</a></h3>
+<p>Now, download the pre-trained MolMIM model checkpoints:</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>%%capture --no-display --no-stderr cell_output
+!python download_artifacts.py --model_dir ${BIONEMO_HOME}/models --models molmim_70m_24_3
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="section" id="molmim-inference-functions">
+<h2>MolMIM Inference Functions<a class="headerlink" href="#molmim-inference-functions" title="Permalink to this headline">#</a></h2>
+<p>In this section, we will explore the key inference functionalities of the pre-trained model. These functionalities include inputting SMILES strings, obtaining latent space representations with <code class="docutils literal notranslate"><span class="pre">seq_to_hiddens()</span></code>, embeddings with <code class="docutils literal notranslate"><span class="pre">seq_to_embeddings()</span></code>, and outputting inferred SMILES strings from the latent space representation with <code class="docutils literal notranslate"><span class="pre">hiddens_to_seq()</span></code>.</p>
+<div class="section" id="load-configurations">
+<h3>Load Configurations<a class="headerlink" href="#load-configurations" title="Permalink to this headline">#</a></h3>
+<p>Here, we load pre-trained model checkpoints and point the YAML configuration file to the desired checkpoints path. We then initiate a model with <code class="docutils literal notranslate"><span class="pre">MolMIMInference</span></code>, which is an adaptor that allows interaction with the inference service of a MolMIM pre-trained model.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="o">%%capture</span> --no-display --no-stderr cell_output
+
+<span class="c1"># Load pre-trained model checkpoints</span>
+<span class="n">checkpoint_path</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">bionemo_home</span><span class="si">}</span><span class="s2">/models/molecule/molmim/molmim_70m_24_3.nemo&quot;</span>
+
+<span class="c1"># Load starting config for MolMIM inference</span>
+<span class="n">cfg</span> <span class="o">=</span> <span class="n">load_model_config</span><span class="p">(</span><span class="n">config_name</span><span class="o">=</span><span class="s2">&quot;molmim_infer.yaml&quot;</span><span class="p">,</span> <span class="n">config_path</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">bionemo_home</span><span class="si">}</span><span class="s2">/examples/tests/conf/&quot;</span><span class="p">)</span>
+
+<span class="c1"># Point YAML configuration file to the location of the desired checkpoints</span>
+<span class="n">cfg</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">downstream_task</span><span class="o">.</span><span class="n">restore_from_path</span> <span class="o">=</span> <span class="n">checkpoint_path</span>
+<span class="c1">#cfg.model.encoder.hidden_steps = 2</span>
+
+<span class="c1"># Create model object based on desired configuration</span>
+<span class="n">model</span> <span class="o">=</span> <span class="n">MolMIMInference</span><span class="p">(</span><span class="n">cfg</span><span class="p">,</span> <span class="n">interactive</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>GPU available: True (cuda), used: True
+TPU available: False, using: 0 TPU cores
+IPU available: False, using: 0 IPUs
+HPU available: False, using: 0 HPUs
+24-08-06 21:31:25 - PID:1550 - rank:(0, 0, 0, 0) - microbatches.py:39 - INFO - setting number of micro-batches to constant 1
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+<div class="section" id="smiles-examples-with-rdkit">
+<h3>SMILES Examples with RDKit<a class="headerlink" href="#smiles-examples-with-rdkit" title="Permalink to this headline">#</a></h3>
+<p>Here, as an example, we will take the SMILES strings for two widely used antimalarial drugs, Mefloquine and Hydroxychloroquine, and use RDKit, an open-source cheminformatics library, to display the molecues.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Two SMILES strings</span>
+<span class="n">smis</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;OC(c1cc(C(F)(F)F)nc2c(C(F)(F)F)cccc12)C1CCCCN1&#39;</span><span class="p">,</span>     
+        <span class="s1">&#39;CCN(CCO)CCCC(C)Nc1ccnc2cc(Cl)ccc12&#39;</span><span class="p">]</span> 
+
+<span class="c1"># RDKit&#39;s MolFromSmiles() function displays molecule from the SMILES string</span>
+<span class="n">m1</span> <span class="o">=</span> <span class="n">Chem</span><span class="o">.</span><span class="n">MolFromSmiles</span><span class="p">(</span><span class="n">smis</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+<span class="n">m2</span> <span class="o">=</span> <span class="n">Chem</span><span class="o">.</span><span class="n">MolFromSmiles</span><span class="p">(</span><span class="n">smis</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+<span class="n">Draw</span><span class="o">.</span><span class="n">MolsToGridImage</span><span class="p">((</span><span class="n">m1</span><span class="p">,</span><span class="n">m2</span><span class="p">),</span> <span class="n">legends</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;Mefloquine&quot;</span><span class="p">,</span><span class="s2">&quot;Hydroxychloroquine&quot;</span><span class="p">],</span> <span class="n">subImgSize</span><span class="o">=</span><span class="p">(</span><span class="mi">300</span><span class="p">,</span><span class="mi">200</span><span class="p">))</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<img alt="../_images/cdf1e8e6360717a6a9c8f2d3f18d935edb4622ae419472e0ffc7bf0d2c013352.png" src="../_images/cdf1e8e6360717a6a9c8f2d3f18d935edb4622ae419472e0ffc7bf0d2c013352.png" />
+</div>
+</div>
+</div>
+<div class="section" id="from-smiles-to-hidden-state">
+<h3>From SMILES to Hidden State<a class="headerlink" href="#from-smiles-to-hidden-state" title="Permalink to this headline">#</a></h3>
+<p>We now run inference with MolMIM to find the hidden states of our starting molecules. The <code class="docutils literal notranslate"><span class="pre">seq_to_hiddens()</span></code> functionality, accessed through the <code class="docutils literal notranslate"><span class="pre">MolMIMInference</span></code> wrapper, queries the model to fetch the latent space representation of the SMILES. The MolMIM hidden state has a controlled number of tokens since it uses a Perceiver encoder, so no pooling is necessary to create a fixed size embedding.</p>
+<p>A high level conceptual depiction below shows the process of obtaining the hidden states.</p>
+<p><img alt="molmim-hidden-state" src="../_images/molmim-hidden-state.png" /></p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># obtaining the hidden state representations for input SMILES</span>
+<span class="n">hidden_states</span><span class="p">,</span> <span class="n">pad_masks</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">seq_to_hiddens</span><span class="p">(</span><span class="n">smis</span><span class="p">)</span>
+<span class="n">hidden_states</span><span class="o">.</span><span class="n">shape</span><span class="p">,</span> <span class="n">pad_masks</span><span class="o">.</span><span class="n">shape</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>(torch.Size([2, 1, 512]), torch.Size([2, 1]))
+</pre></div>
+</div>
+</div>
+</div>
+<p>Note that for MolMIM, the hidden state dimension <span class="math notranslate nohighlight">\(K\)</span> is equal to 1, as MolMIM’s best effective novelty (the percentage of generated molecules that are valid, non-identical, unique, and novel) was achieved using the smallest number of latent dimensions. More details can be found in the <a class="reference external" href="https://arxiv.org/pdf/2208.09016">paper</a>.</p>
+<p>Thus, in the next step, we should expect the embedding vectors to be equal to the hidden states.</p>
+</div>
+<div class="section" id="from-smiles-to-embedding">
+<h3>From SMILES to Embedding<a class="headerlink" href="#from-smiles-to-embedding" title="Permalink to this headline">#</a></h3>
+<p>We can use <code class="docutils literal notranslate"><span class="pre">seq_to_embeddings()</span></code> to query the model and fetch the encoder embeddings for the input SMILES strings. They are the same as the hidden state in the case of MolMIM.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">embedding</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">seq_to_embeddings</span><span class="p">(</span><span class="n">smis</span><span class="p">)</span>
+<span class="n">embedding</span><span class="o">.</span><span class="n">shape</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>torch.Size([2, 512])
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+<div class="section" id="hidden-state-to-smiles">
+<h3>Hidden State to SMILES<a class="headerlink" href="#hidden-state-to-smiles" title="Permalink to this headline">#</a></h3>
+<p>The <code class="docutils literal notranslate"><span class="pre">hiddens_to_seq()</span></code> function is used to obtain SMILES from the latent space chemical representation. Let’s see if the decoder turns the hidden state representations of our two example compounds back into the same SMILES strings, or similar.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Obtaining SMILES chemical representation from a hidden state</span>
+<span class="n">inferred_smis</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">hiddens_to_seq</span><span class="p">(</span><span class="n">hidden_states</span><span class="p">,</span> <span class="n">pad_masks</span><span class="p">)</span>
+
+<span class="n">inf_1</span> <span class="o">=</span> <span class="n">Chem</span><span class="o">.</span><span class="n">MolFromSmiles</span><span class="p">(</span><span class="n">inferred_smis</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+<span class="n">inf_2</span> <span class="o">=</span> <span class="n">Chem</span><span class="o">.</span><span class="n">MolFromSmiles</span><span class="p">(</span><span class="n">inferred_smis</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+
+<span class="n">Draw</span><span class="o">.</span><span class="n">MolsToGridImage</span><span class="p">((</span><span class="n">inf_1</span><span class="p">,</span><span class="n">inf_2</span><span class="p">),</span><span class="n">legends</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;Inferred Compound 1&quot;</span><span class="p">,</span><span class="s2">&quot;Inferred Compound 2&quot;</span><span class="p">],</span> <span class="n">subImgSize</span><span class="o">=</span><span class="p">(</span><span class="mi">350</span><span class="p">,</span><span class="mi">350</span><span class="p">))</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<img alt="../_images/a12a5647873096f0953509c45f44e415dea506f388109e77cd211c83da557a83.png" src="../_images/a12a5647873096f0953509c45f44e415dea506f388109e77cd211c83da557a83.png" />
+</div>
+</div>
+<p>Let’s check if they are the same compounds:</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Compund 1:&quot;</span><span class="p">,</span> <span class="n">smis</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">==</span><span class="n">inferred_smis</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Compund 2:&quot;</span><span class="p">,</span> <span class="n">smis</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">==</span><span class="n">inferred_smis</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Compund 1: False
+Compund 2: True
+</pre></div>
+</div>
+</div>
+</div>
+<p>Note that the second compound is the same, and the first one is similar, but not the same as the input.</p>
+</div>
+</div>
+<div class="section" id="molecular-generation-and-chemical-space-exploration">
+<h2>Molecular Generation and Chemical Space Exploration<a class="headerlink" href="#molecular-generation-and-chemical-space-exploration" title="Permalink to this headline">#</a></h2>
+<p>Now, we will explore the chemical space around an input compound and generate designs of related but novel small molecules.</p>
+<div class="section" id="define-generation-function">
+<h3>Define Generation Function<a class="headerlink" href="#define-generation-function" title="Permalink to this headline">#</a></h3>
+<p>We will specify a function, <code class="docutils literal notranslate"><span class="pre">chem_sample()</span></code>, to accomplish this. <code class="docutils literal notranslate"><span class="pre">chem_sample()</span></code> has two main components:</p>
+<ol class="arabic simple">
+<li><p><strong>Sampling:</strong> Obtain the hidden state representation for the input SMILES, perturb copies of this hidden states, and decode those perturbed hidden states to obtain new SMILES. Note that the sampling function, <code class="docutils literal notranslate"><span class="pre">sample()</span></code>, is defined in the <code class="docutils literal notranslate"><span class="pre">BaseEncoderDecoderInference</span></code> class, which <code class="docutils literal notranslate"><span class="pre">MolMIMInference</span></code> abstracts from.</p></li>
+<li><p><strong>Filtering:</strong> Using RDKit, check the uniqueness of the generated SMILES set and retain those that are valid SMILES.</p></li>
+</ol>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">chem_sample</span><span class="p">(</span><span class="n">smis</span><span class="p">):</span>
+    <span class="c1"># PART 1: SAMPLING</span>
+    <span class="c1"># 1A: Set Sampling Arguments</span>
+    <span class="n">num_samples</span> <span class="o">=</span> <span class="mi">10</span>
+    <span class="n">scaled_radius</span> <span class="o">=</span> <span class="mf">0.7</span>
+    <span class="n">sampling_method</span><span class="o">=</span><span class="s2">&quot;beam-search-perturbate&quot;</span> <span class="c1"># Options: greedy-perturbate, topkp-perturbate, beam-search-perturbate, beam-search-single-sample, beam-search-perturbate-sample</span>
+    <span class="n">sampler_kwargs</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;beam_size&quot;</span><span class="p">:</span> <span class="mi">3</span><span class="p">,</span> <span class="s2">&quot;keep_only_best_tokens&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span> <span class="s2">&quot;return_scores&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">}</span>    
+    <span class="c1"># 1B: Execute sampling</span>
+    <span class="n">population_samples</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">sample</span><span class="p">(</span><span class="n">seqs</span><span class="o">=</span><span class="n">smis</span><span class="p">,</span> <span class="n">num_samples</span><span class="o">=</span><span class="n">num_samples</span><span class="p">,</span> <span class="n">scaled_radius</span><span class="o">=</span><span class="n">scaled_radius</span><span class="p">,</span>
+                                      <span class="n">sampling_method</span><span class="o">=</span><span class="s2">&quot;beam-search-perturbate&quot;</span><span class="p">,</span> <span class="o">**</span><span class="n">sampler_kwargs</span><span class="p">)</span>
+
+    <span class="c1"># PART 2: FILTERING</span>
+    <span class="n">uniq_canonical_smiles</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="c1"># Loop through each seed molecule</span>
+    <span class="k">for</span> <span class="n">smis_samples</span><span class="p">,</span> <span class="n">original</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">population_samples</span><span class="p">,</span> <span class="n">smis</span><span class="p">):</span>
+        <span class="c1"># 2A: Gather unique strings (remove duplicates and starting string)</span>
+        <span class="n">smis_samples</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">smis_samples</span><span class="p">)</span> <span class="o">-</span> <span class="nb">set</span><span class="p">([</span><span class="n">original</span><span class="p">])</span>
+
+        <span class="c1"># 2B: Validate generated molecules</span>
+        <span class="n">valid_molecules</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">smis</span> <span class="ow">in</span> <span class="n">smis_samples</span><span class="p">:</span>
+            <span class="n">mol</span> <span class="o">=</span> <span class="n">Chem</span><span class="o">.</span><span class="n">MolFromSmiles</span><span class="p">(</span><span class="n">smis</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">mol</span><span class="p">:</span>
+                <span class="n">valid_molecules</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">Chem</span><span class="o">.</span><span class="n">MolToSmiles</span><span class="p">(</span><span class="n">mol</span><span class="p">,</span><span class="kc">True</span><span class="p">))</span>
+        <span class="n">uniq_canonical_smiles</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">valid_molecules</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">uniq_canonical_smiles</span> <span class="c1"># List (len = seed compounds) of lists (len = generated compounds per seed)</span>
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+<div class="section" id="generate-and-visualize-analogous-small-molecules">
+<h3>Generate and Visualize Analogous Small Molecules<a class="headerlink" href="#generate-and-visualize-analogous-small-molecules" title="Permalink to this headline">#</a></h3>
+<p>In this step, we will use the same two example drug molecules, mefloquine and hydroxychloroquine, and generate new analogues.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Redefine inputs and generate new molecules</span>
+<span class="n">ori_smis_lst</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;OC(c1cc(C(F)(F)F)nc2c(C(F)(F)F)cccc12)C1CCCCN1&#39;</span><span class="p">,</span>
+                <span class="s1">&#39;CCN(CCO)CCCC(C)Nc1ccnc2cc(Cl)ccc12&#39;</span><span class="p">]</span> 
+
+<span class="n">gen_smis_lst</span> <span class="o">=</span> <span class="n">chem_sample</span><span class="p">(</span><span class="n">ori_smis_lst</span><span class="p">)</span>
+
+<span class="k">for</span> <span class="n">ori_smis</span><span class="p">,</span> <span class="n">gen_smis</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">ori_smis_lst</span><span class="p">,</span> <span class="n">gen_smis_lst</span><span class="p">):</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Original SMILES: </span><span class="si">{</span><span class="n">ori_smis</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Generated </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">gen_smis</span><span class="p">)</span><span class="si">}</span><span class="s2"> unique/valid SMILES: </span><span class="si">{</span><span class="n">gen_smis</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Original SMILES: OC(c1cc(C(F)(F)F)nc2c(C(F)(F)F)cccc12)C1CCCCN1
+Generated 10 unique/valid SMILES: [&#39;O=C(O)C(F)(F)CCCNS(=O)(=O)c1ccccc1&#39;, &#39;OC[C@@H]1C[C@H](NC(F)(F)F)C12CCC2&#39;, &#39;OCc1ccc(C(F)(F)F)nc1N(Cc1ccccc1)c1ccccc1&#39;, &#39;OCc1ncc(C(F)(F)F)nc1N(C[C@H]1CCCO1)CC(F)(F)F&#39;, &#39;OC(c1cc(C(F)(F)F)ncc1Cl)(C(F)F)N1CCCCCC1&#39;, &#39;OC(c1cc(C(F)(F)F)nc2c(C(F)(F)F)cccc12)C1CCCC1&#39;, &#39;OCc1ncc(C(F)(F)F)nc1N(CC(F)(F)F)C1CC1&#39;, &#39;O[C@@H](c1cc(C(F)(F)F)ncn1)C(F)(F)Br&#39;, &#39;OC(c1c(NC[C@H]2CCOC2)nc2ccccn12)(C1CC1)C1CC1&#39;, &#39;OC(c1csc(Br)c1)c1cc(C(F)(F)F)ncn1&#39;]
+
+
+Original SMILES: CCN(CCO)CCCC(C)Nc1ccnc2cc(Cl)ccc12
+Generated 9 unique/valid SMILES: [&#39;CCN(CCO)CCCC(=O)N1CCSc2cc(Cl)ccc21&#39;, &#39;CCN(CCO)CCNC(=O)c1ccnc2cc(Cl)ccc12&#39;, &#39;CCN(CCO)CCCCN(C)c1ccnc2cc(Cl)ccc12&#39;, &#39;CCN(CC(=O)NC)C[C@H](N)c1nc2cc(Cl)ccc2s1&#39;, &#39;CCN(CCO)CCCC(=O)N1CCNc2cc(Cl)ccc21&#39;, &#39;CCN(CCO)CCCC(=O)Nc1cnc2cc(Cl)ccc2n1&#39;, &#39;CCN(CCO)CCCC(=O)Nc1cnc2cc(Cl)ccn12&#39;, &#39;CCN(CCO)CCC[C@@H](C)Nc1ccnc2c(Cl)cccc12&#39;, &#39;CCN(CCO)CCCC(=O)N[C@H](C)c1cc(Cl)cc2c1OCC2&#39;]
+</pre></div>
+</div>
+</div>
+</div>
+<p>Let’s take a look at the generated analogs for mefloquine.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">mols_from_gen_smis</span> <span class="o">=</span> <span class="p">[</span><span class="n">Chem</span><span class="o">.</span><span class="n">MolFromSmiles</span><span class="p">(</span><span class="n">smi</span><span class="p">)</span> <span class="k">for</span> <span class="n">smi</span> <span class="ow">in</span> <span class="nb">set</span><span class="p">(</span><span class="n">gen_smis_lst</span><span class="p">[</span><span class="mi">0</span><span class="p">])]</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Total unique molecule designs obtained: &quot;</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">mols_from_gen_smis</span><span class="p">))</span>
+<span class="n">Draw</span><span class="o">.</span><span class="n">MolsToGridImage</span><span class="p">(</span><span class="n">mols_from_gen_smis</span><span class="p">,</span> <span class="n">molsPerRow</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">subImgSize</span><span class="o">=</span><span class="p">(</span><span class="mi">300</span><span class="p">,</span><span class="mi">300</span><span class="p">))</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Total unique molecule designs obtained:  10
+</pre></div>
+</div>
+<img alt="../_images/1f9d9321b9e30206de95795b7a27eb7ddaf57c9b39058bd498e10765f3bced1a.png" src="../_images/1f9d9321b9e30206de95795b7a27eb7ddaf57c9b39058bd498e10765f3bced1a.png" />
+</div>
+</div>
+<p>How many molecular designs were obtained from this step? What would change in the process if you try different values for number of samples and sampling radius in the <code class="docutils literal notranslate"><span class="pre">chem_sample()</span></code> function?</p>
+</div>
+</div>
+<div class="section" id="downstream-prediction-model-using-learned-embeddings-from-molmim">
+<h2>Downstream Prediction Model Using Learned Embeddings from MolMIM<a class="headerlink" href="#downstream-prediction-model-using-learned-embeddings-from-molmim" title="Permalink to this headline">#</a></h2>
+<p>Finally, we will use MolMIM to obtain embeddings for a chemical dataset, to be used as features to train a downstream machine learning model to predict properties of the compounds.</p>
+<p>These properties may include physicochemical parameters, such as lipophilicity (LogP and LogD), solubility, and hydration free energy. These properties can also include certain pharmacokinetic/dynamic behaviors such as Blood-Brain-Barrier/CNS permeability, volume of distribution (Vd), etc.</p>
+<p>In the section below, we use the ESOL water solubility dataset curated by <a class="reference external" href="https://moleculenet.org/datasets-1">MoleculeNet</a>, which displays water solubility for common organic small molecules in <code class="docutils literal notranslate"><span class="pre">log</span> <span class="pre">solubility</span> <span class="pre">in</span> <span class="pre">mols</span> <span class="pre">per</span> <span class="pre">liter</span></code>.</p>
+<p><img alt="molmim-predictive-modeling" src="../_images/molmim-predictive-modeling.png" /></p>
+<div class="section" id="data-loading-and-preprocessing">
+<h3>Data Loading and Preprocessing<a class="headerlink" href="#data-loading-and-preprocessing" title="Permalink to this headline">#</a></h3>
+<p>We first download the ESOL data.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>%%capture --no-display --no-stderr cell_output
+!mkdir -p &quot;${BIONEMO_HOME}/data/raw&quot;
+!wget -O ${BIONEMO_HOME}/data/raw/delaney-processed.csv https://deepchemdata.s3-us-west-1.amazonaws.com/datasets/delaney-processed.csv
+</pre></div>
+</div>
+</div>
+</div>
+<p>We now load and preprocess the data.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">ex_data_file</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">bionemo_home</span><span class="si">}</span><span class="s2">/data/raw/delaney-processed.csv&quot;</span>
+<span class="n">ex_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">ex_data_file</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">ex_df</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
+<span class="n">ex_df</span><span class="o">.</span><span class="n">head</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>(1128, 10)
+</pre></div>
+</div>
+<div class="output text_html"><div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>Compound ID</th>
+      <th>ESOL predicted log solubility in mols per litre</th>
+      <th>Minimum Degree</th>
+      <th>Molecular Weight</th>
+      <th>Number of H-Bond Donors</th>
+      <th>Number of Rings</th>
+      <th>Number of Rotatable Bonds</th>
+      <th>Polar Surface Area</th>
+      <th>measured log solubility in mols per litre</th>
+      <th>smiles</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>Amigdalin</td>
+      <td>-0.974</td>
+      <td>1</td>
+      <td>457.432</td>
+      <td>7</td>
+      <td>3</td>
+      <td>7</td>
+      <td>202.32</td>
+      <td>-0.77</td>
+      <td>OCC3OC(OCC2OC(OC(C#N)c1ccccc1)C(O)C(O)C2O)C(O)...</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>Fenfuram</td>
+      <td>-2.885</td>
+      <td>1</td>
+      <td>201.225</td>
+      <td>1</td>
+      <td>2</td>
+      <td>2</td>
+      <td>42.24</td>
+      <td>-3.30</td>
+      <td>Cc1occc1C(=O)Nc2ccccc2</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>citral</td>
+      <td>-2.579</td>
+      <td>1</td>
+      <td>152.237</td>
+      <td>0</td>
+      <td>0</td>
+      <td>4</td>
+      <td>17.07</td>
+      <td>-2.06</td>
+      <td>CC(C)=CCCC(C)=CC(=O)</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>Picene</td>
+      <td>-6.618</td>
+      <td>2</td>
+      <td>278.354</td>
+      <td>0</td>
+      <td>5</td>
+      <td>0</td>
+      <td>0.00</td>
+      <td>-7.87</td>
+      <td>c1ccc2c(c1)ccc3c2ccc4c5ccccc5ccc43</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>Thiophene</td>
+      <td>-2.232</td>
+      <td>2</td>
+      <td>84.143</td>
+      <td>0</td>
+      <td>1</td>
+      <td>0</td>
+      <td>0.00</td>
+      <td>-1.33</td>
+      <td>c1ccsc1</td>
+    </tr>
+  </tbody>
+</table>
+</div></div></div>
+</div>
+</div>
+<div class="section" id="obtain-embeddings">
+<h3>Obtain Embeddings<a class="headerlink" href="#obtain-embeddings" title="Permalink to this headline">#</a></h3>
+<p>We will now obtain the embeddings for compounds that are present in the dataset by using the previously introducted <code class="docutils literal notranslate"><span class="pre">seq_to_embeddings()</span></code> function.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">ex_emb_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">()</span>
+<span class="n">smis</span> <span class="o">=</span> <span class="n">ex_df</span><span class="o">.</span><span class="n">loc</span><span class="p">[:,</span> <span class="s1">&#39;smiles&#39;</span><span class="p">]</span>
+<span class="n">esol</span> <span class="o">=</span> <span class="n">ex_df</span><span class="o">.</span><span class="n">loc</span><span class="p">[:,</span> <span class="s1">&#39;ESOL predicted log solubility in mols per litre&#39;</span><span class="p">]</span>
+<span class="n">embedding</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">seq_to_embeddings</span><span class="p">(</span><span class="n">smis</span><span class="o">.</span><span class="n">tolist</span><span class="p">())</span>
+<span class="n">ex_emb_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">([</span><span class="n">ex_emb_df</span><span class="p">,</span>
+                       <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span><span class="s2">&quot;SMILES&quot;</span><span class="p">:</span> <span class="n">smis</span><span class="p">,</span>
+                                     <span class="s2">&quot;EMBEDDINGS&quot;</span><span class="p">:</span> <span class="n">embedding</span><span class="o">.</span><span class="n">tolist</span><span class="p">(),</span>
+                                     <span class="s2">&quot;Y&quot;</span><span class="p">:</span> <span class="n">esol</span><span class="p">})])</span>
+
+<span class="n">ex_emb_df</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_html"><div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>SMILES</th>
+      <th>EMBEDDINGS</th>
+      <th>Y</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>OCC3OC(OCC2OC(OC(C#N)c1ccccc1)C(O)C(O)C2O)C(O)...</td>
+      <td>[0.4135575294494629, 0.4625270664691925, 0.582...</td>
+      <td>-0.974</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>Cc1occc1C(=O)Nc2ccccc2</td>
+      <td>[-0.1996016651391983, -0.0787326991558075, -0....</td>
+      <td>-2.885</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>CC(C)=CCCC(C)=CC(=O)</td>
+      <td>[-0.4746260643005371, -0.8526585102081299, -0....</td>
+      <td>-2.579</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>c1ccc2c(c1)ccc3c2ccc4c5ccccc5ccc43</td>
+      <td>[-0.2653975486755371, -0.1304905116558075, 0.1...</td>
+      <td>-6.618</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>c1ccsc1</td>
+      <td>[-0.5700850486755371, -0.8756077289581299, 0.1...</td>
+      <td>-2.232</td>
+    </tr>
+    <tr>
+      <th>...</th>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+    </tr>
+    <tr>
+      <th>1123</th>
+      <td>FC(F)(F)C(Cl)Br</td>
+      <td>[0.1985916942358017, 0.2149684727191925, -0.07...</td>
+      <td>-2.608</td>
+    </tr>
+    <tr>
+      <th>1124</th>
+      <td>CNC(=O)ON=C(SC)C(=O)N(C)C</td>
+      <td>[-0.0939498096704483, 0.9334743022918701, -0.3...</td>
+      <td>-0.908</td>
+    </tr>
+    <tr>
+      <th>1125</th>
+      <td>CCSCCSP(=S)(OC)OC</td>
+      <td>[0.6227860450744629, 0.4312770664691925, 0.255...</td>
+      <td>-3.323</td>
+    </tr>
+    <tr>
+      <th>1126</th>
+      <td>CCC(C)C</td>
+      <td>[0.2175125926733017, 0.1398952305316925, -0.07...</td>
+      <td>-2.245</td>
+    </tr>
+    <tr>
+      <th>1127</th>
+      <td>COP(=O)(OC)OC(=CCl)c1cc(Cl)c(Cl)cc1Cl</td>
+      <td>[-0.8108077049255371, -0.9254124164581299, 0.7...</td>
+      <td>-4.320</td>
+    </tr>
+  </tbody>
+</table>
+<p>1128 rows × 3 columns</p>
+</div></div></div>
+</div>
+</div>
+<div class="section" id="svr-model-predicting-esol-using-molmim-embeddings">
+<h3>SVR Model: Predicting ESOL Using MolMIM Embeddings<a class="headerlink" href="#svr-model-predicting-esol-using-molmim-embeddings" title="Permalink to this headline">#</a></h3>
+<p>Now that we have both the embeddings for the ESOL dataset, we can generate a prediction model. Here, we will be creating a Support Vector Regression (SVR) model.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Splitting dataset into training and testing sets</span>
+<span class="n">tempX</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">ex_emb_df</span><span class="p">[</span><span class="s1">&#39;EMBEDDINGS&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">tolist</span><span class="p">(),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
+<span class="n">tempY</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">ex_emb_df</span><span class="p">[</span><span class="s1">&#39;Y&#39;</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
+<span class="n">x_train</span><span class="p">,</span> <span class="n">x_test_emb</span><span class="p">,</span> <span class="n">y_train</span><span class="p">,</span> <span class="n">y_test_emb</span>  <span class="o">=</span> <span class="n">train_test_split</span><span class="p">(</span><span class="n">tempX</span><span class="p">,</span> <span class="n">tempY</span><span class="p">,</span> <span class="n">train_size</span><span class="o">=</span><span class="mf">0.7</span><span class="p">,</span> <span class="n">random_state</span><span class="o">=</span><span class="mi">1993</span><span class="p">)</span>
+
+<span class="c1"># Defining SVR model parameters (you may change them and observe change in performance)</span>
+<span class="n">reg_emb</span> <span class="o">=</span> <span class="n">SVR</span><span class="p">(</span><span class="n">kernel</span><span class="o">=</span><span class="s1">&#39;rbf&#39;</span><span class="p">,</span> <span class="n">gamma</span><span class="o">=</span><span class="s1">&#39;scale&#39;</span><span class="p">,</span> <span class="n">C</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">epsilon</span><span class="o">=</span><span class="mf">0.01</span><span class="p">)</span>
+
+<span class="c1"># Fitting the model on the training dataset</span>
+<span class="n">reg_emb</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">x_train</span><span class="p">,</span> <span class="n">y_train</span><span class="p">)</span>
+
+<span class="c1"># Using the fitted model for prediction of the ESOL values on test dataset</span>
+<span class="n">pred_emb</span> <span class="o">=</span> <span class="n">reg_emb</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">x_test_emb</span><span class="p">)</span>
+
+<span class="c1"># Performance measures of SVR model</span>
+<span class="n">emb_SVR_MSE</span> <span class="o">=</span> <span class="n">mean_squared_error</span><span class="p">(</span><span class="n">y_test_emb</span><span class="p">,</span> <span class="n">pred_emb</span><span class="p">)</span>
+<span class="n">emb_SVR_R2</span> <span class="o">=</span> <span class="n">r2_score</span><span class="p">(</span><span class="n">y_test_emb</span><span class="p">,</span> <span class="n">pred_emb</span><span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Embeddings_SVR_MSE: &quot;</span><span class="p">,</span> <span class="n">emb_SVR_MSE</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Embeddings_SVR_r2: &quot;</span><span class="p">,</span> <span class="n">emb_SVR_R2</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Embeddings_SVR_MSE:  0.8602563849908824
+Embeddings_SVR_r2:  0.7037909732430953
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+<div class="section" id="results">
+<h3>Results<a class="headerlink" href="#results" title="Permalink to this headline">#</a></h3>
+<p>Now that the SVR model has been trained with an <span class="math notranslate nohighlight">\(R^2\)</span> of 0.70, let’s assess the result by plotting the predicted vs. actual ESOL values in the test set.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Create the scatter plot</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="mi">8</span><span class="p">))</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span><span class="n">y_test_emb</span><span class="p">,</span> <span class="n">pred_emb</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.5</span><span class="p">)</span>
+
+<span class="c1"># Add a diagonal line representing perfect predictions</span>
+<span class="n">min_val</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="nb">min</span><span class="p">(</span><span class="n">y_test_emb</span><span class="p">),</span> <span class="nb">min</span><span class="p">(</span><span class="n">pred_emb</span><span class="p">))</span>
+<span class="n">max_val</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="nb">max</span><span class="p">(</span><span class="n">y_test_emb</span><span class="p">),</span> <span class="nb">max</span><span class="p">(</span><span class="n">pred_emb</span><span class="p">))</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">([</span><span class="n">min_val</span><span class="p">,</span> <span class="n">max_val</span><span class="p">],</span> <span class="p">[</span><span class="n">min_val</span><span class="p">,</span> <span class="n">max_val</span><span class="p">],</span> <span class="s1">&#39;r--&#39;</span><span class="p">,</span> <span class="n">lw</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+
+<span class="c1"># Set labels and title</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s1">&#39;Actual ESOL Values&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s1">&#39;Predicted ESOL Values&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="s1">&#39;Predicted vs. Actual ESOL Values from SVR Model Trained on MolMIM Embeddings&#39;</span><span class="p">)</span>
+
+<span class="c1"># Add R-squared value to the plot</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">text</span><span class="p">(</span><span class="mf">0.05</span><span class="p">,</span> <span class="mf">0.95</span><span class="p">,</span> <span class="sa">f</span><span class="s1">&#39;R² = </span><span class="si">{</span><span class="n">emb_SVR_R2</span><span class="si">:</span><span class="s1">.4f</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">,</span> <span class="n">transform</span><span class="o">=</span><span class="n">plt</span><span class="o">.</span><span class="n">gca</span><span class="p">()</span><span class="o">.</span><span class="n">transAxes</span><span class="p">,</span> 
+         <span class="n">verticalalignment</span><span class="o">=</span><span class="s1">&#39;top&#39;</span><span class="p">)</span>
+
+<span class="c1"># Adjust layout and display the plot</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">tight_layout</span><span class="p">()</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<img alt="../_images/1d62d9fdc42bd36107d77db0f25bbd2974e4a29abb9b6837118d967bae3721d6.png" src="../_images/1d62d9fdc42bd36107d77db0f25bbd2974e4a29abb9b6837118d967bae3721d6.png" />
+</div>
+</div>
+<p>We can see that the SVR model makes moderate predictions of solubility through using the MolMIM embeddings as predictors. Can you tweak and improve the model?</p>
+</div>
+</div>
+</div>
+
+<div class="section">
+   
+</div>
+
+              </div>
+              
+            </main>
+            <footer class="footer-article noprint">
+                
+    <!-- Previous / next buttons -->
+<div class='prev-next-area'>
+    <a class='left-prev' id="prev-link" href="MMB_GenerativeAI_Inference_with_examples.html" title="previous page">
+        <i class="fas fa-angle-left"></i>
+        <div class="prev-next-info">
+            <p class="prev-next-subtitle">previous</p>
+            <p class="prev-next-title">BioNeMo - MegaMolBART Inferencing for Generative Chemistry</p>
+        </div>
+    </a>
+    <a class='right-next' id="next-link" href="ZINC15-data-preprocessing.html" title="next page">
+    <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">ZINC Training Dataset Setup for small molecule language models</p>
+    </div>
+    <i class="fas fa-angle-right"></i>
+    </a>
+</div>
+            </footer>
+        </div>
+    </div>
+    <div class="footer-content row">
+        <footer class="col footer"><p>
+  
+    By NVIDIA<br/>
+  
+      &copy; Copyright 2023-2024 NVIDIA CORPORATION &amp; AFFILIATES. All rights reserved..<br/>
+    Last updated on Oct 17, 2024.<br/>
+</p>
+        </footer>
+    </div>
+    
+</div>
+
+
+      </div>
+    </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="../_static/scripts/pydata-sphinx-theme.js?digest=1999514e3f237ded88cf"></script>
+
+
+  </body>
+</html>

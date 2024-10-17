@@ -1,0 +1,1037 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Model Benchmarks &#8212; NVIDIA BioNeMo Framework</title>
+    
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../_static/styles/theme.css?digest=1999514e3f237ded88cf" rel="stylesheet">
+<link href="../_static/styles/pydata-sphinx-theme.css?digest=1999514e3f237ded88cf" rel="stylesheet">
+
+    
+  <link rel="stylesheet"
+    href="../_static/vendor/fontawesome/5.13.0/css/all.min.css">
+  <link rel="preload" as="font" type="font/woff2" crossorigin
+    href="../_static/vendor/fontawesome/5.13.0/webfonts/fa-solid-900.woff2">
+  <link rel="preload" as="font" type="font/woff2" crossorigin
+    href="../_static/vendor/fontawesome/5.13.0/webfonts/fa-brands-400.woff2">
+
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
+    <link rel="stylesheet" href="../_static/styles/sphinx-book-theme.css?digest=62ba249389abaaa9ffc34bf36a076bdc1d65ee18" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="../_static/mystnb.4510f1fc1dee50b3e5859aac5469c37c29e427902b24a333a5f9fcb2f0b3ac41.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/copybutton.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/tabs.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/custom.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/design-style.1e8bd061cd6da7fc9cf755528e8ffc24.min.css" />
+    
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=1999514e3f237ded88cf">
+
+    <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+    <script src="../_static/jquery.js"></script>
+    <script src="../_static/underscore.js"></script>
+    <script src="../_static/doctools.js"></script>
+    <script src="../_static/clipboard.min.js"></script>
+    <script src="../_static/copybutton.js"></script>
+    <script src="https://js.hcaptcha.com/1/api.js"></script>
+    <script src="//assets.adobedtm.com/5d4962a43b79/c1061d2c5e7b/launch-191c2462b890.min.js"></script>
+    <script src="../_static/scripts/sphinx-book-theme.js?digest=f31d14ad54b65d19161ba51d4ffff3a77ae00456"></script>
+    <script src="../_static/design-tabs.js"></script>
+    <link rel="canonical" href="https://docs.nvidia.com/bionemo-framework/0.4.0/models/model-benchmarks.html" />
+    <link rel="shortcut icon" href="../_static/nvidia-logo-vert-rgb-blk-for-screen.png"/>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="UniProt Dataset" href="../datasets/uniprot.html" />
+    <link rel="prev" title="Prott5nv" href="prott5nv.html" /> 
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="docsearch:language" content="None">
+    
+
+    <!-- Google Analytics -->
+      
+<style type="text/css">
+  ul.ablog-archive {
+    list-style: none;
+    overflow: auto;
+    margin-left: 0px;
+  }
+  ul.ablog-archive li {
+    float: left;
+    margin-right: 5px;
+    font-size: 80%;
+  }
+  ul.postlist a {
+    font-style: italic;
+  }
+  ul.postlist-style-disc {
+    list-style-type: disc;
+  }
+  ul.postlist-style-none {
+    list-style-type: none;
+  }
+  ul.postlist-style-circle {
+    list-style-type: circle;
+  }
+</style>
+
+  </head>
+  <body data-spy="scroll" data-target="#bd-toc-nav" data-offset="60">
+<!-- Checkboxes to toggle the left sidebar -->
+<input type="checkbox" class="sidebar-toggle" name="__navigation" id="__navigation" aria-label="Toggle navigation sidebar">
+<label class="overlay overlay-navbar" for="__navigation">
+    <div class="visually-hidden">Toggle navigation sidebar</div>
+</label>
+<!-- Checkboxes to toggle the in-page toc -->
+<input type="checkbox" class="sidebar-toggle" name="__page-toc" id="__page-toc" aria-label="Toggle in-page Table of Contents">
+<label class="overlay overlay-pagetoc" for="__page-toc">
+    <div class="visually-hidden">Toggle in-page Table of Contents</div>
+</label>
+<!-- Headers at the top -->
+<div class="announcement header-item noprint"></div>
+<div class="header header-item noprint"></div>
+
+    
+    <div class="container-fluid" id="banner"></div>
+
+    
+
+    <div class="container-xl">
+      <div class="row">
+          
+<!-- Sidebar -->
+<div class="bd-sidebar noprint" id="site-navigation">
+    <div class="bd-sidebar__content">
+        <div class="bd-sidebar__top"><div class="navbar-brand-box">
+    <a class="navbar-brand text-wrap" href="../index.html">
+      
+        <!-- `logo` is deprecated in Sphinx 4.0, so remove this when we stop supporting 3 -->
+        
+      
+      
+      <img src="../_static/nvidia-logo-horiz-rgb-blk-for-screen.png" class="logo" alt="logo">
+      
+      
+      <h1 class="site-logo" id="site-title">NVIDIA BioNeMo Framework</h1>
+      
+    </a>
+</div><form class="bd-search d-flex align-items-center" action="../search.html" method="get">
+  <i class="icon fas fa-search"></i>
+  <input type="search" class="form-control" name="q" id="search-input" placeholder="Search the docs ..." aria-label="Search the docs ..." autocomplete="off" >
+</form><nav class="bd-links" id="bd-docs-nav" aria-label="Main">
+    <div class="bd-toc-item active">
+        <p aria-level="2" class="caption" role="heading">
+ <span class="caption-text">
+  GETTING STARTED
+ </span>
+</p>
+<ul class="nav bd-sidenav">
+ <li class="toctree-l1">
+  <a class="reference internal" href="../index.html">
+   What is BioNeMo?
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../pre-reqs.html">
+   Hardware and Software Prerequisites
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../access-startup.html">
+   Access and Startup
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../initialization-guide.html">
+   Initialization Guide
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../tutorial-list.html">
+   BioNeMo Framework Tutorials
+  </a>
+ </li>
+</ul>
+<p aria-level="2" class="caption" role="heading">
+ <span class="caption-text">
+  BioNeMo CORE
+ </span>
+</p>
+<ul class="nav bd-sidenav">
+ <li class="toctree-l1">
+  <a class="reference internal" href="../bionemo-fw-for-model-training-fw.html">
+   Fundamentals
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../data-module-fw.html">
+   Data Module
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../dwnstr-task-validation.html">
+   Validation with a Downstream Task
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../inference-triton-fw.html">
+   Inference with Nvidia Triton Server
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../deep-dive-esm1-pytriton-inference.html">
+   Example of PyTriton Inference
+  </a>
+ </li>
+</ul>
+<p aria-level="2" class="caption" role="heading">
+ <span class="caption-text">
+  BEST PRACTICES
+ </span>
+</p>
+<ul class="nav bd-sidenav">
+ <li class="toctree-l1">
+  <a class="reference internal" href="../hyperparameters-fw.html">
+   Hyperparameter Usage and Tuning
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../parallelism-fw.html">
+   Training Parallelism
+  </a>
+ </li>
+</ul>
+<p aria-level="2" class="caption" role="heading">
+ <span class="caption-text">
+  MODELS
+ </span>
+</p>
+<ul class="current nav bd-sidenav">
+ <li class="toctree-l1">
+  <a class="reference internal" href="diffdock.html">
+   DiffDock
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="dnabert.html">
+   DNABERT
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="dsmbind.html">
+   Model Overview
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="equidock.html">
+   EquiDock
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="esm1-nv.html">
+   ESM-1nv
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="esm2-nv.html">
+   ESM-2nv
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="geneformer.html">
+   Geneformer
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="megamolbart.html">
+   MegaMolBART
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="molmim.html">
+   MolMIM
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="openfold.html">
+   OpenFold
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="prott5nv.html">
+   Prott5nv
+  </a>
+ </li>
+ <li class="toctree-l1 current active">
+  <a class="current reference internal" href="#">
+   Model Benchmarks
+  </a>
+ </li>
+</ul>
+<p aria-level="2" class="caption" role="heading">
+ <span class="caption-text">
+  DATASETS
+ </span>
+</p>
+<ul class="nav bd-sidenav">
+ <li class="toctree-l1">
+  <a class="reference internal" href="../datasets/uniprot.html">
+   UniProt Dataset
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../datasets/CELLxGENE.html">
+   CELLxGENE
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../datasets/zinc15.html">
+   ZINC-15 Dataset
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../datasets/pdb.html">
+   The Protein Data Bank (PDB)
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../datasets/GRCh38.p13.html">
+   Human Reference Genome Version GRCh38.p13
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../datasets/openproteinset.html">
+   OpenProteinSet
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../datasets/moleculenet-physchem.html">
+   MoleculeNet Physical Chemistry Datasets - Lipophilicity, FreeSolv, ESOL
+  </a>
+ </li>
+</ul>
+<p aria-level="2" class="caption" role="heading">
+ <span class="caption-text">
+  TUTORIALS
+ </span>
+</p>
+<ul class="nav bd-sidenav">
+ <li class="toctree-l1">
+  <a class="reference internal" href="../preprocessing-bcp-training-diffdock.html">
+   DiffDock: Preparing Workspace and Data for Pre-training
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../notebooks/esm2nv-mutant-design.html">
+   Zero-Shot Protein Design Using ESM-2nv
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../notebooks/MMB_GenerativeAI_Inference_with_examples.html">
+   BioNeMo - MegaMolBART Inferencing for Generative Chemistry
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../notebooks/MolMIM_GenerativeAI_local_inference_with_examples.html">
+   MolMIM Inferencing for Generative Chemistry and Downstream Prediction
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../notebooks/ZINC15-data-preprocessing.html">
+   ZINC Training Dataset Setup for small molecule language models
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../notebooks/bionemo-finetuning-overview.html">
+   Finetune pre-trained models in BioNeMo
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../notebooks/cma_es_guided_molecular_optimization_molmim.html">
+   MolMIM Property Guided Molecular Optimization Using CMA-ES
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../notebooks/custom-dataset-class-fw.html">
+   Adding the OAS Dataset: Modifying the Dataset Class
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../notebooks/custom-dataset-dataloader.html">
+   Adding the OAS Dataset: Customizing Dataset Object and Dataloader Functions
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../notebooks/custom-dataset-preprocessing-fw.html">
+   Adding the OAS Dataset: Downloading and Preprocessing
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../notebooks/encoder-finetuning-notebook-fw.html">
+   Encoder Fine-tuning
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../notebooks/model_training_diffdock.html">
+   DiffDock Model Training using BioNeMo
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../notebooks/model_training_equidock.html">
+   EquiDock Model Training using BioNeMo
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../notebooks/model_training_esm1nv.html">
+   ESM1nv Model Training using BioNeMo
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../notebooks/model_training_esm2nv.html">
+   ESM-2nv: Data Preprocessing and Model Training Using BioNeMo
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../notebooks/model_training_mmb.html">
+   MegaMolBART Model Training using BioNeMo
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../notebooks/model_training_molmim.html">
+   Train MolMIM from scratch on your own data using the BioNeMo Framework
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../notebooks/physchem-notebook-fw.html">
+   Finetuning LLM in BioNeMo for a Downstream Task
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../notebooks/protein-esm2nv-clustering.html">
+   Generating Embeddings for Protein Clustering
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../notebooks/retrosynthesis-notebook.html">
+   Training LLM for a Custom Downstram Task: Retrosynthesis Prediction using MegaMolBART
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../notebooks/esm2_FLIP_finetuning.html">
+   Fine-Tune ESM-2nv on FLIP Data for Sequence-Level Classification, Regression, Token-Level Classification, and with LoRA Adapters
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../notebooks/esm2_oas_inferencing.html">
+   Performing inference on OAS sequences with ESM-2nv
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../notebooks/esm2_paratope_finetuning.html">
+   Pretrain from Scratch, Continue Training from an Existing Checkpoint, and Fine-tune ESM-2nv on Custom Data
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../notebooks/dnabert_inference.html">
+   Generating and visualizing embeddings with DNABert
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../notebooks/dnabert_pretrain_finetune.html">
+   Pretrain, Fine-tune, and Perform Inference with DNABERT for Splice Site Prediction
+  </a>
+ </li>
+</ul>
+<p aria-level="2" class="caption" role="heading">
+ <span class="caption-text">
+  APPENDIX
+ </span>
+</p>
+<ul class="nav bd-sidenav">
+ <li class="toctree-l1">
+  <a class="reference internal" href="../faq-fw.html">
+   Frequently Asked Questions (FAQ)
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../bibliography-fw.html">
+   Bibliography
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../releasenotes-fw.html">
+   Release Notes
+  </a>
+ </li>
+</ul>
+
+    </div>
+</nav></div>
+        <div class="bd-sidebar__bottom">
+             <!-- To handle the deprecated key -->
+            
+        </div>
+    </div>
+    <div id="rtd-footer-container"></div>
+</div>
+
+
+          
+
+
+          
+<!-- A tiny helper pixel to detect if we've scrolled -->
+<div class="sbt-scroll-pixel-helper"></div>
+<!-- Main content -->
+<div class="col py-0 content-container">
+    
+    <div class="header-article row sticky-top noprint">
+        
+
+
+
+<div class="col py-1 d-flex header-article-main">
+    <div class="header-article__left">
+        
+        <label for="__navigation"
+  class="headerbtn"
+  data-toggle="tooltip"
+data-placement="right"
+title="Toggle navigation"
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fas fa-bars"></i>
+  </span>
+
+</label>
+
+        
+    </div>
+    <div class="header-article__right">
+<button onclick="toggleFullScreen()"
+  class="headerbtn"
+  data-toggle="tooltip"
+data-placement="bottom"
+title="Fullscreen mode"
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fas fa-expand"></i>
+  </span>
+
+</button>
+<label for="__page-toc"
+  class="headerbtn headerbtn-page-toc"
+  
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fas fa-list"></i>
+  </span>
+
+</label>
+
+    </div>
+</div>
+
+<!-- Table of contents -->
+<div class="col-md-3 bd-toc show noprint">
+    <div class="tocsection onthispage pt-5 pb-3">
+        <i class="fas fa-list"></i> Contents
+    </div>
+    <nav id="bd-toc-nav" aria-label="Page">
+        <ul class="visible nav section-nav flex-column">
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#protein-sequence-representation">
+   Protein Sequence Representation
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#smiles-representation">
+   SMILES Representation
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#smiles-generation">
+   SMILES Generation
+  </a>
+ </li>
+</ul>
+
+    </nav>
+</div>
+    </div>
+    <div class="article row">
+        <div class="col pl-md-3 pl-lg-5 content-container">
+            <!-- Table of contents that is only displayed when printing the page -->
+            <div id="jb-print-docs-body" class="onlyprint">
+                <h1>Model Benchmarks</h1>
+                <!-- Table of contents -->
+                <div id="print-main-content">
+                    <div id="jb-print-toc">
+                        
+                        <div>
+                            <h2> Contents </h2>
+                        </div>
+                        <nav aria-label="Page">
+                            <ul class="visible nav section-nav flex-column">
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#protein-sequence-representation">
+   Protein Sequence Representation
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#smiles-representation">
+   SMILES Representation
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#smiles-generation">
+   SMILES Generation
+  </a>
+ </li>
+</ul>
+
+                        </nav>
+                    </div>
+                </div>
+            </div>
+            <main id="main-content" role="main">
+                
+              <div>
+                 <div class="tex2jax_ignore mathjax_ignore section" id="model-benchmarks">
+<h1>Model Benchmarks<a class="headerlink" href="#model-benchmarks" title="Permalink to this headline">#</a></h1>
+<div class="section" id="protein-sequence-representation">
+<h2>Protein Sequence Representation<a class="headerlink" href="#protein-sequence-representation" title="Permalink to this headline">#</a></h2>
+<p>Metrics and datasets are from <a class="reference external" href="https://www.biorxiv.org/content/10.1101/2021.11.09.467890v2.full">FLIP</a>.</p>
+<table class="colwidths-auto table">
+<thead>
+<tr class="row-odd"><th class="head"><p>Metric</p></th>
+<th class="head"><p></p></th>
+<th class="head"><p></p></th>
+<th class="head"><p>Dataset</p></th>
+<th class="head"><p></p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>Type</p></td>
+<td><p>Name</p></td>
+<td><p>Definition</p></td>
+<td><p>Split Name</p></td>
+<td><p>Split Definition</p></td>
+</tr>
+<tr class="row-odd"><td><p>Classification</p></td>
+<td><p>Secondary Structure</p></td>
+<td><p>Predict one of three secondary structure classes (helix, sheet, coil) for each amino acid in a protein sequence.</p></td>
+<td><p>Sampled</p></td>
+<td><p>Randomly split sequences into train/test with 95/5% probability.</p></td>
+</tr>
+<tr class="row-even"><td><p>Classification</p></td>
+<td><p>Subcellular Localization (SCL)</p></td>
+<td><p>For each protein, predict one of ten subcellular locations (cytoplasm, nucleus, cell membrane, mitochondrion, endoplasmic reticulum, lysosome/vacuole, golgi apparatus, peroxisome, extracellular, and plastid).</p></td>
+<td><p>Mixed Soft</p></td>
+<td><p>The mixed soft split uses train, validation, and test splits as provided in the DeepLoc 1.0 publication.</p></td>
+</tr>
+<tr class="row-odd"><td><p>Classification</p></td>
+<td><p>Conservation</p></td>
+<td><p>Predict one of nine possible conservation classes (1 = most variable to 9 = highly conserved) for each amino acid in a protein sequence</p></td>
+<td><p>Sampled</p></td>
+<td><p>Randomly split sequences into train/test with 95/5% probability.</p></td>
+</tr>
+<tr class="row-even"><td><p>Regression</p></td>
+<td><p>Meltome</p></td>
+<td><p>Predict melting degree, which is the temperature at which &gt;50% of a protein is denatured.</p></td>
+<td><p>Mixed Split</p></td>
+<td><p>Protein sequences were clustered by seq identity with 80% of clusters used for training, 20% for testing. The mixed split uses sequences from clusters for training and the representative cluster sequence for testing. The objective is to minimize performance overestimation on large clusters in the test set.</p></td>
+</tr>
+<tr class="row-odd"><td><p>Regression</p></td>
+<td><p>GB1 Binding Activity</p></td>
+<td><p>The impact of amino acid substitutions for one or more of four GB1 positions (V39, D40, G41, and V54) was measured in a binding assay. Values &gt; 1 indicate more binding than wildtype, equal to 1 indicate equivalent binding, and &lt; 1 indicate less binding than wildtype.</p></td>
+<td><p>Two vs Rest</p></td>
+<td><p>The training split includes wild type sequence and all single and double mutations. Everything else is put into the test set.</p></td>
+</tr>
+</tbody>
+</table>
+<p><strong>Classification Metric Values</strong></p>
+<p>ESM models listed below are tested as deployed in BioNeMo.</p>
+<table class="colwidths-auto table">
+<thead>
+<tr class="row-odd"><th class="head"><p>Secondary Structure</p></th>
+<th class="head"><p></p></th>
+<th class="head"><p>Subcellular Localization (SCL)</p></th>
+<th class="head"><p></p></th>
+<th class="head"><p>Conservation</p></th>
+<th class="head"><p></p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><strong>Model</strong></p></td>
+<td><p><strong>Accuracy</strong></p></td>
+<td><p><strong>Model</strong></p></td>
+<td><p><strong>Accuracy</strong></p></td>
+<td><p><strong>Model</strong></p></td>
+<td><p><strong>Accuracy</strong></p></td>
+</tr>
+<tr class="row-odd"><td><p>One Hot</p></td>
+<td><p>0.643</p></td>
+<td><p>One Hot</p></td>
+<td><p>0.386</p></td>
+<td><p>One Hot</p></td>
+<td><p>0.202</p></td>
+</tr>
+<tr class="row-even"><td><p>ESM1nv</p></td>
+<td><p>0.773</p></td>
+<td><p>ESM1nv</p></td>
+<td><p>0.720</p></td>
+<td><p>ESM1nv</p></td>
+<td><p>0.249</p></td>
+</tr>
+<tr class="row-odd"><td><p>ProtT5nv</p></td>
+<td><p>0.793</p></td>
+<td><p>ProtBERT</p></td>
+<td><p>0.740</p></td>
+<td><p>ProtT5nv</p></td>
+<td><p>0.256</p></td>
+</tr>
+<tr class="row-even"><td><p>ProtBERT</p></td>
+<td><p>0.818</p></td>
+<td><p>ProtT5nv</p></td>
+<td><p>0.764</p></td>
+<td><p>ProtBERT</p></td>
+<td><p>0.326</p></td>
+</tr>
+<tr class="row-odd"><td><p>ProtT5</p></td>
+<td><p>0.854</p></td>
+<td><p>ESM2 T33 650M UR50D</p></td>
+<td><p>0.791</p></td>
+<td><p>ESM2 T33 650M UR50D</p></td>
+<td><p>0.329</p></td>
+</tr>
+<tr class="row-even"><td><p>ESM2 T33 650M UR50D</p></td>
+<td><p>0.855</p></td>
+<td><p>ESM2 T36 3B UR50D</p></td>
+<td><p>0.812</p></td>
+<td><p>ESM2 T36 3B UR50D</p></td>
+<td><p>0.337</p></td>
+</tr>
+<tr class="row-odd"><td><p>ESM2 T36 3B UR50D</p></td>
+<td><p>0.861</p></td>
+<td><p>ProtT5</p></td>
+<td><p>0.820</p></td>
+<td><p>ESM2 T48 15B UR50D</p></td>
+<td><p>0.340</p></td>
+</tr>
+<tr class="row-even"><td><p>ESM2 T48 15B UR50D</p></td>
+<td><p>0.867</p></td>
+<td><p>ESM2 T48 15B UR50D</p></td>
+<td><p>0.839</p></td>
+<td><p>ProtT5</p></td>
+<td><p>0.343</p></td>
+</tr>
+</tbody>
+</table>
+<p><strong>Regression Metric Values</strong></p>
+<table class="colwidths-auto table">
+<thead>
+<tr class="row-odd"><th class="head"><p>Meltome</p></th>
+<th class="head"><p></p></th>
+<th class="head"><p>GB1 Binding Activity</p></th>
+<th class="head"><p></p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><strong>Model</strong></p></td>
+<td><p><strong>MSE</strong></p></td>
+<td><p><strong>Model</strong></p></td>
+<td><p><strong>MSE</strong></p></td>
+</tr>
+<tr class="row-odd"><td><p>One Hot</p></td>
+<td><p>128.21</p></td>
+<td><p>One Hot</p></td>
+<td><p>2.56</p></td>
+</tr>
+<tr class="row-even"><td><p>ESM1nv</p></td>
+<td><p>82.85</p></td>
+<td><p>ProtT5</p></td>
+<td><p>1.69</p></td>
+</tr>
+<tr class="row-odd"><td><p>ProtT5nv</p></td>
+<td><p>77.39</p></td>
+<td><p>ESM2 T33 650M UR50D</p></td>
+<td><p>1.67</p></td>
+</tr>
+<tr class="row-even"><td><p>ProtBERT</p></td>
+<td><p>58.87</p></td>
+<td><p>ESM2 T36 3B UR50D</p></td>
+<td><p>1.64</p></td>
+</tr>
+<tr class="row-odd"><td><p>ESM2 T33 650M UR50D</p></td>
+<td><p>53.38</p></td>
+<td><p>ProtBERT</p></td>
+<td><p>1.61</p></td>
+</tr>
+<tr class="row-even"><td><p>ESM2 T36 3B UR50D</p></td>
+<td><p>45.78</p></td>
+<td><p>ProtT5nv</p></td>
+<td><p>1.60</p></td>
+</tr>
+<tr class="row-odd"><td><p>ProtT5</p></td>
+<td><p>44.76</p></td>
+<td><p>ESM1nv</p></td>
+<td><p>1.58</p></td>
+</tr>
+<tr class="row-even"><td><p>ESM2 T48 15B UR50D</p></td>
+<td><p>39.49</p></td>
+<td><p>ESM2 T48 15B UR50D</p></td>
+<td><p>1.52</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="smiles-representation">
+<h2>SMILES Representation<a class="headerlink" href="#smiles-representation" title="Permalink to this headline">#</a></h2>
+<p><strong>Metric Definitions and Dataset</strong></p>
+<table class="colwidths-auto table">
+<thead>
+<tr class="row-odd"><th class="head"><p>Type</p></th>
+<th class="head"><p>Metric</p></th>
+<th class="head"><p>Metric Definition</p></th>
+<th class="head"><p>Dataset</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>Physchem Properties</p></td>
+<td><p>Lipophilicity</p></td>
+<td><p>MSE from best performing SVM and Random Forest model, as determined by hyperparameter optimization with 20-fold nested cross-validation.</p></td>
+<td><p>MoleculeNet datasets: Lipophilicity: 4,200 molecules FreeSolv: 642 molecules ESOL: 1,128 molecules</p></td>
+</tr>
+<tr class="row-odd"><td><p></p></td>
+<td><p>FreeSolv</p></td>
+<td><p></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p></p></td>
+<td><p>ESOL</p></td>
+<td><p></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p>Bioactivities</p></td>
+<td><p>Activity</p></td>
+<td><p></p></td>
+<td><p>ExCAPE database filtered on a subset of protein targets (28 genes). The set of ligands for each target comprise one dataset, with the number of ligands ranging from 1,341 to 367,067 molecules (total = 1,203,479). A model is fit for each dataset and the resulting MSE values are averaged.</p></td>
+</tr>
+</tbody>
+</table>
+<p><strong>Metric Values</strong></p>
+<table class="colwidths-auto table">
+<thead>
+<tr class="row-odd"><th class="head"><p>Type</p></th>
+<th class="head"><p>Metric</p></th>
+<th class="head"><p>SVM MSE</p></th>
+<th class="head"><p>Random Forest MSE</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>Physchem Properties</p></td>
+<td><p>Lipophilicity</p></td>
+<td><p>0.491</p></td>
+<td><p>0.811</p></td>
+</tr>
+<tr class="row-odd"><td><p></p></td>
+<td><p>FreeSolv</p></td>
+<td><p>1.991</p></td>
+<td><p>4.832</p></td>
+</tr>
+<tr class="row-even"><td><p></p></td>
+<td><p>ESOL</p></td>
+<td><p>0.474</p></td>
+<td><p>0.862</p></td>
+</tr>
+<tr class="row-odd"><td><p>Bioactivities</p></td>
+<td><p>Activity</p></td>
+<td><p>0.520</p></td>
+<td><p>0.616</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="smiles-generation">
+<h2>SMILES Generation<a class="headerlink" href="#smiles-generation" title="Permalink to this headline">#</a></h2>
+<p><strong>Metric Definitions and Dataset</strong></p>
+<table class="colwidths-auto table">
+<thead>
+<tr class="row-odd"><th class="head"><p>Type</p></th>
+<th class="head"><p>Metric</p></th>
+<th class="head"><p>Metric Definition</p></th>
+<th class="head"><p>Dataset</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>Sampling</p></td>
+<td><p>Validity</p></td>
+<td><p>Percentage of molecules generated which are valid SMILES, as determined by RDKit.</p></td>
+<td><p>The dataset was 10k molecules randomly selected from ChEMBL that are not present in the training data for MoFlow or MegaMolBART and pass drug-likeness filters. For each of these seed molecules, sample 512 molecules from MoFlow with a temperature of 0.25. For MegaMolBART, sample 10 molecules with a radius of 1.0. For each seed molecule, calculate metric or properties as described on its samples. The metric value is the percentage of molecules which meet the metric definition.</p></td>
+</tr>
+<tr class="row-odd"><td><p></p></td>
+<td><p>Novelty</p></td>
+<td><p>Percentage of valid molecules that are not present in training data and don’t match the seed molecule.</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p></p></td>
+<td><p>Uniqueness</p></td>
+<td><p>Percentage of valid molecules that are unique.</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p></p></td>
+<td><p>NUV</p></td>
+<td><p>Percentage of molecules generated which meet all sampling metrics (novelty, uniqueness, validity).</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p>Drug-Likeness</p></td>
+<td><p>QED</p></td>
+<td><p>Quantitative estimate of drug-likeness.</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p></p></td>
+<td><p>SAS</p></td>
+<td><p>Synthetic accessibility score.</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p></p></td>
+<td><p>Pass Filters</p></td>
+<td><p>Fraction of valid molecules which meet all of the following drug-likeness criteria: (1) SAS between 2.0 and 4.0, inclusive; (2) QED &gt;= 0.65; (3) Maximum ring size &lt;= 6; (4) Number of rings &gt;= 2; (5) No rings with fewer than 5 atoms.</p></td>
+<td><p></p></td>
+</tr>
+</tbody>
+</table>
+<p><strong>Metric Values</strong></p>
+<table class="colwidths-auto table">
+<thead>
+<tr class="row-odd"><th class="head"><p>Type</p></th>
+<th class="head"><p>Metric</p></th>
+<th class="head"><p>MegaMolBART</p></th>
+<th class="head"><p></p></th>
+<th class="head"><p>MoFlow</p></th>
+<th class="head"><p></p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p></p></td>
+<td><p></p></td>
+<td><p>Mean</p></td>
+<td><p>Standard Deviation</p></td>
+<td><p>Mean</p></td>
+<td><p>Standard Deviation</p></td>
+</tr>
+<tr class="row-odd"><td><p>Sampling</p></td>
+<td><p>Validity</p></td>
+<td><p>0.819</p></td>
+<td><p>0.034</p></td>
+<td><p>1.000</p></td>
+<td><p>0.000</p></td>
+</tr>
+<tr class="row-even"><td><p></p></td>
+<td><p>Novelty</p></td>
+<td><p>1.000</p></td>
+<td><p>0.000</p></td>
+<td><p>1.000</p></td>
+<td><p>0.000</p></td>
+</tr>
+<tr class="row-odd"><td><p></p></td>
+<td><p>Uniqueness</p></td>
+<td><p>0.513</p></td>
+<td><p>0.069</p></td>
+<td><p>0.841</p></td>
+<td><p>0.190</p></td>
+</tr>
+<tr class="row-even"><td><p></p></td>
+<td><p>NUV</p></td>
+<td><p>0.395</p></td>
+<td><p>0.037</p></td>
+<td><p>0.841</p></td>
+<td><p>0.190</p></td>
+</tr>
+<tr class="row-odd"><td><p>Drug-Likeness</p></td>
+<td><p>QED</p></td>
+<td><p>0.746</p></td>
+<td><p>0.007</p></td>
+<td><p>0.583</p></td>
+<td><p>0.009</p></td>
+</tr>
+<tr class="row-even"><td><p></p></td>
+<td><p>SAS</p></td>
+<td><p>2.654</p></td>
+<td><p>0.204</p></td>
+<td><p>4.150</p></td>
+<td><p>0.254</p></td>
+</tr>
+<tr class="row-odd"><td><p></p></td>
+<td><p>Pass Filters</p></td>
+<td><p>0.766</p></td>
+<td><p>0.074</p></td>
+<td><p>0.215</p></td>
+<td><p>0.020</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+
+<div class="section">
+   
+</div>
+
+              </div>
+              
+            </main>
+            <footer class="footer-article noprint">
+                
+    <!-- Previous / next buttons -->
+<div class='prev-next-area'>
+    <a class='left-prev' id="prev-link" href="prott5nv.html" title="previous page">
+        <i class="fas fa-angle-left"></i>
+        <div class="prev-next-info">
+            <p class="prev-next-subtitle">previous</p>
+            <p class="prev-next-title">Prott5nv</p>
+        </div>
+    </a>
+    <a class='right-next' id="next-link" href="../datasets/uniprot.html" title="next page">
+    <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">UniProt Dataset</p>
+    </div>
+    <i class="fas fa-angle-right"></i>
+    </a>
+</div>
+            </footer>
+        </div>
+    </div>
+    <div class="footer-content row">
+        <footer class="col footer"><p>
+  
+    By NVIDIA<br/>
+  
+      &copy; Copyright 2023-2024 NVIDIA CORPORATION &amp; AFFILIATES. All rights reserved..<br/>
+    Last updated on Oct 17, 2024.<br/>
+</p>
+        </footer>
+    </div>
+    
+</div>
+
+
+      </div>
+    </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="../_static/scripts/pydata-sphinx-theme.js?digest=1999514e3f237ded88cf"></script>
+
+
+  </body>
+</html>

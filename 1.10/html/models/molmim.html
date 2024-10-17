@@ -1,0 +1,1026 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>MolMIM &#8212; NVIDIA BioNeMo Framework</title>
+    
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../_static/styles/theme.css?digest=1999514e3f237ded88cf" rel="stylesheet">
+<link href="../_static/styles/pydata-sphinx-theme.css?digest=1999514e3f237ded88cf" rel="stylesheet">
+
+    
+  <link rel="stylesheet"
+    href="../_static/vendor/fontawesome/5.13.0/css/all.min.css">
+  <link rel="preload" as="font" type="font/woff2" crossorigin
+    href="../_static/vendor/fontawesome/5.13.0/webfonts/fa-solid-900.woff2">
+  <link rel="preload" as="font" type="font/woff2" crossorigin
+    href="../_static/vendor/fontawesome/5.13.0/webfonts/fa-brands-400.woff2">
+
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
+    <link rel="stylesheet" href="../_static/styles/sphinx-book-theme.css?digest=62ba249389abaaa9ffc34bf36a076bdc1d65ee18" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="../_static/mystnb.4510f1fc1dee50b3e5859aac5469c37c29e427902b24a333a5f9fcb2f0b3ac41.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/copybutton.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/tabs.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/custom.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/design-style.1e8bd061cd6da7fc9cf755528e8ffc24.min.css" />
+    
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=1999514e3f237ded88cf">
+
+    <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+    <script src="../_static/jquery.js"></script>
+    <script src="../_static/underscore.js"></script>
+    <script src="../_static/doctools.js"></script>
+    <script src="../_static/clipboard.min.js"></script>
+    <script src="../_static/copybutton.js"></script>
+    <script src="https://js.hcaptcha.com/1/api.js"></script>
+    <script src="//assets.adobedtm.com/5d4962a43b79/c1061d2c5e7b/launch-191c2462b890.min.js"></script>
+    <script src="../_static/scripts/sphinx-book-theme.js?digest=f31d14ad54b65d19161ba51d4ffff3a77ae00456"></script>
+    <script src="../_static/design-tabs.js"></script>
+    <script>window.MathJax = {"options": {"processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+    <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <link rel="canonical" href="https://docs.nvidia.com/bionemo-framework/0.4.0/models/molmim.html" />
+    <link rel="shortcut icon" href="../_static/nvidia-logo-vert-rgb-blk-for-screen.png"/>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="OpenFold" href="openfold.html" />
+    <link rel="prev" title="MegaMolBART" href="megamolbart.html" /> 
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="docsearch:language" content="None">
+    
+
+    <!-- Google Analytics -->
+      
+<style type="text/css">
+  ul.ablog-archive {
+    list-style: none;
+    overflow: auto;
+    margin-left: 0px;
+  }
+  ul.ablog-archive li {
+    float: left;
+    margin-right: 5px;
+    font-size: 80%;
+  }
+  ul.postlist a {
+    font-style: italic;
+  }
+  ul.postlist-style-disc {
+    list-style-type: disc;
+  }
+  ul.postlist-style-none {
+    list-style-type: none;
+  }
+  ul.postlist-style-circle {
+    list-style-type: circle;
+  }
+</style>
+
+  </head>
+  <body data-spy="scroll" data-target="#bd-toc-nav" data-offset="60">
+<!-- Checkboxes to toggle the left sidebar -->
+<input type="checkbox" class="sidebar-toggle" name="__navigation" id="__navigation" aria-label="Toggle navigation sidebar">
+<label class="overlay overlay-navbar" for="__navigation">
+    <div class="visually-hidden">Toggle navigation sidebar</div>
+</label>
+<!-- Checkboxes to toggle the in-page toc -->
+<input type="checkbox" class="sidebar-toggle" name="__page-toc" id="__page-toc" aria-label="Toggle in-page Table of Contents">
+<label class="overlay overlay-pagetoc" for="__page-toc">
+    <div class="visually-hidden">Toggle in-page Table of Contents</div>
+</label>
+<!-- Headers at the top -->
+<div class="announcement header-item noprint"></div>
+<div class="header header-item noprint"></div>
+
+    
+    <div class="container-fluid" id="banner"></div>
+
+    
+
+    <div class="container-xl">
+      <div class="row">
+          
+<!-- Sidebar -->
+<div class="bd-sidebar noprint" id="site-navigation">
+    <div class="bd-sidebar__content">
+        <div class="bd-sidebar__top"><div class="navbar-brand-box">
+    <a class="navbar-brand text-wrap" href="../index.html">
+      
+        <!-- `logo` is deprecated in Sphinx 4.0, so remove this when we stop supporting 3 -->
+        
+      
+      
+      <img src="../_static/nvidia-logo-horiz-rgb-blk-for-screen.png" class="logo" alt="logo">
+      
+      
+      <h1 class="site-logo" id="site-title">NVIDIA BioNeMo Framework</h1>
+      
+    </a>
+</div><form class="bd-search d-flex align-items-center" action="../search.html" method="get">
+  <i class="icon fas fa-search"></i>
+  <input type="search" class="form-control" name="q" id="search-input" placeholder="Search the docs ..." aria-label="Search the docs ..." autocomplete="off" >
+</form><nav class="bd-links" id="bd-docs-nav" aria-label="Main">
+    <div class="bd-toc-item active">
+        <p aria-level="2" class="caption" role="heading">
+ <span class="caption-text">
+  GETTING STARTED
+ </span>
+</p>
+<ul class="nav bd-sidenav">
+ <li class="toctree-l1">
+  <a class="reference internal" href="../index.html">
+   What is BioNeMo?
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../pre-reqs.html">
+   Hardware and Software Prerequisites
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../access-startup.html">
+   Access and Startup
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../initialization-guide.html">
+   Initialization Guide
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../tutorial-list.html">
+   BioNeMo Framework Tutorials
+  </a>
+ </li>
+</ul>
+<p aria-level="2" class="caption" role="heading">
+ <span class="caption-text">
+  BioNeMo CORE
+ </span>
+</p>
+<ul class="nav bd-sidenav">
+ <li class="toctree-l1">
+  <a class="reference internal" href="../bionemo-fw-for-model-training-fw.html">
+   Fundamentals
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../data-module-fw.html">
+   Data Module
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../dwnstr-task-validation.html">
+   Validation with a Downstream Task
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../inference-triton-fw.html">
+   Inference with Nvidia Triton Server
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../deep-dive-esm1-pytriton-inference.html">
+   Example of PyTriton Inference
+  </a>
+ </li>
+</ul>
+<p aria-level="2" class="caption" role="heading">
+ <span class="caption-text">
+  BEST PRACTICES
+ </span>
+</p>
+<ul class="nav bd-sidenav">
+ <li class="toctree-l1">
+  <a class="reference internal" href="../hyperparameters-fw.html">
+   Hyperparameter Usage and Tuning
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../parallelism-fw.html">
+   Training Parallelism
+  </a>
+ </li>
+</ul>
+<p aria-level="2" class="caption" role="heading">
+ <span class="caption-text">
+  MODELS
+ </span>
+</p>
+<ul class="current nav bd-sidenav">
+ <li class="toctree-l1">
+  <a class="reference internal" href="diffdock.html">
+   DiffDock
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="dnabert.html">
+   DNABERT
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="dsmbind.html">
+   Model Overview
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="equidock.html">
+   EquiDock
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="esm1-nv.html">
+   ESM-1nv
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="esm2-nv.html">
+   ESM-2nv
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="geneformer.html">
+   Geneformer
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="megamolbart.html">
+   MegaMolBART
+  </a>
+ </li>
+ <li class="toctree-l1 current active">
+  <a class="current reference internal" href="#">
+   MolMIM
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="openfold.html">
+   OpenFold
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="prott5nv.html">
+   Prott5nv
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="model-benchmarks.html">
+   Model Benchmarks
+  </a>
+ </li>
+</ul>
+<p aria-level="2" class="caption" role="heading">
+ <span class="caption-text">
+  DATASETS
+ </span>
+</p>
+<ul class="nav bd-sidenav">
+ <li class="toctree-l1">
+  <a class="reference internal" href="../datasets/uniprot.html">
+   UniProt Dataset
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../datasets/CELLxGENE.html">
+   CELLxGENE
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../datasets/zinc15.html">
+   ZINC-15 Dataset
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../datasets/pdb.html">
+   The Protein Data Bank (PDB)
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../datasets/GRCh38.p13.html">
+   Human Reference Genome Version GRCh38.p13
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../datasets/openproteinset.html">
+   OpenProteinSet
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../datasets/moleculenet-physchem.html">
+   MoleculeNet Physical Chemistry Datasets - Lipophilicity, FreeSolv, ESOL
+  </a>
+ </li>
+</ul>
+<p aria-level="2" class="caption" role="heading">
+ <span class="caption-text">
+  TUTORIALS
+ </span>
+</p>
+<ul class="nav bd-sidenav">
+ <li class="toctree-l1">
+  <a class="reference internal" href="../preprocessing-bcp-training-diffdock.html">
+   DiffDock: Preparing Workspace and Data for Pre-training
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../notebooks/esm2nv-mutant-design.html">
+   Zero-Shot Protein Design Using ESM-2nv
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../notebooks/MMB_GenerativeAI_Inference_with_examples.html">
+   BioNeMo - MegaMolBART Inferencing for Generative Chemistry
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../notebooks/MolMIM_GenerativeAI_local_inference_with_examples.html">
+   MolMIM Inferencing for Generative Chemistry and Downstream Prediction
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../notebooks/ZINC15-data-preprocessing.html">
+   ZINC Training Dataset Setup for small molecule language models
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../notebooks/bionemo-finetuning-overview.html">
+   Finetune pre-trained models in BioNeMo
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../notebooks/cma_es_guided_molecular_optimization_molmim.html">
+   MolMIM Property Guided Molecular Optimization Using CMA-ES
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../notebooks/custom-dataset-class-fw.html">
+   Adding the OAS Dataset: Modifying the Dataset Class
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../notebooks/custom-dataset-dataloader.html">
+   Adding the OAS Dataset: Customizing Dataset Object and Dataloader Functions
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../notebooks/custom-dataset-preprocessing-fw.html">
+   Adding the OAS Dataset: Downloading and Preprocessing
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../notebooks/encoder-finetuning-notebook-fw.html">
+   Encoder Fine-tuning
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../notebooks/model_training_diffdock.html">
+   DiffDock Model Training using BioNeMo
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../notebooks/model_training_equidock.html">
+   EquiDock Model Training using BioNeMo
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../notebooks/model_training_esm1nv.html">
+   ESM1nv Model Training using BioNeMo
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../notebooks/model_training_esm2nv.html">
+   ESM-2nv: Data Preprocessing and Model Training Using BioNeMo
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../notebooks/model_training_mmb.html">
+   MegaMolBART Model Training using BioNeMo
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../notebooks/model_training_molmim.html">
+   Train MolMIM from scratch on your own data using the BioNeMo Framework
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../notebooks/physchem-notebook-fw.html">
+   Finetuning LLM in BioNeMo for a Downstream Task
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../notebooks/protein-esm2nv-clustering.html">
+   Generating Embeddings for Protein Clustering
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../notebooks/retrosynthesis-notebook.html">
+   Training LLM for a Custom Downstram Task: Retrosynthesis Prediction using MegaMolBART
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../notebooks/esm2_FLIP_finetuning.html">
+   Fine-Tune ESM-2nv on FLIP Data for Sequence-Level Classification, Regression, Token-Level Classification, and with LoRA Adapters
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../notebooks/esm2_oas_inferencing.html">
+   Performing inference on OAS sequences with ESM-2nv
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../notebooks/esm2_paratope_finetuning.html">
+   Pretrain from Scratch, Continue Training from an Existing Checkpoint, and Fine-tune ESM-2nv on Custom Data
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../notebooks/dnabert_inference.html">
+   Generating and visualizing embeddings with DNABert
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../notebooks/dnabert_pretrain_finetune.html">
+   Pretrain, Fine-tune, and Perform Inference with DNABERT for Splice Site Prediction
+  </a>
+ </li>
+</ul>
+<p aria-level="2" class="caption" role="heading">
+ <span class="caption-text">
+  APPENDIX
+ </span>
+</p>
+<ul class="nav bd-sidenav">
+ <li class="toctree-l1">
+  <a class="reference internal" href="../faq-fw.html">
+   Frequently Asked Questions (FAQ)
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../bibliography-fw.html">
+   Bibliography
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../releasenotes-fw.html">
+   Release Notes
+  </a>
+ </li>
+</ul>
+
+    </div>
+</nav></div>
+        <div class="bd-sidebar__bottom">
+             <!-- To handle the deprecated key -->
+            
+        </div>
+    </div>
+    <div id="rtd-footer-container"></div>
+</div>
+
+
+          
+
+
+          
+<!-- A tiny helper pixel to detect if we've scrolled -->
+<div class="sbt-scroll-pixel-helper"></div>
+<!-- Main content -->
+<div class="col py-0 content-container">
+    
+    <div class="header-article row sticky-top noprint">
+        
+
+
+
+<div class="col py-1 d-flex header-article-main">
+    <div class="header-article__left">
+        
+        <label for="__navigation"
+  class="headerbtn"
+  data-toggle="tooltip"
+data-placement="right"
+title="Toggle navigation"
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fas fa-bars"></i>
+  </span>
+
+</label>
+
+        
+    </div>
+    <div class="header-article__right">
+<button onclick="toggleFullScreen()"
+  class="headerbtn"
+  data-toggle="tooltip"
+data-placement="bottom"
+title="Fullscreen mode"
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fas fa-expand"></i>
+  </span>
+
+</button>
+<label for="__page-toc"
+  class="headerbtn headerbtn-page-toc"
+  
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fas fa-list"></i>
+  </span>
+
+</label>
+
+    </div>
+</div>
+
+<!-- Table of contents -->
+<div class="col-md-3 bd-toc show noprint">
+    <div class="tocsection onthispage pt-5 pb-3">
+        <i class="fas fa-list"></i> Contents
+    </div>
+    <nav id="bd-toc-nav" aria-label="Page">
+        <ul class="visible nav section-nav flex-column">
+ <li class="toc-h1 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#">
+   MolMIM
+  </a>
+ </li>
+ <li class="toc-h1 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#model-overview">
+   Model Overview
+  </a>
+  <ul class="visible nav section-nav flex-column">
+   <li class="toc-h2 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#description">
+     Description:
+    </a>
+   </li>
+   <li class="toc-h2 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#references">
+     References:
+    </a>
+   </li>
+   <li class="toc-h2 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#license">
+     License:
+    </a>
+   </li>
+   <li class="toc-h2 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#model-architecture">
+     Model Architecture:
+    </a>
+   </li>
+   <li class="toc-h2 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#output">
+     Output:
+    </a>
+   </li>
+   <li class="toc-h2 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#software-integration">
+     Software Integration:
+    </a>
+   </li>
+   <li class="toc-h2 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#model-version-s">
+     Model Version(s):
+    </a>
+   </li>
+  </ul>
+ </li>
+ <li class="toc-h1 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#training-evaluation">
+   Training &amp; Evaluation:
+  </a>
+  <ul class="visible nav section-nav flex-column">
+   <li class="toc-h2 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#training-dataset">
+     Training Dataset:
+    </a>
+   </li>
+   <li class="toc-h2 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#evaluation-dataset">
+     Evaluation Dataset:
+    </a>
+   </li>
+   <li class="toc-h2 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#inference">
+     Inference:
+    </a>
+   </li>
+   <li class="toc-h2 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#ethical-considerations">
+     Ethical Considerations:
+    </a>
+    <ul class="visible nav section-nav flex-column">
+     <li class="toc-h3 nav-item toc-entry">
+      <a class="reference internal nav-link" href="#accuracy-benchmarks">
+       Accuracy Benchmarks
+      </a>
+     </li>
+     <li class="toc-h3 nav-item toc-entry">
+      <a class="reference internal nav-link" href="#training-performance-benchmarks">
+       Training Performance Benchmarks
+      </a>
+     </li>
+    </ul>
+   </li>
+  </ul>
+ </li>
+</ul>
+
+    </nav>
+</div>
+    </div>
+    <div class="article row">
+        <div class="col pl-md-3 pl-lg-5 content-container">
+            <!-- Table of contents that is only displayed when printing the page -->
+            <div id="jb-print-docs-body" class="onlyprint">
+                <h1>MolMIM</h1>
+                <!-- Table of contents -->
+                <div id="print-main-content">
+                    <div id="jb-print-toc">
+                        
+                        <div>
+                            <h2> Contents </h2>
+                        </div>
+                        <nav aria-label="Page">
+                            <ul class="visible nav section-nav flex-column">
+ <li class="toc-h1 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#">
+   MolMIM
+  </a>
+ </li>
+ <li class="toc-h1 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#model-overview">
+   Model Overview
+  </a>
+  <ul class="visible nav section-nav flex-column">
+   <li class="toc-h2 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#description">
+     Description:
+    </a>
+   </li>
+   <li class="toc-h2 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#references">
+     References:
+    </a>
+   </li>
+   <li class="toc-h2 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#license">
+     License:
+    </a>
+   </li>
+   <li class="toc-h2 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#model-architecture">
+     Model Architecture:
+    </a>
+   </li>
+   <li class="toc-h2 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#output">
+     Output:
+    </a>
+   </li>
+   <li class="toc-h2 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#software-integration">
+     Software Integration:
+    </a>
+   </li>
+   <li class="toc-h2 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#model-version-s">
+     Model Version(s):
+    </a>
+   </li>
+  </ul>
+ </li>
+ <li class="toc-h1 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#training-evaluation">
+   Training &amp; Evaluation:
+  </a>
+  <ul class="visible nav section-nav flex-column">
+   <li class="toc-h2 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#training-dataset">
+     Training Dataset:
+    </a>
+   </li>
+   <li class="toc-h2 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#evaluation-dataset">
+     Evaluation Dataset:
+    </a>
+   </li>
+   <li class="toc-h2 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#inference">
+     Inference:
+    </a>
+   </li>
+   <li class="toc-h2 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#ethical-considerations">
+     Ethical Considerations:
+    </a>
+    <ul class="visible nav section-nav flex-column">
+     <li class="toc-h3 nav-item toc-entry">
+      <a class="reference internal nav-link" href="#accuracy-benchmarks">
+       Accuracy Benchmarks
+      </a>
+     </li>
+     <li class="toc-h3 nav-item toc-entry">
+      <a class="reference internal nav-link" href="#training-performance-benchmarks">
+       Training Performance Benchmarks
+      </a>
+     </li>
+    </ul>
+   </li>
+  </ul>
+ </li>
+</ul>
+
+                        </nav>
+                    </div>
+                </div>
+            </div>
+            <main id="main-content" role="main">
+                
+              <div>
+                 <div class="tex2jax_ignore mathjax_ignore section" id="molmim">
+<h1>MolMIM<a class="headerlink" href="#molmim" title="Permalink to this headline">#</a></h1>
+</div>
+<div class="tex2jax_ignore mathjax_ignore section" id="model-overview">
+<h1>Model Overview<a class="headerlink" href="#model-overview" title="Permalink to this headline">#</a></h1>
+<div class="section" id="description">
+<h2>Description:<a class="headerlink" href="#description" title="Permalink to this headline">#</a></h2>
+<p>MolMIM:</p>
+<ul class="simple">
+<li><p>Allows users to generate molecules similar to the seed molecule in SMILES format by randomly perturbing (eg by adding 0 centered gaussian noise with a desired variance) the latent space encoded from a seed molecule and decoding that back into SMILES.</p></li>
+<li><p>performs optimization with the CMA-ES algorithm[1] in the model’s latent space and sample molecules with improved values of the desired scoring function.</p></li>
+</ul>
+<p>MolMIM is a latent variable model developed by NVIDIA[2] that is trained in an unsupervised manner over a large-scale dataset of molecules in the form of SMILES strings. MolMIM utilizes transformer architecture to learn an informative fixed-size latent space using Mutual Information Machine (MIM) learning[3]. MIM is a learning framework for a latent variable model which promotes informative and clustered latent codes. MolMIM can be used for sampling novel molecules from the model’s latent space.</p>
+<p>This model is for research and development only.</p>
+</div>
+<div class="section" id="references">
+<h2>References:<a class="headerlink" href="#references" title="Permalink to this headline">#</a></h2>
+<p>[1]: <a class="reference external" href="https://link.springer.com/chapter/10.1007/3-540-32494-1_4">The CMA Evolution Strategy: A Comparing Review</a></p>
+<p>[2]: <a class="reference external" href="https://arxiv.org/abs/2208.09016">Improving Small Molecule Generation using Mutual Information Machine</a></p>
+<p>[3]: <a class="reference external" href="https://arxiv.org/abs/1910.03175">MIM: Mutual Information Machine</a></p>
+</div>
+<div class="section" id="license">
+<h2>License:<a class="headerlink" href="#license" title="Permalink to this headline">#</a></h2>
+<p>MolMIM is provided under the Apache License.</p>
+</div>
+<div class="section" id="model-architecture">
+<h2>Model Architecture:<a class="headerlink" href="#model-architecture" title="Permalink to this headline">#</a></h2>
+<p><strong>Architecture Type:</strong> Encoder-Decoder</p>
+<p>MolMIM utilizes a Perceiver encoder architecture which outputs a fixed-size representation, where molecules of various lengths are mapped into a latent space. MolMIM’s decoder architecture is a Transformer. Both encoder and decoder container 6 layers with a hidden size of 512, 8 attention heads, and a feed-forward dimension of 2048. Total number of parameters in MolMIM is 65.2M. The model was trained with A-MIM learning. <br></p>
+<p><strong>Network Architecture:</strong> Perceiver <br></p>
+<p><strong>Input Type(s):</strong> Text (Molecular Sequence) <br>
+<strong>Input Format(s):</strong> Comma Separated Values, Simplified Molecular-Input Line Entry System (SMILES)  <br>
+<strong>Input Parameters:</strong> 1D <br>
+<strong>Other Properties Related to Input:</strong> Maximum input length is 128 tokens (including &lt;BOS&gt; and &lt;EOS&gt; tokens, i.e. total tokens generated by the tokenizer for each molecule should be maximum 126 tokens). Pretraining dataset samples were randomly split into train, validation, and test sets ( 99% / 0.5% / 0.5% ). <br></p>
+</div>
+<div class="section" id="output">
+<h2>Output:<a class="headerlink" href="#output" title="Permalink to this headline">#</a></h2>
+<p><strong>Output Type(s):</strong> Text, Numerical <br>
+<strong>Output Format:</strong> [SMILES] <br>
+<strong>Output Parameters:</strong> [2D] <br>
+<strong>Other Properties Related to Output:</strong> Maximum output length is 512 tokens <br></p>
+</div>
+<div class="section" id="software-integration">
+<h2>Software Integration:<a class="headerlink" href="#software-integration" title="Permalink to this headline">#</a></h2>
+<p><strong>Runtime Engine(s):</strong></p>
+<ul class="simple">
+<li><p>Triton Inference Server<br></p></li>
+</ul>
+<p><strong>Supported Hardware Microarchitecture Compatibility:</strong> <br></p>
+<ul class="simple">
+<li><p>Ampere <br></p></li>
+<li><p>L40 <br></p></li>
+</ul>
+<p><strong>[Preferred/Supported] Operating System(s):</strong> <br></p>
+<ul class="simple">
+<li><p>Linux <br></p></li>
+</ul>
+</div>
+<div class="section" id="model-version-s">
+<h2>Model Version(s):<a class="headerlink" href="#model-version-s" title="Permalink to this headline">#</a></h2>
+<ul class="simple">
+<li><p>MolMIM-70M-24.3</p>
+<ul>
+<li><p>Trained with log variance sampling loss, but left out the portion of the encoder that used the sampled log variance as an input to the hiddens -&gt; z_mean transformation. We found that this was not needed to achieve performance on the tasks we are currently measuring, and simplified radius sampling.</p></li>
+<li><p>The config used for training this model version can be found under <code class="docutils literal notranslate"><span class="pre">examples/molecule/molmim/conf/molmim_70m_24_3.yaml</span></code></p></li>
+</ul>
+</li>
+</ul>
+</div>
+</div>
+<div class="tex2jax_ignore mathjax_ignore section" id="training-evaluation">
+<h1>Training &amp; Evaluation:<a class="headerlink" href="#training-evaluation" title="Permalink to this headline">#</a></h1>
+<div class="section" id="training-dataset">
+<h2>Training Dataset:<a class="headerlink" href="#training-dataset" title="Permalink to this headline">#</a></h2>
+<p><strong>Link:</strong> <a class="reference external" href="https://zinc15.docking.org">ZINC-15</a> <br></p>
+<p>The ZINC15 database was used for training <a class="reference external" href="http://pubs.acs.org/doi/abs/10.1021/acs.jcim.5b00559">[Sterling and Irwin, 2015]</a>. Approximately 1.74 billion molecules (SMILES strings) were selected from the full database meeting the following constraints: molecular weight &lt;= 500 Daltons, LogP &lt;= 5, the number of hydrogen bond donors &lt;= 5, the number of hydrogen bond acceptors &lt;= 10, and quantitative estimate of drug-likeness (QED) value &gt;= 0.5. The compounds were filtered to ensure a maximum length of 128 characters. Train, validation, and test splits were randomly split as 99% / 0.5% / 0.5%.</p>
+<p>** Data Collection Method by dataset <br></p>
+<ul class="simple">
+<li><p>Not Applicable <br></p></li>
+</ul>
+<p>** Labeling Method by dataset <br></p>
+<ul class="simple">
+<li><p>Not Applicable <br></p></li>
+</ul>
+<p><strong>Properties (Quantity, Dataset Descriptions, Sensor(s)):</strong> 1.54B molecules with molecular weight &lt;= 500 Daltons, LogP &lt;= 5, with reactivity levels rated as  “reactive” and purchasability “annotated.” The compounds were filtered to ensure a maximum length of 128 characters. <br></p>
+</div>
+<div class="section" id="evaluation-dataset">
+<h2>Evaluation Dataset:<a class="headerlink" href="#evaluation-dataset" title="Permalink to this headline">#</a></h2>
+<p><strong>Link:</strong> <a class="reference external" href="https://moleculenet.org/datasets-1">MoleculeNet - Lipophilicity, FreeSolv, ESOL</a> <br></p>
+<p>** Data Collection Method by dataset <br></p>
+<ul class="simple">
+<li><p>Hybrid: Human &amp; Automatic/Sensors <br></p></li>
+</ul>
+<p>** Labeling Method by dataset <br></p>
+<ul class="simple">
+<li><p>Hybrid: Human &amp; Automated <br></p></li>
+</ul>
+<p><strong>Properties (Quantity, Dataset Descriptions, Sensor(s)):</strong></p>
+<p><a class="reference external" href="https://moleculenet.org/datasets-1">MoleculeNet Physical Chemistry</a> is an aggregation of public molecular datasets. The physical chemistry portion of MoleculeNet that we used for evaluation is made up of ESOL (1128 compunds), FreeSolv (642 compunds) and Lipohilicity (4200 compunds).</p>
+<p>Zhenqin Wu, Bharath Ramsundar, Evan N. Feinberg, Joseph Gomes, Caleb Geniesse, Aneesh S. Pappu, Karl Leswing, Vijay Pande, <a class="reference external" href="https://arxiv.org/abs/1703.00564">MoleculeNet: A Benchmark for Molecular Machine Learning</a>, arXiv preprint, arXiv: 1703.00564, 2017.</p>
+<p>From the MoleculeNet documentation:</p>
+<ul class="simple">
+<li><p>ESOL is made up of water solubility data(log solubility in mols per litre) for common organic small molecules.</p></li>
+<li><p>FreeSolv is made up of experimental and calculated hydration free energy of small molecules in water.</p></li>
+<li><p>Lipophilicity is composed of experimental results of octanol/water distribution coefficient(logD at pH 7.4).</p></li>
+</ul>
+</div>
+<div class="section" id="inference">
+<h2>Inference:<a class="headerlink" href="#inference" title="Permalink to this headline">#</a></h2>
+<p><strong>Engine:</strong> Tensor(RT) <br>
+<strong>Test Hardware:</strong> <br></p>
+<ul class="simple">
+<li><p>Ampere <br></p></li>
+<li><p>L40  <br></p></li>
+</ul>
+</div>
+<div class="section" id="ethical-considerations">
+<h2>Ethical Considerations:<a class="headerlink" href="#ethical-considerations" title="Permalink to this headline">#</a></h2>
+<p>NVIDIA believes Trustworthy AI is a shared responsibility and we have established policies and practices to enable development for a wide array of AI applications.  When downloaded or used in accordance with our terms of service, developers should work with their internal model team to ensure this model meets requirements for the relevant industry and use case and addresses unforeseen product misuse.  For more detailed information on ethical considerations for this model, please see the Model Card++ Explainability, Bias, Safety &amp; Security, and Privacy Subcards [Insert Link to Model Card++ here].  Please report security vulnerabilities or NVIDIA AI Concerns <a class="reference external" href="https://www.nvidia.com/en-us/support/submit-security-vulnerability/">here</a>.</p>
+<div class="section" id="accuracy-benchmarks">
+<h3>Accuracy Benchmarks<a class="headerlink" href="#accuracy-benchmarks" title="Permalink to this headline">#</a></h3>
+<p>We used two main sets of benchmarks. The first set monitors the reconstruction accuracy on 250K clustered validation set. Here we see that our framework release is significantly better at reconstructing input molecules than the version of MolMIM released in the service. We assess exact reconstruction and approximate reconstruction accuracy computed with Tanimoto similarity of Extended Connectivity FingerPrints with a radius of 2 (ECFP4) and 2048 bits.</p>
+<table class="colwidths-auto table">
+<thead>
+<tr class="row-odd"><th class="head"><p>Model</p></th>
+<th class="head"><p>Exact (%)</p></th>
+<th class="head"><p>Without Chirality (%)</p></th>
+<th class="head"><p>&gt;=0.9 ECFP4 similarity (%)</p></th>
+<th class="head"><p>&gt;=0.8 ECFP4 similarity (%)</p></th>
+<th class="head"><p>&gt;=0.7 ECFP4 similarity (%)</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>Service MolMIM v0.0.3</p></td>
+<td><p>40.12</p></td>
+<td><p>80.74</p></td>
+<td><p>81.11</p></td>
+<td><p>82.44</p></td>
+<td><p>85.87</p></td>
+</tr>
+<tr class="row-odd"><td><p>MolMIM 70M v24.3</p></td>
+<td><p>99.88</p></td>
+<td><p>99.89</p></td>
+<td><p>99.90</p></td>
+<td><p>99.93</p></td>
+<td><p>99.97</p></td>
+</tr>
+</tbody>
+</table>
+<p>The second set of benchmarks measures sampled molecule quality, we see that the framework model has equivalent sampling quality metrics to the version of MolMIM in the service. The sampling quality metrics are defined as follows:</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}
+\text{Validity} (\%)= \frac{|V|}{|G|}\times100 \quad \text{Uniqueness} (\%)=\frac{|U|}{|V|} \quad \text{Novelty} (\%)=\frac{|N|}{|U|} \\
+\text{Non-identicality}=\frac{|\bar{I}|}{|V|} \quad \text{Effective novelty}=\frac{N\cap\bar{I}}{|G|}
+\end{split}\]</div>
+<p>where <span class="math notranslate nohighlight">\(G\)</span> is the set of all generated molecules, <span class="math notranslate nohighlight">\(V\)</span> is the subset of all valid molecules in <span class="math notranslate nohighlight">\(G\)</span>, <span class="math notranslate nohighlight">\(U\)</span> is the subset of all unique molecules in <span class="math notranslate nohighlight">\(V\)</span>, <span class="math notranslate nohighlight">\(N\)</span> is the subset of all novel molecules not present in the training set, <span class="math notranslate nohighlight">\(\bar{I}\)</span> is the subset of all molecules that are not the seed molecule. For more details, refer to Section A.6 of <a class="reference external" href="https://arxiv.org/abs/2208.09016">MolMIM paper</a>.</p>
+<table class="colwidths-auto table">
+<thead>
+<tr class="row-odd"><th class="head"><p>Model</p></th>
+<th class="head"><p>Best Sampling Radius (stdev)</p></th>
+<th class="head"><p>Validity (%)</p></th>
+<th class="head"><p>Novelty (%)</p></th>
+<th class="head"><p>Uniqueness (%)</p></th>
+<th class="head"><p>Non-identicality (%)</p></th>
+<th class="head"><p>Effective Novelty (%)</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>Service MolMIM v0.0.3</p></td>
+<td><p>1.0</p></td>
+<td><p>100.0</p></td>
+<td><p>70.0</p></td>
+<td><p>98.0</p></td>
+<td><p>96.0</p></td>
+<td><p>68.0</p></td>
+</tr>
+<tr class="row-odd"><td><p>MolMIM 70M v24.3</p></td>
+<td><p>2.0</p></td>
+<td><p>99.0</p></td>
+<td><p>69.0</p></td>
+<td><p>100.0</p></td>
+<td><p>100.0</p></td>
+<td><p>68.0</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="training-performance-benchmarks">
+<h3>Training Performance Benchmarks<a class="headerlink" href="#training-performance-benchmarks" title="Permalink to this headline">#</a></h3>
+<p>Training speed was tested on DGX-A100 systems on GPUs with 80GB of memory. It took 1 day and 14 hours to train MolMIM to convergence on 32 GPUs on the ZINC-15 dataset, which required just over 1 epoch using a batch size of 2,048 per GPU (2,048*32=65,536 total global batch size per step). Gradient accumulation was not used in training. Note as well we are currently training with 32 bit precision for this release. For future releases we will experiment with other precisions to attempt to match our current state of the art accuracy while improving throughput.</p>
+<p>When calculating how long training runs will take, note that validation is significantly slower than training. We downsampled our validation set to 250,000 molecules so that it would take 4 steps to complete (in parallel across 32 GPUs). We found that this was a sufficient number of molecules to get a reasonable idea of performance on larger sets. Each GPU processing a single batch of 2048 molecules takes approximately 20 seconds, so in parallel with 2 nodes and 8 GPUs it took about 1:20 to process the validation set. The reason for this is that in validation we calculate molecular accuracy, which involves a full auto-regressive sampling of the decoder (128 tokens) to generate a molecule which we can compare to the input. Because of this we limited our validation check to every 2500 steps. Training on the other hand was significantly faster, at approximately 3 steps per second. More detailed timing measurements for training step time with different GPU configurations can be found in the following figures.</p>
+<p><img alt="MolMIM Training Performance" src="../_images/molmim_training_throughput.png" /></p>
+<p>The numbers in the following table can gvie a sense for how training scales to more nodes and GPUs.</p>
+<table class="colwidths-auto table">
+<thead>
+<tr class="row-odd"><th class="head"><p>Number of A100 GPUs/node</p></th>
+<th class="head"><p>Number of Nodes</p></th>
+<th class="head"><p>Number of A100 GPUs (total)</p></th>
+<th class="head"><p>Training Throughput   (molecules/second)</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>1</p></td>
+<td><p>1</p></td>
+<td><p>1</p></td>
+<td><p>7360.649</p></td>
+</tr>
+<tr class="row-odd"><td><p>8</p></td>
+<td><p>1</p></td>
+<td><p>8</p></td>
+<td><p>53579.659</p></td>
+</tr>
+<tr class="row-even"><td><p>8</p></td>
+<td><p>2</p></td>
+<td><p>16</p></td>
+<td><p>102541.273</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+
+<div class="section">
+   
+</div>
+
+              </div>
+              
+            </main>
+            <footer class="footer-article noprint">
+                
+    <!-- Previous / next buttons -->
+<div class='prev-next-area'>
+    <a class='left-prev' id="prev-link" href="megamolbart.html" title="previous page">
+        <i class="fas fa-angle-left"></i>
+        <div class="prev-next-info">
+            <p class="prev-next-subtitle">previous</p>
+            <p class="prev-next-title">MegaMolBART</p>
+        </div>
+    </a>
+    <a class='right-next' id="next-link" href="openfold.html" title="next page">
+    <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">OpenFold</p>
+    </div>
+    <i class="fas fa-angle-right"></i>
+    </a>
+</div>
+            </footer>
+        </div>
+    </div>
+    <div class="footer-content row">
+        <footer class="col footer"><p>
+  
+    By NVIDIA<br/>
+  
+      &copy; Copyright 2023-2024 NVIDIA CORPORATION &amp; AFFILIATES. All rights reserved..<br/>
+    Last updated on Oct 17, 2024.<br/>
+</p>
+        </footer>
+    </div>
+    
+</div>
+
+
+      </div>
+    </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="../_static/scripts/pydata-sphinx-theme.js?digest=1999514e3f237ded88cf"></script>
+
+
+  </body>
+</html>

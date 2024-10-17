@@ -1,0 +1,2051 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Adding the OAS Dataset: Downloading and Preprocessing &#8212; NVIDIA BioNeMo Framework</title>
+    
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../_static/styles/theme.css?digest=1999514e3f237ded88cf" rel="stylesheet">
+<link href="../_static/styles/pydata-sphinx-theme.css?digest=1999514e3f237ded88cf" rel="stylesheet">
+
+    
+  <link rel="stylesheet"
+    href="../_static/vendor/fontawesome/5.13.0/css/all.min.css">
+  <link rel="preload" as="font" type="font/woff2" crossorigin
+    href="../_static/vendor/fontawesome/5.13.0/webfonts/fa-solid-900.woff2">
+  <link rel="preload" as="font" type="font/woff2" crossorigin
+    href="../_static/vendor/fontawesome/5.13.0/webfonts/fa-brands-400.woff2">
+
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
+    <link rel="stylesheet" href="../_static/styles/sphinx-book-theme.css?digest=62ba249389abaaa9ffc34bf36a076bdc1d65ee18" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="../_static/mystnb.4510f1fc1dee50b3e5859aac5469c37c29e427902b24a333a5f9fcb2f0b3ac41.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/copybutton.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/tabs.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/custom.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/design-style.1e8bd061cd6da7fc9cf755528e8ffc24.min.css" />
+    
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=1999514e3f237ded88cf">
+
+    <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+    <script src="../_static/jquery.js"></script>
+    <script src="../_static/underscore.js"></script>
+    <script src="../_static/doctools.js"></script>
+    <script src="../_static/clipboard.min.js"></script>
+    <script src="../_static/copybutton.js"></script>
+    <script src="https://js.hcaptcha.com/1/api.js"></script>
+    <script src="//assets.adobedtm.com/5d4962a43b79/c1061d2c5e7b/launch-191c2462b890.min.js"></script>
+    <script src="../_static/scripts/sphinx-book-theme.js?digest=f31d14ad54b65d19161ba51d4ffff3a77ae00456"></script>
+    <script src="../_static/design-tabs.js"></script>
+    <script>window.MathJax = {"options": {"processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+    <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <link rel="canonical" href="https://docs.nvidia.com/bionemo-framework/0.4.0/notebooks/custom-dataset-preprocessing-fw.html" />
+    <link rel="shortcut icon" href="../_static/nvidia-logo-vert-rgb-blk-for-screen.png"/>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Encoder Fine-tuning" href="encoder-finetuning-notebook-fw.html" />
+    <link rel="prev" title="Adding the OAS Dataset: Customizing Dataset Object and Dataloader Functions" href="custom-dataset-dataloader.html" /> 
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="docsearch:language" content="None">
+    
+
+    <!-- Google Analytics -->
+      
+<style type="text/css">
+  ul.ablog-archive {
+    list-style: none;
+    overflow: auto;
+    margin-left: 0px;
+  }
+  ul.ablog-archive li {
+    float: left;
+    margin-right: 5px;
+    font-size: 80%;
+  }
+  ul.postlist a {
+    font-style: italic;
+  }
+  ul.postlist-style-disc {
+    list-style-type: disc;
+  }
+  ul.postlist-style-none {
+    list-style-type: none;
+  }
+  ul.postlist-style-circle {
+    list-style-type: circle;
+  }
+</style>
+
+  </head>
+  <body data-spy="scroll" data-target="#bd-toc-nav" data-offset="60">
+<!-- Checkboxes to toggle the left sidebar -->
+<input type="checkbox" class="sidebar-toggle" name="__navigation" id="__navigation" aria-label="Toggle navigation sidebar">
+<label class="overlay overlay-navbar" for="__navigation">
+    <div class="visually-hidden">Toggle navigation sidebar</div>
+</label>
+<!-- Checkboxes to toggle the in-page toc -->
+<input type="checkbox" class="sidebar-toggle" name="__page-toc" id="__page-toc" aria-label="Toggle in-page Table of Contents">
+<label class="overlay overlay-pagetoc" for="__page-toc">
+    <div class="visually-hidden">Toggle in-page Table of Contents</div>
+</label>
+<!-- Headers at the top -->
+<div class="announcement header-item noprint"></div>
+<div class="header header-item noprint"></div>
+
+    
+    <div class="container-fluid" id="banner"></div>
+
+    
+
+    <div class="container-xl">
+      <div class="row">
+          
+<!-- Sidebar -->
+<div class="bd-sidebar noprint" id="site-navigation">
+    <div class="bd-sidebar__content">
+        <div class="bd-sidebar__top"><div class="navbar-brand-box">
+    <a class="navbar-brand text-wrap" href="../index.html">
+      
+        <!-- `logo` is deprecated in Sphinx 4.0, so remove this when we stop supporting 3 -->
+        
+      
+      
+      <img src="../_static/nvidia-logo-horiz-rgb-blk-for-screen.png" class="logo" alt="logo">
+      
+      
+      <h1 class="site-logo" id="site-title">NVIDIA BioNeMo Framework</h1>
+      
+    </a>
+</div><form class="bd-search d-flex align-items-center" action="../search.html" method="get">
+  <i class="icon fas fa-search"></i>
+  <input type="search" class="form-control" name="q" id="search-input" placeholder="Search the docs ..." aria-label="Search the docs ..." autocomplete="off" >
+</form><nav class="bd-links" id="bd-docs-nav" aria-label="Main">
+    <div class="bd-toc-item active">
+        <p aria-level="2" class="caption" role="heading">
+ <span class="caption-text">
+  GETTING STARTED
+ </span>
+</p>
+<ul class="nav bd-sidenav">
+ <li class="toctree-l1">
+  <a class="reference internal" href="../index.html">
+   What is BioNeMo?
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../pre-reqs.html">
+   Hardware and Software Prerequisites
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../access-startup.html">
+   Access and Startup
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../initialization-guide.html">
+   Initialization Guide
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../tutorial-list.html">
+   BioNeMo Framework Tutorials
+  </a>
+ </li>
+</ul>
+<p aria-level="2" class="caption" role="heading">
+ <span class="caption-text">
+  BioNeMo CORE
+ </span>
+</p>
+<ul class="nav bd-sidenav">
+ <li class="toctree-l1">
+  <a class="reference internal" href="../bionemo-fw-for-model-training-fw.html">
+   Fundamentals
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../data-module-fw.html">
+   Data Module
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../dwnstr-task-validation.html">
+   Validation with a Downstream Task
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../inference-triton-fw.html">
+   Inference with Nvidia Triton Server
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../deep-dive-esm1-pytriton-inference.html">
+   Example of PyTriton Inference
+  </a>
+ </li>
+</ul>
+<p aria-level="2" class="caption" role="heading">
+ <span class="caption-text">
+  BEST PRACTICES
+ </span>
+</p>
+<ul class="nav bd-sidenav">
+ <li class="toctree-l1">
+  <a class="reference internal" href="../hyperparameters-fw.html">
+   Hyperparameter Usage and Tuning
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../parallelism-fw.html">
+   Training Parallelism
+  </a>
+ </li>
+</ul>
+<p aria-level="2" class="caption" role="heading">
+ <span class="caption-text">
+  MODELS
+ </span>
+</p>
+<ul class="nav bd-sidenav">
+ <li class="toctree-l1">
+  <a class="reference internal" href="../models/diffdock.html">
+   DiffDock
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../models/dnabert.html">
+   DNABERT
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../models/dsmbind.html">
+   Model Overview
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../models/equidock.html">
+   EquiDock
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../models/esm1-nv.html">
+   ESM-1nv
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../models/esm2-nv.html">
+   ESM-2nv
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../models/geneformer.html">
+   Geneformer
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../models/megamolbart.html">
+   MegaMolBART
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../models/molmim.html">
+   MolMIM
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../models/openfold.html">
+   OpenFold
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../models/prott5nv.html">
+   Prott5nv
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../models/model-benchmarks.html">
+   Model Benchmarks
+  </a>
+ </li>
+</ul>
+<p aria-level="2" class="caption" role="heading">
+ <span class="caption-text">
+  DATASETS
+ </span>
+</p>
+<ul class="nav bd-sidenav">
+ <li class="toctree-l1">
+  <a class="reference internal" href="../datasets/uniprot.html">
+   UniProt Dataset
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../datasets/CELLxGENE.html">
+   CELLxGENE
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../datasets/zinc15.html">
+   ZINC-15 Dataset
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../datasets/pdb.html">
+   The Protein Data Bank (PDB)
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../datasets/GRCh38.p13.html">
+   Human Reference Genome Version GRCh38.p13
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../datasets/openproteinset.html">
+   OpenProteinSet
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../datasets/moleculenet-physchem.html">
+   MoleculeNet Physical Chemistry Datasets - Lipophilicity, FreeSolv, ESOL
+  </a>
+ </li>
+</ul>
+<p aria-level="2" class="caption" role="heading">
+ <span class="caption-text">
+  TUTORIALS
+ </span>
+</p>
+<ul class="current nav bd-sidenav">
+ <li class="toctree-l1">
+  <a class="reference internal" href="../preprocessing-bcp-training-diffdock.html">
+   DiffDock: Preparing Workspace and Data for Pre-training
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="esm2nv-mutant-design.html">
+   Zero-Shot Protein Design Using ESM-2nv
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="MMB_GenerativeAI_Inference_with_examples.html">
+   BioNeMo - MegaMolBART Inferencing for Generative Chemistry
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="MolMIM_GenerativeAI_local_inference_with_examples.html">
+   MolMIM Inferencing for Generative Chemistry and Downstream Prediction
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="ZINC15-data-preprocessing.html">
+   ZINC Training Dataset Setup for small molecule language models
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="bionemo-finetuning-overview.html">
+   Finetune pre-trained models in BioNeMo
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="cma_es_guided_molecular_optimization_molmim.html">
+   MolMIM Property Guided Molecular Optimization Using CMA-ES
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="custom-dataset-class-fw.html">
+   Adding the OAS Dataset: Modifying the Dataset Class
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="custom-dataset-dataloader.html">
+   Adding the OAS Dataset: Customizing Dataset Object and Dataloader Functions
+  </a>
+ </li>
+ <li class="toctree-l1 current active">
+  <a class="current reference internal" href="#">
+   Adding the OAS Dataset: Downloading and Preprocessing
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="encoder-finetuning-notebook-fw.html">
+   Encoder Fine-tuning
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="model_training_diffdock.html">
+   DiffDock Model Training using BioNeMo
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="model_training_equidock.html">
+   EquiDock Model Training using BioNeMo
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="model_training_esm1nv.html">
+   ESM1nv Model Training using BioNeMo
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="model_training_esm2nv.html">
+   ESM-2nv: Data Preprocessing and Model Training Using BioNeMo
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="model_training_mmb.html">
+   MegaMolBART Model Training using BioNeMo
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="model_training_molmim.html">
+   Train MolMIM from scratch on your own data using the BioNeMo Framework
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="physchem-notebook-fw.html">
+   Finetuning LLM in BioNeMo for a Downstream Task
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="protein-esm2nv-clustering.html">
+   Generating Embeddings for Protein Clustering
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="retrosynthesis-notebook.html">
+   Training LLM for a Custom Downstram Task: Retrosynthesis Prediction using MegaMolBART
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="esm2_FLIP_finetuning.html">
+   Fine-Tune ESM-2nv on FLIP Data for Sequence-Level Classification, Regression, Token-Level Classification, and with LoRA Adapters
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="esm2_oas_inferencing.html">
+   Performing inference on OAS sequences with ESM-2nv
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="esm2_paratope_finetuning.html">
+   Pretrain from Scratch, Continue Training from an Existing Checkpoint, and Fine-tune ESM-2nv on Custom Data
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="dnabert_inference.html">
+   Generating and visualizing embeddings with DNABert
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="dnabert_pretrain_finetune.html">
+   Pretrain, Fine-tune, and Perform Inference with DNABERT for Splice Site Prediction
+  </a>
+ </li>
+</ul>
+<p aria-level="2" class="caption" role="heading">
+ <span class="caption-text">
+  APPENDIX
+ </span>
+</p>
+<ul class="nav bd-sidenav">
+ <li class="toctree-l1">
+  <a class="reference internal" href="../faq-fw.html">
+   Frequently Asked Questions (FAQ)
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../bibliography-fw.html">
+   Bibliography
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../releasenotes-fw.html">
+   Release Notes
+  </a>
+ </li>
+</ul>
+
+    </div>
+</nav></div>
+        <div class="bd-sidebar__bottom">
+             <!-- To handle the deprecated key -->
+            
+        </div>
+    </div>
+    <div id="rtd-footer-container"></div>
+</div>
+
+
+          
+
+
+          
+<!-- A tiny helper pixel to detect if we've scrolled -->
+<div class="sbt-scroll-pixel-helper"></div>
+<!-- Main content -->
+<div class="col py-0 content-container">
+    
+    <div class="header-article row sticky-top noprint">
+        
+
+
+
+<div class="col py-1 d-flex header-article-main">
+    <div class="header-article__left">
+        
+        <label for="__navigation"
+  class="headerbtn"
+  data-toggle="tooltip"
+data-placement="right"
+title="Toggle navigation"
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fas fa-bars"></i>
+  </span>
+
+</label>
+
+        
+    </div>
+    <div class="header-article__right">
+<button onclick="toggleFullScreen()"
+  class="headerbtn"
+  data-toggle="tooltip"
+data-placement="bottom"
+title="Fullscreen mode"
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fas fa-expand"></i>
+  </span>
+
+</button>
+<label for="__page-toc"
+  class="headerbtn headerbtn-page-toc"
+  
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fas fa-list"></i>
+  </span>
+
+</label>
+
+    </div>
+</div>
+
+<!-- Table of contents -->
+<div class="col-md-3 bd-toc show noprint">
+    <div class="tocsection onthispage pt-5 pb-3">
+        <i class="fas fa-list"></i> Contents
+    </div>
+    <nav id="bd-toc-nav" aria-label="Page">
+        <ul class="visible nav section-nav flex-column">
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#accessing-oas-dataset">
+   Accessing OAS Dataset
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#downloading-and-verifying-data">
+   Downloading and Verifying Data
+  </a>
+  <ul class="visible nav section-nav flex-column">
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#data-preprocessing-class">
+     Data Preprocessing Class
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#custom-yaml-config">
+     Custom YAML Config
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#python-execution-script">
+     Python Execution Script
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#testing">
+     Testing
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#results">
+     Results
+    </a>
+   </li>
+  </ul>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#decompressing-oas-sequence-files">
+   Decompressing OAS Sequence Files
+  </a>
+  <ul class="visible nav section-nav flex-column">
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#id1">
+     Data Preprocessing Class
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#id2">
+     Python Execution Script
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#id3">
+     Testing
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#id4">
+     Results
+    </a>
+   </li>
+  </ul>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#cleaning-and-splitting-oas-sequence-files">
+   Cleaning and Splitting OAS Sequence Files
+  </a>
+  <ul class="visible nav section-nav flex-column">
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#id5">
+     Data Preprocessing Class
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#id6">
+     Testing
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#id7">
+     Results
+    </a>
+   </li>
+  </ul>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#optional-variation-process-the-light-chain-data">
+   Optional Variation: Process the Light Chain Data
+  </a>
+ </li>
+</ul>
+
+    </nav>
+</div>
+    </div>
+    <div class="article row">
+        <div class="col pl-md-3 pl-lg-5 content-container">
+            <!-- Table of contents that is only displayed when printing the page -->
+            <div id="jb-print-docs-body" class="onlyprint">
+                <h1>Adding the OAS Dataset: Downloading and Preprocessing</h1>
+                <!-- Table of contents -->
+                <div id="print-main-content">
+                    <div id="jb-print-toc">
+                        
+                        <div>
+                            <h2> Contents </h2>
+                        </div>
+                        <nav aria-label="Page">
+                            <ul class="visible nav section-nav flex-column">
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#accessing-oas-dataset">
+   Accessing OAS Dataset
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#downloading-and-verifying-data">
+   Downloading and Verifying Data
+  </a>
+  <ul class="visible nav section-nav flex-column">
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#data-preprocessing-class">
+     Data Preprocessing Class
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#custom-yaml-config">
+     Custom YAML Config
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#python-execution-script">
+     Python Execution Script
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#testing">
+     Testing
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#results">
+     Results
+    </a>
+   </li>
+  </ul>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#decompressing-oas-sequence-files">
+   Decompressing OAS Sequence Files
+  </a>
+  <ul class="visible nav section-nav flex-column">
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#id1">
+     Data Preprocessing Class
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#id2">
+     Python Execution Script
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#id3">
+     Testing
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#id4">
+     Results
+    </a>
+   </li>
+  </ul>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#cleaning-and-splitting-oas-sequence-files">
+   Cleaning and Splitting OAS Sequence Files
+  </a>
+  <ul class="visible nav section-nav flex-column">
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#id5">
+     Data Preprocessing Class
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#id6">
+     Testing
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#id7">
+     Results
+    </a>
+   </li>
+  </ul>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#optional-variation-process-the-light-chain-data">
+   Optional Variation: Process the Light Chain Data
+  </a>
+ </li>
+</ul>
+
+                        </nav>
+                    </div>
+                </div>
+            </div>
+            <main id="main-content" role="main">
+                
+              <div>
+                 <div class="tex2jax_ignore mathjax_ignore section" id="adding-the-oas-dataset-downloading-and-preprocessing">
+<h1>Adding the OAS Dataset: Downloading and Preprocessing<a class="headerlink" href="#adding-the-oas-dataset-downloading-and-preprocessing" title="Permalink to this headline">#</a></h1>
+<p>Adding a new dataset to BioNeMo is a common task. This tutorial will show the developer how to accomplish this objective. The <a class="reference external" href="https://opig.stats.ox.ac.uk/webapps/oas/">Observed Antibody Space (OAS)</a> dataset will be used for this example. The OAS dataset is a database of antibody sequences containing over one billion sequences from 80 different studies for use in large scale analysis.</p>
+<p>The task of adding a new dataset can be broken into three development tasks which can make use of associated base and helper classes in BioNeMo and NeMo. This dataset will be added to the ESM1-nv pre-training pipeline. There are three steps to this process:</p>
+<ol class="arabic simple">
+<li><p>Preprocessing includes download of the raw data and any additional preparation steps, such as extracting the files. It also includes dividing the data into train, validation, and test splits. The preprocessing step can make use of two BioNeMo base classes, <code class="docutils literal notranslate"><span class="pre">RemoteResource</span></code> and <code class="docutils literal notranslate"><span class="pre">ResourcePreprocessor</span></code>, from <code class="docutils literal notranslate"><span class="pre">bionemo.utils.remote</span></code> and <code class="docutils literal notranslate"><span class="pre">bionemo.data.preprocess</span></code>, respectively. Their use is optional but they provide some basic functionality which can accelerate development. This step is covered by the current tutorial. </br></br></p></li>
+<li><p>Development of the new dataset class. Here, the NeMo dataset class <a class="reference external" href="https://github.com/NVIDIA/NeMo/blob/b0e5bf3627dbcfb3f4a72d73d3c5e92184d8b1f6/nemo/collections/nlp/data/language_modeling/text_memmap_dataset.py#L286">CSVMemMapDataset</a> will be used. This task will be covered by the next tutorial, <a href="custom-dataset-class-fw.html">Modifying the Dataset Class</a>. </br></br></p></li>
+<li><p>Modification of the dataloader classes. This task will be covered by the third tutorial, <a href="custom-dataloader-fw.html">Adding a Custom Dataloader</a>.  TODO FIX LINK WHEN TUTORIAL FINISHED </br></br></p></li>
+</ol>
+<div class="section" id="accessing-oas-dataset">
+<h2>Accessing OAS Dataset<a class="headerlink" href="#accessing-oas-dataset" title="Permalink to this headline">#</a></h2>
+<p>The <a class="reference external" href="https://opig.stats.ox.ac.uk/webapps/oas/oas_paired/">paired sequence subset of the data</a> will be used for this tutorial. The tutorial requires a shell script containing url links for the appropriate files. This script cannot be directly downloaded from the website and must be generated from the <a class="reference external" href="https://opig.stats.ox.ac.uk/webapps/oas/oas_paired/">paired sequences search page</a> by selecting “search” without choosing any attributes, as <a class="reference external" href="https://opig.stats.ox.ac.uk/webapps/oas/downloads_paired/">described here</a>.</p>
+<p>The full dataset currently contains links to 158 sequence files. This tutorial will use a subset of the data – the first ten files. The contents of the file are shown below and, if preferred, can be copied directly instead of downloading from OAS. Save this file to <code class="docutils literal notranslate"><span class="pre">$BIONEMO_WORKSPACE/bionemo/data/preprocess/protein/oas_paired_subset_download.sh</span></code>. The contents of <code class="docutils literal notranslate"><span class="pre">oas_paired_subset_download.sh</span></code> should look like this:</p>
+<div class="cell tag_remove-input docutils container">
+<div class="cell_output docutils container">
+<div class="output text_html"><style>pre { line-height: 125%; }
+td.linenos .normal { color: inherit; background-color: transparent; padding-left: 5px; padding-right: 5px; }
+span.linenos { color: inherit; background-color: transparent; padding-left: 5px; padding-right: 5px; }
+td.linenos .special { color: #000000; background-color: #ffffc0; padding-left: 5px; padding-right: 5px; }
+span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 5px; padding-right: 5px; }
+.output_html .hll { background-color: #ffffcc }
+.output_html { background: #f8f8f8; }
+.output_html .c { color: #3D7B7B; font-style: italic } /* Comment */
+.output_html .err { border: 1px solid #FF0000 } /* Error */
+.output_html .k { color: #008000; font-weight: bold } /* Keyword */
+.output_html .o { color: #666666 } /* Operator */
+.output_html .ch { color: #3D7B7B; font-style: italic } /* Comment.Hashbang */
+.output_html .cm { color: #3D7B7B; font-style: italic } /* Comment.Multiline */
+.output_html .cp { color: #9C6500 } /* Comment.Preproc */
+.output_html .cpf { color: #3D7B7B; font-style: italic } /* Comment.PreprocFile */
+.output_html .c1 { color: #3D7B7B; font-style: italic } /* Comment.Single */
+.output_html .cs { color: #3D7B7B; font-style: italic } /* Comment.Special */
+.output_html .gd { color: #A00000 } /* Generic.Deleted */
+.output_html .ge { font-style: italic } /* Generic.Emph */
+.output_html .gr { color: #E40000 } /* Generic.Error */
+.output_html .gh { color: #000080; font-weight: bold } /* Generic.Heading */
+.output_html .gi { color: #008400 } /* Generic.Inserted */
+.output_html .go { color: #717171 } /* Generic.Output */
+.output_html .gp { color: #000080; font-weight: bold } /* Generic.Prompt */
+.output_html .gs { font-weight: bold } /* Generic.Strong */
+.output_html .gu { color: #800080; font-weight: bold } /* Generic.Subheading */
+.output_html .gt { color: #0044DD } /* Generic.Traceback */
+.output_html .kc { color: #008000; font-weight: bold } /* Keyword.Constant */
+.output_html .kd { color: #008000; font-weight: bold } /* Keyword.Declaration */
+.output_html .kn { color: #008000; font-weight: bold } /* Keyword.Namespace */
+.output_html .kp { color: #008000 } /* Keyword.Pseudo */
+.output_html .kr { color: #008000; font-weight: bold } /* Keyword.Reserved */
+.output_html .kt { color: #B00040 } /* Keyword.Type */
+.output_html .m { color: #666666 } /* Literal.Number */
+.output_html .s { color: #BA2121 } /* Literal.String */
+.output_html .na { color: #687822 } /* Name.Attribute */
+.output_html .nb { color: #008000 } /* Name.Builtin */
+.output_html .nc { color: #0000FF; font-weight: bold } /* Name.Class */
+.output_html .no { color: #880000 } /* Name.Constant */
+.output_html .nd { color: #AA22FF } /* Name.Decorator */
+.output_html .ni { color: #717171; font-weight: bold } /* Name.Entity */
+.output_html .ne { color: #CB3F38; font-weight: bold } /* Name.Exception */
+.output_html .nf { color: #0000FF } /* Name.Function */
+.output_html .nl { color: #767600 } /* Name.Label */
+.output_html .nn { color: #0000FF; font-weight: bold } /* Name.Namespace */
+.output_html .nt { color: #008000; font-weight: bold } /* Name.Tag */
+.output_html .nv { color: #19177C } /* Name.Variable */
+.output_html .ow { color: #AA22FF; font-weight: bold } /* Operator.Word */
+.output_html .w { color: #bbbbbb } /* Text.Whitespace */
+.output_html .mb { color: #666666 } /* Literal.Number.Bin */
+.output_html .mf { color: #666666 } /* Literal.Number.Float */
+.output_html .mh { color: #666666 } /* Literal.Number.Hex */
+.output_html .mi { color: #666666 } /* Literal.Number.Integer */
+.output_html .mo { color: #666666 } /* Literal.Number.Oct */
+.output_html .sa { color: #BA2121 } /* Literal.String.Affix */
+.output_html .sb { color: #BA2121 } /* Literal.String.Backtick */
+.output_html .sc { color: #BA2121 } /* Literal.String.Char */
+.output_html .dl { color: #BA2121 } /* Literal.String.Delimiter */
+.output_html .sd { color: #BA2121; font-style: italic } /* Literal.String.Doc */
+.output_html .s2 { color: #BA2121 } /* Literal.String.Double */
+.output_html .se { color: #AA5D1F; font-weight: bold } /* Literal.String.Escape */
+.output_html .sh { color: #BA2121 } /* Literal.String.Heredoc */
+.output_html .si { color: #A45A77; font-weight: bold } /* Literal.String.Interpol */
+.output_html .sx { color: #008000 } /* Literal.String.Other */
+.output_html .sr { color: #A45A77 } /* Literal.String.Regex */
+.output_html .s1 { color: #BA2121 } /* Literal.String.Single */
+.output_html .ss { color: #19177C } /* Literal.String.Symbol */
+.output_html .bp { color: #008000 } /* Name.Builtin.Pseudo */
+.output_html .fm { color: #0000FF } /* Name.Function.Magic */
+.output_html .vc { color: #19177C } /* Name.Variable.Class */
+.output_html .vg { color: #19177C } /* Name.Variable.Global */
+.output_html .vi { color: #19177C } /* Name.Variable.Instance */
+.output_html .vm { color: #19177C } /* Name.Variable.Magic */
+.output_html .il { color: #666666 } /* Literal.Number.Integer.Long */</style><div class="highlight"><pre><span></span>wget<span class="w"> </span>https://opig.stats.ox.ac.uk/webapps/ngsdb/paired/Alsoiussi_2020/csv/SRR11528761_paired.csv.gz
+wget<span class="w"> </span>https://opig.stats.ox.ac.uk/webapps/ngsdb/paired/Alsoiussi_2020/csv/SRR11528762_paired.csv.gz
+wget<span class="w"> </span>https://opig.stats.ox.ac.uk/webapps/ngsdb/paired/Eccles_2020/csv/SRR10358523_paired.csv.gz
+wget<span class="w"> </span>https://opig.stats.ox.ac.uk/webapps/ngsdb/paired/Eccles_2020/csv/SRR10358524_paired.csv.gz
+wget<span class="w"> </span>https://opig.stats.ox.ac.uk/webapps/ngsdb/paired/Eccles_2020/csv/SRR10358525_paired.csv.gz
+wget<span class="w"> </span>https://opig.stats.ox.ac.uk/webapps/ngsdb/paired/Goldstein_2019/csv/SRR9179273_paired.csv.gz
+wget<span class="w"> </span>https://opig.stats.ox.ac.uk/webapps/ngsdb/paired/Goldstein_2019/csv/SRR9179274_paired.csv.gz
+wget<span class="w"> </span>https://opig.stats.ox.ac.uk/webapps/ngsdb/paired/Goldstein_2019/csv/SRR9179275_paired.csv.gz
+wget<span class="w"> </span>https://opig.stats.ox.ac.uk/webapps/ngsdb/paired/Goldstein_2019/csv/SRR9179276_paired.csv.gz
+wget<span class="w"> </span>https://opig.stats.ox.ac.uk/webapps/ngsdb/paired/Goldstein_2019/csv/SRR9179277_paired.csv.gz
+</pre></div>
+</div></div>
+</div>
+</div>
+<div class="section" id="downloading-and-verifying-data">
+<h2>Downloading and Verifying Data<a class="headerlink" href="#downloading-and-verifying-data" title="Permalink to this headline">#</a></h2>
+<p>The <code class="docutils literal notranslate"><span class="pre">RemoteResource</span></code> class is used to create the existing download location (if needed), download a file, and verify its checksum. If the dataset contains multiple files (as is the case with OAS data), then multiple RemoteResources will be used. In practice, this class is rarely interacted with directly. Instead, it is usually called as part of the second class, <code class="docutils literal notranslate"><span class="pre">ResourcePreprocessor</span></code>. <code class="docutils literal notranslate"><span class="pre">ResourcePreprocessor</span></code> will be used as the base class for creation of the OAS preprocessing class.</p>
+<p>The creation of the OAS preprocessing class will require the implementation of two methods:</p>
+<ol class="arabic simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">get_remote_resources</span></code>, which implements a RemoteResource for each file, downloads it, and verifies the checksum; and</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">prepare</span></code>, which performs any preprocessing on the data and splits into train, val, and test datasets.</p></li>
+</ol>
+<div class="section" id="data-preprocessing-class">
+<h3>Data Preprocessing Class<a class="headerlink" href="#data-preprocessing-class" title="Permalink to this headline">#</a></h3>
+<p>First, let’s create the functionality to download the files. In the same directory as <code class="docutils literal notranslate"><span class="pre">oas_paired_subset_download.sh</span></code>, create a file called <code class="docutils literal notranslate"><span class="pre">oas_preprocess.py</span></code>. The path will be <code class="docutils literal notranslate"><span class="pre">$BIONEMO_WORKSPACE/bionemo/data/preprocess/protein/oas_preprocess.py</span></code>. In this file, create a class based on <code class="docutils literal notranslate"><span class="pre">ResourcePreprocessor</span></code> that parses the URLs in the download script, returns a <code class="docutils literal notranslate"><span class="pre">RemoteResource</span></code> for each of the URLs, and downloads the files referenced by the URLs.</p>
+<p>Here is an example of such a class for <code class="docutils literal notranslate"><span class="pre">oas_preprocess.py</span></code>. This class saves the downloaded files to <code class="docutils literal notranslate"><span class="pre">/data/OASpaired/raw</span></code>.</p>
+<div class="cell tag_remove-input docutils container">
+<div class="cell_output docutils container">
+<div class="output text_html"><style>pre { line-height: 125%; }
+td.linenos .normal { color: inherit; background-color: transparent; padding-left: 5px; padding-right: 5px; }
+span.linenos { color: inherit; background-color: transparent; padding-left: 5px; padding-right: 5px; }
+td.linenos .special { color: #000000; background-color: #ffffc0; padding-left: 5px; padding-right: 5px; }
+span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 5px; padding-right: 5px; }
+.output_html .hll { background-color: #ffffcc }
+.output_html { background: #f8f8f8; }
+.output_html .c { color: #3D7B7B; font-style: italic } /* Comment */
+.output_html .err { border: 1px solid #FF0000 } /* Error */
+.output_html .k { color: #008000; font-weight: bold } /* Keyword */
+.output_html .o { color: #666666 } /* Operator */
+.output_html .ch { color: #3D7B7B; font-style: italic } /* Comment.Hashbang */
+.output_html .cm { color: #3D7B7B; font-style: italic } /* Comment.Multiline */
+.output_html .cp { color: #9C6500 } /* Comment.Preproc */
+.output_html .cpf { color: #3D7B7B; font-style: italic } /* Comment.PreprocFile */
+.output_html .c1 { color: #3D7B7B; font-style: italic } /* Comment.Single */
+.output_html .cs { color: #3D7B7B; font-style: italic } /* Comment.Special */
+.output_html .gd { color: #A00000 } /* Generic.Deleted */
+.output_html .ge { font-style: italic } /* Generic.Emph */
+.output_html .gr { color: #E40000 } /* Generic.Error */
+.output_html .gh { color: #000080; font-weight: bold } /* Generic.Heading */
+.output_html .gi { color: #008400 } /* Generic.Inserted */
+.output_html .go { color: #717171 } /* Generic.Output */
+.output_html .gp { color: #000080; font-weight: bold } /* Generic.Prompt */
+.output_html .gs { font-weight: bold } /* Generic.Strong */
+.output_html .gu { color: #800080; font-weight: bold } /* Generic.Subheading */
+.output_html .gt { color: #0044DD } /* Generic.Traceback */
+.output_html .kc { color: #008000; font-weight: bold } /* Keyword.Constant */
+.output_html .kd { color: #008000; font-weight: bold } /* Keyword.Declaration */
+.output_html .kn { color: #008000; font-weight: bold } /* Keyword.Namespace */
+.output_html .kp { color: #008000 } /* Keyword.Pseudo */
+.output_html .kr { color: #008000; font-weight: bold } /* Keyword.Reserved */
+.output_html .kt { color: #B00040 } /* Keyword.Type */
+.output_html .m { color: #666666 } /* Literal.Number */
+.output_html .s { color: #BA2121 } /* Literal.String */
+.output_html .na { color: #687822 } /* Name.Attribute */
+.output_html .nb { color: #008000 } /* Name.Builtin */
+.output_html .nc { color: #0000FF; font-weight: bold } /* Name.Class */
+.output_html .no { color: #880000 } /* Name.Constant */
+.output_html .nd { color: #AA22FF } /* Name.Decorator */
+.output_html .ni { color: #717171; font-weight: bold } /* Name.Entity */
+.output_html .ne { color: #CB3F38; font-weight: bold } /* Name.Exception */
+.output_html .nf { color: #0000FF } /* Name.Function */
+.output_html .nl { color: #767600 } /* Name.Label */
+.output_html .nn { color: #0000FF; font-weight: bold } /* Name.Namespace */
+.output_html .nt { color: #008000; font-weight: bold } /* Name.Tag */
+.output_html .nv { color: #19177C } /* Name.Variable */
+.output_html .ow { color: #AA22FF; font-weight: bold } /* Operator.Word */
+.output_html .w { color: #bbbbbb } /* Text.Whitespace */
+.output_html .mb { color: #666666 } /* Literal.Number.Bin */
+.output_html .mf { color: #666666 } /* Literal.Number.Float */
+.output_html .mh { color: #666666 } /* Literal.Number.Hex */
+.output_html .mi { color: #666666 } /* Literal.Number.Integer */
+.output_html .mo { color: #666666 } /* Literal.Number.Oct */
+.output_html .sa { color: #BA2121 } /* Literal.String.Affix */
+.output_html .sb { color: #BA2121 } /* Literal.String.Backtick */
+.output_html .sc { color: #BA2121 } /* Literal.String.Char */
+.output_html .dl { color: #BA2121 } /* Literal.String.Delimiter */
+.output_html .sd { color: #BA2121; font-style: italic } /* Literal.String.Doc */
+.output_html .s2 { color: #BA2121 } /* Literal.String.Double */
+.output_html .se { color: #AA5D1F; font-weight: bold } /* Literal.String.Escape */
+.output_html .sh { color: #BA2121 } /* Literal.String.Heredoc */
+.output_html .si { color: #A45A77; font-weight: bold } /* Literal.String.Interpol */
+.output_html .sx { color: #008000 } /* Literal.String.Other */
+.output_html .sr { color: #A45A77 } /* Literal.String.Regex */
+.output_html .s1 { color: #BA2121 } /* Literal.String.Single */
+.output_html .ss { color: #19177C } /* Literal.String.Symbol */
+.output_html .bp { color: #008000 } /* Name.Builtin.Pseudo */
+.output_html .fm { color: #0000FF } /* Name.Function.Magic */
+.output_html .vc { color: #19177C } /* Name.Variable.Class */
+.output_html .vg { color: #19177C } /* Name.Variable.Global */
+.output_html .vi { color: #19177C } /* Name.Variable.Instance */
+.output_html .vm { color: #19177C } /* Name.Variable.Magic */
+.output_html .il { color: #666666 } /* Literal.Number.Integer.Long */</style><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">bionemo.data.preprocess</span> <span class="kn">import</span> <span class="n">ResourcePreprocessor</span>
+<span class="kn">from</span> <span class="nn">bionemo.utils.remote</span> <span class="kn">import</span> <span class="n">RemoteResource</span>
+<span class="kn">from</span> <span class="nn">nemo.utils</span> <span class="kn">import</span> <span class="n">logging</span>
+<span class="kn">from</span> <span class="nn">dataclasses</span> <span class="kn">import</span> <span class="n">dataclass</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">List</span><span class="p">,</span> <span class="n">Optional</span>
+<span class="kn">import</span> <span class="nn">re</span>
+<span class="kn">import</span> <span class="nn">os</span>
+
+<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;OASPairedPreprocess&#39;</span><span class="p">]</span>
+
+<span class="c1"># BIONEMO_HOME = os.getenv(&#39;BIONEMO_HOME&#39;, &#39;/workspace/bionemo&#39;)</span>
+<span class="n">BIONEMO_HOME</span> <span class="o">=</span> <span class="s1">&#39;/workspace/bionemo&#39;</span> <span class="c1"># FIXME</span>
+<span class="n">OAS_DOWNLOAD_LINKS_PATH</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">BIONEMO_HOME</span><span class="si">}</span><span class="s1">/bionemo/data/preprocess/protein/oas_paired_subset_download.sh&#39;</span>
+
+<span class="nd">@dataclass</span>
+<span class="k">class</span> <span class="nc">OASPairedPreprocess</span><span class="p">(</span><span class="n">ResourcePreprocessor</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;OASPairedPreprocessor to download and preprocess OAS paired antibody heavy chain data.&quot;&quot;&quot;</span>
+    <span class="n">root_directory</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;/data/OASpaired&#39;</span>
+    <span class="n">dest_directory</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;raw&#39;</span>
+
+    <span class="k">def</span> <span class="nf">get_remote_resources</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">download_script_path</span><span class="p">:</span><span class="nb">str</span> <span class="o">=</span> <span class="n">OAS_DOWNLOAD_LINKS_PATH</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">RemoteResource</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Download and verify each file from the file at the provided download script path.&quot;&quot;&quot;</span>
+        
+        <span class="c1"># Load the download script and parse the urls</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">download_script_path</span><span class="p">,</span> <span class="s1">&#39;r&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">fh</span><span class="p">:</span>
+            <span class="n">url_list</span> <span class="o">=</span> <span class="p">[</span><span class="n">re</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;\s+&#39;</span><span class="p">,</span> <span class="n">x</span><span class="o">.</span><span class="n">strip</span><span class="p">())[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">fh</span><span class="o">.</span><span class="n">readlines</span><span class="p">()]</span>
+            <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;The following URLs were parsed: </span><span class="si">{</span><span class="n">url_list</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        
+        <span class="c1"># Checksums will be added later</span>
+        <span class="n">checksums</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;SRR11528761_paired.csv.gz&#39;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span> 
+                     <span class="s1">&#39;SRR11528762_paired.csv.gz&#39;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span> 
+                     <span class="s1">&#39;SRR10358523_paired.csv.gz&#39;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span> 
+                     <span class="s1">&#39;SRR10358524_paired.csv.gz&#39;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span> 
+                     <span class="s1">&#39;SRR10358525_paired.csv.gz&#39;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span> 
+                     <span class="s1">&#39;SRR9179273_paired.csv.gz&#39;</span><span class="p">:</span>  <span class="kc">None</span><span class="p">,</span> 
+                     <span class="s1">&#39;SRR9179274_paired.csv.gz&#39;</span><span class="p">:</span>  <span class="kc">None</span><span class="p">,</span> 
+                     <span class="s1">&#39;SRR9179275_paired.csv.gz&#39;</span><span class="p">:</span>  <span class="kc">None</span><span class="p">,</span> 
+                     <span class="s1">&#39;SRR9179276_paired.csv.gz&#39;</span><span class="p">:</span>  <span class="kc">None</span><span class="p">,</span> 
+                     <span class="s1">&#39;SRR9179277_paired.csv.gz&#39;</span><span class="p">:</span>  <span class="kc">None</span><span class="p">}</span>
+
+        <span class="n">resources</span> <span class="o">=</span> <span class="nb">list</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">url</span> <span class="ow">in</span> <span class="n">url_list</span><span class="p">:</span>
+            <span class="n">filename</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="n">url</span><span class="p">)</span>
+            <span class="n">resource</span> <span class="o">=</span> <span class="n">RemoteResource</span><span class="p">(</span>
+                <span class="n">dest_directory</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">dest_directory</span><span class="p">,</span>
+                <span class="n">dest_filename</span><span class="o">=</span><span class="n">filename</span><span class="p">,</span>
+                <span class="n">root_directory</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">root_directory</span><span class="p">,</span>
+                <span class="n">checksum</span><span class="o">=</span><span class="n">checksums</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">filename</span><span class="p">),</span>
+                <span class="n">url</span><span class="o">=</span><span class="n">url</span>
+            <span class="p">)</span>
+            <span class="n">resources</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">resource</span><span class="p">)</span>
+            
+        <span class="k">return</span> <span class="n">resources</span>
+
+    <span class="k">def</span> <span class="nf">prepare</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">pass</span>
+</pre></div>
+</div></div>
+</div>
+</div>
+<div class="section" id="custom-yaml-config">
+<h3>Custom YAML Config<a class="headerlink" href="#custom-yaml-config" title="Permalink to this headline">#</a></h3>
+<p>A custom YAML configuration file is useful for making changes to the model and training configuration parameters. Copy the file <code class="docutils literal notranslate"><span class="pre">$BIONEMO_WORKSPACE/examples/protein/esm1nv/conf/pretrain_small.yaml</span></code> to <code class="docutils literal notranslate"><span class="pre">examples/protein/esm1nv/conf/pretrain_oas.yaml</span></code>.</p>
+<p>To this new file, make the following modifications:</p>
+<ul class="simple">
+<li><p>Delete the entire downstream task validation portion in the model section (<code class="docutils literal notranslate"><span class="pre">model.dwnstr_task_validation</span></code>). This can be reintroduced in the future to enable this functionality, but for now removing it will simplify working with the configuration file.</p></li>
+<li><p>Give the training a new name – here <code class="docutils literal notranslate"><span class="pre">esm1nv-oas</span></code> has been chosen.</p></li>
+<li><p>Set <code class="docutils literal notranslate"><span class="pre">do_training</span></code> to False since the focus is currently data preprocessing</p></li>
+<li><p>Disable Weights and Biases logging for now by since it won’t be used for preprocessing by creating an <code class="docutils literal notranslate"><span class="pre">exp_manager</span></code> section and setting <code class="docutils literal notranslate"><span class="pre">create_wandb_logger</span></code> to False.</p></li>
+</ul>
+<p>Here is what the new yaml config file looks like.</p>
+<div class="cell tag_remove-input docutils container">
+<div class="cell_output docutils container">
+<div class="output text_html"><style>pre { line-height: 125%; }
+td.linenos .normal { color: inherit; background-color: transparent; padding-left: 5px; padding-right: 5px; }
+span.linenos { color: inherit; background-color: transparent; padding-left: 5px; padding-right: 5px; }
+td.linenos .special { color: #000000; background-color: #ffffc0; padding-left: 5px; padding-right: 5px; }
+span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 5px; padding-right: 5px; }
+.output_html .hll { background-color: #ffffcc }
+.output_html { background: #f8f8f8; }
+.output_html .c { color: #3D7B7B; font-style: italic } /* Comment */
+.output_html .err { border: 1px solid #FF0000 } /* Error */
+.output_html .k { color: #008000; font-weight: bold } /* Keyword */
+.output_html .o { color: #666666 } /* Operator */
+.output_html .ch { color: #3D7B7B; font-style: italic } /* Comment.Hashbang */
+.output_html .cm { color: #3D7B7B; font-style: italic } /* Comment.Multiline */
+.output_html .cp { color: #9C6500 } /* Comment.Preproc */
+.output_html .cpf { color: #3D7B7B; font-style: italic } /* Comment.PreprocFile */
+.output_html .c1 { color: #3D7B7B; font-style: italic } /* Comment.Single */
+.output_html .cs { color: #3D7B7B; font-style: italic } /* Comment.Special */
+.output_html .gd { color: #A00000 } /* Generic.Deleted */
+.output_html .ge { font-style: italic } /* Generic.Emph */
+.output_html .gr { color: #E40000 } /* Generic.Error */
+.output_html .gh { color: #000080; font-weight: bold } /* Generic.Heading */
+.output_html .gi { color: #008400 } /* Generic.Inserted */
+.output_html .go { color: #717171 } /* Generic.Output */
+.output_html .gp { color: #000080; font-weight: bold } /* Generic.Prompt */
+.output_html .gs { font-weight: bold } /* Generic.Strong */
+.output_html .gu { color: #800080; font-weight: bold } /* Generic.Subheading */
+.output_html .gt { color: #0044DD } /* Generic.Traceback */
+.output_html .kc { color: #008000; font-weight: bold } /* Keyword.Constant */
+.output_html .kd { color: #008000; font-weight: bold } /* Keyword.Declaration */
+.output_html .kn { color: #008000; font-weight: bold } /* Keyword.Namespace */
+.output_html .kp { color: #008000 } /* Keyword.Pseudo */
+.output_html .kr { color: #008000; font-weight: bold } /* Keyword.Reserved */
+.output_html .kt { color: #B00040 } /* Keyword.Type */
+.output_html .m { color: #666666 } /* Literal.Number */
+.output_html .s { color: #BA2121 } /* Literal.String */
+.output_html .na { color: #687822 } /* Name.Attribute */
+.output_html .nb { color: #008000 } /* Name.Builtin */
+.output_html .nc { color: #0000FF; font-weight: bold } /* Name.Class */
+.output_html .no { color: #880000 } /* Name.Constant */
+.output_html .nd { color: #AA22FF } /* Name.Decorator */
+.output_html .ni { color: #717171; font-weight: bold } /* Name.Entity */
+.output_html .ne { color: #CB3F38; font-weight: bold } /* Name.Exception */
+.output_html .nf { color: #0000FF } /* Name.Function */
+.output_html .nl { color: #767600 } /* Name.Label */
+.output_html .nn { color: #0000FF; font-weight: bold } /* Name.Namespace */
+.output_html .nt { color: #008000; font-weight: bold } /* Name.Tag */
+.output_html .nv { color: #19177C } /* Name.Variable */
+.output_html .ow { color: #AA22FF; font-weight: bold } /* Operator.Word */
+.output_html .w { color: #bbbbbb } /* Text.Whitespace */
+.output_html .mb { color: #666666 } /* Literal.Number.Bin */
+.output_html .mf { color: #666666 } /* Literal.Number.Float */
+.output_html .mh { color: #666666 } /* Literal.Number.Hex */
+.output_html .mi { color: #666666 } /* Literal.Number.Integer */
+.output_html .mo { color: #666666 } /* Literal.Number.Oct */
+.output_html .sa { color: #BA2121 } /* Literal.String.Affix */
+.output_html .sb { color: #BA2121 } /* Literal.String.Backtick */
+.output_html .sc { color: #BA2121 } /* Literal.String.Char */
+.output_html .dl { color: #BA2121 } /* Literal.String.Delimiter */
+.output_html .sd { color: #BA2121; font-style: italic } /* Literal.String.Doc */
+.output_html .s2 { color: #BA2121 } /* Literal.String.Double */
+.output_html .se { color: #AA5D1F; font-weight: bold } /* Literal.String.Escape */
+.output_html .sh { color: #BA2121 } /* Literal.String.Heredoc */
+.output_html .si { color: #A45A77; font-weight: bold } /* Literal.String.Interpol */
+.output_html .sx { color: #008000 } /* Literal.String.Other */
+.output_html .sr { color: #A45A77 } /* Literal.String.Regex */
+.output_html .s1 { color: #BA2121 } /* Literal.String.Single */
+.output_html .ss { color: #19177C } /* Literal.String.Symbol */
+.output_html .bp { color: #008000 } /* Name.Builtin.Pseudo */
+.output_html .fm { color: #0000FF } /* Name.Function.Magic */
+.output_html .vc { color: #19177C } /* Name.Variable.Class */
+.output_html .vg { color: #19177C } /* Name.Variable.Global */
+.output_html .vi { color: #19177C } /* Name.Variable.Instance */
+.output_html .vm { color: #19177C } /* Name.Variable.Magic */
+.output_html .il { color: #666666 } /* Literal.Number.Integer.Long */</style><div class="highlight"><pre><span></span><span class="nt">defaults</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">base_config</span>
+
+
+<span class="c1">###### Begin OAS Related Addtions ######</span>
+
+<span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">esm1nv-oas</span><span class="w"> </span><span class="c1">### Add OAS to the name</span>
+<span class="nt">do_training</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">False</span><span class="w"> </span><span class="c1">### Set to False for preprocessing or True for training</span>
+<span class="nt">exp_manager</span><span class="p">:</span><span class="w"> </span>
+<span class="w">  </span><span class="nt">create_wandb_logger</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">False</span><span class="w"> </span><span class="c1">### Disable Weights and Biases logger for demo</span>
+
+<span class="c1">###### End OAS Related Addtions ######</span>
+
+<span class="nt">restore_from_path</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">null</span><span class="w"> </span><span class="c1"># used when starting from a .nemo file</span>
+
+<span class="nt">model</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">tokenizer</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">library</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;sentencepiece&#39;</span>
+<span class="w">    </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">null</span>
+<span class="w">    </span><span class="nt">model</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">/tokenizers/protein/esm1nv/vocab/protein_sequence_sentencepiece.model</span>
+<span class="w">    </span><span class="nt">vocab_file</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">/tokenizers/vocab/protein_sequence_sentencepiece.vocab</span>
+<span class="w">  </span><span class="nt">data</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">dataset_path</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">/data/uniref2022_05</span><span class="w"> </span><span class="c1"># parent directory for data, contains train / val / test folders. Needs to be writeable for index creation.</span>
+<span class="w">    </span><span class="nt">dataset</span><span class="p">:</span><span class="w"> </span><span class="c1"># inclusive range of data files to load x[000..049] or can a single file, e.g. x000</span>
+<span class="w">      </span><span class="nt">train</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">x[000..049]</span>
+<span class="w">      </span><span class="nt">test</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">x[000..049]</span>
+<span class="w">      </span><span class="nt">val</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">x[000..049]</span>
+<span class="w">    </span><span class="nt">micro_batch_size</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">${model.micro_batch_size}</span>
+<span class="w">    </span><span class="nt">num_workers</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">10</span>
+<span class="w">    </span><span class="nt">data_impl_kwargs</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">csv_mmap</span><span class="p">:</span>
+<span class="w">        </span><span class="nt">data_col</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">3</span><span class="w"> </span><span class="c1"># 0-based</span>
+<span class="w">    </span><span class="nt">modify_percent</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">0.1</span><span class="w"> </span><span class="c1"># Percentage of characters in a protein sequence to modify. (Modification means replacing with another amino acid or with a mask token)</span>
+<span class="w">    </span><span class="nt">perturb_percent</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">0.5</span><span class="w"> </span><span class="c1"># Of the modify_percent, what percentage of characters are to be replaced with another amino acid.</span>
+</pre></div>
+</div></div>
+</div>
+</div>
+<div class="section" id="python-execution-script">
+<h3>Python Execution Script<a class="headerlink" href="#python-execution-script" title="Permalink to this headline">#</a></h3>
+<p>A python script to execute our job will also need to be created. In the directory <code class="docutils literal notranslate"><span class="pre">examples/protein/esm1nv</span></code>, copy the existing pre-train script <code class="docutils literal notranslate"><span class="pre">pretrain.py</span></code> to <code class="docutils literal notranslate"><span class="pre">pretrain_oas.py</span></code>. This will be the file which performs preprocessing and runs the pre-training once the pipeline is completed.</p>
+<p>Make the following changes to the new pre-training file:</p>
+<ul class="simple">
+<li><p>Remove the imports for <code class="docutils literal notranslate"><span class="pre">UniRef50Preprocess</span></code> and <code class="docutils literal notranslate"><span class="pre">FLIPPreprocess</span></code></p></li>
+<li><p>Add an import for <code class="docutils literal notranslate"><span class="pre">OASPairedPreprocess</span></code> from <code class="docutils literal notranslate"><span class="pre">bionemo.data.preprocess.protein.oas_preprocess</span></code></p></li>
+<li><p>Modify the section with the log <code class="docutils literal notranslate"><span class="pre">Starting</span> <span class="pre">Preprocessing</span></code> so that it downloads the data and calculates the MD5 checksums for each of the OAS files.</p></li>
+</ul>
+<p>Here is an example:</p>
+<div class="cell tag_remove-input docutils container">
+<div class="cell_output docutils container">
+<div class="output text_html"><style>pre { line-height: 125%; }
+td.linenos .normal { color: inherit; background-color: transparent; padding-left: 5px; padding-right: 5px; }
+span.linenos { color: inherit; background-color: transparent; padding-left: 5px; padding-right: 5px; }
+td.linenos .special { color: #000000; background-color: #ffffc0; padding-left: 5px; padding-right: 5px; }
+span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 5px; padding-right: 5px; }
+.output_html .hll { background-color: #ffffcc }
+.output_html { background: #f8f8f8; }
+.output_html .c { color: #3D7B7B; font-style: italic } /* Comment */
+.output_html .err { border: 1px solid #FF0000 } /* Error */
+.output_html .k { color: #008000; font-weight: bold } /* Keyword */
+.output_html .o { color: #666666 } /* Operator */
+.output_html .ch { color: #3D7B7B; font-style: italic } /* Comment.Hashbang */
+.output_html .cm { color: #3D7B7B; font-style: italic } /* Comment.Multiline */
+.output_html .cp { color: #9C6500 } /* Comment.Preproc */
+.output_html .cpf { color: #3D7B7B; font-style: italic } /* Comment.PreprocFile */
+.output_html .c1 { color: #3D7B7B; font-style: italic } /* Comment.Single */
+.output_html .cs { color: #3D7B7B; font-style: italic } /* Comment.Special */
+.output_html .gd { color: #A00000 } /* Generic.Deleted */
+.output_html .ge { font-style: italic } /* Generic.Emph */
+.output_html .gr { color: #E40000 } /* Generic.Error */
+.output_html .gh { color: #000080; font-weight: bold } /* Generic.Heading */
+.output_html .gi { color: #008400 } /* Generic.Inserted */
+.output_html .go { color: #717171 } /* Generic.Output */
+.output_html .gp { color: #000080; font-weight: bold } /* Generic.Prompt */
+.output_html .gs { font-weight: bold } /* Generic.Strong */
+.output_html .gu { color: #800080; font-weight: bold } /* Generic.Subheading */
+.output_html .gt { color: #0044DD } /* Generic.Traceback */
+.output_html .kc { color: #008000; font-weight: bold } /* Keyword.Constant */
+.output_html .kd { color: #008000; font-weight: bold } /* Keyword.Declaration */
+.output_html .kn { color: #008000; font-weight: bold } /* Keyword.Namespace */
+.output_html .kp { color: #008000 } /* Keyword.Pseudo */
+.output_html .kr { color: #008000; font-weight: bold } /* Keyword.Reserved */
+.output_html .kt { color: #B00040 } /* Keyword.Type */
+.output_html .m { color: #666666 } /* Literal.Number */
+.output_html .s { color: #BA2121 } /* Literal.String */
+.output_html .na { color: #687822 } /* Name.Attribute */
+.output_html .nb { color: #008000 } /* Name.Builtin */
+.output_html .nc { color: #0000FF; font-weight: bold } /* Name.Class */
+.output_html .no { color: #880000 } /* Name.Constant */
+.output_html .nd { color: #AA22FF } /* Name.Decorator */
+.output_html .ni { color: #717171; font-weight: bold } /* Name.Entity */
+.output_html .ne { color: #CB3F38; font-weight: bold } /* Name.Exception */
+.output_html .nf { color: #0000FF } /* Name.Function */
+.output_html .nl { color: #767600 } /* Name.Label */
+.output_html .nn { color: #0000FF; font-weight: bold } /* Name.Namespace */
+.output_html .nt { color: #008000; font-weight: bold } /* Name.Tag */
+.output_html .nv { color: #19177C } /* Name.Variable */
+.output_html .ow { color: #AA22FF; font-weight: bold } /* Operator.Word */
+.output_html .w { color: #bbbbbb } /* Text.Whitespace */
+.output_html .mb { color: #666666 } /* Literal.Number.Bin */
+.output_html .mf { color: #666666 } /* Literal.Number.Float */
+.output_html .mh { color: #666666 } /* Literal.Number.Hex */
+.output_html .mi { color: #666666 } /* Literal.Number.Integer */
+.output_html .mo { color: #666666 } /* Literal.Number.Oct */
+.output_html .sa { color: #BA2121 } /* Literal.String.Affix */
+.output_html .sb { color: #BA2121 } /* Literal.String.Backtick */
+.output_html .sc { color: #BA2121 } /* Literal.String.Char */
+.output_html .dl { color: #BA2121 } /* Literal.String.Delimiter */
+.output_html .sd { color: #BA2121; font-style: italic } /* Literal.String.Doc */
+.output_html .s2 { color: #BA2121 } /* Literal.String.Double */
+.output_html .se { color: #AA5D1F; font-weight: bold } /* Literal.String.Escape */
+.output_html .sh { color: #BA2121 } /* Literal.String.Heredoc */
+.output_html .si { color: #A45A77; font-weight: bold } /* Literal.String.Interpol */
+.output_html .sx { color: #008000 } /* Literal.String.Other */
+.output_html .sr { color: #A45A77 } /* Literal.String.Regex */
+.output_html .s1 { color: #BA2121 } /* Literal.String.Single */
+.output_html .ss { color: #19177C } /* Literal.String.Symbol */
+.output_html .bp { color: #008000 } /* Name.Builtin.Pseudo */
+.output_html .fm { color: #0000FF } /* Name.Function.Magic */
+.output_html .vc { color: #19177C } /* Name.Variable.Class */
+.output_html .vg { color: #19177C } /* Name.Variable.Global */
+.output_html .vi { color: #19177C } /* Name.Variable.Instance */
+.output_html .vm { color: #19177C } /* Name.Variable.Magic */
+.output_html .il { color: #666666 } /* Literal.Number.Integer.Long */</style><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">omegaconf.omegaconf</span> <span class="kn">import</span> <span class="n">OmegaConf</span>
+<span class="kn">from</span> <span class="nn">nemo.core.config</span> <span class="kn">import</span> <span class="n">hydra_runner</span>
+<span class="kn">from</span> <span class="nn">nemo.utils</span> <span class="kn">import</span> <span class="n">logging</span>
+<span class="kn">from</span> <span class="nn">bionemo.model.protein.esm1nv</span> <span class="kn">import</span> <span class="n">ESM1nvModel</span>
+<span class="kn">from</span> <span class="nn">bionemo.model.utils</span> <span class="kn">import</span> <span class="n">setup_trainer</span>
+<span class="kn">from</span> <span class="nn">bionemo.utils</span> <span class="kn">import</span> <span class="n">BioNeMoSaveRestoreConnector</span>
+<span class="kn">from</span> <span class="nn">bionemo.utils.callbacks.callback_utils</span> <span class="kn">import</span> <span class="n">setup_dwnstr_task_validation_callbacks</span>
+
+<span class="kn">from</span> <span class="nn">bionemo.data.preprocess.protein.oas_preprocess</span> <span class="kn">import</span> <span class="n">OASPairedPreprocess</span> <span class="c1">### Import OAS preprocessor</span>
+<span class="kn">import</span> <span class="nn">os</span><span class="o">,</span> <span class="nn">hashlib</span> <span class="c1">### Used for checksum verification</span>
+
+<span class="nd">@hydra_runner</span><span class="p">(</span><span class="n">config_path</span><span class="o">=</span><span class="s2">&quot;conf&quot;</span><span class="p">,</span> <span class="n">config_name</span><span class="o">=</span><span class="s2">&quot;pretrain_oas&quot;</span><span class="p">)</span> <span class="c1">### Custom YAML config file</span>
+<span class="k">def</span> <span class="nf">main</span><span class="p">(</span><span class="n">cfg</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n\n</span><span class="s2">************** Experiment configuration ***********&quot;</span><span class="p">)</span>
+    <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="se">\n</span><span class="si">{</span><span class="n">OmegaConf</span><span class="o">.</span><span class="n">to_yaml</span><span class="p">(</span><span class="n">cfg</span><span class="p">)</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+
+    <span class="n">callbacks</span> <span class="o">=</span> <span class="n">setup_dwnstr_task_validation_callbacks</span><span class="p">(</span><span class="n">cfg</span><span class="p">)</span>
+
+    <span class="n">trainer</span> <span class="o">=</span> <span class="n">setup_trainer</span><span class="p">(</span><span class="n">cfg</span><span class="p">,</span> <span class="n">callbacks</span><span class="o">=</span><span class="n">callbacks</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">cfg</span><span class="o">.</span><span class="n">do_training</span><span class="p">:</span>
+        <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;************** Starting Training ***********&quot;</span><span class="p">)</span>
+        <span class="n">model</span> <span class="o">=</span> <span class="n">ESM1nvModel</span><span class="p">(</span><span class="n">cfg</span><span class="o">.</span><span class="n">model</span><span class="p">,</span> <span class="n">trainer</span><span class="p">)</span>
+        <span class="n">trainer</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">model</span><span class="p">)</span>
+        <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;************** Finished Training ***********&quot;</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;************** Calculating Checksums ***********&quot;</span><span class="p">)</span>
+
+        <span class="c1">### Changes to calculate checksums</span>
+        <span class="n">oas_filepaths</span> <span class="o">=</span> <span class="p">[</span><span class="n">resource</span><span class="o">.</span><span class="n">download_resource</span><span class="p">(</span><span class="n">overwrite</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span> 
+                        <span class="k">for</span> <span class="n">resource</span> <span class="ow">in</span> <span class="n">OASPairedPreprocess</span><span class="p">()</span><span class="o">.</span><span class="n">get_remote_resources</span><span class="p">()]</span>
+
+        <span class="k">for</span> <span class="n">fully_qualified_dest_filename</span> <span class="ow">in</span> <span class="n">oas_filepaths</span><span class="p">:</span>    
+            <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">fully_qualified_dest_filename</span><span class="p">,</span> <span class="s1">&#39;rb&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">fh</span><span class="p">:</span>
+                <span class="n">filename</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="n">fully_qualified_dest_filename</span><span class="p">)</span>
+                <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="se">\&quot;</span><span class="si">{</span><span class="n">filename</span><span class="si">}</span><span class="se">\&quot;</span><span class="s2">: </span><span class="se">\&quot;</span><span class="si">{</span><span class="n">hashlib</span><span class="o">.</span><span class="n">md5</span><span class="p">(</span><span class="n">fh</span><span class="o">.</span><span class="n">read</span><span class="p">())</span><span class="o">.</span><span class="n">hexdigest</span><span class="p">()</span><span class="si">}</span><span class="se">\&quot;</span><span class="s2">&quot;</span><span class="p">)</span>
+
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s1">&#39;__main__&#39;</span><span class="p">:</span>
+    <span class="n">main</span><span class="p">()</span>
+</pre></div>
+</div></div>
+</div>
+</div>
+<div class="section" id="testing">
+<h3>Testing<a class="headerlink" href="#testing" title="Permalink to this headline">#</a></h3>
+<p>Run the pipeline with the following command:</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="nb">cd</span><span class="w"> </span>examples/protein/esm1nv
+python<span class="w"> </span>pretrain_oas.py
+</pre></div>
+</div>
+<p>The end of the logged output is shown below:</p>
+<div class="cell tag_remove-input docutils container">
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>[NeMo I 2023-08-17 16:44:39 pretrain_oas:26] ************** Calculating Checksums ***********
+[NeMo I 2023-08-17 16:44:39 oas_preprocess:27] The following URLs were parsed: [&#39;https://opig.stats.ox.ac.uk/webapps/ngsdb/paired/Alsoiussi_2020/csv/SRR11528761_paired.csv.gz&#39;, &#39;https://opig.stats.ox.ac.uk/webapps/ngsdb/paired/Alsoiussi_2020/csv/SRR11528762_paired.csv.gz&#39;, &#39;https://opig.stats.ox.ac.uk/webapps/ngsdb/paired/Eccles_2020/csv/SRR10358523_paired.csv.gz&#39;, &#39;https://opig.stats.ox.ac.uk/webapps/ngsdb/paired/Eccles_2020/csv/SRR10358524_paired.csv.gz&#39;, &#39;https://opig.stats.ox.ac.uk/webapps/ngsdb/paired/Eccles_2020/csv/SRR10358525_paired.csv.gz&#39;, &#39;https://opig.stats.ox.ac.uk/webapps/ngsdb/paired/Goldstein_2019/csv/SRR9179273_paired.csv.gz&#39;, &#39;https://opig.stats.ox.ac.uk/webapps/ngsdb/paired/Goldstein_2019/csv/SRR9179274_paired.csv.gz&#39;, &#39;https://opig.stats.ox.ac.uk/webapps/ngsdb/paired/Goldstein_2019/csv/SRR9179275_paired.csv.gz&#39;, &#39;https://opig.stats.ox.ac.uk/webapps/ngsdb/paired/Goldstein_2019/csv/SRR9179276_paired.csv.gz&#39;, &#39;https://opig.stats.ox.ac.uk/webapps/ngsdb/paired/Goldstein_2019/csv/SRR9179277_paired.csv.gz&#39;]
+[NeMo I 2023-08-17 16:44:39 remote:109] Downloading resource: https://opig.stats.ox.ac.uk/webapps/ngsdb/paired/Alsoiussi_2020/csv/SRR11528761_paired.csv.gz
+[NeMo I 2023-08-17 16:44:44 remote:129] No checksum provided, filename exists. Assuming it is complete.
+[NeMo I 2023-08-17 16:44:44 remote:109] Downloading resource: https://opig.stats.ox.ac.uk/webapps/ngsdb/paired/Alsoiussi_2020/csv/SRR11528762_paired.csv.gz
+[NeMo I 2023-08-17 16:45:18 remote:129] No checksum provided, filename exists. Assuming it is complete.
+[NeMo I 2023-08-17 16:45:18 remote:109] Downloading resource: https://opig.stats.ox.ac.uk/webapps/ngsdb/paired/Eccles_2020/csv/SRR10358523_paired.csv.gz
+[NeMo I 2023-08-17 16:45:20 remote:129] No checksum provided, filename exists. Assuming it is complete.
+[NeMo I 2023-08-17 16:45:20 remote:109] Downloading resource: https://opig.stats.ox.ac.uk/webapps/ngsdb/paired/Eccles_2020/csv/SRR10358524_paired.csv.gz
+[NeMo I 2023-08-17 16:45:22 remote:129] No checksum provided, filename exists. Assuming it is complete.
+[NeMo I 2023-08-17 16:45:22 remote:109] Downloading resource: https://opig.stats.ox.ac.uk/webapps/ngsdb/paired/Eccles_2020/csv/SRR10358525_paired.csv.gz
+[NeMo I 2023-08-17 16:45:24 remote:129] No checksum provided, filename exists. Assuming it is complete.
+[NeMo I 2023-08-17 16:45:24 remote:109] Downloading resource: https://opig.stats.ox.ac.uk/webapps/ngsdb/paired/Goldstein_2019/csv/SRR9179273_paired.csv.gz
+[NeMo I 2023-08-17 16:45:31 remote:129] No checksum provided, filename exists. Assuming it is complete.
+[NeMo I 2023-08-17 16:45:31 remote:109] Downloading resource: https://opig.stats.ox.ac.uk/webapps/ngsdb/paired/Goldstein_2019/csv/SRR9179274_paired.csv.gz
+[NeMo I 2023-08-17 16:45:56 remote:129] No checksum provided, filename exists. Assuming it is complete.
+[NeMo I 2023-08-17 16:45:56 remote:109] Downloading resource: https://opig.stats.ox.ac.uk/webapps/ngsdb/paired/Goldstein_2019/csv/SRR9179275_paired.csv.gz
+[NeMo I 2023-08-17 16:46:05 remote:129] No checksum provided, filename exists. Assuming it is complete.
+[NeMo I 2023-08-17 16:46:05 remote:109] Downloading resource: https://opig.stats.ox.ac.uk/webapps/ngsdb/paired/Goldstein_2019/csv/SRR9179276_paired.csv.gz
+[NeMo I 2023-08-17 16:46:55 remote:129] No checksum provided, filename exists. Assuming it is complete.
+[NeMo I 2023-08-17 16:46:55 remote:109] Downloading resource: https://opig.stats.ox.ac.uk/webapps/ngsdb/paired/Goldstein_2019/csv/SRR9179277_paired.csv.gz
+[NeMo I 2023-08-17 16:47:59 remote:129] No checksum provided, filename exists. Assuming it is complete.
+[NeMo I 2023-08-17 16:47:59 pretrain_oas:35] &quot;SRR11528761_paired.csv.gz&quot;: &quot;3b671ee3d376445fdafd89932cb4687e&quot;
+[NeMo I 2023-08-17 16:47:59 pretrain_oas:35] &quot;SRR11528762_paired.csv.gz&quot;: &quot;69988520b12162b1f0613a55236d13a7&quot;
+[NeMo I 2023-08-17 16:47:59 pretrain_oas:35] &quot;SRR10358523_paired.csv.gz&quot;: &quot;fb5f7242f1f2b555c0bb798da449454e&quot;
+[NeMo I 2023-08-17 16:47:59 pretrain_oas:35] &quot;SRR10358524_paired.csv.gz&quot;: &quot;5db80ccbf8f47c855daa0d4d13d13d59&quot;
+[NeMo I 2023-08-17 16:47:59 pretrain_oas:35] &quot;SRR10358525_paired.csv.gz&quot;: &quot;d9df83c314bc426bb7ad00a3375a5994&quot;
+[NeMo I 2023-08-17 16:47:59 pretrain_oas:35] &quot;SRR9179273_paired.csv.gz&quot;: &quot;8e91cb8b719c4a2d30b2467cc5f6f080&quot;
+[NeMo I 2023-08-17 16:47:59 pretrain_oas:35] &quot;SRR9179274_paired.csv.gz&quot;: &quot;cc7b54cf168a86012773073bc6016cd2&quot;
+[NeMo I 2023-08-17 16:47:59 pretrain_oas:35] &quot;SRR9179275_paired.csv.gz&quot;: &quot;1660af663e0bdcf9e4a2dc0d8f79bfae&quot;
+[NeMo I 2023-08-17 16:47:59 pretrain_oas:35] &quot;SRR9179276_paired.csv.gz&quot;: &quot;56336af0a20afde929c263e628be6828&quot;
+[NeMo I 2023-08-17 16:47:59 pretrain_oas:35] &quot;SRR9179277_paired.csv.gz&quot;: &quot;48ac0e0f4ded0df1e345c7fbbb161601&quot;
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+<div class="section" id="results">
+<h3>Results<a class="headerlink" href="#results" title="Permalink to this headline">#</a></h3>
+<p>This should have downloaded the ten sequence files and calculated their checksums. The files are found in the path (<code class="docutils literal notranslate"><span class="pre">root_directory</span></code>/<code class="docutils literal notranslate"><span class="pre">dest_directory</span></code>) as defined in the preprocessing class (<code class="docutils literal notranslate"><span class="pre">/data/OASpaired/raw</span></code>):</p>
+<div class="cell tag_remove-input docutils container">
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>SRR10358523_paired.csv.gz  SRR11528762_paired.csv.gz  SRR9179276_paired.csv.gz
+SRR10358524_paired.csv.gz  SRR9179273_paired.csv.gz   SRR9179277_paired.csv.gz
+SRR10358525_paired.csv.gz  SRR9179274_paired.csv.gz
+SRR11528761_paired.csv.gz  SRR9179275_paired.csv.gz
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="section" id="decompressing-oas-sequence-files">
+<h2>Decompressing OAS Sequence Files<a class="headerlink" href="#decompressing-oas-sequence-files" title="Permalink to this headline">#</a></h2>
+<div class="section" id="id1">
+<h3>Data Preprocessing Class<a class="headerlink" href="#id1" title="Permalink to this headline">#</a></h3>
+<p>Now, the functionality to finish processing the data will be added. The following edits should be made to <code class="docutils literal notranslate"><span class="pre">bionemo/data/preprocess/protein/oas_preprocess.py</span></code>:</p>
+<ul class="simple">
+<li><p>Add the checksum list to the <code class="docutils literal notranslate"><span class="pre">checksum</span></code> dictionary in <code class="docutils literal notranslate"><span class="pre">get_remote_resources</span></code></p></li>
+<li><p>Create a method <code class="docutils literal notranslate"><span class="pre">prepare_resource</span></code> that downloads each file, performs any additional processing (such as unzipping the files), and returns the final, full path of each file.</p></li>
+<li><p>Create a method <code class="docutils literal notranslate"><span class="pre">prepare</span></code> that runs <code class="docutils literal notranslate"><span class="pre">prepare_resource</span></code> for each file.</p></li>
+</ul>
+<div class="cell tag_remove-input docutils container">
+<div class="cell_output docutils container">
+<div class="output text_html"><style>pre { line-height: 125%; }
+td.linenos .normal { color: inherit; background-color: transparent; padding-left: 5px; padding-right: 5px; }
+span.linenos { color: inherit; background-color: transparent; padding-left: 5px; padding-right: 5px; }
+td.linenos .special { color: #000000; background-color: #ffffc0; padding-left: 5px; padding-right: 5px; }
+span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 5px; padding-right: 5px; }
+.output_html .hll { background-color: #ffffcc }
+.output_html { background: #f8f8f8; }
+.output_html .c { color: #3D7B7B; font-style: italic } /* Comment */
+.output_html .err { border: 1px solid #FF0000 } /* Error */
+.output_html .k { color: #008000; font-weight: bold } /* Keyword */
+.output_html .o { color: #666666 } /* Operator */
+.output_html .ch { color: #3D7B7B; font-style: italic } /* Comment.Hashbang */
+.output_html .cm { color: #3D7B7B; font-style: italic } /* Comment.Multiline */
+.output_html .cp { color: #9C6500 } /* Comment.Preproc */
+.output_html .cpf { color: #3D7B7B; font-style: italic } /* Comment.PreprocFile */
+.output_html .c1 { color: #3D7B7B; font-style: italic } /* Comment.Single */
+.output_html .cs { color: #3D7B7B; font-style: italic } /* Comment.Special */
+.output_html .gd { color: #A00000 } /* Generic.Deleted */
+.output_html .ge { font-style: italic } /* Generic.Emph */
+.output_html .gr { color: #E40000 } /* Generic.Error */
+.output_html .gh { color: #000080; font-weight: bold } /* Generic.Heading */
+.output_html .gi { color: #008400 } /* Generic.Inserted */
+.output_html .go { color: #717171 } /* Generic.Output */
+.output_html .gp { color: #000080; font-weight: bold } /* Generic.Prompt */
+.output_html .gs { font-weight: bold } /* Generic.Strong */
+.output_html .gu { color: #800080; font-weight: bold } /* Generic.Subheading */
+.output_html .gt { color: #0044DD } /* Generic.Traceback */
+.output_html .kc { color: #008000; font-weight: bold } /* Keyword.Constant */
+.output_html .kd { color: #008000; font-weight: bold } /* Keyword.Declaration */
+.output_html .kn { color: #008000; font-weight: bold } /* Keyword.Namespace */
+.output_html .kp { color: #008000 } /* Keyword.Pseudo */
+.output_html .kr { color: #008000; font-weight: bold } /* Keyword.Reserved */
+.output_html .kt { color: #B00040 } /* Keyword.Type */
+.output_html .m { color: #666666 } /* Literal.Number */
+.output_html .s { color: #BA2121 } /* Literal.String */
+.output_html .na { color: #687822 } /* Name.Attribute */
+.output_html .nb { color: #008000 } /* Name.Builtin */
+.output_html .nc { color: #0000FF; font-weight: bold } /* Name.Class */
+.output_html .no { color: #880000 } /* Name.Constant */
+.output_html .nd { color: #AA22FF } /* Name.Decorator */
+.output_html .ni { color: #717171; font-weight: bold } /* Name.Entity */
+.output_html .ne { color: #CB3F38; font-weight: bold } /* Name.Exception */
+.output_html .nf { color: #0000FF } /* Name.Function */
+.output_html .nl { color: #767600 } /* Name.Label */
+.output_html .nn { color: #0000FF; font-weight: bold } /* Name.Namespace */
+.output_html .nt { color: #008000; font-weight: bold } /* Name.Tag */
+.output_html .nv { color: #19177C } /* Name.Variable */
+.output_html .ow { color: #AA22FF; font-weight: bold } /* Operator.Word */
+.output_html .w { color: #bbbbbb } /* Text.Whitespace */
+.output_html .mb { color: #666666 } /* Literal.Number.Bin */
+.output_html .mf { color: #666666 } /* Literal.Number.Float */
+.output_html .mh { color: #666666 } /* Literal.Number.Hex */
+.output_html .mi { color: #666666 } /* Literal.Number.Integer */
+.output_html .mo { color: #666666 } /* Literal.Number.Oct */
+.output_html .sa { color: #BA2121 } /* Literal.String.Affix */
+.output_html .sb { color: #BA2121 } /* Literal.String.Backtick */
+.output_html .sc { color: #BA2121 } /* Literal.String.Char */
+.output_html .dl { color: #BA2121 } /* Literal.String.Delimiter */
+.output_html .sd { color: #BA2121; font-style: italic } /* Literal.String.Doc */
+.output_html .s2 { color: #BA2121 } /* Literal.String.Double */
+.output_html .se { color: #AA5D1F; font-weight: bold } /* Literal.String.Escape */
+.output_html .sh { color: #BA2121 } /* Literal.String.Heredoc */
+.output_html .si { color: #A45A77; font-weight: bold } /* Literal.String.Interpol */
+.output_html .sx { color: #008000 } /* Literal.String.Other */
+.output_html .sr { color: #A45A77 } /* Literal.String.Regex */
+.output_html .s1 { color: #BA2121 } /* Literal.String.Single */
+.output_html .ss { color: #19177C } /* Literal.String.Symbol */
+.output_html .bp { color: #008000 } /* Name.Builtin.Pseudo */
+.output_html .fm { color: #0000FF } /* Name.Function.Magic */
+.output_html .vc { color: #19177C } /* Name.Variable.Class */
+.output_html .vg { color: #19177C } /* Name.Variable.Global */
+.output_html .vi { color: #19177C } /* Name.Variable.Instance */
+.output_html .vm { color: #19177C } /* Name.Variable.Magic */
+.output_html .il { color: #666666 } /* Literal.Number.Integer.Long */</style><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">bionemo.data.preprocess</span> <span class="kn">import</span> <span class="n">ResourcePreprocessor</span>
+<span class="kn">from</span> <span class="nn">bionemo.utils.remote</span> <span class="kn">import</span> <span class="n">RemoteResource</span>
+<span class="kn">from</span> <span class="nn">nemo.utils</span> <span class="kn">import</span> <span class="n">logging</span>
+<span class="kn">from</span> <span class="nn">dataclasses</span> <span class="kn">import</span> <span class="n">dataclass</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">List</span>
+<span class="kn">import</span> <span class="nn">re</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">gzip</span>
+<span class="kn">import</span> <span class="nn">shutil</span>
+
+<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;OASPairedPreprocess&#39;</span><span class="p">]</span>
+
+<span class="c1"># BIONEMO_HOME = os.getenv(&#39;BIONEMO_HOME&#39;, &#39;/workspace/bionemo&#39;)</span>
+<span class="n">BIONEMO_HOME</span> <span class="o">=</span> <span class="s1">&#39;/workspace/bionemo&#39;</span> <span class="c1"># FIXME</span>
+<span class="n">OAS_DOWNLOAD_LINKS_PATH</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">BIONEMO_HOME</span><span class="si">}</span><span class="s1">/bionemo/data/preprocess/protein/oas_paired_subset_download.sh&#39;</span>
+
+<span class="nd">@dataclass</span>
+<span class="k">class</span> <span class="nc">OASPairedPreprocess</span><span class="p">(</span><span class="n">ResourcePreprocessor</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;OASPairedPreprocess to download and preprocess OAS paired antibody heavy chain data.&quot;&quot;&quot;</span>
+    <span class="n">root_directory</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;/data&#39;</span>
+    <span class="n">dest_directory</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;OASpaired/raw&#39;</span>
+    
+
+    <span class="k">def</span> <span class="nf">get_remote_resources</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">download_script_path</span><span class="p">:</span><span class="nb">str</span> <span class="o">=</span> <span class="n">OAS_DOWNLOAD_LINKS_PATH</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">RemoteResource</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Download and verify each file from the download script path.&quot;&quot;&quot;</span>
+        
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">download_script_path</span><span class="p">,</span> <span class="s1">&#39;r&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">fh</span><span class="p">:</span>
+            <span class="n">url_list</span> <span class="o">=</span> <span class="p">[</span><span class="n">re</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;\s+&#39;</span><span class="p">,</span> <span class="n">x</span><span class="o">.</span><span class="n">strip</span><span class="p">())[</span><span class="mi">1</span><span class="p">]</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">fh</span><span class="o">.</span><span class="n">readlines</span><span class="p">()]</span>
+        
+        <span class="c1"># Add calculated checksums</span>
+        <span class="n">checksums</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;SRR11528761_paired.csv.gz&quot;</span><span class="p">:</span> <span class="s2">&quot;3b671ee3d376445fdafd89932cb4687e&quot;</span><span class="p">,</span>
+                     <span class="s2">&quot;SRR11528762_paired.csv.gz&quot;</span><span class="p">:</span> <span class="s2">&quot;69988520b12162b1f0613a55236d13a7&quot;</span><span class="p">,</span>
+                     <span class="s2">&quot;SRR10358523_paired.csv.gz&quot;</span><span class="p">:</span> <span class="s2">&quot;fb5f7242f1f2b555c0bb798da449454e&quot;</span><span class="p">,</span>
+                     <span class="s2">&quot;SRR10358524_paired.csv.gz&quot;</span><span class="p">:</span> <span class="s2">&quot;5db80ccbf8f47c855daa0d4d13d13d59&quot;</span><span class="p">,</span>
+                     <span class="s2">&quot;SRR10358525_paired.csv.gz&quot;</span><span class="p">:</span> <span class="s2">&quot;d9df83c314bc426bb7ad00a3375a5994&quot;</span><span class="p">,</span>
+                     <span class="s2">&quot;SRR9179273_paired.csv.gz&quot;</span><span class="p">:</span> <span class="s2">&quot;8e91cb8b719c4a2d30b2467cc5f6f080&quot;</span><span class="p">,</span>
+                     <span class="s2">&quot;SRR9179274_paired.csv.gz&quot;</span><span class="p">:</span> <span class="s2">&quot;cc7b54cf168a86012773073bc6016cd2&quot;</span><span class="p">,</span>
+                     <span class="s2">&quot;SRR9179275_paired.csv.gz&quot;</span><span class="p">:</span> <span class="s2">&quot;1660af663e0bdcf9e4a2dc0d8f79bfae&quot;</span><span class="p">,</span>
+                     <span class="s2">&quot;SRR9179276_paired.csv.gz&quot;</span><span class="p">:</span> <span class="s2">&quot;56336af0a20afde929c263e628be6828&quot;</span><span class="p">,</span>
+                     <span class="s2">&quot;SRR9179277_paired.csv.gz&quot;</span><span class="p">:</span> <span class="s2">&quot;48ac0e0f4ded0df1e345c7fbbb161601&quot;</span><span class="p">}</span>
+
+        <span class="n">resources</span> <span class="o">=</span> <span class="nb">list</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">url</span> <span class="ow">in</span> <span class="n">url_list</span><span class="p">:</span>
+            <span class="n">filename</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="n">url</span><span class="p">)</span>
+            <span class="n">resource</span> <span class="o">=</span> <span class="n">RemoteResource</span><span class="p">(</span>
+                <span class="n">dest_directory</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">dest_directory</span><span class="p">,</span>
+                <span class="n">dest_filename</span><span class="o">=</span><span class="n">filename</span><span class="p">,</span>
+                <span class="n">root_directory</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">root_directory</span><span class="p">,</span>
+                <span class="n">checksum</span><span class="o">=</span><span class="n">checksums</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">filename</span><span class="p">),</span>
+                <span class="n">url</span><span class="o">=</span><span class="n">url</span>
+            <span class="p">)</span>
+            <span class="n">resources</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">resource</span><span class="p">)</span>
+            
+        <span class="k">return</span> <span class="n">resources</span>
+
+    <span class="k">def</span> <span class="nf">prepare_resource</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> 
+                         <span class="n">resource</span><span class="p">:</span> <span class="n">RemoteResource</span><span class="p">,</span> 
+                         <span class="n">delete_gzipped</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Logs and downloads the passed resource.</span>
+
+<span class="sd">        resource: RemoteResource - Resource to be prepared.</span>
+<span class="sd">        delete_gzipped: boolean, default: True - Delete gzipped file once extracted.</span>
+<span class="sd">        </span>
+<span class="sd">        Returns - the absolute destination path for the downloaded resource</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Downloading </span><span class="si">{</span><span class="n">resource</span><span class="o">.</span><span class="n">url</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="n">fully_qualified_gz_filename</span> <span class="o">=</span> <span class="n">resource</span><span class="o">.</span><span class="n">download_resource</span><span class="p">(</span><span class="n">overwrite</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+        
+
+        <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Extracting the gzipped file&quot;</span><span class="p">)</span>
+        <span class="n">fully_qualified_dest_filename</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">splitext</span><span class="p">(</span><span class="n">fully_qualified_gz_filename</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="k">with</span> <span class="n">gzip</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="n">fully_qualified_gz_filename</span><span class="p">,</span> <span class="s1">&#39;rb&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f_gz</span><span class="p">:</span>
+            <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">fully_qualified_dest_filename</span><span class="p">,</span> <span class="s1">&#39;wb&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f_ext</span><span class="p">:</span>
+                <span class="n">shutil</span><span class="o">.</span><span class="n">copyfileobj</span><span class="p">(</span><span class="n">f_gz</span><span class="p">,</span> <span class="n">f_ext</span><span class="p">)</span>
+                
+        <span class="k">if</span> <span class="n">delete_gzipped</span><span class="p">:</span>
+            <span class="n">shutil</span><span class="o">.</span><span class="n">rmtree</span><span class="p">(</span><span class="n">fully_qualified_gz_filename</span><span class="p">)</span>
+            
+        <span class="k">return</span> <span class="n">fully_qualified_dest_filename</span>
+        
+    
+    <span class="k">def</span> <span class="nf">prepare</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="p">[</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">prepare_resource</span><span class="p">(</span><span class="n">resource</span><span class="p">)</span> <span class="k">for</span> <span class="n">resource</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_remote_resources</span><span class="p">()</span>
+        <span class="p">]</span>
+</pre></div>
+</div></div>
+</div>
+</div>
+<div class="section" id="id2">
+<h3>Python Execution Script<a class="headerlink" href="#id2" title="Permalink to this headline">#</a></h3>
+<p>Now, modify the python pre-train script so that it creates an instance of the class and runs the <code class="docutils literal notranslate"><span class="pre">prepare</span></code> method. These are the final set of changes which need to be made to the pre-training script.</p>
+<div class="cell tag_remove-input docutils container">
+<div class="cell_output docutils container">
+<div class="output text_html"><style>pre { line-height: 125%; }
+td.linenos .normal { color: inherit; background-color: transparent; padding-left: 5px; padding-right: 5px; }
+span.linenos { color: inherit; background-color: transparent; padding-left: 5px; padding-right: 5px; }
+td.linenos .special { color: #000000; background-color: #ffffc0; padding-left: 5px; padding-right: 5px; }
+span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 5px; padding-right: 5px; }
+.output_html .hll { background-color: #ffffcc }
+.output_html { background: #f8f8f8; }
+.output_html .c { color: #3D7B7B; font-style: italic } /* Comment */
+.output_html .err { border: 1px solid #FF0000 } /* Error */
+.output_html .k { color: #008000; font-weight: bold } /* Keyword */
+.output_html .o { color: #666666 } /* Operator */
+.output_html .ch { color: #3D7B7B; font-style: italic } /* Comment.Hashbang */
+.output_html .cm { color: #3D7B7B; font-style: italic } /* Comment.Multiline */
+.output_html .cp { color: #9C6500 } /* Comment.Preproc */
+.output_html .cpf { color: #3D7B7B; font-style: italic } /* Comment.PreprocFile */
+.output_html .c1 { color: #3D7B7B; font-style: italic } /* Comment.Single */
+.output_html .cs { color: #3D7B7B; font-style: italic } /* Comment.Special */
+.output_html .gd { color: #A00000 } /* Generic.Deleted */
+.output_html .ge { font-style: italic } /* Generic.Emph */
+.output_html .gr { color: #E40000 } /* Generic.Error */
+.output_html .gh { color: #000080; font-weight: bold } /* Generic.Heading */
+.output_html .gi { color: #008400 } /* Generic.Inserted */
+.output_html .go { color: #717171 } /* Generic.Output */
+.output_html .gp { color: #000080; font-weight: bold } /* Generic.Prompt */
+.output_html .gs { font-weight: bold } /* Generic.Strong */
+.output_html .gu { color: #800080; font-weight: bold } /* Generic.Subheading */
+.output_html .gt { color: #0044DD } /* Generic.Traceback */
+.output_html .kc { color: #008000; font-weight: bold } /* Keyword.Constant */
+.output_html .kd { color: #008000; font-weight: bold } /* Keyword.Declaration */
+.output_html .kn { color: #008000; font-weight: bold } /* Keyword.Namespace */
+.output_html .kp { color: #008000 } /* Keyword.Pseudo */
+.output_html .kr { color: #008000; font-weight: bold } /* Keyword.Reserved */
+.output_html .kt { color: #B00040 } /* Keyword.Type */
+.output_html .m { color: #666666 } /* Literal.Number */
+.output_html .s { color: #BA2121 } /* Literal.String */
+.output_html .na { color: #687822 } /* Name.Attribute */
+.output_html .nb { color: #008000 } /* Name.Builtin */
+.output_html .nc { color: #0000FF; font-weight: bold } /* Name.Class */
+.output_html .no { color: #880000 } /* Name.Constant */
+.output_html .nd { color: #AA22FF } /* Name.Decorator */
+.output_html .ni { color: #717171; font-weight: bold } /* Name.Entity */
+.output_html .ne { color: #CB3F38; font-weight: bold } /* Name.Exception */
+.output_html .nf { color: #0000FF } /* Name.Function */
+.output_html .nl { color: #767600 } /* Name.Label */
+.output_html .nn { color: #0000FF; font-weight: bold } /* Name.Namespace */
+.output_html .nt { color: #008000; font-weight: bold } /* Name.Tag */
+.output_html .nv { color: #19177C } /* Name.Variable */
+.output_html .ow { color: #AA22FF; font-weight: bold } /* Operator.Word */
+.output_html .w { color: #bbbbbb } /* Text.Whitespace */
+.output_html .mb { color: #666666 } /* Literal.Number.Bin */
+.output_html .mf { color: #666666 } /* Literal.Number.Float */
+.output_html .mh { color: #666666 } /* Literal.Number.Hex */
+.output_html .mi { color: #666666 } /* Literal.Number.Integer */
+.output_html .mo { color: #666666 } /* Literal.Number.Oct */
+.output_html .sa { color: #BA2121 } /* Literal.String.Affix */
+.output_html .sb { color: #BA2121 } /* Literal.String.Backtick */
+.output_html .sc { color: #BA2121 } /* Literal.String.Char */
+.output_html .dl { color: #BA2121 } /* Literal.String.Delimiter */
+.output_html .sd { color: #BA2121; font-style: italic } /* Literal.String.Doc */
+.output_html .s2 { color: #BA2121 } /* Literal.String.Double */
+.output_html .se { color: #AA5D1F; font-weight: bold } /* Literal.String.Escape */
+.output_html .sh { color: #BA2121 } /* Literal.String.Heredoc */
+.output_html .si { color: #A45A77; font-weight: bold } /* Literal.String.Interpol */
+.output_html .sx { color: #008000 } /* Literal.String.Other */
+.output_html .sr { color: #A45A77 } /* Literal.String.Regex */
+.output_html .s1 { color: #BA2121 } /* Literal.String.Single */
+.output_html .ss { color: #19177C } /* Literal.String.Symbol */
+.output_html .bp { color: #008000 } /* Name.Builtin.Pseudo */
+.output_html .fm { color: #0000FF } /* Name.Function.Magic */
+.output_html .vc { color: #19177C } /* Name.Variable.Class */
+.output_html .vg { color: #19177C } /* Name.Variable.Global */
+.output_html .vi { color: #19177C } /* Name.Variable.Instance */
+.output_html .vm { color: #19177C } /* Name.Variable.Magic */
+.output_html .il { color: #666666 } /* Literal.Number.Integer.Long */</style><div class="highlight"><pre><span></span><span class="c1"># ## Simplified ESM1nv training config to demonstrate new dataset</span>
+
+<span class="kn">from</span> <span class="nn">omegaconf.omegaconf</span> <span class="kn">import</span> <span class="n">OmegaConf</span>
+<span class="kn">from</span> <span class="nn">bionemo.model.protein.esm1nv</span> <span class="kn">import</span> <span class="n">ESM1nvModel</span>
+<span class="kn">from</span> <span class="nn">nemo.core.config</span> <span class="kn">import</span> <span class="n">hydra_runner</span>
+<span class="kn">from</span> <span class="nn">nemo.utils</span> <span class="kn">import</span> <span class="n">logging</span>
+<span class="kn">from</span> <span class="nn">bionemo.model.utils</span> <span class="kn">import</span> <span class="n">setup_trainer</span>
+<span class="kn">from</span> <span class="nn">bionemo.utils.callbacks.callback_utils</span> <span class="kn">import</span> <span class="n">setup_dwnstr_task_validation_callbacks</span>
+
+<span class="kn">from</span> <span class="nn">bionemo.data.preprocess.protein.oas_preprocess</span> <span class="kn">import</span> <span class="n">OASPairedPreprocess</span> <span class="c1">### Import new preprocessor</span>
+<span class="kn">import</span> <span class="nn">os</span><span class="o">,</span> <span class="nn">hashlib</span> <span class="c1">### Used for checksum verification</span>
+
+<span class="nd">@hydra_runner</span><span class="p">(</span><span class="n">config_path</span><span class="o">=</span><span class="s2">&quot;conf&quot;</span><span class="p">,</span> <span class="n">config_name</span><span class="o">=</span><span class="s2">&quot;pretrain_oas&quot;</span><span class="p">)</span> <span class="c1">### Custom YAML config file</span>
+<span class="k">def</span> <span class="nf">main</span><span class="p">(</span><span class="n">cfg</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n\n</span><span class="s2">************** Experiment configuration ***********&quot;</span><span class="p">)</span>
+    <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="se">\n</span><span class="si">{</span><span class="n">OmegaConf</span><span class="o">.</span><span class="n">to_yaml</span><span class="p">(</span><span class="n">cfg</span><span class="p">)</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+
+    <span class="n">callbacks</span> <span class="o">=</span> <span class="n">setup_dwnstr_task_validation_callbacks</span><span class="p">(</span><span class="n">cfg</span><span class="p">)</span>
+
+    <span class="n">trainer</span> <span class="o">=</span> <span class="n">setup_trainer</span><span class="p">(</span><span class="n">cfg</span><span class="p">,</span> <span class="n">callbacks</span><span class="o">=</span><span class="n">callbacks</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">cfg</span><span class="o">.</span><span class="n">do_training</span><span class="p">:</span>
+        <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;************** Starting Training ***********&quot;</span><span class="p">)</span>
+        <span class="n">model</span> <span class="o">=</span> <span class="n">ESM1nvModel</span><span class="p">(</span><span class="n">cfg</span><span class="o">.</span><span class="n">model</span><span class="p">,</span> <span class="n">trainer</span><span class="p">)</span>
+        <span class="n">trainer</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">model</span><span class="p">)</span>
+        <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;************** Finished Training ***********&quot;</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;************** Starting Preprocessing ***********&quot;</span><span class="p">)</span>
+        <span class="n">preprocessor</span> <span class="o">=</span> <span class="n">OASPairedPreprocess</span><span class="p">()</span> <span class="c1">### Create instance of preprocess class</span>
+        <span class="n">preprocessor</span><span class="o">.</span><span class="n">prepare</span><span class="p">()</span> <span class="c1">### Prepare data</span>
+
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s1">&#39;__main__&#39;</span><span class="p">:</span>
+    <span class="n">main</span><span class="p">()</span>
+</pre></div>
+</div></div>
+</div>
+</div>
+<div class="section" id="id3">
+<h3>Testing<a class="headerlink" href="#id3" title="Permalink to this headline">#</a></h3>
+<p>Execute the pre-train script as before:</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="nb">cd</span><span class="w"> </span>examples/protein/esm1nv
+python<span class="w"> </span>pretrain_oas.py
+</pre></div>
+</div>
+<p>Below is the relevant portion of the log statments:</p>
+<div class="cell tag_remove-input docutils container">
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>[NeMo I 2023-08-17 16:48:11 pretrain_oas:27] ************** Starting Preprocessing ***********
+[NeMo I 2023-08-17 16:48:11 oas_preprocess:66] Downloading https://opig.stats.ox.ac.uk/webapps/ngsdb/paired/Alsoiussi_2020/csv/SRR11528761_paired.csv.gz
+[NeMo I 2023-08-17 16:48:11 remote:117] Resource already exists, skipping download: https://opig.stats.ox.ac.uk/webapps/ngsdb/paired/Alsoiussi_2020/csv/SRR11528761_paired.csv.gz
+[NeMo I 2023-08-17 16:48:11 oas_preprocess:70] Extracting the gzipped file
+[NeMo I 2023-08-17 16:48:11 oas_preprocess:66] Downloading https://opig.stats.ox.ac.uk/webapps/ngsdb/paired/Alsoiussi_2020/csv/SRR11528762_paired.csv.gz
+[NeMo I 2023-08-17 16:48:11 remote:117] Resource already exists, skipping download: https://opig.stats.ox.ac.uk/webapps/ngsdb/paired/Alsoiussi_2020/csv/SRR11528762_paired.csv.gz
+[NeMo I 2023-08-17 16:48:11 oas_preprocess:70] Extracting the gzipped file
+[NeMo I 2023-08-17 16:48:11 oas_preprocess:66] Downloading https://opig.stats.ox.ac.uk/webapps/ngsdb/paired/Eccles_2020/csv/SRR10358523_paired.csv.gz
+[NeMo I 2023-08-17 16:48:11 remote:117] Resource already exists, skipping download: https://opig.stats.ox.ac.uk/webapps/ngsdb/paired/Eccles_2020/csv/SRR10358523_paired.csv.gz
+[NeMo I 2023-08-17 16:48:11 oas_preprocess:70] Extracting the gzipped file
+[NeMo I 2023-08-17 16:48:11 oas_preprocess:66] Downloading https://opig.stats.ox.ac.uk/webapps/ngsdb/paired/Eccles_2020/csv/SRR10358524_paired.csv.gz
+[NeMo I 2023-08-17 16:48:11 remote:117] Resource already exists, skipping download: https://opig.stats.ox.ac.uk/webapps/ngsdb/paired/Eccles_2020/csv/SRR10358524_paired.csv.gz
+[NeMo I 2023-08-17 16:48:11 oas_preprocess:70] Extracting the gzipped file
+[NeMo I 2023-08-17 16:48:11 oas_preprocess:66] Downloading https://opig.stats.ox.ac.uk/webapps/ngsdb/paired/Eccles_2020/csv/SRR10358525_paired.csv.gz
+[NeMo I 2023-08-17 16:48:11 remote:117] Resource already exists, skipping download: https://opig.stats.ox.ac.uk/webapps/ngsdb/paired/Eccles_2020/csv/SRR10358525_paired.csv.gz
+[NeMo I 2023-08-17 16:48:11 oas_preprocess:70] Extracting the gzipped file
+[NeMo I 2023-08-17 16:48:11 oas_preprocess:66] Downloading https://opig.stats.ox.ac.uk/webapps/ngsdb/paired/Goldstein_2019/csv/SRR9179273_paired.csv.gz
+[NeMo I 2023-08-17 16:48:11 remote:117] Resource already exists, skipping download: https://opig.stats.ox.ac.uk/webapps/ngsdb/paired/Goldstein_2019/csv/SRR9179273_paired.csv.gz
+[NeMo I 2023-08-17 16:48:11 oas_preprocess:70] Extracting the gzipped file
+[NeMo I 2023-08-17 16:48:11 oas_preprocess:66] Downloading https://opig.stats.ox.ac.uk/webapps/ngsdb/paired/Goldstein_2019/csv/SRR9179274_paired.csv.gz
+[NeMo I 2023-08-17 16:48:11 remote:117] Resource already exists, skipping download: https://opig.stats.ox.ac.uk/webapps/ngsdb/paired/Goldstein_2019/csv/SRR9179274_paired.csv.gz
+[NeMo I 2023-08-17 16:48:11 oas_preprocess:70] Extracting the gzipped file
+[NeMo I 2023-08-17 16:48:11 oas_preprocess:66] Downloading https://opig.stats.ox.ac.uk/webapps/ngsdb/paired/Goldstein_2019/csv/SRR9179275_paired.csv.gz
+[NeMo I 2023-08-17 16:48:11 remote:117] Resource already exists, skipping download: https://opig.stats.ox.ac.uk/webapps/ngsdb/paired/Goldstein_2019/csv/SRR9179275_paired.csv.gz
+[NeMo I 2023-08-17 16:48:11 oas_preprocess:70] Extracting the gzipped file
+[NeMo I 2023-08-17 16:48:11 oas_preprocess:66] Downloading https://opig.stats.ox.ac.uk/webapps/ngsdb/paired/Goldstein_2019/csv/SRR9179276_paired.csv.gz
+[NeMo I 2023-08-17 16:48:11 remote:117] Resource already exists, skipping download: https://opig.stats.ox.ac.uk/webapps/ngsdb/paired/Goldstein_2019/csv/SRR9179276_paired.csv.gz
+[NeMo I 2023-08-17 16:48:11 oas_preprocess:70] Extracting the gzipped file
+[NeMo I 2023-08-17 16:48:11 oas_preprocess:66] Downloading https://opig.stats.ox.ac.uk/webapps/ngsdb/paired/Goldstein_2019/csv/SRR9179277_paired.csv.gz
+[NeMo I 2023-08-17 16:48:11 remote:117] Resource already exists, skipping download: https://opig.stats.ox.ac.uk/webapps/ngsdb/paired/Goldstein_2019/csv/SRR9179277_paired.csv.gz
+[NeMo I 2023-08-17 16:48:11 oas_preprocess:70] Extracting the gzipped file
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+<div class="section" id="id4">
+<h3>Results<a class="headerlink" href="#id4" title="Permalink to this headline">#</a></h3>
+<p>The original files already existed, so they were not downloaded. But each of the files has now been extracted.</p>
+<div class="cell tag_remove-input docutils container">
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>SRR10358523_paired.csv	   SRR11528761_paired.csv.gz  SRR9179275_paired.csv
+SRR10358523_paired.csv.gz  SRR11528762_paired.csv     SRR9179275_paired.csv.gz
+SRR10358524_paired.csv	   SRR11528762_paired.csv.gz  SRR9179276_paired.csv
+SRR10358524_paired.csv.gz  SRR9179273_paired.csv      SRR9179276_paired.csv.gz
+SRR10358525_paired.csv	   SRR9179273_paired.csv.gz   SRR9179277_paired.csv
+SRR10358525_paired.csv.gz  SRR9179274_paired.csv      SRR9179277_paired.csv.gz
+SRR11528761_paired.csv	   SRR9179274_paired.csv.gz
+</pre></div>
+</div>
+</div>
+</div>
+<p>The CSV files contain an extra row at the top and a lot of additional columns. See the first three lines from <code class="docutils literal notranslate"><span class="pre">SRR10358523_paired.csv</span></code> below, as an example.</p>
+<p>These extra columns will increase seek time during training, so they should be removed. The files also need to be split and numbered consecutively for training, validation, and test splits, respectively.</p>
+<div class="cell tag_remove-input docutils container">
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>&quot;{&quot;&quot;Run&quot;&quot;: &quot;&quot;SRR10358523&quot;&quot;, &quot;&quot;Link&quot;&quot;: &quot;&quot;https://doi.org/10.1016/j.celrep.2019.12.027&quot;&quot;, &quot;&quot;Author&quot;&quot;: &quot;&quot;Eccles et al., 2020&quot;&quot;, &quot;&quot;Species&quot;&quot;: &quot;&quot;human&quot;&quot;, &quot;&quot;Age&quot;&quot;: &quot;&quot;33&quot;&quot;, &quot;&quot;BSource&quot;&quot;: &quot;&quot;PBMC&quot;&quot;, &quot;&quot;BType&quot;&quot;: &quot;&quot;RV+B-Cells&quot;&quot;, &quot;&quot;Vaccine&quot;&quot;: &quot;&quot;None&quot;&quot;, &quot;&quot;Disease&quot;&quot;: &quot;&quot;None&quot;&quot;, &quot;&quot;Subject&quot;&quot;: &quot;&quot;Healthy-1&quot;&quot;, &quot;&quot;Longitudinal&quot;&quot;: &quot;&quot;no&quot;&quot;, &quot;&quot;Unique sequences&quot;&quot;: 100, &quot;&quot;Isotype&quot;&quot;: &quot;&quot;All&quot;&quot;, &quot;&quot;Chain&quot;&quot;: &quot;&quot;Paired&quot;&quot;}&quot;
+sequence_id_heavy,sequence_heavy,locus_heavy,stop_codon_heavy,vj_in_frame_heavy,productive_heavy,rev_comp_heavy,v_call_heavy,d_call_heavy,j_call_heavy,sequence_alignment_heavy,germline_alignment_heavy,sequence_alignment_aa_heavy,germline_alignment_aa_heavy,v_alignment_start_heavy,v_alignment_end_heavy,d_alignment_start_heavy,d_alignment_end_heavy,j_alignment_start_heavy,j_alignment_end_heavy,v_sequence_alignment_heavy,v_sequence_alignment_aa_heavy,v_germline_alignment_heavy,v_germline_alignment_aa_heavy,d_sequence_alignment_heavy,d_sequence_alignment_aa_heavy,d_germline_alignment_heavy,d_germline_alignment_aa_heavy,j_sequence_alignment_heavy,j_sequence_alignment_aa_heavy,j_germline_alignment_heavy,j_germline_alignment_aa_heavy,fwr1_heavy,fwr1_aa_heavy,cdr1_heavy,cdr1_aa_heavy,fwr2_heavy,fwr2_aa_heavy,cdr2_heavy,cdr2_aa_heavy,fwr3_heavy,fwr3_aa_heavy,cdr3_heavy,cdr3_aa_heavy,junction_heavy,junction_length_heavy,junction_aa_heavy,junction_aa_length_heavy,v_score_heavy,d_score_heavy,j_score_heavy,v_cigar_heavy,d_cigar_heavy,j_cigar_heavy,v_support_heavy,d_support_heavy,j_support_heavy,v_identity_heavy,d_identity_heavy,j_identity_heavy,v_sequence_start_heavy,v_sequence_end_heavy,v_germline_start_heavy,v_germline_end_heavy,d_sequence_start_heavy,d_sequence_end_heavy,d_germline_start_heavy,d_germline_end_heavy,j_sequence_start_heavy,j_sequence_end_heavy,j_germline_start_heavy,j_germline_end_heavy,fwr1_start_heavy,fwr1_end_heavy,cdr1_start_heavy,cdr1_end_heavy,fwr2_start_heavy,fwr2_end_heavy,cdr2_start_heavy,cdr2_end_heavy,fwr3_start_heavy,fwr3_end_heavy,cdr3_start_heavy,cdr3_end_heavy,np1_heavy,np1_length_heavy,np2_heavy,np2_length_heavy,sequence_id_light,sequence_light,locus_light,stop_codon_light,vj_in_frame_light,productive_light,rev_comp_light,v_call_light,d_call_light,j_call_light,sequence_alignment_light,germline_alignment_light,sequence_alignment_aa_light,germline_alignment_aa_light,v_alignment_start_light,v_alignment_end_light,d_alignment_start_light,d_alignment_end_light,j_alignment_start_light,j_alignment_end_light,v_sequence_alignment_light,v_sequence_alignment_aa_light,v_germline_alignment_light,v_germline_alignment_aa_light,d_sequence_alignment_light,d_sequence_alignment_aa_light,d_germline_alignment_light,d_germline_alignment_aa_light,j_sequence_alignment_light,j_sequence_alignment_aa_light,j_germline_alignment_light,j_germline_alignment_aa_light,fwr1_light,fwr1_aa_light,cdr1_light,cdr1_aa_light,fwr2_light,fwr2_aa_light,cdr2_light,cdr2_aa_light,fwr3_light,fwr3_aa_light,cdr3_light,cdr3_aa_light,junction_light,junction_length_light,junction_aa_light,junction_aa_length_light,v_score_light,d_score_light,j_score_light,v_cigar_light,d_cigar_light,j_cigar_light,v_support_light,d_support_light,j_support_light,v_identity_light,d_identity_light,j_identity_light,v_sequence_start_light,v_sequence_end_light,v_germline_start_light,v_germline_end_light,d_sequence_start_light,d_sequence_end_light,d_germline_start_light,d_germline_end_light,j_sequence_start_light,j_sequence_end_light,j_germline_start_light,j_germline_end_light,fwr1_start_light,fwr1_end_light,cdr1_start_light,cdr1_end_light,fwr2_start_light,fwr2_end_light,cdr2_start_light,cdr2_end_light,fwr3_start_light,fwr3_end_light,cdr3_start_light,cdr3_end_light,np1_light,np1_length_light,np2_light,np2_length_light,ANARCI_numbering_light,ANARCI_numbering_heavy,ANARCI_status_light,ANARCI_status_heavy
+AAACCTGGTCCGTCAG-1_contig_2,AGCTCTGAGAGAGGAGCCCAGCCCTGGGATTTTCAGGTGTTTTCATTTGGTGATCAGGACTGAACAGAGAGAACTCACCATGGAGTTTGGGCTGAGCTGGCTTTTTCTTGTGGCTATTTTAAAAGGTGTCCAGTGTGAGGTGCAGCTGTTGGAGTCTGGGGGAGGCTTGGTACAGCCTGGGGGGTCCCTGAGACTCTCCTGTGCAGCCTCTGGATTCACCTTTAGCAGCTATGCCATGAGCTGGGTCCGCCAGGCTCCAGGGAAGGGGCTGGAGTGGGTCTCAGCTATTAGTGGTAGTGGTGGTAGCACATACTACGCAGACTCCGTGAAGGGCCGGTTCACCATCTCCAGAGACAATTCCAAGAACACGCTGTATCTGCAAATGAACAGCCTGAGAGCCGAGGACACGGCCGTATATTACTGTGCGAAAGATTGGCCGTTTTGGCAGTGGCTGGTAAGAAGGGGGGAGCGGTTTGACTACTGGGGCCAGGGAACCCTGGTCACCGTCTCCTCAGGGAGTGCATCCGCCCCAACCCTTTTCCCCCTCGTCTCCTGTGAGAATTCCCCGTCGGATACGAGCAGCGTG,H,F,T,T,F,IGHV3-23*01,IGHD6-19*01,IGHJ4*02,GAGGTGCAGCTGTTGGAGTCTGGGGGAGGCTTGGTACAGCCTGGGGGGTCCCTGAGACTCTCCTGTGCAGCCTCTGGATTCACCTTTAGCAGCTATGCCATGAGCTGGGTCCGCCAGGCTCCAGGGAAGGGGCTGGAGTGGGTCTCAGCTATTAGTGGTAGTGGTGGTAGCACATACTACGCAGACTCCGTGAAGGGCCGGTTCACCATCTCCAGAGACAATTCCAAGAACACGCTGTATCTGCAAATGAACAGCCTGAGAGCCGAGGACACGGCCGTATATTACTGTGCGAAAGATTGGCCGTTTTGGCAGTGGCTGGTAAGAAGGGGGGAGCGGTTTGACTACTGGGGCCAGGGAACCCTGGTCACCGTCTCCTCAG,GAGGTGCAGCTGTTGGAGTCTGGGGGAGGCTTGGTACAGCCTGGGGGGTCCCTGAGACTCTCCTGTGCAGCCTCTGGATTCACCTTTAGCAGCTATGCCATGAGCTGGGTCCGCCAGGCTCCAGGGAAGGGGCTGGAGTGGGTCTCAGCTATTAGTGGTAGTGGTGGTAGCACATACTACGCAGACTCCGTGAAGGGCCGGTTCACCATCTCCAGAGACAATTCCAAGAACACGCTGTATCTGCAAATGAACAGCCTGAGAGCCGAGGACACGGCCGTATATTACTGTGCGAAAGANNNNNNNNNNNNGCAGTGGCTGGTANNNNNNNNNNNNNNNTTTGACTACTGGGGCCAGGGAACCCTGGTCACCGTCTCCTCAG,EVQLLESGGGLVQPGGSLRLSCAASGFTFSSYAMSWVRQAPGKGLEWVSAISGSGGSTYYADSVKGRFTISRDNSKNTLYLQMNSLRAEDTAVYYCAKDWPFWQWLVRRGERFDYWGQGTLVTVSS,EVQLLESGGGLVQPGGSLRLSCAASGFTFSSYAMSWVRQAPGKGLEWVSAISGSGGSTYYADSVKGRFTISRDNSKNTLYLQMNSLRAEDTAVYYCAKXXXXXQWLVXXXXXFDYWGQGTLVTVSS,1.0,296.0,309.0,321.0,337.0,379.0,GAGGTGCAGCTGTTGGAGTCTGGGGGAGGCTTGGTACAGCCTGGGGGGTCCCTGAGACTCTCCTGTGCAGCCTCTGGATTCACCTTTAGCAGCTATGCCATGAGCTGGGTCCGCCAGGCTCCAGGGAAGGGGCTGGAGTGGGTCTCAGCTATTAGTGGTAGTGGTGGTAGCACATACTACGCAGACTCCGTGAAGGGCCGGTTCACCATCTCCAGAGACAATTCCAAGAACACGCTGTATCTGCAAATGAACAGCCTGAGAGCCGAGGACACGGCCGTATATTACTGTGCGAAAGA,EVQLLESGGGLVQPGGSLRLSCAASGFTFSSYAMSWVRQAPGKGLEWVSAISGSGGSTYYADSVKGRFTISRDNSKNTLYLQMNSLRAEDTAVYYCAK,GAGGTGCAGCTGTTGGAGTCTGGGGGAGGCTTGGTACAGCCTGGGGGGTCCCTGAGACTCTCCTGTGCAGCCTCTGGATTCACCTTTAGCAGCTATGCCATGAGCTGGGTCCGCCAGGCTCCAGGGAAGGGGCTGGAGTGGGTCTCAGCTATTAGTGGTAGTGGTGGTAGCACATACTACGCAGACTCCGTGAAGGGCCGGTTCACCATCTCCAGAGACAATTCCAAGAACACGCTGTATCTGCAAATGAACAGCCTGAGAGCCGAGGACACGGCCGTATATTACTGTGCGAAAGA,EVQLLESGGGLVQPGGSLRLSCAASGFTFSSYAMSWVRQAPGKGLEWVSAISGSGGSTYYADSVKGRFTISRDNSKNTLYLQMNSLRAEDTAVYYCAK,GCAGTGGCTGGTA,QWLV,GCAGTGGCTGGTA,QWLV,TTTGACTACTGGGGCCAGGGAACCCTGGTCACCGTCTCCTCAG,FDYWGQGTLVTVSS,TTTGACTACTGGGGCCAGGGAACCCTGGTCACCGTCTCCTCAG,FDYWGQGTLVTVSS,GAGGTGCAGCTGTTGGAGTCTGGGGGAGGCTTGGTACAGCCTGGGGGGTCCCTGAGACTCTCCTGTGCAGCCTCT,EVQLLESGGGLVQPGGSLRLSCAAS,GGATTCACCTTTAGCAGCTATGCC,GFTFSSYA,ATGAGCTGGGTCCGCCAGGCTCCAGGGAAGGGGCTGGAGTGGGTCTCAGCT,MSWVRQAPGKGLEWVSA,ATTAGTGGTAGTGGTGGTAGCACA,ISGSGGST,TACTACGCAGACTCCGTGAAGGGCCGGTTCACCATCTCCAGAGACAATTCCAAGAACACGCTGTATCTGCAAATGAACAGCCTGAGAGCCGAGGACACGGCCGTATATTACTGT,YYADSVKGRFTISRDNSKNTLYLQMNSLRAEDTAVYYC,GCGAAAGATTGGCCGTTTTGGCAGTGGCTGGTAAGAAGGGGGGAGCGGTTTGACTAC,AKDWPFWQWLVRRGERFDY,TGTGCGAAAGATTGGCCGTTTTGGCAGTGGCTGGTAAGAAGGGGGGAGCGGTTTGACTACTGG,63.0,CAKDWPFWQWLVRRGERFDYW,21.0,463.037,25.682,83.363,136S296M154S,444S7N13M129S1N,472S5N43M71S,2.7109999999999982e-132,0.004878,4.5910000000000006e-20,100.0,100.0,100.0,137.0,432.0,1.0,296.0,445.0,457.0,8.0,20.0,473.0,515.0,6.0,48.0,137.0,211.0,212.0,235.0,236.0,286.0,287.0,310.0,311.0,424.0,425.0,481.0,TTGGCCGTTTTG,12.0,AGAAGGGGGGAGCGG,15.0,AAACCTGGTCCGTCAG-1_contig_1,TGGGGAGGAATCAGTCCCACTCAGGACACAGCATGGACATGAGGGTCCCCGCTCAGCTCCTGGGGCTCCTGCTGCTCTGGTTCCCAGGTGCCAGGTGTGACATCCAGATGACCCAGTCTCCATCCTCCCTGTCTGCATCTGTAGGAGACAGAGTCACCATCACTTGCCGGGCAAGTCAGGGCATTAGAAATGATTTAGGCTGGTATCAGCAGAAACCAGGGAAAGCCCCTAAGCGCCTGATCTATGCTGCATCCAGTTTGCAAAGTGGGGTCCCATCAAGGTTCAGCGGCAGTGGATCTGGGACAGAATTCACTCTCACAATCAGCAGCCTGCAGCCTGAAGATTTTGCAACTTATTACTGTCTACAGCATAATAGTTACCCTCGAACGTTCGGCCAAGGGACCAAGGTGGAAATCAAACGAACTGTGGCTGCACCATCTGTCTTCATCTTCCCGCCATCTGATGAGCAGTTGAAATCTGGAACTGCCTCTGTTGTGTGCCTGCTGAATAACTTCTATCCCAGAGAGGCCAAAGTACAGTGGAAGGTGGATAACGC,K,F,T,T,F,IGKV1-17*01,,IGKJ1*01,GACATCCAGATGACCCAGTCTCCATCCTCCCTGTCTGCATCTGTAGGAGACAGAGTCACCATCACTTGCCGGGCAAGTCAGGGCATTAGAAATGATTTAGGCTGGTATCAGCAGAAACCAGGGAAAGCCCCTAAGCGCCTGATCTATGCTGCATCCAGTTTGCAAAGTGGGGTCCCATCAAGGTTCAGCGGCAGTGGATCTGGGACAGAATTCACTCTCACAATCAGCAGCCTGCAGCCTGAAGATTTTGCAACTTATTACTGTCTACAGCATAATAGTTACCCTCGAACGTTCGGCCAAGGGACCAAGGTGGAAATCAAAC,GACATCCAGATGACCCAGTCTCCATCCTCCCTGTCTGCATCTGTAGGAGACAGAGTCACCATCACTTGCCGGGCAAGTCAGGGCATTAGAAATGATTTAGGCTGGTATCAGCAGAAACCAGGGAAAGCCCCTAAGCGCCTGATCTATGCTGCATCCAGTTTGCAAAGTGGGGTCCCATCAAGGTTCAGCGGCAGTGGATCTGGGACAGAATTCACTCTCACAATCAGCAGCCTGCAGCCTGAAGATTTTGCAACTTATTACTGTCTACAGCATAATAGTTACCCTCNNACGTTCGGCCAAGGGACCAAGGTGGAAATCAAAC,DIQMTQSPSSLSASVGDRVTITCRASQGIRNDLGWYQQKPGKAPKRLIYAASSLQSGVPSRFSGSGSGTEFTLTISSLQPEDFATYYCLQHNSYPRTFGQGTKVEIK,DIQMTQSPSSLSASVGDRVTITCRASQGIRNDLGWYQQKPGKAPKRLIYAASSLQSGVPSRFSGSGSGTEFTLTISSLQPEDFATYYCLQHNSYPXTFGQGTKVEIK,1,286,,,289.0,322.0,GACATCCAGATGACCCAGTCTCCATCCTCCCTGTCTGCATCTGTAGGAGACAGAGTCACCATCACTTGCCGGGCAAGTCAGGGCATTAGAAATGATTTAGGCTGGTATCAGCAGAAACCAGGGAAAGCCCCTAAGCGCCTGATCTATGCTGCATCCAGTTTGCAAAGTGGGGTCCCATCAAGGTTCAGCGGCAGTGGATCTGGGACAGAATTCACTCTCACAATCAGCAGCCTGCAGCCTGAAGATTTTGCAACTTATTACTGTCTACAGCATAATAGTTACCCTC,DIQMTQSPSSLSASVGDRVTITCRASQGIRNDLGWYQQKPGKAPKRLIYAASSLQSGVPSRFSGSGSGTEFTLTISSLQPEDFATYYCLQHNSYP,GACATCCAGATGACCCAGTCTCCATCCTCCCTGTCTGCATCTGTAGGAGACAGAGTCACCATCACTTGCCGGGCAAGTCAGGGCATTAGAAATGATTTAGGCTGGTATCAGCAGAAACCAGGGAAAGCCCCTAAGCGCCTGATCTATGCTGCATCCAGTTTGCAAAGTGGGGTCCCATCAAGGTTCAGCGGCAGTGGATCTGGGACAGAATTCACTCTCACAATCAGCAGCCTGCAGCCTGAAGATTTTGCAACTTATTACTGTCTACAGCATAATAGTTACCCTC,DIQMTQSPSSLSASVGDRVTITCRASQGIRNDLGWYQQKPGKAPKRLIYAASSLQSGVPSRFSGSGSGTEFTLTISSLQPEDFATYYCLQHNSYP,,,,,ACGTTCGGCCAAGGGACCAAGGTGGAAATCAAAC,TFGQGTKVEIK,ACGTTCGGCCAAGGGACCAAGGTGGAAATCAAAC,TFGQGTKVEIK,GACATCCAGATGACCCAGTCTCCATCCTCCCTGTCTGCATCTGTAGGAGACAGAGTCACCATCACTTGCCGGGCAAGT,DIQMTQSPSSLSASVGDRVTITCRAS,CAGGGCATTAGAAATGAT,QGIRND,TTAGGCTGGTATCAGCAGAAACCAGGGAAAGCCCCTAAGCGCCTGATCTAT,LGWYQQKPGKAPKRLIY,GCTGCATCC,AAS,AGTTTGCAAAGTGGGGTCCCATCAAGGTTCAGCGGCAGTGGATCTGGGACAGAATTCACTCTCACAATCAGCAGCCTGCAGCCTGAAGATTTTGCAACTTATTACTGT,SLQSGVPSRFSGSGSGTEFTLTISSLQPEDFATYYC,CTACAGCATAATAGTTACCCTCGAACG,LQHNSYPRT,TGTCTACAGCATAATAGTTACCCTCGAACGTTC,33.0,CLQHNSYPRTF,11.0,447.456,,66.059,98S286M172S1N,,386S4N34M136S,1.2569999999999987e-127,,7.0420000000000004e-15,100.0,,100.0,99,384,1,286,,,,,387.0,420.0,5.0,38.0,99.0,176.0,177.0,194.0,195.0,245.0,246.0,254.0,255.0,362.0,363.0,389.0,GA,2.0,,,&quot;{&#39;fwk1&#39;: {&#39;1 &#39;: &#39;D&#39;, &#39;2 &#39;: &#39;I&#39;, &#39;3 &#39;: &#39;Q&#39;, &#39;4 &#39;: &#39;M&#39;, &#39;5 &#39;: &#39;T&#39;, &#39;6 &#39;: &#39;Q&#39;, &#39;7 &#39;: &#39;S&#39;, &#39;8 &#39;: &#39;P&#39;, &#39;9 &#39;: &#39;S&#39;, &#39;10 &#39;: &#39;S&#39;, &#39;11 &#39;: &#39;L&#39;, &#39;12 &#39;: &#39;S&#39;, &#39;13 &#39;: &#39;A&#39;, &#39;14 &#39;: &#39;S&#39;, &#39;15 &#39;: &#39;V&#39;, &#39;16 &#39;: &#39;G&#39;, &#39;17 &#39;: &#39;D&#39;, &#39;18 &#39;: &#39;R&#39;, &#39;19 &#39;: &#39;V&#39;, &#39;20 &#39;: &#39;T&#39;, &#39;21 &#39;: &#39;I&#39;, &#39;22 &#39;: &#39;T&#39;, &#39;23 &#39;: &#39;C&#39;, &#39;24 &#39;: &#39;R&#39;, &#39;25 &#39;: &#39;A&#39;, &#39;26 &#39;: &#39;S&#39;}, &#39;cdrk1&#39;: {&#39;27 &#39;: &#39;Q&#39;, &#39;28 &#39;: &#39;G&#39;, &#39;29 &#39;: &#39;I&#39;, &#39;36 &#39;: &#39;R&#39;, &#39;37 &#39;: &#39;N&#39;, &#39;38 &#39;: &#39;D&#39;}, &#39;fwk2&#39;: {&#39;39 &#39;: &#39;L&#39;, &#39;40 &#39;: &#39;G&#39;, &#39;41 &#39;: &#39;W&#39;, &#39;42 &#39;: &#39;Y&#39;, &#39;43 &#39;: &#39;Q&#39;, &#39;44 &#39;: &#39;Q&#39;, &#39;45 &#39;: &#39;K&#39;, &#39;46 &#39;: &#39;P&#39;, &#39;47 &#39;: &#39;G&#39;, &#39;48 &#39;: &#39;K&#39;, &#39;49 &#39;: &#39;A&#39;, &#39;50 &#39;: &#39;P&#39;, &#39;51 &#39;: &#39;K&#39;, &#39;52 &#39;: &#39;R&#39;, &#39;53 &#39;: &#39;L&#39;, &#39;54 &#39;: &#39;I&#39;, &#39;55 &#39;: &#39;Y&#39;}, &#39;cdrk2&#39;: {&#39;56 &#39;: &#39;A&#39;, &#39;57 &#39;: &#39;A&#39;, &#39;65 &#39;: &#39;S&#39;}, &#39;fwk3&#39;: {&#39;66 &#39;: &#39;S&#39;, &#39;67 &#39;: &#39;L&#39;, &#39;68 &#39;: &#39;Q&#39;, &#39;69 &#39;: &#39;S&#39;, &#39;70 &#39;: &#39;G&#39;, &#39;71 &#39;: &#39;V&#39;, &#39;72 &#39;: &#39;P&#39;, &#39;74 &#39;: &#39;S&#39;, &#39;75 &#39;: &#39;R&#39;, &#39;76 &#39;: &#39;F&#39;, &#39;77 &#39;: &#39;S&#39;, &#39;78 &#39;: &#39;G&#39;, &#39;79 &#39;: &#39;S&#39;, &#39;80 &#39;: &#39;G&#39;, &#39;83 &#39;: &#39;S&#39;, &#39;84 &#39;: &#39;G&#39;, &#39;85 &#39;: &#39;T&#39;, &#39;86 &#39;: &#39;E&#39;, &#39;87 &#39;: &#39;F&#39;, &#39;88 &#39;: &#39;T&#39;, &#39;89 &#39;: &#39;L&#39;, &#39;90 &#39;: &#39;T&#39;, &#39;91 &#39;: &#39;I&#39;, &#39;92 &#39;: &#39;S&#39;, &#39;93 &#39;: &#39;S&#39;, &#39;94 &#39;: &#39;L&#39;, &#39;95 &#39;: &#39;Q&#39;, &#39;96 &#39;: &#39;P&#39;, &#39;97 &#39;: &#39;E&#39;, &#39;98 &#39;: &#39;D&#39;, &#39;99 &#39;: &#39;F&#39;, &#39;100 &#39;: &#39;A&#39;, &#39;101 &#39;: &#39;T&#39;, &#39;102 &#39;: &#39;Y&#39;, &#39;103 &#39;: &#39;Y&#39;, &#39;104 &#39;: &#39;C&#39;}, &#39;cdrk3&#39;: {&#39;105 &#39;: &#39;L&#39;, &#39;106 &#39;: &#39;Q&#39;, &#39;107 &#39;: &#39;H&#39;, &#39;108 &#39;: &#39;N&#39;, &#39;109 &#39;: &#39;S&#39;, &#39;114 &#39;: &#39;Y&#39;, &#39;115 &#39;: &#39;P&#39;, &#39;116 &#39;: &#39;R&#39;, &#39;117 &#39;: &#39;T&#39;}, &#39;fwk4&#39;: {&#39;118 &#39;: &#39;F&#39;, &#39;119 &#39;: &#39;G&#39;, &#39;120 &#39;: &#39;Q&#39;, &#39;121 &#39;: &#39;G&#39;, &#39;122 &#39;: &#39;T&#39;, &#39;123 &#39;: &#39;K&#39;, &#39;124 &#39;: &#39;V&#39;, &#39;125 &#39;: &#39;E&#39;, &#39;126 &#39;: &#39;I&#39;, &#39;127 &#39;: &#39;K&#39;}}&quot;,&quot;{&#39;fwh1&#39;: {&#39;1 &#39;: &#39;E&#39;, &#39;2 &#39;: &#39;V&#39;, &#39;3 &#39;: &#39;Q&#39;, &#39;4 &#39;: &#39;L&#39;, &#39;5 &#39;: &#39;L&#39;, &#39;6 &#39;: &#39;E&#39;, &#39;7 &#39;: &#39;S&#39;, &#39;8 &#39;: &#39;G&#39;, &#39;9 &#39;: &#39;G&#39;, &#39;11 &#39;: &#39;G&#39;, &#39;12 &#39;: &#39;L&#39;, &#39;13 &#39;: &#39;V&#39;, &#39;14 &#39;: &#39;Q&#39;, &#39;15 &#39;: &#39;P&#39;, &#39;16 &#39;: &#39;G&#39;, &#39;17 &#39;: &#39;G&#39;, &#39;18 &#39;: &#39;S&#39;, &#39;19 &#39;: &#39;L&#39;, &#39;20 &#39;: &#39;R&#39;, &#39;21 &#39;: &#39;L&#39;, &#39;22 &#39;: &#39;S&#39;, &#39;23 &#39;: &#39;C&#39;, &#39;24 &#39;: &#39;A&#39;, &#39;25 &#39;: &#39;A&#39;, &#39;26 &#39;: &#39;S&#39;}, &#39;cdrh1&#39;: {&#39;27 &#39;: &#39;G&#39;, &#39;28 &#39;: &#39;F&#39;, &#39;29 &#39;: &#39;T&#39;, &#39;30 &#39;: &#39;F&#39;, &#39;35 &#39;: &#39;S&#39;, &#39;36 &#39;: &#39;S&#39;, &#39;37 &#39;: &#39;Y&#39;, &#39;38 &#39;: &#39;A&#39;}, &#39;fwh2&#39;: {&#39;39 &#39;: &#39;M&#39;, &#39;40 &#39;: &#39;S&#39;, &#39;41 &#39;: &#39;W&#39;, &#39;42 &#39;: &#39;V&#39;, &#39;43 &#39;: &#39;R&#39;, &#39;44 &#39;: &#39;Q&#39;, &#39;45 &#39;: &#39;A&#39;, &#39;46 &#39;: &#39;P&#39;, &#39;47 &#39;: &#39;G&#39;, &#39;48 &#39;: &#39;K&#39;, &#39;49 &#39;: &#39;G&#39;, &#39;50 &#39;: &#39;L&#39;, &#39;51 &#39;: &#39;E&#39;, &#39;52 &#39;: &#39;W&#39;, &#39;53 &#39;: &#39;V&#39;, &#39;54 &#39;: &#39;S&#39;, &#39;55 &#39;: &#39;A&#39;}, &#39;cdrh2&#39;: {&#39;56 &#39;: &#39;I&#39;, &#39;57 &#39;: &#39;S&#39;, &#39;58 &#39;: &#39;G&#39;, &#39;59 &#39;: &#39;S&#39;, &#39;62 &#39;: &#39;G&#39;, &#39;63 &#39;: &#39;G&#39;, &#39;64 &#39;: &#39;S&#39;, &#39;65 &#39;: &#39;T&#39;}, &#39;fwh3&#39;: {&#39;66 &#39;: &#39;Y&#39;, &#39;67 &#39;: &#39;Y&#39;, &#39;68 &#39;: &#39;A&#39;, &#39;69 &#39;: &#39;D&#39;, &#39;70 &#39;: &#39;S&#39;, &#39;71 &#39;: &#39;V&#39;, &#39;72 &#39;: &#39;K&#39;, &#39;74 &#39;: &#39;G&#39;, &#39;75 &#39;: &#39;R&#39;, &#39;76 &#39;: &#39;F&#39;, &#39;77 &#39;: &#39;T&#39;, &#39;78 &#39;: &#39;I&#39;, &#39;79 &#39;: &#39;S&#39;, &#39;80 &#39;: &#39;R&#39;, &#39;81 &#39;: &#39;D&#39;, &#39;82 &#39;: &#39;N&#39;, &#39;83 &#39;: &#39;S&#39;, &#39;84 &#39;: &#39;K&#39;, &#39;85 &#39;: &#39;N&#39;, &#39;86 &#39;: &#39;T&#39;, &#39;87 &#39;: &#39;L&#39;, &#39;88 &#39;: &#39;Y&#39;, &#39;89 &#39;: &#39;L&#39;, &#39;90 &#39;: &#39;Q&#39;, &#39;91 &#39;: &#39;M&#39;, &#39;92 &#39;: &#39;N&#39;, &#39;93 &#39;: &#39;S&#39;, &#39;94 &#39;: &#39;L&#39;, &#39;95 &#39;: &#39;R&#39;, &#39;96 &#39;: &#39;A&#39;, &#39;97 &#39;: &#39;E&#39;, &#39;98 &#39;: &#39;D&#39;, &#39;99 &#39;: &#39;T&#39;, &#39;100 &#39;: &#39;A&#39;, &#39;101 &#39;: &#39;V&#39;, &#39;102 &#39;: &#39;Y&#39;, &#39;103 &#39;: &#39;Y&#39;, &#39;104 &#39;: &#39;C&#39;}, &#39;cdrh3&#39;: {&#39;105 &#39;: &#39;A&#39;, &#39;106 &#39;: &#39;K&#39;, &#39;107 &#39;: &#39;D&#39;, &#39;108 &#39;: &#39;W&#39;, &#39;109 &#39;: &#39;P&#39;, &#39;110 &#39;: &#39;F&#39;, &#39;111 &#39;: &#39;W&#39;, &#39;111A&#39;: &#39;Q&#39;, &#39;111B&#39;: &#39;W&#39;, &#39;111C&#39;: &#39;L&#39;, &#39;112C&#39;: &#39;V&#39;, &#39;112B&#39;: &#39;R&#39;, &#39;112A&#39;: &#39;R&#39;, &#39;112 &#39;: &#39;G&#39;, &#39;113 &#39;: &#39;E&#39;, &#39;114 &#39;: &#39;R&#39;, &#39;115 &#39;: &#39;F&#39;, &#39;116 &#39;: &#39;D&#39;, &#39;117 &#39;: &#39;Y&#39;}, &#39;fwh4&#39;: {&#39;118 &#39;: &#39;W&#39;, &#39;119 &#39;: &#39;G&#39;, &#39;120 &#39;: &#39;Q&#39;, &#39;121 &#39;: &#39;G&#39;, &#39;122 &#39;: &#39;T&#39;, &#39;123 &#39;: &#39;L&#39;, &#39;124 &#39;: &#39;V&#39;, &#39;125 &#39;: &#39;T&#39;, &#39;126 &#39;: &#39;V&#39;, &#39;127 &#39;: &#39;S&#39;, &#39;128 &#39;: &#39;S&#39;}}&quot;,|||||,&quot;|Deletions: 10, 73||||&quot;
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="section" id="cleaning-and-splitting-oas-sequence-files">
+<h2>Cleaning and Splitting OAS Sequence Files<a class="headerlink" href="#cleaning-and-splitting-oas-sequence-files" title="Permalink to this headline">#</a></h2>
+<div class="section" id="id5">
+<h3>Data Preprocessing Class<a class="headerlink" href="#id5" title="Permalink to this headline">#</a></h3>
+<p>A new method, <code class="docutils literal notranslate"><span class="pre">process_files</span></code> will be created to clean up the files and create train, validation, and test splits. For this exercise, only the columns containing the sequence id and the sequence for the antibody heavy chain will be retained (<code class="docutils literal notranslate"><span class="pre">sequence_id_heavy</span></code>, <code class="docutils literal notranslate"><span class="pre">sequence_heavy</span></code>).</p>
+<p>Edit the file <code class="docutils literal notranslate"><span class="pre">$BIONEMO_WORKSPACE/bionemo/data/preprocess/protein/oas_preprocess.py</span></code> to add this functionality. These are the final edits that will need to be made to the preprocessing class. Here is an example of such a file:</p>
+<div class="cell tag_remove-input docutils container">
+<div class="cell_output docutils container">
+<div class="output text_html"><style>pre { line-height: 125%; }
+td.linenos .normal { color: inherit; background-color: transparent; padding-left: 5px; padding-right: 5px; }
+span.linenos { color: inherit; background-color: transparent; padding-left: 5px; padding-right: 5px; }
+td.linenos .special { color: #000000; background-color: #ffffc0; padding-left: 5px; padding-right: 5px; }
+span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 5px; padding-right: 5px; }
+.output_html .hll { background-color: #ffffcc }
+.output_html { background: #f8f8f8; }
+.output_html .c { color: #3D7B7B; font-style: italic } /* Comment */
+.output_html .err { border: 1px solid #FF0000 } /* Error */
+.output_html .k { color: #008000; font-weight: bold } /* Keyword */
+.output_html .o { color: #666666 } /* Operator */
+.output_html .ch { color: #3D7B7B; font-style: italic } /* Comment.Hashbang */
+.output_html .cm { color: #3D7B7B; font-style: italic } /* Comment.Multiline */
+.output_html .cp { color: #9C6500 } /* Comment.Preproc */
+.output_html .cpf { color: #3D7B7B; font-style: italic } /* Comment.PreprocFile */
+.output_html .c1 { color: #3D7B7B; font-style: italic } /* Comment.Single */
+.output_html .cs { color: #3D7B7B; font-style: italic } /* Comment.Special */
+.output_html .gd { color: #A00000 } /* Generic.Deleted */
+.output_html .ge { font-style: italic } /* Generic.Emph */
+.output_html .gr { color: #E40000 } /* Generic.Error */
+.output_html .gh { color: #000080; font-weight: bold } /* Generic.Heading */
+.output_html .gi { color: #008400 } /* Generic.Inserted */
+.output_html .go { color: #717171 } /* Generic.Output */
+.output_html .gp { color: #000080; font-weight: bold } /* Generic.Prompt */
+.output_html .gs { font-weight: bold } /* Generic.Strong */
+.output_html .gu { color: #800080; font-weight: bold } /* Generic.Subheading */
+.output_html .gt { color: #0044DD } /* Generic.Traceback */
+.output_html .kc { color: #008000; font-weight: bold } /* Keyword.Constant */
+.output_html .kd { color: #008000; font-weight: bold } /* Keyword.Declaration */
+.output_html .kn { color: #008000; font-weight: bold } /* Keyword.Namespace */
+.output_html .kp { color: #008000 } /* Keyword.Pseudo */
+.output_html .kr { color: #008000; font-weight: bold } /* Keyword.Reserved */
+.output_html .kt { color: #B00040 } /* Keyword.Type */
+.output_html .m { color: #666666 } /* Literal.Number */
+.output_html .s { color: #BA2121 } /* Literal.String */
+.output_html .na { color: #687822 } /* Name.Attribute */
+.output_html .nb { color: #008000 } /* Name.Builtin */
+.output_html .nc { color: #0000FF; font-weight: bold } /* Name.Class */
+.output_html .no { color: #880000 } /* Name.Constant */
+.output_html .nd { color: #AA22FF } /* Name.Decorator */
+.output_html .ni { color: #717171; font-weight: bold } /* Name.Entity */
+.output_html .ne { color: #CB3F38; font-weight: bold } /* Name.Exception */
+.output_html .nf { color: #0000FF } /* Name.Function */
+.output_html .nl { color: #767600 } /* Name.Label */
+.output_html .nn { color: #0000FF; font-weight: bold } /* Name.Namespace */
+.output_html .nt { color: #008000; font-weight: bold } /* Name.Tag */
+.output_html .nv { color: #19177C } /* Name.Variable */
+.output_html .ow { color: #AA22FF; font-weight: bold } /* Operator.Word */
+.output_html .w { color: #bbbbbb } /* Text.Whitespace */
+.output_html .mb { color: #666666 } /* Literal.Number.Bin */
+.output_html .mf { color: #666666 } /* Literal.Number.Float */
+.output_html .mh { color: #666666 } /* Literal.Number.Hex */
+.output_html .mi { color: #666666 } /* Literal.Number.Integer */
+.output_html .mo { color: #666666 } /* Literal.Number.Oct */
+.output_html .sa { color: #BA2121 } /* Literal.String.Affix */
+.output_html .sb { color: #BA2121 } /* Literal.String.Backtick */
+.output_html .sc { color: #BA2121 } /* Literal.String.Char */
+.output_html .dl { color: #BA2121 } /* Literal.String.Delimiter */
+.output_html .sd { color: #BA2121; font-style: italic } /* Literal.String.Doc */
+.output_html .s2 { color: #BA2121 } /* Literal.String.Double */
+.output_html .se { color: #AA5D1F; font-weight: bold } /* Literal.String.Escape */
+.output_html .sh { color: #BA2121 } /* Literal.String.Heredoc */
+.output_html .si { color: #A45A77; font-weight: bold } /* Literal.String.Interpol */
+.output_html .sx { color: #008000 } /* Literal.String.Other */
+.output_html .sr { color: #A45A77 } /* Literal.String.Regex */
+.output_html .s1 { color: #BA2121 } /* Literal.String.Single */
+.output_html .ss { color: #19177C } /* Literal.String.Symbol */
+.output_html .bp { color: #008000 } /* Name.Builtin.Pseudo */
+.output_html .fm { color: #0000FF } /* Name.Function.Magic */
+.output_html .vc { color: #19177C } /* Name.Variable.Class */
+.output_html .vg { color: #19177C } /* Name.Variable.Global */
+.output_html .vi { color: #19177C } /* Name.Variable.Instance */
+.output_html .vm { color: #19177C } /* Name.Variable.Magic */
+.output_html .il { color: #666666 } /* Literal.Number.Integer.Long */</style><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">bionemo.data.preprocess</span> <span class="kn">import</span> <span class="n">ResourcePreprocessor</span>
+<span class="kn">from</span> <span class="nn">bionemo.utils.remote</span> <span class="kn">import</span> <span class="n">RemoteResource</span>
+<span class="kn">from</span> <span class="nn">nemo.utils</span> <span class="kn">import</span> <span class="n">logging</span>
+<span class="kn">from</span> <span class="nn">dataclasses</span> <span class="kn">import</span> <span class="n">dataclass</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">List</span>
+<span class="kn">import</span> <span class="nn">re</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">gzip</span>
+<span class="kn">import</span> <span class="nn">shutil</span>
+<span class="kn">import</span> <span class="nn">random</span>
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+
+<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;OASPairedPreprocess&#39;</span><span class="p">]</span>
+
+<span class="c1"># BIONEMO_HOME = os.getenv(&#39;BIONEMO_HOME&#39;, &#39;/workspace/bionemo&#39;)</span>
+<span class="n">BIONEMO_HOME</span> <span class="o">=</span> <span class="s1">&#39;/workspace/bionemo&#39;</span> <span class="c1"># FIXME</span>
+<span class="n">OAS_DOWNLOAD_LINKS_PATH</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">BIONEMO_HOME</span><span class="si">}</span><span class="s1">/bionemo/data/preprocess/protein/oas_paired_subset_download.sh&#39;</span>
+
+<span class="nd">@dataclass</span>
+<span class="k">class</span> <span class="nc">OASPairedPreprocess</span><span class="p">(</span><span class="n">ResourcePreprocessor</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;OASPairedPreprocess to download and preprocess OAS paired antibody data for heavy chains.&quot;&quot;&quot;</span>
+    <span class="n">random_seed</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="n">root_directory</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;/data&#39;</span>
+    <span class="n">dest_directory</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;OASpaired/raw&#39;</span>
+    <span class="n">processed_directory</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;OASpaired/processed/heavy&#39;</span>
+    <span class="n">columns_to_keep</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;sequence_id_heavy&#39;</span><span class="p">,</span> <span class="s1">&#39;sequence_heavy&#39;</span><span class="p">]</span>
+    <span class="n">num_val_files</span> <span class="o">=</span> <span class="mi">2</span>
+    <span class="n">num_test_files</span> <span class="o">=</span> <span class="mi">2</span>
+    
+
+    <span class="k">def</span> <span class="nf">get_remote_resources</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">download_script_path</span><span class="p">:</span><span class="nb">str</span> <span class="o">=</span> <span class="n">OAS_DOWNLOAD_LINKS_PATH</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">RemoteResource</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Download and verify each file from the download script path.&quot;&quot;&quot;</span>
+        
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">download_script_path</span><span class="p">,</span> <span class="s1">&#39;r&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">fh</span><span class="p">:</span>
+            <span class="n">url_list</span> <span class="o">=</span> <span class="p">[</span><span class="n">re</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;\s+&#39;</span><span class="p">,</span> <span class="n">x</span><span class="o">.</span><span class="n">strip</span><span class="p">())[</span><span class="mi">1</span><span class="p">]</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">fh</span><span class="o">.</span><span class="n">readlines</span><span class="p">()]</span>
+        
+        <span class="c1"># Add calculated checksums</span>
+        <span class="n">checksums</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;SRR11528761_paired.csv.gz&quot;</span><span class="p">:</span> <span class="s2">&quot;3b671ee3d376445fdafd89932cb4687e&quot;</span><span class="p">,</span>
+                     <span class="s2">&quot;SRR11528762_paired.csv.gz&quot;</span><span class="p">:</span> <span class="s2">&quot;69988520b12162b1f0613a55236d13a7&quot;</span><span class="p">,</span>
+                     <span class="s2">&quot;SRR10358523_paired.csv.gz&quot;</span><span class="p">:</span> <span class="s2">&quot;fb5f7242f1f2b555c0bb798da449454e&quot;</span><span class="p">,</span>
+                     <span class="s2">&quot;SRR10358524_paired.csv.gz&quot;</span><span class="p">:</span> <span class="s2">&quot;5db80ccbf8f47c855daa0d4d13d13d59&quot;</span><span class="p">,</span>
+                     <span class="s2">&quot;SRR10358525_paired.csv.gz&quot;</span><span class="p">:</span> <span class="s2">&quot;d9df83c314bc426bb7ad00a3375a5994&quot;</span><span class="p">,</span>
+                     <span class="s2">&quot;SRR9179273_paired.csv.gz&quot;</span><span class="p">:</span> <span class="s2">&quot;8e91cb8b719c4a2d30b2467cc5f6f080&quot;</span><span class="p">,</span>
+                     <span class="s2">&quot;SRR9179274_paired.csv.gz&quot;</span><span class="p">:</span> <span class="s2">&quot;cc7b54cf168a86012773073bc6016cd2&quot;</span><span class="p">,</span>
+                     <span class="s2">&quot;SRR9179275_paired.csv.gz&quot;</span><span class="p">:</span> <span class="s2">&quot;1660af663e0bdcf9e4a2dc0d8f79bfae&quot;</span><span class="p">,</span>
+                     <span class="s2">&quot;SRR9179276_paired.csv.gz&quot;</span><span class="p">:</span> <span class="s2">&quot;56336af0a20afde929c263e628be6828&quot;</span><span class="p">,</span>
+                     <span class="s2">&quot;SRR9179277_paired.csv.gz&quot;</span><span class="p">:</span> <span class="s2">&quot;48ac0e0f4ded0df1e345c7fbbb161601&quot;</span><span class="p">}</span>
+
+        <span class="n">resources</span> <span class="o">=</span> <span class="nb">list</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">url</span> <span class="ow">in</span> <span class="n">url_list</span><span class="p">:</span>
+            <span class="n">filename</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="n">url</span><span class="p">)</span>
+            <span class="n">resource</span> <span class="o">=</span> <span class="n">RemoteResource</span><span class="p">(</span>
+                <span class="n">dest_directory</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">dest_directory</span><span class="p">,</span>
+                <span class="n">dest_filename</span><span class="o">=</span><span class="n">filename</span><span class="p">,</span>
+                <span class="n">root_directory</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">root_directory</span><span class="p">,</span>
+                <span class="n">checksum</span><span class="o">=</span><span class="n">checksums</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">filename</span><span class="p">),</span>
+                <span class="n">url</span><span class="o">=</span><span class="n">url</span>
+            <span class="p">)</span>
+            <span class="n">resources</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">resource</span><span class="p">)</span>
+            
+        <span class="k">return</span> <span class="n">resources</span>
+
+    
+    <span class="k">def</span> <span class="nf">prepare_resource</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> 
+                         <span class="n">resource</span><span class="p">:</span> <span class="n">RemoteResource</span><span class="p">,</span> 
+                         <span class="n">delete_gzipped</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Logs and downloads the passed resource.</span>
+
+<span class="sd">        resource: RemoteResource - Resource to be prepared.</span>
+<span class="sd">        delete_gzipped: boolean, default: True - Delete gzipped file once extracted.</span>
+<span class="sd">        </span>
+<span class="sd">        Returns - the absolute destination path for the downloaded resource</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Downloading </span><span class="si">{</span><span class="n">resource</span><span class="o">.</span><span class="n">url</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="n">fully_qualified_gz_filename</span> <span class="o">=</span> <span class="n">resource</span><span class="o">.</span><span class="n">download_resource</span><span class="p">(</span><span class="n">overwrite</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+        
+
+        <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Extracting the gzipped file&quot;</span><span class="p">)</span>
+        <span class="n">fully_qualified_dest_filename</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">splitext</span><span class="p">(</span><span class="n">fully_qualified_gz_filename</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="k">with</span> <span class="n">gzip</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="n">fully_qualified_gz_filename</span><span class="p">,</span> <span class="s1">&#39;rb&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f_gz</span><span class="p">:</span>
+            <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">fully_qualified_dest_filename</span><span class="p">,</span> <span class="s1">&#39;wb&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f_ext</span><span class="p">:</span>
+                <span class="n">shutil</span><span class="o">.</span><span class="n">copyfileobj</span><span class="p">(</span><span class="n">f_gz</span><span class="p">,</span> <span class="n">f_ext</span><span class="p">)</span>
+                
+        <span class="k">if</span> <span class="n">delete_gzipped</span><span class="p">:</span>
+            <span class="n">shutil</span><span class="o">.</span><span class="n">rmtree</span><span class="p">(</span><span class="n">fully_qualified_gz_filename</span><span class="p">)</span>
+            
+        <span class="k">return</span> <span class="n">fully_qualified_dest_filename</span>
+        
+        
+    <span class="k">def</span> <span class="nf">process_files</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filepaths</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="p">):</span>
+        <span class="n">file_fill_size</span> <span class="o">=</span> <span class="mi">3</span>
+        <span class="n">full_processed_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">root_directory</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">processed_directory</span><span class="p">)</span>
+        <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">full_processed_path</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        
+        <span class="c1"># Assign two files to validation, two to test, and the rest to train</span>
+        <span class="n">shuffled_paths</span> <span class="o">=</span> <span class="n">filepaths</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+        <span class="n">random</span><span class="o">.</span><span class="n">seed</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">random_seed</span>
+        <span class="n">random</span><span class="o">.</span><span class="n">shuffle</span><span class="p">(</span><span class="n">shuffled_paths</span><span class="p">)</span>
+        
+        <span class="n">val_paths</span> <span class="o">=</span> <span class="n">shuffled_paths</span><span class="p">[:</span><span class="bp">self</span><span class="o">.</span><span class="n">num_val_files</span><span class="p">]</span>
+        <span class="n">test_paths</span> <span class="o">=</span> <span class="n">shuffled_paths</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">num_val_files</span><span class="p">:</span><span class="bp">self</span><span class="o">.</span><span class="n">num_val_files</span><span class="o">+</span><span class="bp">self</span><span class="o">.</span><span class="n">num_test_files</span><span class="p">]</span>
+        <span class="n">train_paths</span> <span class="o">=</span> <span class="n">shuffled_paths</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">num_val_files</span><span class="o">+</span><span class="bp">self</span><span class="o">.</span><span class="n">num_test_files</span><span class="p">:]</span>
+
+        <span class="c1"># Split the data and clean up extra information</span>
+        <span class="k">for</span> <span class="n">split</span><span class="p">,</span> <span class="n">filenames</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">([</span><span class="s1">&#39;train&#39;</span><span class="p">,</span> <span class="s1">&#39;val&#39;</span><span class="p">,</span> <span class="s1">&#39;test&#39;</span><span class="p">],</span> <span class="p">[</span><span class="n">train_paths</span><span class="p">,</span> <span class="n">val_paths</span><span class="p">,</span> <span class="n">test_paths</span><span class="p">]):</span>
+            <span class="n">split_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">full_processed_path</span><span class="p">,</span> <span class="n">split</span><span class="p">)</span>
+            <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">split_path</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+            
+            <span class="k">for</span> <span class="n">num</span><span class="p">,</span><span class="n">filename</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">filenames</span><span class="p">):</span>
+                <span class="n">output_name</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">split_path</span><span class="p">,</span> <span class="sa">f</span><span class="s1">&#39;x</span><span class="si">{</span><span class="nb">str</span><span class="p">(</span><span class="n">num</span><span class="p">)</span><span class="o">.</span><span class="n">zfill</span><span class="p">(</span><span class="n">file_fill_size</span><span class="p">)</span><span class="si">}</span><span class="s1">.csv&#39;</span><span class="p">)</span>
+                <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Converting </span><span class="si">{</span><span class="n">filename</span><span class="si">}</span><span class="s2"> to </span><span class="si">{</span><span class="n">output_name</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+                <span class="n">data</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">skiprows</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">usecols</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">columns_to_keep</span><span class="p">)</span>
+                <span class="n">data</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span><span class="n">output_name</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+    
+    
+    <span class="k">def</span> <span class="nf">prepare</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">filepaths</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">prepare_resource</span><span class="p">(</span><span class="n">resource</span><span class="p">)</span> 
+                         <span class="k">for</span> <span class="n">resource</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_remote_resources</span><span class="p">()]</span>
+        
+        <span class="bp">self</span><span class="o">.</span><span class="n">process_files</span><span class="p">(</span><span class="n">filepaths</span><span class="p">)</span>
+</pre></div>
+</div></div>
+</div>
+</div>
+<div class="section" id="id6">
+<h3>Testing<a class="headerlink" href="#id6" title="Permalink to this headline">#</a></h3>
+<p>As before, execute the pre-train script:</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="nb">cd</span><span class="w"> </span>examples/protein/esm1nv
+python<span class="w"> </span>pretrain_oas.py
+</pre></div>
+</div>
+<p>This is what the end of the log looks like once preprocessing has started:</p>
+<div class="cell tag_remove-input docutils container">
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>[NeMo I 2023-08-17 16:48:23 pretrain_oas:26] ************** Starting Preprocessing ***********
+[NeMo I 2023-08-17 16:48:23 oas_preprocess:74] Downloading https://opig.stats.ox.ac.uk/webapps/ngsdb/paired/Alsoiussi_2020/csv/SRR11528761_paired.csv.gz
+[NeMo I 2023-08-17 16:48:23 remote:117] Resource already exists, skipping download: https://opig.stats.ox.ac.uk/webapps/ngsdb/paired/Alsoiussi_2020/csv/SRR11528761_paired.csv.gz
+[NeMo I 2023-08-17 16:48:23 oas_preprocess:78] Extracting the gzipped file
+[NeMo I 2023-08-17 16:48:23 oas_preprocess:74] Downloading https://opig.stats.ox.ac.uk/webapps/ngsdb/paired/Alsoiussi_2020/csv/SRR11528762_paired.csv.gz
+[NeMo I 2023-08-17 16:48:23 remote:117] Resource already exists, skipping download: https://opig.stats.ox.ac.uk/webapps/ngsdb/paired/Alsoiussi_2020/csv/SRR11528762_paired.csv.gz
+[NeMo I 2023-08-17 16:48:23 oas_preprocess:78] Extracting the gzipped file
+[NeMo I 2023-08-17 16:48:23 oas_preprocess:74] Downloading https://opig.stats.ox.ac.uk/webapps/ngsdb/paired/Eccles_2020/csv/SRR10358523_paired.csv.gz
+[NeMo I 2023-08-17 16:48:23 remote:117] Resource already exists, skipping download: https://opig.stats.ox.ac.uk/webapps/ngsdb/paired/Eccles_2020/csv/SRR10358523_paired.csv.gz
+[NeMo I 2023-08-17 16:48:23 oas_preprocess:78] Extracting the gzipped file
+[NeMo I 2023-08-17 16:48:23 oas_preprocess:74] Downloading https://opig.stats.ox.ac.uk/webapps/ngsdb/paired/Eccles_2020/csv/SRR10358524_paired.csv.gz
+[NeMo I 2023-08-17 16:48:23 remote:117] Resource already exists, skipping download: https://opig.stats.ox.ac.uk/webapps/ngsdb/paired/Eccles_2020/csv/SRR10358524_paired.csv.gz
+[NeMo I 2023-08-17 16:48:23 oas_preprocess:78] Extracting the gzipped file
+[NeMo I 2023-08-17 16:48:23 oas_preprocess:74] Downloading https://opig.stats.ox.ac.uk/webapps/ngsdb/paired/Eccles_2020/csv/SRR10358525_paired.csv.gz
+[NeMo I 2023-08-17 16:48:23 remote:117] Resource already exists, skipping download: https://opig.stats.ox.ac.uk/webapps/ngsdb/paired/Eccles_2020/csv/SRR10358525_paired.csv.gz
+[NeMo I 2023-08-17 16:48:23 oas_preprocess:78] Extracting the gzipped file
+[NeMo I 2023-08-17 16:48:23 oas_preprocess:74] Downloading https://opig.stats.ox.ac.uk/webapps/ngsdb/paired/Goldstein_2019/csv/SRR9179273_paired.csv.gz
+[NeMo I 2023-08-17 16:48:23 remote:117] Resource already exists, skipping download: https://opig.stats.ox.ac.uk/webapps/ngsdb/paired/Goldstein_2019/csv/SRR9179273_paired.csv.gz
+[NeMo I 2023-08-17 16:48:23 oas_preprocess:78] Extracting the gzipped file
+[NeMo I 2023-08-17 16:48:23 oas_preprocess:74] Downloading https://opig.stats.ox.ac.uk/webapps/ngsdb/paired/Goldstein_2019/csv/SRR9179274_paired.csv.gz
+[NeMo I 2023-08-17 16:48:23 remote:117] Resource already exists, skipping download: https://opig.stats.ox.ac.uk/webapps/ngsdb/paired/Goldstein_2019/csv/SRR9179274_paired.csv.gz
+[NeMo I 2023-08-17 16:48:23 oas_preprocess:78] Extracting the gzipped file
+[NeMo I 2023-08-17 16:48:23 oas_preprocess:74] Downloading https://opig.stats.ox.ac.uk/webapps/ngsdb/paired/Goldstein_2019/csv/SRR9179275_paired.csv.gz
+[NeMo I 2023-08-17 16:48:23 remote:117] Resource already exists, skipping download: https://opig.stats.ox.ac.uk/webapps/ngsdb/paired/Goldstein_2019/csv/SRR9179275_paired.csv.gz
+[NeMo I 2023-08-17 16:48:23 oas_preprocess:78] Extracting the gzipped file
+[NeMo I 2023-08-17 16:48:24 oas_preprocess:74] Downloading https://opig.stats.ox.ac.uk/webapps/ngsdb/paired/Goldstein_2019/csv/SRR9179276_paired.csv.gz
+[NeMo I 2023-08-17 16:48:24 remote:117] Resource already exists, skipping download: https://opig.stats.ox.ac.uk/webapps/ngsdb/paired/Goldstein_2019/csv/SRR9179276_paired.csv.gz
+[NeMo I 2023-08-17 16:48:24 oas_preprocess:78] Extracting the gzipped file
+[NeMo I 2023-08-17 16:48:24 oas_preprocess:74] Downloading https://opig.stats.ox.ac.uk/webapps/ngsdb/paired/Goldstein_2019/csv/SRR9179277_paired.csv.gz
+[NeMo I 2023-08-17 16:48:24 remote:117] Resource already exists, skipping download: https://opig.stats.ox.ac.uk/webapps/ngsdb/paired/Goldstein_2019/csv/SRR9179277_paired.csv.gz
+[NeMo I 2023-08-17 16:48:24 oas_preprocess:78] Extracting the gzipped file
+[NeMo I 2023-08-17 16:48:24 oas_preprocess:111] Converting /data/OASpaired/raw/SRR9179273_paired.csv to /data/OASpaired/processed/heavy/train/x000.csv
+[NeMo I 2023-08-17 16:48:24 oas_preprocess:111] Converting /data/OASpaired/raw/SRR11528761_paired.csv to /data/OASpaired/processed/heavy/train/x001.csv
+[NeMo I 2023-08-17 16:48:24 oas_preprocess:111] Converting /data/OASpaired/raw/SRR9179277_paired.csv to /data/OASpaired/processed/heavy/train/x002.csv
+[NeMo I 2023-08-17 16:48:24 oas_preprocess:111] Converting /data/OASpaired/raw/SRR10358525_paired.csv to /data/OASpaired/processed/heavy/train/x003.csv
+[NeMo I 2023-08-17 16:48:24 oas_preprocess:111] Converting /data/OASpaired/raw/SRR9179276_paired.csv to /data/OASpaired/processed/heavy/train/x004.csv
+[NeMo I 2023-08-17 16:48:24 oas_preprocess:111] Converting /data/OASpaired/raw/SRR11528762_paired.csv to /data/OASpaired/processed/heavy/train/x005.csv
+[NeMo I 2023-08-17 16:48:24 oas_preprocess:111] Converting /data/OASpaired/raw/SRR10358524_paired.csv to /data/OASpaired/processed/heavy/val/x000.csv
+[NeMo I 2023-08-17 16:48:24 oas_preprocess:111] Converting /data/OASpaired/raw/SRR10358523_paired.csv to /data/OASpaired/processed/heavy/val/x001.csv
+[NeMo I 2023-08-17 16:48:24 oas_preprocess:111] Converting /data/OASpaired/raw/SRR9179275_paired.csv to /data/OASpaired/processed/heavy/test/x000.csv
+[NeMo I 2023-08-17 16:48:25 oas_preprocess:111] Converting /data/OASpaired/raw/SRR9179274_paired.csv to /data/OASpaired/processed/heavy/test/x001.csv
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+<div class="section" id="id7">
+<h3>Results<a class="headerlink" href="#id7" title="Permalink to this headline">#</a></h3>
+<p>This has split the data into train, val, and test directories and cleaned up the data:</p>
+<div class="cell tag_remove-input docutils container">
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>/data/OASpaired/processed/heavy/test:
+x000.csv  x001.csv
+
+/data/OASpaired/processed/heavy/train:
+x000.csv  x001.csv  x002.csv  x003.csv	x004.csv  x005.csv
+
+/data/OASpaired/processed/heavy/val:
+x000.csv  x001.csv
+</pre></div>
+</div>
+</div>
+</div>
+<p>This is what the first five lines of one of the training files looks like:</p>
+<div class="cell tag_remove-input docutils container">
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>sequence_id_heavy,sequence_heavy
+AAACCTGAGACTTGAA-1_contig_1,GGGAGAGGAGGCCTGTCCTGGATTCGATTCCCAGTTCCTCACATTCAGTCAGCACTGAACACGGACCCCTCACCATGAACTTCGGGCTCAGCTTGATTTTCCTTGTCCTTGTTTTAAAAGGTGTCCAGTGTGAAGTGATGCTGGTGGAGTCTGGGGGAGGCTTAGTGAAGCCTGGAGGGTCCCTGAAACTCTCCTGTGCAGCCTCTGGATTCACTTTCAGTAGCTATGCCATGTCTTGGGTTCGCCAGACTCCGGAGAAGAGGCTGGAGTGGGTCGCAACCATTAGTAGTGGTGGTAGTTACACCTACTATCCAGACAGTGTGAAGGGGCGATTCACCATCTCCAGAGACAATGCCAAGAACACCCTGTACCTGCAAATGAGCAGTCTGAGGTCTGAGGACACGGCCATGTATTACTGTGCAAGACGGGGGAATGATGGTTACTACGAAGACTACTGGGGCCAAGGCACCACTCTCACAGTCTCCTCAGAGAGTCAGTCCTTCCCAAATGTCTTCCCCCTCGTCTCCTGCGAGAGCCCCCTGTCTGATAAGAATCTGGTGGCCATGGGCTGCCTGG
+AAACCTGAGCGCCTTG-1_contig_2,GAGCTCTGACAGAGGAGGCCAGTCCTGGAATTGATTCCCAGTTCCTCACGTTCAGTGATGAGCACTGAACACAGACACCTCACCATGAACTTTGGGCTCAGATTGATTTTCCTTGTCCTTACTTTAAAAGGTGTGAAGTGTGAAGTGCAGCTGGTGGAGTCTGGGGGAGGCTTAGTGAAGCCTGGAGGGTCCCTGAAACTCTCCTGTGCAGCCTCTGGATTCGCTTTCAGTAGCTATGACATGTCTTGGGTTCGCCAGACTCCGGAGAAGAGGCTGGAGTGGGTCGCATACATTAGTAGTGGTGGTGGTATCACCTACTATCCAGACACTGTGAAGGGCCGATTCACCATCTCCAGAGACAATGCCAAGAACACCCTGTACCTGCAAATGAGCAGTCTGAAGTCTGAGGACACAGCCATGTATTACTGTGCAAGGCCCCCGGGACGGGGCTACTGGTACTTCGATGTCTGGGGCGCAGGGACCACGGTCACCGTCTCCTCAGCCAAAACAACAGCCCCATCGGTCTATCCACTGGCCCCTGTGTGTGGAGATACAACTGGCTCCTCGGTGACTCTAGGGTGCCTGGTCAAGGATTATT
+AAACCTGCAAGTTAAG-1_contig_1,AACATATGTCCAATGTCCTCTCCACAGACACTGAACACACTGACTCTAACCATGGGATGGAGCTGGATCTTTCTCTTCCTCCTGTCAGGAACTGCAGGCGTCCACTCTGAGGTCCAGCTTCAGCAGTCAGGACCTGAGCTGGTGAAACCTGGGGCCTCAGTGAAGATATCCTGCAAGGCTTCTGGATACACATTCACTGACTACAACATGCACTGGGTGAAGCAGAGCCATGGAAAGAGCCTTGAGTGGATTGGATATATTTATCCTTACAATGGTGGTACTGGCTACAACCAGAAGTTCAAGAGCAAGGCCACATTGACTGTAGACAATTCCTCCAGCACAGCCTACATGGAGCTCCGCAGCCTGACATCTGAGGACTCTGCAGTCTATTACTGTGCAAGATGGGGGCTAACTGGTGATGCTATGGACTACTGGGGTCAAGGAACCTCAGTCACCGTCTCCTCAGAGAGTCAGTCCTTCCCAAATGTCTTCCCCCTCGTCTCCTGCGAGAGCCCCCTGTCTGATAAGAATCTGGTGGCCATGGGCTGCCTGG
+AAACCTGGTATCTGCA-1_contig_1,GACATAACAGCAAGAGAGTGTCCGGTTAGTCTCAAGGAAGACTGAGACACAGTCTTAGATATCATGGAATGGCTGTGGAACTTGCTATTTCTCATGGCAGCAGCTCAAAGTATCCAAGCACAGATCCAGTTGGTGCAGTCTGGACCTGAGCTGAAGAAGCCTGGAGAGACAGTCAGGATCTCCTGCAAGGCTTCTGGGTATACCTTCACAACTGCTGGAATGCAGTGGGTGCAAAAGATGCCAGGAAAGGGTTTGAAGTGGATTGGCTGGATAAACACCCACTCTGGAGTGCCAAAATATGCAGAAGACTTCAAGGGACGGTTTGCCTTCTCTTTGGAAACCTCTGCCAGCACTGCATATTTACAGATAAGCAACCTCAAAAATGAGGACACGGCTACGTATTTCTGTGCGAGATCAGGTTACGACGCCTTTGACTACTGGGGCCAAGGCACCACTCTCACAGTCTCCTCAGAGAGTCAGTCCTTCCCAAATGTCTTCCCCCTCGTCTCCTGCGAGAGCCCCCTGTCTGATAAGAATCTGGTGGCCATGGGCTGCCTGG
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="section" id="optional-variation-process-the-light-chain-data">
+<h2>Optional Variation: Process the Light Chain Data<a class="headerlink" href="#optional-variation-process-the-light-chain-data" title="Permalink to this headline">#</a></h2>
+<p>What if instead the light chain columns (<code class="docutils literal notranslate"><span class="pre">sequence_id_light</span></code> and <code class="docutils literal notranslate"><span class="pre">sequence_light</span></code>) were desired? How could the existing class be subclassed to create a preprocessing class for light chains?</p>
+<p>Starting with the existing <code class="docutils literal notranslate"><span class="pre">OASPairedPreprocess</span></code> class, the only additional changes that would need to be made are:</p>
+<ul class="simple">
+<li><p>Change the <code class="docutils literal notranslate"><span class="pre">columns_to_keep</span></code> to preserve the light chains instead of the heavy ones</p></li>
+<li><p>Optionally change the directory for the processed files</p></li>
+</ul>
+<p>Here is an example of a class that could be added to <code class="docutils literal notranslate"><span class="pre">$BIONEMO_WORKSPACE/bionemo/data/preprocess/protein/oas_preprocess.py</span></code> to accomplish this:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="nd">@dataclass</span>
+<span class="k">class</span> <span class="nc">OASPairedLightPreprocessor</span><span class="p">(</span><span class="n">OASPairedPreprocess</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;OASPairedLightPreprocessor to download and preprocess OAS paired antibody light chain data.&quot;&quot;&quot;</span>
+    <span class="n">processed_directory</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;OASpaired/processed/light&#39;</span>
+    <span class="n">columns_to_keep</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;sequence_id_light&#39;</span><span class="p">,</span> <span class="s1">&#39;sequence_light&#39;</span><span class="p">]</span>
+</pre></div>
+</div>
+</div>
+</div>
+
+<div class="section">
+   
+</div>
+
+              </div>
+              
+            </main>
+            <footer class="footer-article noprint">
+                
+    <!-- Previous / next buttons -->
+<div class='prev-next-area'>
+    <a class='left-prev' id="prev-link" href="custom-dataset-dataloader.html" title="previous page">
+        <i class="fas fa-angle-left"></i>
+        <div class="prev-next-info">
+            <p class="prev-next-subtitle">previous</p>
+            <p class="prev-next-title">Adding the OAS Dataset: Customizing Dataset Object and Dataloader Functions</p>
+        </div>
+    </a>
+    <a class='right-next' id="next-link" href="encoder-finetuning-notebook-fw.html" title="next page">
+    <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">Encoder Fine-tuning</p>
+    </div>
+    <i class="fas fa-angle-right"></i>
+    </a>
+</div>
+            </footer>
+        </div>
+    </div>
+    <div class="footer-content row">
+        <footer class="col footer"><p>
+  
+    By NVIDIA<br/>
+  
+      &copy; Copyright 2023-2024 NVIDIA CORPORATION &amp; AFFILIATES. All rights reserved..<br/>
+    Last updated on Oct 17, 2024.<br/>
+</p>
+        </footer>
+    </div>
+    
+</div>
+
+
+      </div>
+    </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="../_static/scripts/pydata-sphinx-theme.js?digest=1999514e3f237ded88cf"></script>
+
+
+  </body>
+</html>

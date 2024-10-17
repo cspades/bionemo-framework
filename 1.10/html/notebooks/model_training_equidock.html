@@ -1,0 +1,965 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>EquiDock Model Training using BioNeMo &#8212; NVIDIA BioNeMo Framework</title>
+    
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../_static/styles/theme.css?digest=1999514e3f237ded88cf" rel="stylesheet">
+<link href="../_static/styles/pydata-sphinx-theme.css?digest=1999514e3f237ded88cf" rel="stylesheet">
+
+    
+  <link rel="stylesheet"
+    href="../_static/vendor/fontawesome/5.13.0/css/all.min.css">
+  <link rel="preload" as="font" type="font/woff2" crossorigin
+    href="../_static/vendor/fontawesome/5.13.0/webfonts/fa-solid-900.woff2">
+  <link rel="preload" as="font" type="font/woff2" crossorigin
+    href="../_static/vendor/fontawesome/5.13.0/webfonts/fa-brands-400.woff2">
+
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
+    <link rel="stylesheet" href="../_static/styles/sphinx-book-theme.css?digest=62ba249389abaaa9ffc34bf36a076bdc1d65ee18" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="../_static/mystnb.4510f1fc1dee50b3e5859aac5469c37c29e427902b24a333a5f9fcb2f0b3ac41.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/copybutton.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/tabs.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/custom.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/design-style.1e8bd061cd6da7fc9cf755528e8ffc24.min.css" />
+    
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=1999514e3f237ded88cf">
+
+    <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+    <script src="../_static/jquery.js"></script>
+    <script src="../_static/underscore.js"></script>
+    <script src="../_static/doctools.js"></script>
+    <script src="../_static/clipboard.min.js"></script>
+    <script src="../_static/copybutton.js"></script>
+    <script src="https://js.hcaptcha.com/1/api.js"></script>
+    <script src="//assets.adobedtm.com/5d4962a43b79/c1061d2c5e7b/launch-191c2462b890.min.js"></script>
+    <script src="../_static/scripts/sphinx-book-theme.js?digest=f31d14ad54b65d19161ba51d4ffff3a77ae00456"></script>
+    <script src="../_static/design-tabs.js"></script>
+    <link rel="canonical" href="https://docs.nvidia.com/bionemo-framework/0.4.0/notebooks/model_training_equidock.html" />
+    <link rel="shortcut icon" href="../_static/nvidia-logo-vert-rgb-blk-for-screen.png"/>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="ESM1nv Model Training using BioNeMo" href="model_training_esm1nv.html" />
+    <link rel="prev" title="DiffDock Model Training using BioNeMo" href="model_training_diffdock.html" /> 
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="docsearch:language" content="None">
+    
+
+    <!-- Google Analytics -->
+      
+<style type="text/css">
+  ul.ablog-archive {
+    list-style: none;
+    overflow: auto;
+    margin-left: 0px;
+  }
+  ul.ablog-archive li {
+    float: left;
+    margin-right: 5px;
+    font-size: 80%;
+  }
+  ul.postlist a {
+    font-style: italic;
+  }
+  ul.postlist-style-disc {
+    list-style-type: disc;
+  }
+  ul.postlist-style-none {
+    list-style-type: none;
+  }
+  ul.postlist-style-circle {
+    list-style-type: circle;
+  }
+</style>
+
+  </head>
+  <body data-spy="scroll" data-target="#bd-toc-nav" data-offset="60">
+<!-- Checkboxes to toggle the left sidebar -->
+<input type="checkbox" class="sidebar-toggle" name="__navigation" id="__navigation" aria-label="Toggle navigation sidebar">
+<label class="overlay overlay-navbar" for="__navigation">
+    <div class="visually-hidden">Toggle navigation sidebar</div>
+</label>
+<!-- Checkboxes to toggle the in-page toc -->
+<input type="checkbox" class="sidebar-toggle" name="__page-toc" id="__page-toc" aria-label="Toggle in-page Table of Contents">
+<label class="overlay overlay-pagetoc" for="__page-toc">
+    <div class="visually-hidden">Toggle in-page Table of Contents</div>
+</label>
+<!-- Headers at the top -->
+<div class="announcement header-item noprint"></div>
+<div class="header header-item noprint"></div>
+
+    
+    <div class="container-fluid" id="banner"></div>
+
+    
+
+    <div class="container-xl">
+      <div class="row">
+          
+<!-- Sidebar -->
+<div class="bd-sidebar noprint" id="site-navigation">
+    <div class="bd-sidebar__content">
+        <div class="bd-sidebar__top"><div class="navbar-brand-box">
+    <a class="navbar-brand text-wrap" href="../index.html">
+      
+        <!-- `logo` is deprecated in Sphinx 4.0, so remove this when we stop supporting 3 -->
+        
+      
+      
+      <img src="../_static/nvidia-logo-horiz-rgb-blk-for-screen.png" class="logo" alt="logo">
+      
+      
+      <h1 class="site-logo" id="site-title">NVIDIA BioNeMo Framework</h1>
+      
+    </a>
+</div><form class="bd-search d-flex align-items-center" action="../search.html" method="get">
+  <i class="icon fas fa-search"></i>
+  <input type="search" class="form-control" name="q" id="search-input" placeholder="Search the docs ..." aria-label="Search the docs ..." autocomplete="off" >
+</form><nav class="bd-links" id="bd-docs-nav" aria-label="Main">
+    <div class="bd-toc-item active">
+        <p aria-level="2" class="caption" role="heading">
+ <span class="caption-text">
+  GETTING STARTED
+ </span>
+</p>
+<ul class="nav bd-sidenav">
+ <li class="toctree-l1">
+  <a class="reference internal" href="../index.html">
+   What is BioNeMo?
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../pre-reqs.html">
+   Hardware and Software Prerequisites
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../access-startup.html">
+   Access and Startup
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../initialization-guide.html">
+   Initialization Guide
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../tutorial-list.html">
+   BioNeMo Framework Tutorials
+  </a>
+ </li>
+</ul>
+<p aria-level="2" class="caption" role="heading">
+ <span class="caption-text">
+  BioNeMo CORE
+ </span>
+</p>
+<ul class="nav bd-sidenav">
+ <li class="toctree-l1">
+  <a class="reference internal" href="../bionemo-fw-for-model-training-fw.html">
+   Fundamentals
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../data-module-fw.html">
+   Data Module
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../dwnstr-task-validation.html">
+   Validation with a Downstream Task
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../inference-triton-fw.html">
+   Inference with Nvidia Triton Server
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../deep-dive-esm1-pytriton-inference.html">
+   Example of PyTriton Inference
+  </a>
+ </li>
+</ul>
+<p aria-level="2" class="caption" role="heading">
+ <span class="caption-text">
+  BEST PRACTICES
+ </span>
+</p>
+<ul class="nav bd-sidenav">
+ <li class="toctree-l1">
+  <a class="reference internal" href="../hyperparameters-fw.html">
+   Hyperparameter Usage and Tuning
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../parallelism-fw.html">
+   Training Parallelism
+  </a>
+ </li>
+</ul>
+<p aria-level="2" class="caption" role="heading">
+ <span class="caption-text">
+  MODELS
+ </span>
+</p>
+<ul class="nav bd-sidenav">
+ <li class="toctree-l1">
+  <a class="reference internal" href="../models/diffdock.html">
+   DiffDock
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../models/dnabert.html">
+   DNABERT
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../models/dsmbind.html">
+   Model Overview
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../models/equidock.html">
+   EquiDock
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../models/esm1-nv.html">
+   ESM-1nv
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../models/esm2-nv.html">
+   ESM-2nv
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../models/geneformer.html">
+   Geneformer
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../models/megamolbart.html">
+   MegaMolBART
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../models/molmim.html">
+   MolMIM
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../models/openfold.html">
+   OpenFold
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../models/prott5nv.html">
+   Prott5nv
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../models/model-benchmarks.html">
+   Model Benchmarks
+  </a>
+ </li>
+</ul>
+<p aria-level="2" class="caption" role="heading">
+ <span class="caption-text">
+  DATASETS
+ </span>
+</p>
+<ul class="nav bd-sidenav">
+ <li class="toctree-l1">
+  <a class="reference internal" href="../datasets/uniprot.html">
+   UniProt Dataset
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../datasets/CELLxGENE.html">
+   CELLxGENE
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../datasets/zinc15.html">
+   ZINC-15 Dataset
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../datasets/pdb.html">
+   The Protein Data Bank (PDB)
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../datasets/GRCh38.p13.html">
+   Human Reference Genome Version GRCh38.p13
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../datasets/openproteinset.html">
+   OpenProteinSet
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../datasets/moleculenet-physchem.html">
+   MoleculeNet Physical Chemistry Datasets - Lipophilicity, FreeSolv, ESOL
+  </a>
+ </li>
+</ul>
+<p aria-level="2" class="caption" role="heading">
+ <span class="caption-text">
+  TUTORIALS
+ </span>
+</p>
+<ul class="current nav bd-sidenav">
+ <li class="toctree-l1">
+  <a class="reference internal" href="../preprocessing-bcp-training-diffdock.html">
+   DiffDock: Preparing Workspace and Data for Pre-training
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="esm2nv-mutant-design.html">
+   Zero-Shot Protein Design Using ESM-2nv
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="MMB_GenerativeAI_Inference_with_examples.html">
+   BioNeMo - MegaMolBART Inferencing for Generative Chemistry
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="MolMIM_GenerativeAI_local_inference_with_examples.html">
+   MolMIM Inferencing for Generative Chemistry and Downstream Prediction
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="ZINC15-data-preprocessing.html">
+   ZINC Training Dataset Setup for small molecule language models
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="bionemo-finetuning-overview.html">
+   Finetune pre-trained models in BioNeMo
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="cma_es_guided_molecular_optimization_molmim.html">
+   MolMIM Property Guided Molecular Optimization Using CMA-ES
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="custom-dataset-class-fw.html">
+   Adding the OAS Dataset: Modifying the Dataset Class
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="custom-dataset-dataloader.html">
+   Adding the OAS Dataset: Customizing Dataset Object and Dataloader Functions
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="custom-dataset-preprocessing-fw.html">
+   Adding the OAS Dataset: Downloading and Preprocessing
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="encoder-finetuning-notebook-fw.html">
+   Encoder Fine-tuning
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="model_training_diffdock.html">
+   DiffDock Model Training using BioNeMo
+  </a>
+ </li>
+ <li class="toctree-l1 current active">
+  <a class="current reference internal" href="#">
+   EquiDock Model Training using BioNeMo
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="model_training_esm1nv.html">
+   ESM1nv Model Training using BioNeMo
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="model_training_esm2nv.html">
+   ESM-2nv: Data Preprocessing and Model Training Using BioNeMo
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="model_training_mmb.html">
+   MegaMolBART Model Training using BioNeMo
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="model_training_molmim.html">
+   Train MolMIM from scratch on your own data using the BioNeMo Framework
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="physchem-notebook-fw.html">
+   Finetuning LLM in BioNeMo for a Downstream Task
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="protein-esm2nv-clustering.html">
+   Generating Embeddings for Protein Clustering
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="retrosynthesis-notebook.html">
+   Training LLM for a Custom Downstram Task: Retrosynthesis Prediction using MegaMolBART
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="esm2_FLIP_finetuning.html">
+   Fine-Tune ESM-2nv on FLIP Data for Sequence-Level Classification, Regression, Token-Level Classification, and with LoRA Adapters
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="esm2_oas_inferencing.html">
+   Performing inference on OAS sequences with ESM-2nv
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="esm2_paratope_finetuning.html">
+   Pretrain from Scratch, Continue Training from an Existing Checkpoint, and Fine-tune ESM-2nv on Custom Data
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="dnabert_inference.html">
+   Generating and visualizing embeddings with DNABert
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="dnabert_pretrain_finetune.html">
+   Pretrain, Fine-tune, and Perform Inference with DNABERT for Splice Site Prediction
+  </a>
+ </li>
+</ul>
+<p aria-level="2" class="caption" role="heading">
+ <span class="caption-text">
+  APPENDIX
+ </span>
+</p>
+<ul class="nav bd-sidenav">
+ <li class="toctree-l1">
+  <a class="reference internal" href="../faq-fw.html">
+   Frequently Asked Questions (FAQ)
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../bibliography-fw.html">
+   Bibliography
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../releasenotes-fw.html">
+   Release Notes
+  </a>
+ </li>
+</ul>
+
+    </div>
+</nav></div>
+        <div class="bd-sidebar__bottom">
+             <!-- To handle the deprecated key -->
+            
+        </div>
+    </div>
+    <div id="rtd-footer-container"></div>
+</div>
+
+
+          
+
+
+          
+<!-- A tiny helper pixel to detect if we've scrolled -->
+<div class="sbt-scroll-pixel-helper"></div>
+<!-- Main content -->
+<div class="col py-0 content-container">
+    
+    <div class="header-article row sticky-top noprint">
+        
+
+
+
+<div class="col py-1 d-flex header-article-main">
+    <div class="header-article__left">
+        
+        <label for="__navigation"
+  class="headerbtn"
+  data-toggle="tooltip"
+data-placement="right"
+title="Toggle navigation"
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fas fa-bars"></i>
+  </span>
+
+</label>
+
+        
+    </div>
+    <div class="header-article__right">
+<button onclick="toggleFullScreen()"
+  class="headerbtn"
+  data-toggle="tooltip"
+data-placement="bottom"
+title="Fullscreen mode"
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fas fa-expand"></i>
+  </span>
+
+</button>
+<label for="__page-toc"
+  class="headerbtn headerbtn-page-toc"
+  
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fas fa-list"></i>
+  </span>
+
+</label>
+
+    </div>
+</div>
+
+<!-- Table of contents -->
+<div class="col-md-3 bd-toc show noprint">
+    <div class="tocsection onthispage pt-5 pb-3">
+        <i class="fas fa-list"></i> Contents
+    </div>
+    <nav id="bd-toc-nav" aria-label="Page">
+        <ul class="visible nav section-nav flex-column">
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#overview-equidock-model">
+   Overview - EquiDock model
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#setup-and-assumptions">
+   Setup and Assumptions
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#requesting-compute-resources">
+   Requesting compute resources
+  </a>
+  <ul class="visible nav section-nav flex-column">
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#access-to-dgx-compute-resource-ngc-site-or-ngc-cli">
+     Access to DGX compute resource NGC site or NGC CLI
+    </a>
+   </li>
+  </ul>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#data-preprocessing">
+   Data Preprocessing
+  </a>
+  <ul class="visible nav section-nav flex-column">
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#downloading-and-pre-processing-the-dataset">
+     Downloading and pre-processing the dataset
+    </a>
+    <ul class="visible nav section-nav flex-column">
+     <li class="toc-h4 nav-item toc-entry">
+      <a class="reference internal nav-link" href="#download-the-data">
+       Download the data
+      </a>
+      <ul class="visible nav section-nav flex-column">
+       <li class="toc-h5 nav-item toc-entry">
+        <a class="reference internal nav-link" href="#using-bionemo-features-to-download-dips-and-db5">
+         Using BioNeMo features to download DIPS and DB5
+        </a>
+       </li>
+      </ul>
+     </li>
+     <li class="toc-h4 nav-item toc-entry">
+      <a class="reference internal nav-link" href="#processing-of-datasets">
+       Processing of datasets
+      </a>
+     </li>
+    </ul>
+   </li>
+  </ul>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#model-training">
+   Model training
+  </a>
+  <ul class="visible nav section-nav flex-column">
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#example-dataset">
+     Example dataset
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#single-node-or-multi-node-setup">
+     Single-node or Multi-node setup
+    </a>
+    <ul class="visible nav section-nav flex-column">
+     <li class="toc-h4 nav-item toc-entry">
+      <a class="reference internal nav-link" href="#logging-with-wandb">
+       Logging with WandB
+      </a>
+     </li>
+    </ul>
+   </li>
+  </ul>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#output-and-results">
+   Output and Results
+  </a>
+ </li>
+</ul>
+
+    </nav>
+</div>
+    </div>
+    <div class="article row">
+        <div class="col pl-md-3 pl-lg-5 content-container">
+            <!-- Table of contents that is only displayed when printing the page -->
+            <div id="jb-print-docs-body" class="onlyprint">
+                <h1>EquiDock Model Training using BioNeMo</h1>
+                <!-- Table of contents -->
+                <div id="print-main-content">
+                    <div id="jb-print-toc">
+                        
+                        <div>
+                            <h2> Contents </h2>
+                        </div>
+                        <nav aria-label="Page">
+                            <ul class="visible nav section-nav flex-column">
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#overview-equidock-model">
+   Overview - EquiDock model
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#setup-and-assumptions">
+   Setup and Assumptions
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#requesting-compute-resources">
+   Requesting compute resources
+  </a>
+  <ul class="visible nav section-nav flex-column">
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#access-to-dgx-compute-resource-ngc-site-or-ngc-cli">
+     Access to DGX compute resource NGC site or NGC CLI
+    </a>
+   </li>
+  </ul>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#data-preprocessing">
+   Data Preprocessing
+  </a>
+  <ul class="visible nav section-nav flex-column">
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#downloading-and-pre-processing-the-dataset">
+     Downloading and pre-processing the dataset
+    </a>
+    <ul class="visible nav section-nav flex-column">
+     <li class="toc-h4 nav-item toc-entry">
+      <a class="reference internal nav-link" href="#download-the-data">
+       Download the data
+      </a>
+      <ul class="visible nav section-nav flex-column">
+       <li class="toc-h5 nav-item toc-entry">
+        <a class="reference internal nav-link" href="#using-bionemo-features-to-download-dips-and-db5">
+         Using BioNeMo features to download DIPS and DB5
+        </a>
+       </li>
+      </ul>
+     </li>
+     <li class="toc-h4 nav-item toc-entry">
+      <a class="reference internal nav-link" href="#processing-of-datasets">
+       Processing of datasets
+      </a>
+     </li>
+    </ul>
+   </li>
+  </ul>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#model-training">
+   Model training
+  </a>
+  <ul class="visible nav section-nav flex-column">
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#example-dataset">
+     Example dataset
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#single-node-or-multi-node-setup">
+     Single-node or Multi-node setup
+    </a>
+    <ul class="visible nav section-nav flex-column">
+     <li class="toc-h4 nav-item toc-entry">
+      <a class="reference internal nav-link" href="#logging-with-wandb">
+       Logging with WandB
+      </a>
+     </li>
+    </ul>
+   </li>
+  </ul>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#output-and-results">
+   Output and Results
+  </a>
+ </li>
+</ul>
+
+                        </nav>
+                    </div>
+                </div>
+            </div>
+            <main id="main-content" role="main">
+                
+              <div>
+                 <div class="tex2jax_ignore mathjax_ignore section" id="equidock-model-training-using-bionemo">
+<h1>EquiDock Model Training using BioNeMo<a class="headerlink" href="#equidock-model-training-using-bionemo" title="Permalink to this headline">#</a></h1>
+<p>The purpose of this tutorial is to provide an example use case of training a BioNeMo Geometric model using the BioNeMo framework. At the end of this tutorial, the user will get experience in</p>
+<ul class="simple">
+<li><p>configuring various config files and launch parameters for EquiDock training</p></li>
+<li><p>launching single and multi-node, multi-gpu training runs</p></li>
+<li><p>using NVIDIA’s Base Command Platform commands for geometric model training</p></li>
+</ul>
+<div class="section" id="overview-equidock-model">
+<h2>Overview - EquiDock model<a class="headerlink" href="#overview-equidock-model" title="Permalink to this headline">#</a></h2>
+<p><a class="reference internal" href="../models/equidock.html"><span class="doc std std-doc"><strong>EquiDock</strong></span></a> is an pairwise-independent SE(3)-equivariant graph matching network used in protein-protein rigid docking. EquiDock predicts the rotation and translation to place one of the proteins at the right docked position relative to the second protein and it is trained over DIPS and DB5 datasets. EquiDock uses Kabsch algorithm and optimal transport loss to learns the binding pockets with docking poses from keypoint matching (optimal transport) and alignment (Kabsch).</p>
+<p>This EquiDock model training example walkthrough will show how to utilize the compute resources, download and preprocess the datasets, and perform model training on single and multiple nodes.</p>
+</div>
+<div class="section" id="setup-and-assumptions">
+<h2>Setup and Assumptions<a class="headerlink" href="#setup-and-assumptions" title="Permalink to this headline">#</a></h2>
+<p>This tutorial assumes that the user has access to BioNeMo framework and NVIDIA’s BCP and DGX-Cloud compute infrastructure. The user is also expected to have required background details about</p>
+<ul class="simple">
+<li><p>the BioNeMo framework, as described in the <a class="reference internal" href="../index.html"><span class="doc std std-doc">Getting Started</span></a>, and</p></li>
+<li><p>running the model training jobs on <span class="xref myst">BCP</span></p></li>
+</ul>
+<p>All model training related commands should be executed inside the BioNeMo docker container.</p>
+</div>
+<div class="section" id="requesting-compute-resources">
+<h2>Requesting compute resources<a class="headerlink" href="#requesting-compute-resources" title="Permalink to this headline">#</a></h2>
+<div class="section" id="access-to-dgx-compute-resource-ngc-site-or-ngc-cli">
+<h3>Access to DGX compute resource NGC site or NGC CLI<a class="headerlink" href="#access-to-dgx-compute-resource-ngc-site-or-ngc-cli" title="Permalink to this headline">#</a></h3>
+<p>As a prerequisite, configure your access to the DGX compute resources and required contents either via NVIDIA’s <a class="reference external" href="https://docs.nvidia.com/base-command-platform/index.html">Base Command Platform</a> or <a class="reference external" href="https://docs.ngc.nvidia.com/cli/cmd.html">NGC-CLI</a> using <code class="docutils literal notranslate"><span class="pre">ngc</span> <span class="pre">config</span> <span class="pre">set</span></code> command.</p>
+<p>For more details on how to request the resources, visit <span class="xref myst">Running BioNeMo on DGX-Cloud using BCP</span></p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>The interactive job launch example shown here using the Jupyter Lab interface is intended for initial user experience/trial runs. It is <strong>strongly</strong> advised to launch the model training jobs using the launch script as a part of the <code class="docutils literal notranslate"><span class="pre">ngc</span> <span class="pre">batch</span> <span class="pre">run</span></code> command, as mentioned in <span class="xref myst">Running BioNeMo on DGX-Cloud using BCP</span>. For MegaMolBART training, the model training script should be used as a template for launching the job as provided in <code class="docutils literal notranslate"><span class="pre">&lt;BioNeMO_Workspace&gt;/example/protein/equidock/scripts/train_bcp_equidock.sh</span></code>.</p>
+</div>
+<p>First, let’s request the resource for running the model training in an interactive manner.</p>
+<p>Here is one such example of a command for requesting the resources using NGC-CLI. Make sure to update the relevant arguments according to the compute setup, datasets, workspaces, instance types, and so on.</p>
+<p>In the configuration below, update <code class="docutils literal notranslate"><span class="pre">nvidia</span></code> and <code class="docutils literal notranslate"><span class="pre">clara</span></code> with the correct NGC org and team name, respectively. If there is no team name, then this can be omitted. Refer to <a class="reference external" href="https://docs.ngc.nvidia.com/cli/cmd_batch.html#run">NGC documentation</a> for more details.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># execute on host machine</span>
+ngc<span class="w"> </span>batch<span class="w"> </span>run<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--name<span class="w"> </span><span class="s2">&quot;example-training-1&quot;</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--org<span class="w"> </span>nvidia<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--team<span class="w"> </span>clara<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--instance<span class="w"> </span>INSTANCE_TYPE<span class="w"> </span><span class="se">\ </span><span class="w">           </span><span class="c1">#Compute node type, such as dgxa100.80g.8.norm </span>
+<span class="w">  </span>--array-type<span class="w"> </span>PYTORCH<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--replicas<span class="w"> </span><span class="m">2</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--image<span class="w"> </span><span class="s2">&quot;nvidia/clara/bionemo-framework:1.3&quot;</span><span class="w"> </span><span class="se">\ </span><span class="w">    </span><span class="c1">#Image path for BioNeMo</span>
+<span class="w">  </span>--result<span class="w"> </span>/results<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--workspace<span class="w"> </span>WORKSPACE_ID:/example_training:RW<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--port<span class="w"> </span><span class="m">8888</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--datasetid<span class="w"> </span>DATASET_ID:/data/<span class="w"> </span><span class="se">\ </span><span class="w">      </span><span class="c1"># Dataset&#39;s NGC ID</span>
+<span class="w">  </span>--total-runtime<span class="w"> </span>1D<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--preempt<span class="w"> </span>RUNONCE<span class="w"> </span><span class="se">\ </span><span class="w">                  </span>
+<span class="w">  </span>--order<span class="w"> </span><span class="m">1</span><span class="w"> </span><span class="se">\ </span><span class="w">                          </span><span class="c1"># Priority order for the jog execution [1-99]</span>
+<span class="w">  </span>--commandline<span class="w"> </span><span class="s2">&quot;jupyter lab --allow-root --ip=* --port=8888 --no-browser --NotebookApp.token=&#39;&#39; --NotebookApp.allow_origin=&#39;*&#39; --ContentsManager.allow_hidden=True --notebook-dir=/ &amp; sleep infinity&quot;</span><span class="w">  </span><span class="c1"># This command can be replaced with the model training command: python pretrain.py....</span>
+</pre></div>
+</div>
+<br>
+<p>The <code class="docutils literal notranslate"><span class="pre">bcprun</span></code> command provided in the cells <a class="reference internal" href="#single-node-or-multi-node-setup"><span class="std std-doc">below</span></a> can also be submitted as <code class="docutils literal notranslate"><span class="pre">--commandline</span></code> argument (instead of launching Jupyter-lab).</p>
+<p>Once the resources are assigned for the job and the BioNeMo container is running, we’ll proceed ahead via <code class="docutils literal notranslate"><span class="pre">ngc</span> <span class="pre">attach</span> <span class="pre">&lt;JOB_ID&gt;</span></code> or using the Jupyter-Lab interface accessible at <code class="docutils literal notranslate"><span class="pre">https://&lt;COMPUTE_HEAD_NODE_URL_ADDRESS&gt;:8888</span></code>.</p>
+</div>
+</div>
+<div class="section" id="data-preprocessing">
+<h2>Data Preprocessing<a class="headerlink" href="#data-preprocessing" title="Permalink to this headline">#</a></h2>
+<div class="section" id="downloading-and-pre-processing-the-dataset">
+<h3>Downloading and pre-processing the dataset<a class="headerlink" href="#downloading-and-pre-processing-the-dataset" title="Permalink to this headline">#</a></h3>
+<div class="section" id="download-the-data">
+<h4>Download the data<a class="headerlink" href="#download-the-data" title="Permalink to this headline">#</a></h4>
+<p>The Database of Interacting Protein Structures for Interface Prediction (DIPS) and Docking Benchmark 5 (DB5) are comprehensive resources for protein-protein interactions.</p>
+<p>DIPS and DB5 datasets are released with End-to-End Learning on 3D Protein Structure for Interface Prediction (NeurIPS 2019) <a class="reference external" href="https://arxiv.org/abs/1807.01297">[1]</a>.  These datasets <a class="reference external" href="https://github.com/drorlab/DIPS">[2]</a> contains binary protein complexes, a total of 42826 binary protein complexes.</p>
+<div class="section" id="using-bionemo-features-to-download-dips-and-db5">
+<h5>Using BioNeMo features to download DIPS and DB5<a class="headerlink" href="#using-bionemo-features-to-download-dips-and-db5" title="Permalink to this headline">#</a></h5>
+<p>The simplest and most reliable way to download the <em>entire</em> processed DB5 and DIPS datasets through the NGC (processed DATASETID: 1610980)</p>
+</div>
+</div>
+<div class="section" id="processing-of-datasets">
+<h4>Processing of datasets<a class="headerlink" href="#processing-of-datasets" title="Permalink to this headline">#</a></h4>
+<p>You can also download raw dataset from NGC (raw DATASETID: 1611195) and run the training code with <code class="docutils literal notranslate"><span class="pre">do_training=False</span></code> with preconfigured parameters provided in the <code class="docutils literal notranslate"><span class="pre">pretrain.yaml</span></code> config file located in the <code class="docutils literal notranslate"><span class="pre">${BIONEMO_HOME}/examples/protein/equidock/conf</span></code> folder.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># execute in container</span>
+<span class="nb">cd</span><span class="w"> </span>examples/protein/equidock
+python<span class="w"> </span>pretrain.py<span class="w">  </span>--config-path<span class="o">=</span>conf<span class="w"> </span>--config-name<span class="o">=</span>pretrain<span class="w">   </span>data.data_name<span class="o">=</span>db5<span class="w">  </span><span class="nv">do_training</span><span class="o">=</span>False
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>You can set non-default parameters for preprocessing through modification of corresponding hydra flags.</p>
+</div>
+</div>
+</div>
+</div>
+<div class="section" id="model-training">
+<h2>Model training<a class="headerlink" href="#model-training" title="Permalink to this headline">#</a></h2>
+<div class="section" id="example-dataset">
+<h3>Example dataset<a class="headerlink" href="#example-dataset" title="Permalink to this headline">#</a></h3>
+<p>To briefly showcase the model training capacities of BioNeMo Framework, we will use a very small subset of the original DB5/DIPS datasets that is provided as a part of the sample datasets located in <code class="docutils literal notranslate"><span class="pre">${BIONEMO_HOME}/examples/tests/test_data/protein/equidock/raw</span></code> (DB5: <code class="docutils literal notranslate"><span class="pre">db5_residues_maxneighbor_10_cutoff_30.0_pocketCut_8.0/cv_0</span></code> and DIPS: <code class="docutils literal notranslate"><span class="pre">/workspace/bionemo/examples/tests/test_data/protein/equidock/raw/cv_0</span></code>).</p>
+<p>For the purpose of this test run, the folder contains these files for training, testing, and validation:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">label_test.pkl</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">label_train.pkl</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">label_val.pkl</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">ligand_graph_test.bin</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">ligand_graph_train.bin</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">ligand_graph_val.bin</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">receptor_graph_test.bin</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">receptor_graph_train.bin</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">receptor_graph_val.bin</span></code></p></li>
+</ul>
+<p>If you wish to modify the DIPS or DB5 dataset, e.g. change graph cut off, maximum number of  neighbors, or etc., you need to set <code class="docutils literal notranslate"><span class="pre">do_training=False</span></code> in the corresponding yaml file (located at <code class="docutils literal notranslate"><span class="pre">examples/protein/equidock/conf/pretrain.yaml</span></code>) and run python pretrain.py, which will process the data and store it at cache_path. For detailed configuration options and instructions look at the data section of yaml file.</p>
+<p>To process new raw datasets, you need to provide <code class="docutils literal notranslate"><span class="pre">raw_data_path</span></code> and <code class="docutils literal notranslate"><span class="pre">split_files_path</span></code> and ensure the new raw dataset is compatible with DIPS or DB5 format.</p>
+<p>For finetuning on a new dataset with a pretrained model, you should modify the finetune.yaml file to point to the correct pretrained model nemo file by setting <code class="docutils literal notranslate"><span class="pre">restore_from_path</span></code> in the model section of yaml file, see <code class="docutils literal notranslate"><span class="pre">finetune.yaml</span></code>.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>For inference purposes, please refer to <code class="docutils literal notranslate"><span class="pre">inference.py</span></code> located at <code class="docutils literal notranslate"><span class="pre">examples/protein/equidock/nbs/Inference.ipynb</span></code>.</p>
+</div>
+</div>
+<div class="section" id="single-node-or-multi-node-setup">
+<h3>Single-node or Multi-node setup<a class="headerlink" href="#single-node-or-multi-node-setup" title="Permalink to this headline">#</a></h3>
+<p>In this test runs, we will use preconfigured parameters provided in the <code class="docutils literal notranslate"><span class="pre">pretrain.yaml</span></code> config file located in the <code class="docutils literal notranslate"><span class="pre">${BIONEMO_HOME}/examples/protein/equidock/conf</span></code> folder.</p>
+<p>We will also set other parameters suitable for a quick run, such as <code class="docutils literal notranslate"><span class="pre">++trainer.max_epochs=10</span></code> and by using a very limited protein complex subset <code class="docutils literal notranslate"><span class="pre">++limit_val_batches=1.0,</span> <span class="pre">++limit_test_batches=1.0,</span> <span class="pre">++limit_train_batches=0.5</span></code>. User can update these parameters by editing the <code class="docutils literal notranslate"><span class="pre">.yaml</span></code> config file or as additional command line arguments, as shown in the example below. User can select the full dataset and adjust other parameters - for example - as shown in the <code class="docutils literal notranslate"><span class="pre">pretrain.yaml</span></code> file.</p>
+<p>As we are connected to the compute node, we navigate to the BioNeMo home folder using the command <code class="docutils literal notranslate"><span class="pre">cd</span> <span class="pre">${BIONEMO_HOME}</span></code>, and execute the following command in the terminal.</p>
+<p>User may need to update relevant arguments in the commands according to their compute and data setup.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>To run the model training job on a local workstation, user can directly execute the <code class="docutils literal notranslate"><span class="pre">pretrain.py</span></code> script with desired configurations. For example,</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># execute in container</span>
+python<span class="w"> </span>examples/protein/equidock/pretrain.py<span class="w"> </span>
+</pre></div>
+</div>
+</div>
+<p>The <code class="docutils literal notranslate"><span class="pre">bcprun</span></code> command is similar to <code class="docutils literal notranslate"><span class="pre">srun</span></code> command in <a class="reference external" href="https://slurm.schedmd.com/documentation.html">SLURM</a>, you can find more details at the NVIDIA <a class="reference external" href="https://docs.nvidia.com/base-command-platform/user-guide/index.html">BCP User Guide</a>. Note, when using <code class="docutils literal notranslate"><span class="pre">bcprun</span></code>, we need to add backslashes to all environment variables inside <code class="docutils literal notranslate"><span class="pre">--cmd</span></code> so they are not pre-maturely expanded.</p>
+<p>Please make changes in the example command provided below as needed before running them.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># execute on host machine</span>
+bcprun<span class="w"> </span>--nnodes<span class="o">=</span><span class="m">1</span><span class="w"> </span>--npernode<span class="o">=</span><span class="m">1</span><span class="w"> </span>-w<span class="w"> </span>/workspace/bionemo<span class="w"> </span>--cmd<span class="w"> </span><span class="s2">&quot;export PROJECT_MOUNT=\${BIONEMO_HOME} &amp;&amp; \</span>
+<span class="s2">  cd \${BIONEMO_HOME}/examples/protein/equidock &amp;&amp; \</span>
+<span class="s2">  python pretrain.py  --config-path=conf --config-name=pretrain   data.data_name=db5   ++data.cache_path=\${BIONEMO_HOME}/examples/tests/test_data/protein/equidock/raw \</span>
+<span class="s2">  trainer.devices=1 trainer.num_nodes=1 \</span>
+<span class="s2">  ++trainer.max_epochs=5 \</span>
+<span class="s2">  exp_manager.wandb_logger_kwargs.offline=False model.micro_batch_size=8 \</span>
+<span class="s2">  ++exp_manager.create_wandb_logger=False ++model.tensor_model_parallel_size=1 \</span>
+<span class="s2">  ++trainer.accumulate_grad_batches=1 ++exp_manager.checkpoint_callback_params.always_save_nemo=False </span>
+<span class="s2">  &quot;</span>
+</pre></div>
+</div>
+<p><br><br>
+To run the model training on multiple nodes, you will have to update parameters accordingly, for example, the command running the model training job on 2 nodes would look like:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># execute on host machine</span>
+bcprun<span class="w"> </span>--nnodes<span class="o">=</span><span class="m">2</span><span class="w"> </span>--npernode<span class="o">=</span><span class="m">8</span><span class="w"> </span>-w<span class="w"> </span>/workspace/bionemo<span class="w"> </span>--cmd<span class="w"> </span><span class="s2">&quot;export PROJECT_MOUNT=\${BIONEMO_HOME} &amp;&amp; \</span>
+<span class="s2">  cd \${BIONEMO_HOME}/examples/protein/equidock &amp;&amp; \</span>
+<span class="s2">  python pretrain.py  --config-path=conf --config-name=pretrain   data.data_name=db5   ++data.cache_path=\${BIONEMO_HOME}/examples/tests/test_data/protein/equidock/raw \</span>
+<span class="s2">  trainer.devices=8 trainer.num_nodes=2 \</span>
+<span class="s2">  ++trainer.max_epochs=5 \</span>
+<span class="s2">  exp_manager.wandb_logger_kwargs.offline=False model.micro_batch_size=1 \</span>
+<span class="s2">  ++exp_manager.create_wandb_logger=False ++model.tensor_model_parallel_size=1 \</span>
+<span class="s2">  ++trainer.accumulate_grad_batches=1 ++exp_manager.checkpoint_callback_params.always_save_nemo=False </span>
+<span class="s2">  &quot;</span>
+</pre></div>
+</div>
+<div class="section" id="logging-with-wandb">
+<h4>Logging with WandB<a class="headerlink" href="#logging-with-wandb" title="Permalink to this headline">#</a></h4>
+<p>If you are launching the model training job interactively from the terminal/Jupyter-Lab, you can set your Weights and Biases access via <code class="docutils literal notranslate"><span class="pre">wandb</span> <span class="pre">login</span> <span class="pre">&lt;YOUR_WANDB_API_KEY&gt;</span></code> or checkout https://docs.wandb.ai/ref/cli/wandb-login for more information. Alternatively, you may also export the API key as a variable at the time of launching the job via command-line, as shown in <code class="docutils literal notranslate"><span class="pre">${BIONEMO_HOME}/examples/protein/equidock/scripts/train_bcp_equidock.sh</span></code></p>
+</div>
+</div>
+</div>
+<div class="section" id="output-and-results">
+<h2>Output and Results<a class="headerlink" href="#output-and-results" title="Permalink to this headline">#</a></h2>
+<p>As the Equidock model training job is launched, BioNeMo will print out some of the details related to <strong>compute resources</strong>, <strong>model training configuration</strong>, and <strong>dataset</strong> being used for training. As the job progresses, it will also print out various details related to the test/train/validation steps and accuracy matrices at a set intervals.</p>
+<p><img alt="equidock_1.png" src="../_images/equidock_1.png" /></p>
+<p><img alt="equidock_2.png" src="../_images/equidock_2.png" /></p>
+<p>Upon the completion of training process, it will also print out the details related to log files, model checkpoints, and so on, that will also be saved in the directory as configured (usually <code class="docutils literal notranslate"><span class="pre">/result</span></code>).</p>
+<p><img alt="equidock_3.png" src="../_images/equidock_3.png" /></p>
+<p>Finally, if Weights and Biases logging was enabled (for example, <code class="docutils literal notranslate"><span class="pre">++exp_manager.create_wandb_logger=True</span></code> ), you can also visualize the model training progress and resulting matrices, and the summary also gets printed on the termainal at the end of the training job.</p>
+<p><img alt="equidock_4.png" src="../_images/equidock_4.png" /></p>
+</div>
+</div>
+
+<div class="section">
+   
+</div>
+
+              </div>
+              
+            </main>
+            <footer class="footer-article noprint">
+                
+    <!-- Previous / next buttons -->
+<div class='prev-next-area'>
+    <a class='left-prev' id="prev-link" href="model_training_diffdock.html" title="previous page">
+        <i class="fas fa-angle-left"></i>
+        <div class="prev-next-info">
+            <p class="prev-next-subtitle">previous</p>
+            <p class="prev-next-title">DiffDock Model Training using BioNeMo</p>
+        </div>
+    </a>
+    <a class='right-next' id="next-link" href="model_training_esm1nv.html" title="next page">
+    <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">ESM1nv Model Training using BioNeMo</p>
+    </div>
+    <i class="fas fa-angle-right"></i>
+    </a>
+</div>
+            </footer>
+        </div>
+    </div>
+    <div class="footer-content row">
+        <footer class="col footer"><p>
+  
+    By NVIDIA<br/>
+  
+      &copy; Copyright 2023-2024 NVIDIA CORPORATION &amp; AFFILIATES. All rights reserved..<br/>
+    Last updated on Oct 17, 2024.<br/>
+</p>
+        </footer>
+    </div>
+    
+</div>
+
+
+      </div>
+    </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="../_static/scripts/pydata-sphinx-theme.js?digest=1999514e3f237ded88cf"></script>
+
+
+  </body>
+</html>
