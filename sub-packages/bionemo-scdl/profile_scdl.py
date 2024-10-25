@@ -19,9 +19,13 @@ import sys
 import time
 from enum import Enum
 from functools import wraps
+from pathlib import Path
 
+import anndata as ad
+import numpy as np
 import pandas as pd
-from torch.utils.data import DataLoader
+import torch
+from torch.utils.data import DataLoader, Dataset
 
 from bionemo.scdl.io.single_cell_memmap_dataset import SingleCellMemMapDataset
 from bionemo.scdl.util.torch_dataloader_utils import collate_sparse_matrix_batch
@@ -46,6 +50,35 @@ def get_disk_size(directory):
     return size_in_bytes
 
 
+class AnnDataset(Dataset):
+    """Ann Data Dataset."""
+
+    def __init__(self, anndata_obj: ad.AnnData):
+        """Custom Dataset for AnnData objects compatible with PyTorch's DataLoader.
+
+        Args:
+            anndata_obj (ad.AnnData): The AnnData object to load data from.
+        """
+        self.anndata_obj = anndata_obj
+
+    def __len__(self):
+        """Returns the total number of samples."""
+        return self.anndata_obj.shape[0]
+
+    def __getitem__(self, idx):
+        """Returns a single sample from the dataset.
+
+        Args:
+            idx (int): The index of the sample to retrieve.
+
+        Returns:
+            tuple: A tuple containing the features (X) and, if available, the label (y).
+        """
+        # Extract data for the given index
+        row = self.anndata_obj.X[idx]
+        return torch.from_numpy(np.stack([row.indices, row.data]))
+
+
 def timeit(method):
     """Wrapper to time functions."""
 
@@ -67,6 +100,37 @@ def time_all_methods(cls):
         if callable(attr_value) and attr_name != "__init__":  # Check if the attribute is a method
             setattr(cls, attr_name, timeit(attr_value))
     return cls
+
+
+@time_all_methods
+class AnnDataMetrics:
+    """AnnData Metrics."""
+
+    def __init__(self, adatapath):
+        """Instantiate class."""
+        self.adatapath = adatapath
+
+    def load(self):
+        """Create from anndataset."""
+        self.ad = ad.read_h5ad(self.adatapath)
+
+    def size_disk_bytes(self):
+        """Size of scdl on disk."""
+        return get_disk_size(self.adatapath)
+
+    def iterate_dl(self, batch_size=128, num_workers=8):
+        """Iterate over the dataset."""
+        dataloader = DataLoader(
+            AnnDataset(self.ad),
+            batch_size=batch_size,
+            num_workers=num_workers,
+            shuffle=True,
+            collate_fn=collate_sparse_matrix_batch,
+        )
+        n_epochs = 1
+        for _ in range(n_epochs):
+            for _ in dataloader:
+                pass
 
 
 @time_all_methods
@@ -131,38 +195,40 @@ class SCDLMetrics:
 
 if __name__ == "__main__":
     dicts = []
-    for fn in [
-        "06a7ffec-2697-4d6f-96f6-d00a34bedb3d",
-        "3310476e-ee9d-4179-9446-df5d073f38d8",
-        "4b0fe297-fd25-4fee-bb1d-93dd554f4f90",
-        "5d6308fd-76e2-45b1-b7a1-1f671e2097b7",
-        "6a86f59d-2cc2-4fbe-9337-908065f80e09",
-        "93bc4573-ef9c-4408-bc9a-1dc3da278e8d",
-        "97e96fb1-8caf-4f08-9174-27308eabd4ea",
-        "9da4d19f-f6ac-4bf0-a47e-2935b1164569",
-        "fdd2ff73-9163-4648-90da-b218573c2bee",
-        "ff9ba570-f113-483f-804e-485c2aee7727",
-    ]:
+    path = Path("samples/")
+    for fn in path.rglob("*"):
+        if get_disk_size(fn) > 6 * (1_024**3):
+            continue
+        print(fn, get_disk_size(fn))
         results_dict = {}
 
-        anndatapath = "hdf5s/" + fn + ".h5ad"
+        anndatapath = fn
         results_dict["anndata file"] = fn
+        anndata_m = AnnDataMetrics(anndatapath)
+        results_dict["AnnData Dataset Load Time (s)"] = anndata_m.load()[1]
+        for k in range(3):
+            results_dict[f"AnnData Time to iterate over Dataset 0 workers (s) {k}"] = anndata_m.iterate_dl(
+                num_workers=0
+            )[1]
+            results_dict[f"AnnData Time to iterate over Dataset 8 workers (s) {k}"] = anndata_m.iterate_dl(
+                num_workers=8
+            )[1]
 
-        scdl_m = SCDLMetrics(memmap_dir="memmap_" + fn, adatapath=anndatapath)
+        del anndata_m
+        scdl_m = SCDLMetrics(memmap_dir="memmap_" + Path(fn).stem, adatapath=anndatapath)
         results_dict["AnnData Dataset Size on Disk (MB)"] = scdl_m.anndata_size_disk_bytes()[0] / (1_024**2)
 
         results_dict["SCDL Dataset from AnnData Time (s)"] = scdl_m.create_from_adata()[1]
         results_dict["SCDL Dataset save time (s)"] = scdl_m.save()[1]
         results_dict["SCDL Dataset Load Time (s)"] = scdl_m.load_backed()[1]
-        results_dict["SCDL Time to iterate over Dataset 0 workers (s) 0"] = scdl_m.iterate_dl(num_workers=0)[1]
-        results_dict["SCDL Time to iterate over Dataset 8 workers (s) 0"] = scdl_m.iterate_dl(num_workers=8)[1]
-        results_dict["SCDL Time to iterate over Dataset 0 workers (s) 1"] = scdl_m.iterate_dl(num_workers=0)[1]
-        results_dict["SCDL Time to iterate over Dataset 8 workers (s) 1"] = scdl_m.iterate_dl(num_workers=8)[1]
+
+        for k in range(3):
+            results_dict[f"SCDL Time to iterate over Dataset 0 workers (s) {k}"] = scdl_m.iterate_dl(num_workers=0)[1]
+            results_dict[f"SCDL Time to iterate over Dataset 8 workers (s) {k}"] = scdl_m.iterate_dl(num_workers=8)[1]
 
         results_dict["SCDL Dataset Size on Disk (MB)"] = scdl_m.size_disk_bytes()[0] / (1_024**2)
-        results_dict["SCDL Dataset Size in Memory (MB)"] = scdl_m.size_mem_dataset_bytes()[0] / (1_024**2)
 
         dicts.append(results_dict)
         combined = {key: [d[key] for d in dicts] for key in dicts[0]}
         df = pd.DataFrame(combined)
-        df.to_csv("full_runtime.csv", index=False)
+        df.to_csv("all_runtime.csv", index=False)
