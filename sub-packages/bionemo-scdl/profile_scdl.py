@@ -79,6 +79,54 @@ class AnnDataset(Dataset):
         return torch.from_numpy(np.stack([row.indices, row.data]))
 
 
+class AnnDataRandomDataset(Dataset):
+    """Random Blocks of the Dataset."""
+
+    def __init__(self, adata, sample_size=128):
+        """Instantiate class."""
+        self.adata = adata
+        self.sample_size = sample_size
+        self.total_rows = self.adata.shape[0]
+
+    def __len__(self):
+        """Length."""
+        return len(self.adata) // self.sample_size
+
+    def __getitem__(self, idx):
+        """Randomly sample indices for the requested rows."""
+        random_indices = np.random.choice(self.total_rows, self.sample_size, replace=False)
+
+        # Extract the data for the requested rows
+        data = self.adata.X[random_indices]
+
+        # Convert to torch tensor
+        data_tensor = torch.tensor(data.toarray(), dtype=torch.float32)
+
+        return data_tensor
+
+
+class AnnDataContinuousBlockDataset(Dataset):
+    """Continous Blocks of the Dataset."""
+
+    def __init__(self, adata, sample_size=128):
+        """Instantiate class."""
+        self.adata = adata
+        self.sample_size = sample_size
+        self.total_rows = self.adata.shape[0]
+
+    def __len__(self):
+        """Length."""
+        return len(self.adata) // self.sample_size
+
+    def __getitem__(self, idx):
+        """Randomly sample indices for the requested rows."""
+        start_idx = idx * self.sample_size
+        end_idx = min(start_idx + self.sample_size, self.total_rows)
+        data = self.adata.X[start_idx:end_idx]
+        data_tensor = torch.tensor(data.toarray(), dtype=torch.float32)
+        return data_tensor
+
+
 def timeit(method):
     """Wrapper to time functions."""
 
@@ -114,6 +162,10 @@ class AnnDataMetrics:
         """Create from anndataset."""
         self.ad = ad.read_h5ad(self.adatapath)
 
+    def load_backed(self):
+        """Create from anndataset."""
+        self.ad_backed = ad.read_h5ad(self.adatapath, backed="r")
+
     def size_disk_bytes(self):
         """Size of scdl on disk."""
         return get_disk_size(self.adatapath)
@@ -126,6 +178,32 @@ class AnnDataMetrics:
             num_workers=num_workers,
             shuffle=True,
             collate_fn=collate_sparse_matrix_batch,
+        )
+        n_epochs = 1
+        for _ in range(n_epochs):
+            for _ in dataloader:
+                pass
+
+    def iterate_dl_backed_random(self, batch_size=128, num_workers=8):
+        """Get random chunks at once."""
+        dataloader = DataLoader(
+            AnnDataRandomDataset(self.ad_backed, sample_size=batch_size),
+            batch_size=1,
+            num_workers=num_workers,
+            shuffle=True,
+        )
+        n_epochs = 1
+        for _ in range(n_epochs):
+            for _ in dataloader:
+                pass
+
+    def iterate_dl_backed_continuous(self, batch_size=128, num_workers=8):
+        """Get continous chunks at once."""
+        dataloader = DataLoader(
+            AnnDataContinuousBlockDataset(self.ad_backed, sample_size=batch_size),
+            batch_size=1,
+            num_workers=num_workers,
+            shuffle=False,
         )
         n_epochs = 1
         for _ in range(n_epochs):
@@ -195,9 +273,9 @@ class SCDLMetrics:
 
 if __name__ == "__main__":
     dicts = []
-    path = Path("samples/")
+    path = Path("../../samples/")
     for fn in path.rglob("*"):
-        if get_disk_size(fn) > 6 * (1_024**3):
+        if get_disk_size(fn) > (1_024**2):
             continue
         print(fn, get_disk_size(fn))
         results_dict = {}
@@ -206,13 +284,23 @@ if __name__ == "__main__":
         results_dict["anndata file"] = fn
         anndata_m = AnnDataMetrics(anndatapath)
         results_dict["AnnData Dataset Load Time (s)"] = anndata_m.load()[1]
-        for k in range(3):
-            results_dict[f"AnnData Time to iterate over Dataset 0 workers (s) {k}"] = anndata_m.iterate_dl(
-                num_workers=0
-            )[1]
-            results_dict[f"AnnData Time to iterate over Dataset 8 workers (s) {k}"] = anndata_m.iterate_dl(
-                num_workers=8
-            )[1]
+        results_dict["AnnData Dataset Backed Load Time (s)"] = anndata_m.load_backed()[1]
+
+        results_dict["AnnData Time to iterate over Dataset 0 workers (s)"] = anndata_m.iterate_dl(num_workers=0)[1]
+        results_dict["AnnData Time to iterate over Dataset 8 workers (s)"] = anndata_m.iterate_dl(num_workers=8)[1]
+        results_dict["AnnData Time to iterate over Dataset Block Batches 0 workers (s)"] = (
+            anndata_m.iterate_dl_backed_continuous(num_workers=0)[1]
+        )
+        results_dict["AnnData Time to iterate over Dataset Block Batches 8 workers (s)"] = (
+            anndata_m.iterate_dl_backed_continuous(num_workers=8)[1]
+        )
+
+        results_dict["AnnData Time to iterate over Dataset Random Batches 0 workers (s)"] = (
+            anndata_m.iterate_dl_backed_random(num_workers=0)[1]
+        )
+        results_dict["AnnData Time to iterate over Dataset Random Batches 8 workers (s)"] = (
+            anndata_m.iterate_dl_backed_random(num_workers=8)[1]
+        )
 
         del anndata_m
         scdl_m = SCDLMetrics(memmap_dir="memmap_" + Path(fn).stem, adatapath=anndatapath)
@@ -222,9 +310,8 @@ if __name__ == "__main__":
         results_dict["SCDL Dataset save time (s)"] = scdl_m.save()[1]
         results_dict["SCDL Dataset Load Time (s)"] = scdl_m.load_backed()[1]
 
-        for k in range(3):
-            results_dict[f"SCDL Time to iterate over Dataset 0 workers (s) {k}"] = scdl_m.iterate_dl(num_workers=0)[1]
-            results_dict[f"SCDL Time to iterate over Dataset 8 workers (s) {k}"] = scdl_m.iterate_dl(num_workers=8)[1]
+        results_dict["SCDL Time to iterate over Dataset 0 workers (s)"] = scdl_m.iterate_dl(num_workers=0)[1]
+        results_dict["SCDL Time to iterate over Dataset 8 workers (s)"] = scdl_m.iterate_dl(num_workers=8)[1]
 
         results_dict["SCDL Dataset Size on Disk (MB)"] = scdl_m.size_disk_bytes()[0] / (1_024**2)
 
