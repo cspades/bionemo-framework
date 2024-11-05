@@ -31,6 +31,7 @@ from megatron.core.transformer.transformer_block import TransformerBlock
 from megatron.core.transformer.transformer_config import TransformerConfig
 from megatron.core.transformer.utils import get_linear_layer
 from torch import Tensor
+from torch.nn import functional as F
 from torch.optim import Optimizer
 
 from bionemo.esm2.data.tokenizer import BioNeMoESMTokenizer
@@ -70,8 +71,10 @@ class ESM2Model(MegatronBioBertModel):
         seq_len_interpolation_factor: Optional[float] = None,
         add_binary_head: bool = True,
         return_embeddings: bool = False,
+        include_embeddings: bool = False,
         use_full_attention_mask: bool = False,
         include_hiddens: bool = False,
+        skip_logits: bool = False,
     ) -> None:
         """Initialize the ESM2 model.
 
@@ -94,8 +97,10 @@ class ESM2Model(MegatronBioBertModel):
             seq_len_interpolation_factor (Optional[float]): Interpolation factor for sequence length. Defaults to None.
             add_binary_head (bool): Whether to add a binary head. Defaults to True.
             return_embeddings (bool): Whether to return embeddings. Defaults to False.
+            include_embeddings (bool): Whether to include embeddings in the output dictionary. Defaults to False.
             use_full_attention_mask (bool): Whether to use full attention mask. Defaults to False.
-            include_hiddens: Whether to include hidden states in the output dictionary. Defaults to False.
+            include_hiddens (bool): Whether to include hidden states in the output dictionary. Defaults to False.
+            skip_logits (bool): Skip writing the token logits in output dict
         """
         super(MegatronBioBertModel, self).__init__(config=config)
         self.post_process = post_process
@@ -118,7 +123,9 @@ class ESM2Model(MegatronBioBertModel):
         self.position_embedding_type = position_embedding_type
         self.add_binary_head = add_binary_head
         self.return_embeddings = return_embeddings
+        self.include_embeddings = include_embeddings
         self.include_hiddens = include_hiddens
+        self.skip_logits = skip_logits
 
         # megatron core pipelining currently depends on model type
         self.model_type = ModelType.encoder_or_decoder
@@ -207,12 +214,15 @@ class ESM2Model(MegatronBioBertModel):
         )
 
 
+@torch.compile
 def esm_gelu_func(x: Tensor) -> Tensor:
     """ESM2-specific gelu implementation from the original ESM repo.
 
     !!! warning
 
-        Using F.gelu yields subtly wrong results.
+        Using F.gelu yields subtly wrong results, but only when used in combination with bias_activation_fusion=True
+        This variant will not allow you to use bias_activation_fusion=True, which may be the only accuracy benefit over
+        a native F.gelu.
 
     Args:
         x: input tensor of any given dimension
@@ -273,7 +283,8 @@ class ESM2GenericConfig(BioBertConfig[ESM2ModelT, MegatronLossType]):
     attention_dropout: float = 0.0  # ESM2 does not use attention dropout
     apply_residual_connection_post_layernorm: bool = False  # TODO: farhadr False is new default, True was BERT pub.
     layernorm_epsilon: float = 1.0e-5
-    activation_func: Callable = esm_gelu_func  # ESM2 MLP
+    bias_activation_fusion: bool = True  # True degrades accuracy slightly, but is faster.
+    activation_func: Callable = F.gelu  # esm_gelu_func  # ESM2 MLP
     init_method_std: float = 0.02
 
     # embedding
@@ -282,7 +293,7 @@ class ESM2GenericConfig(BioBertConfig[ESM2ModelT, MegatronLossType]):
 
     # core attention
     use_esm_attention: bool = False  # Skip ESM2 custom attention for TE acceleration. Still passes golden value test.
-    attention_softmax_in_fp32: bool = True
+    attention_softmax_in_fp32: bool = False
     normalize_attention_scores: bool = False
 
     # From megatron.core.models.gpt.bert_model.GPTModel
@@ -297,9 +308,6 @@ class ESM2GenericConfig(BioBertConfig[ESM2ModelT, MegatronLossType]):
     seq_length: int = 1024
     biobert_spec_option: BiobertSpecOption = BiobertSpecOption.esm2_bert_layer_with_transformer_engine_spec
 
-    # TODO: Move this to better places?
-    get_attention_mask_from_fusion: bool = False
-
     optimizer_fn: Optional[Callable[[MegatronBioBertModel], Optimizer]] = None
     # TODO (@skothenhill,@georgea) update to use the nemo2 checkpoint mixins
     #  support HF (requires weight interleaving on qkv layer) and nemo1 checkpoints ideally.
@@ -310,6 +318,8 @@ class ESM2GenericConfig(BioBertConfig[ESM2ModelT, MegatronLossType]):
     # TODO (@jstjohn) come up with a cleaner way in the biobert module to return user requested
     #  things as part of the workflow for inference and fine-tuning.
     return_embeddings: bool = False
+    include_embeddings: bool = False
+    skip_logits: bool = False
     return_only_hidden_states: bool = False  # return logits
 
     def __post_init__(self):
