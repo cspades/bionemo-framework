@@ -22,8 +22,8 @@ from torch.nn import functional as F
 
 from bionemo.geneformer.model.finetune_token_regressor import FineTuneSeqLenBioBertConfig
 from bionemo.geneformer.tokenizer.gene_tokenizer import GeneTokenizer
-from bionemo.llm.model.biobert.connector import GenericBioBertNeMo1LightningModuleConnector
 from bionemo.llm.api import MegatronLossType
+from bionemo.llm.model.biobert.connector import GenericBioBertNeMo1LightningModuleConnector
 from bionemo.llm.model.biobert.model import BioBertConfig, MegatronBioBertModel, PositionEmbeddingKinds
 from bionemo.llm.model.biobert.transformer_specs import BiobertSpecOption
 from bionemo.llm.model.loss import BERTMLMLossWithReduction

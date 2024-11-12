@@ -38,8 +38,8 @@ from bionemo.core.utils.dtypes import get_autocast_dtype
 from bionemo.esm2.data.tokenizer import BioNeMoESMTokenizer, get_tokenizer
 from bionemo.esm2.model.attention import ESM2DotProductAttention, ESM2TEDotProductAttention
 from bionemo.esm2.model.embedding import ESM2Embedding
-from bionemo.llm.model.biobert.connector import GenericBioBertNeMo1LightningModuleConnector
 from bionemo.llm.api import MegatronLossType
+from bionemo.llm.model.biobert.connector import GenericBioBertNeMo1LightningModuleConnector
 from bionemo.llm.model.biobert.model import BioBertConfig, MegatronBioBertModel, PositionEmbeddingKinds
 from bionemo.llm.model.biobert.transformer_specs import BiobertSpecOption
 from bionemo.llm.utils import iomixin_utils as iom

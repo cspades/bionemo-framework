@@ -18,8 +18,8 @@ import argparse
 import tempfile
 from pathlib import Path
 
-from bionemo.geneformer.api import GeneformerNeMo1LightningModuleConnector
 from bionemo.core.data.load import _s3_download
+from bionemo.geneformer.api import GeneformerNeMo1LightningModuleConnector
 
 
 if __name__ == "__main__":

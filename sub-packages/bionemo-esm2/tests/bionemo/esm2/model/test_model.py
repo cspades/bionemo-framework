@@ -222,9 +222,11 @@ def test_nemo1_checkpoint_conversion(
 
 
 def test_esm2_650m_checkpoint(esm2_config):
-    with megatron_parallel_state_utils.distributed_model_parallel_state(), tarfile.open(
-        nemo1_checkpoint_path, "r"
-    ) as ckpt, torch.no_grad():
+    with (
+        megatron_parallel_state_utils.distributed_model_parallel_state(),
+        tarfile.open(nemo1_checkpoint_path, "r") as ckpt,
+        torch.no_grad(),
+    ):
         tokenizer = get_tokenizer()
         esm2_model = esm2_config.configure_model(tokenizer)
 
