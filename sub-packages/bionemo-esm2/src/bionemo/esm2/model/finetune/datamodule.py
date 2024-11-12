@@ -15,23 +15,118 @@
 
 
 import functools
+import os
+from typing import Sequence, Tuple, Union
 
-import pytorch_lightning as pl
+import numpy as np
+import pandas as pd
 import torch
 import torch.utils.data
 from nemo.lightning.pytorch.plugins import MegatronDataSampler
 from nemo.utils import logging
 from pytorch_lightning.utilities.types import EVAL_DATALOADERS, TRAIN_DATALOADERS
+from torch import Tensor
+from torch.utils.data import Dataset
 
 from bionemo.core.data.multi_epoch_dataset import IdentityMultiEpochDatasetWrapper, MultiEpochDatasetResampler
 from bionemo.esm2.data import tokenizer
 from bionemo.esm2.model.finetune.finetune_regressor import InMemorySingleValueDataset
 from bionemo.esm2.model.finetune.finetune_token_classifier import InMemoryPerTokenValueDataset
 from bionemo.llm.data import collate
+from bionemo.llm.data.datamodule import MegatronDataModule
+from bionemo.llm.data.types import BertSample
 from bionemo.llm.utils.datamodule_utils import infer_num_samples
 
 
-class ESM2FineTuneDataModule(pl.LightningDataModule):
+class InMemoryCSVDataset(Dataset):
+    """An in-memory dataset that tokenize strings into BertSample instances."""
+
+    def __init__(
+        self,
+        data_path: str | os.PathLike,
+        tokenizer: tokenizer.BioNeMoESMTokenizer = tokenizer.get_tokenizer(),
+        seed: int = np.random.SeedSequence().entropy,  # type: ignore
+    ):
+        """Initializes a dataset for single-value regression fine-tuning.
+
+        This is an in-memory dataset that does not apply masking to the sequence. But keeps track of <mask> in the
+        dataset sequences provided.
+
+        Args:
+            data_path (str | os.PathLike): A path to the CSV file containing sequences.
+            labels (Optional[Sequence[float | str]]): An optional sequence of labels with 1:1 mapping to sequences.
+            tokenizer (tokenizer.BioNeMoESMTokenizer, optional): The tokenizer to use. Defaults to tokenizer.get_tokenizer().
+            seed: Random seed for reproducibility. This seed is mixed with the index of the sample to retrieve to ensure
+                that __getitem__ is deterministic, but can be random across different runs. If None, a random seed is
+                generated.
+        """
+        self.sequences, self.labels = self.load_data(data_path)
+
+        self.seed = seed
+        self._len = len(self.sequences)
+        self.tokenizer = tokenizer
+
+    def __len__(self) -> int:
+        """The size of the dataset."""
+        return self._len
+
+    def __getitem__(self, index: int) -> BertSample:
+        """Obtains the BertSample at the given index."""
+        sequence = self.sequences[index]
+        tokenized_sequence = self._tokenize(sequence)
+
+        label = tokenized_sequence if len(self.labels) == 0 else self.labels[index]
+        # Overall mask for a token being masked in some capacity - either mask token, random token, or left as-is
+        loss_mask = ~torch.isin(tokenized_sequence, Tensor(self.tokenizer.all_special_ids))
+
+        return {
+            "text": tokenized_sequence,
+            "types": torch.zeros_like(tokenized_sequence, dtype=torch.int64),
+            "attention_mask": torch.ones_like(tokenized_sequence, dtype=torch.int64),
+            "labels": label,
+            "loss_mask": loss_mask,
+            "is_random": torch.zeros_like(tokenized_sequence, dtype=torch.int64),
+        }
+
+    def load_data(self, csv_path: str | os.PathLike) -> Tuple[Sequence, Sequence]:
+        """Loads data from a CSV file, returning sequences and optionally labels.
+
+        This method should be implemented by subclasses to process labels for their specific dataset.
+
+        Args:
+            csv_path (str | os.PathLike): The path to the CSV file containing the data.
+            The file is expected to have at least one column named 'sequence'. A 'label' column is optional.
+
+        Returns:
+            Tuple[Sequence, Sequence]: A tuple where the first element is a list of sequences and the second element is
+            a list of labels. If the 'label' column is not present, an empty list is returned for labels.
+        """
+        df = pd.read_csv(csv_path)
+        sequences = df["sequences"].tolist()
+
+        if "label" in df.columns:
+            labels = df["labels"].tolist()
+        else:
+            labels = []
+        return sequences, labels
+
+    def _tokenize(self, sequence: str) -> Tensor:
+        """Tokenize a protein sequence.
+
+        Args:
+            sequence: The protein sequence.
+
+        Returns:
+            The tokenized sequence.
+        """
+        tensor = self.tokenizer.encode(sequence, add_special_tokens=True, return_tensors="pt")
+        return tensor.flatten()  # type: ignore
+
+
+DATASET_TYPES = Union[InMemoryPerTokenValueDataset, InMemorySingleValueDataset, InMemoryCSVDataset, None]
+
+
+class ESM2FineTuneDataModule(MegatronDataModule):
     """A PyTorch Lightning DataModule for fine-tuning ESM2 models.
 
     This DataModule is designed to handle the data preparation and loading for fine-tuning ESM2 models.
@@ -40,8 +135,9 @@ class ESM2FineTuneDataModule(pl.LightningDataModule):
 
     def __init__(
         self,
-        train_dataset: InMemoryPerTokenValueDataset | InMemorySingleValueDataset,
-        valid_dataset: InMemoryPerTokenValueDataset | InMemorySingleValueDataset,
+        train_dataset: DATASET_TYPES = None,
+        valid_dataset: DATASET_TYPES = None,
+        predict_dataset: DATASET_TYPES = None,
         seed: int = 42,
         min_seq_length: int | None = None,
         max_seq_length: int = 1024,
@@ -51,9 +147,6 @@ class ESM2FineTuneDataModule(pl.LightningDataModule):
         persistent_workers: bool = True,
         pin_memory: bool = True,
         rampup_batch_size: list[int] | None = None,
-        mask_prob: float = 0.15,
-        mask_token_prob: float = 0.8,
-        mask_random_prob: float = 0.1,
         tokenizer: tokenizer.BioNeMoESMTokenizer = tokenizer.get_tokenizer(),
     ) -> None:
         """Initialize the ESM2FineTuneDataModule.
@@ -61,6 +154,7 @@ class ESM2FineTuneDataModule(pl.LightningDataModule):
         Args:
             train_dataset: The training dataset.
             valid_dataset: The validation dataset.
+            predict_dataset: The prediction dataset. Should not be set together with train/valid datasets
             seed: The random seed to use for shuffling the datasets. Defaults to 42.
             min_seq_length: The minimum sequence length for the datasets. Defaults to None.
             max_seq_length: The maximum sequence length for the datasets. Defaults to 1024.
@@ -70,9 +164,6 @@ class ESM2FineTuneDataModule(pl.LightningDataModule):
             persistent_workers: Whether to persist the worker processes. Defaults to True.
             pin_memory: Whether to pin the data in memory. Defaults to True.
             rampup_batch_size: The batch size ramp-up schedule. Defaults to None.
-            mask_prob: The probability of masking a token. Defaults to 0.15.
-            mask_token_prob: The probability of replacing a masked token with a [MASK] token. Defaults to 0.8.
-            mask_random_prob: The probability of replacing a masked token with a random token. Defaults to 0.1.
             tokenizer: The tokenizer to use for tokenization. Defaults to the BioNeMoESMTokenizer.
 
         Returns:
@@ -81,12 +172,12 @@ class ESM2FineTuneDataModule(pl.LightningDataModule):
         super().__init__()
         self.train_dataset = train_dataset
         self.valid_dataset = valid_dataset
+        self.predict_dataset = predict_dataset
+        if predict_dataset is not None:
+            assert train_dataset is None, "Datamodule expects either trin/valid dataset or predict dataset"
         self._seed = seed
         self._min_seq_length = min_seq_length
         self._max_seq_length = max_seq_length
-        self._mask_prob = mask_prob
-        self._mask_token_prob = mask_token_prob
-        self._mask_random_prob = mask_random_prob
         self._tokenizer = tokenizer
 
         self._micro_batch_size = micro_batch_size
@@ -100,6 +191,7 @@ class ESM2FineTuneDataModule(pl.LightningDataModule):
             global_batch_size=global_batch_size,
             dataloader_type="single",  # `MegatronPretrainingRandomSampler` from "cyclic" is failing.
             rampup_batch_size=rampup_batch_size,
+            output_log=predict_dataset is None,  # logging does not work with predict step
         )
 
     def setup(self, stage: str) -> None:
@@ -122,22 +214,24 @@ class ESM2FineTuneDataModule(pl.LightningDataModule):
                 "in each. Instead set max_epochs to 1 and increase the number of max_steps."
             )
 
-        max_train_steps = self.trainer.max_steps
-        if max_train_steps <= 0:
-            raise RuntimeError("Please specify trainer.max_steps")
-
         # Create training dataset
-        num_train_samples = int(max_train_steps * self.data_sampler.global_batch_size)
-        self._train_ds = self._create_epoch_based_dataset(self.train_dataset, num_train_samples)
+        if self.train_dataset is not None:
+            max_train_steps = self.trainer.max_steps
+            if max_train_steps <= 0:
+                raise RuntimeError("Please specify trainer.max_steps")
+
+            num_train_samples = int(max_train_steps * self.data_sampler.global_batch_size)
+            self._train_ds = self._create_epoch_based_dataset(self.train_dataset, num_train_samples)
 
         # Create validation dataset
-        num_val_samples = infer_num_samples(
-            limit_batches=self.trainer.limit_val_batches,
-            num_samples_in_dataset=len(self.valid_dataset),
-            global_batch_size=self.data_sampler.global_batch_size,
-            stage="val",
-        )
-        self._valid_ds = self._create_epoch_based_dataset(self.valid_dataset, num_val_samples)
+        if self.valid_dataset is not None:
+            num_val_samples = infer_num_samples(
+                limit_batches=self.trainer.limit_val_batches,
+                num_samples_in_dataset=len(self.valid_dataset),
+                global_batch_size=self.data_sampler.global_batch_size,
+                stage="val",
+            )
+            self._valid_ds = self._create_epoch_based_dataset(self.valid_dataset, num_val_samples)
 
         assert (
             hasattr(self, "trainer") and self.trainer is not None
@@ -149,7 +243,10 @@ class ESM2FineTuneDataModule(pl.LightningDataModule):
         total_samples: int,
     ):
         return MultiEpochDatasetResampler(
-            IdentityMultiEpochDatasetWrapper(dataset), num_samples=total_samples, shuffle=True, seed=self._seed
+            IdentityMultiEpochDatasetWrapper(dataset),
+            num_samples=total_samples,
+            shuffle=self.predict_dataset is None,
+            seed=self._seed,
         )
 
     def _create_dataloader(self, dataset, **kwargs) -> torch.utils.data.DataLoader:
@@ -171,11 +268,18 @@ class ESM2FineTuneDataModule(pl.LightningDataModule):
 
     def train_dataloader(self) -> TRAIN_DATALOADERS:
         """Returns the dataloader for training data."""
+        assert self._train_ds is not None, "train_dataset is not provided to ESM2FineTuneDataModule"
         return self._create_dataloader(self._train_ds)
 
     def val_dataloader(self) -> EVAL_DATALOADERS:
         """Returns the dataloader for validation data."""
+        assert self._valid_ds is not None, "valid_dataset is not provided to ESM2FineTuneDataModule"
         return self._create_dataloader(self._valid_ds)
+
+    def predict_dataloader(self) -> EVAL_DATALOADERS:
+        """Returns the dataloader for prediction data."""
+        assert self.predict_dataset is not None, "predict_dataset is not provided to ESM2FineTuneDataModule"
+        return self._create_dataloader(self.predict_dataset)
 
     def test_dataloader(self) -> EVAL_DATALOADERS:
         """Raises a not implemented error."""

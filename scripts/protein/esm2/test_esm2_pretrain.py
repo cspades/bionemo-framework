@@ -84,8 +84,7 @@ def dummy_parquet_train_val_inputs(tmp_path):
     return train_cluster_path, valid_cluster_path
 
 
-@pytest.mark.skip("duplicate with argparse, model and data unittests")
-def test_main_runs(tmpdir, dummy_protein_dataset, dummy_parquet_train_val_inputs):
+def test_main_runs(monkeypatch, tmpdir, dummy_protein_dataset, dummy_parquet_train_val_inputs):
     train_cluster_path, valid_cluster_path = dummy_parquet_train_val_inputs
 
     result_dir = Path(tmpdir.mkdir("results"))
@@ -98,7 +97,8 @@ def test_main_runs(tmpdir, dummy_protein_dataset, dummy_parquet_train_val_inputs
             valid_database_path=dummy_protein_dataset,
             num_nodes=1,
             devices=1,
-            seq_length=128,
+            min_seq_length=None,
+            max_seq_length=128,
             result_dir=result_dir,
             wandb_project=None,
             wandb_offline=True,
@@ -106,8 +106,9 @@ def test_main_runs(tmpdir, dummy_protein_dataset, dummy_parquet_train_val_inputs
             warmup_steps=5,
             limit_val_batches=1,
             val_check_interval=1,
+            log_every_n_steps=None,
             num_dataset_workers=1,
-            biobert_spec_option=BiobertSpecOption.esm2_bert_layer_local_spec,
+            biobert_spec_option=BiobertSpecOption.esm2_bert_layer_with_transformer_engine_spec,
             lr=1e-4,
             micro_batch_size=2,
             accumulate_grad_batches=2,
@@ -139,11 +140,13 @@ def test_main_runs(tmpdir, dummy_protein_dataset, dummy_parquet_train_val_inputs
 
 @pytest.mark.parametrize("limit_val_batches", [1.0, 4, None])
 def test_val_dataloader_in_main_runs_with_limit_val_batches(
-    tmpdir, dummy_protein_dataset, dummy_parquet_train_val_inputs, limit_val_batches
+    monkeypatch, tmpdir, dummy_protein_dataset, dummy_parquet_train_val_inputs, limit_val_batches
 ):
+    # TODO: pydantic.
     """Ensures doesn't run out of validation samples whenever updating limit_val_batches logic.
 
     Args:
+        monkeypatch: (MonkeyPatch): Monkey patch for environment variables.
         tmpdir (str): Temporary directory.
         dummy_protein_dataset (str): Path to dummy protein dataset.
         dummy_parquet_train_val_inputs (tuple[str, str]): Tuple of dummy protein train and val cluster parquet paths.
@@ -170,8 +173,9 @@ def test_val_dataloader_in_main_runs_with_limit_val_batches(
             warmup_steps=2,
             limit_val_batches=limit_val_batches,
             val_check_interval=1,
+            log_every_n_steps=None,
             num_dataset_workers=1,
-            biobert_spec_option=BiobertSpecOption.esm2_bert_layer_local_spec,
+            biobert_spec_option=BiobertSpecOption.esm2_bert_layer_with_transformer_engine_spec,
             lr=1e-4,
             micro_batch_size=2,
             accumulate_grad_batches=1,
@@ -227,7 +231,9 @@ def test_pretrain_cli(tmpdir, dummy_protein_dataset, dummy_parquet_train_val_inp
     --micro-batch-size 2 \
     --accumulate-grad-batches 2
     """.strip()
-    env = dict(**os.environ)  # a local copy of the environment
+
+    # a local copy of the environment
+    env = dict(**os.environ)
     env["MASTER_PORT"] = str(open_port)
     cmd = shlex.split(cmd_str)
     result = subprocess.run(

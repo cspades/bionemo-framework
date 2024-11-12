@@ -14,10 +14,7 @@
 # limitations under the License.
 
 
-import hashlib
-from typing import Any, Callable, Dict, List, Optional, Union
-
-import torch
+from typing import Any, Dict, List, Union
 
 
 def float_or_int_or_none(value: Union[str, float, int, None]) -> Union[float, int, None]:
@@ -105,56 +102,18 @@ def infer_global_batch_size(
         raise ValueError(f"tensor_model_parallel_size must be greater than 0, got {tensor_model_parallel_size}")
     if pipeline_model_parallel_size <= 0:
         raise ValueError(f"pipeline_model_parallel_size must be greater than 0, got {pipeline_model_parallel_size}")
-    if devices % (tensor_model_parallel_size * pipeline_model_parallel_size) != 0:
-        raise ValueError(
-            f"devices must be divisible by tensor_model_parallel_size * pipeline_model_parallel_size, "
-            f"got {devices} and {tensor_model_parallel_size} * {pipeline_model_parallel_size}"
-        )
 
     world_size = num_nodes * devices
+    if world_size % (tensor_model_parallel_size * pipeline_model_parallel_size) != 0:
+        raise ValueError(
+            f"world_size must be divisible by tensor_model_parallel_size * pipeline_model_parallel_size, "
+            f"got {world_size} and {tensor_model_parallel_size} * {pipeline_model_parallel_size}"
+        )
+
     model_parallel_size = tensor_model_parallel_size * pipeline_model_parallel_size
     data_parallel_size = world_size // model_parallel_size
     global_batch_size = micro_batch_size * data_parallel_size * accumulate_grad_batches
     return global_batch_size
-
-
-def tensor_hash(tensor: torch.Tensor, hash_func: Optional[Callable] = None) -> str:
-    """Generates a hash for the given tensor using the specified hash function.
-
-    Args:
-        tensor (torch.Tensor): The input tensor to be hashed.
-        hash_func (Optional[Callable]): An optional hash function to use. If None, defaults to SHA-256.
-
-    Returns:
-        str: The resulting hash string.
-
-    If no hash function is provided, SHA-256 is used by default. The function first converts the tensor to
-    a contiguous array on the CPU and then to bytes before hashing.
-    """
-    tensor_bytes = tensor.cpu().contiguous().numpy().tobytes()
-    if hash_func is None:
-        return hashlib.sha256(tensor_bytes).hexdigest()
-    else:
-        return hash_func(tensor_bytes)
-
-
-def tensor_dict_hash(tensor_dict: Dict[str, torch.Tensor], hash_func: Optional[Callable] = None) -> str:
-    """Generates a hash for the given tensor dictionary using the specified hash function.
-
-    Args:
-        tensor_dict (Dict[str, torch.Tensor]): The input tensor dictionary to be hashed.
-        hash_func (Optional[Callable]): An optional hash function to use. If None, defaults to SHA-256.
-
-    Returns:
-        str: The resulting hash string.
-
-    If no hash function is provided, SHA-256 is used by default. The function first converts the tensor to
-    a contiguous array on the CPU and then to bytes before hashing.
-    """
-    hash_value = ""
-    for k in sorted(tensor_dict):
-        hash_value += tensor_hash(tensor_dict[k], hash_func)
-    return hash_value
 
 
 def infer_num_samples(
