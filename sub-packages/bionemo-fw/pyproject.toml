@@ -1,46 +1,56 @@
 [build-system]
-requires = ["setuptools>=64", "wheel"]
+requires = [
+    "setuptools>=64",
+    "wheel",
+]
 build-backend = "setuptools.build_meta"
 
 [project]
 name = "bionemo-fw"
 readme = "README.md"
 description = "BioNeMo Framework (FW): Production grade framework for AI-enabled Drug Discovery. Consists of all independently installable bionemo feature packages too."
-authors = [{ name = "BioNeMo Team", email = "bionemofeedback@nvidia.com" }]
+authors = [
+    { name = "BioNeMo Team", email = "bionemofeedback@nvidia.com" },
+]
 requires-python = ">=3.10"
-license = { file = "LICENSE" }
-dynamic = ["version"]
+dynamic = [
+    "version",
+]
 dependencies = [
-    # bionemo sub-packages
-    'bionemo-core',
-    'bionemo-esm2',
-    'bionemo-geneformer',
-    'bionemo-geometric',
-    'bionemo-llm',
-    'bionemo-scdl',
-    'bionemo-size-aware-batching',
-    'bionemo-webdatamodule',
-    #
-    # NOTE: DO **NOT** INCLUDE:
-    #    bionemo-testing (test-time only dependency)
-    #    bionemo-example_model (documentation)
-    #    bionemo-fw (itself!)
-    #
-    # external
-    'nltk',
-    'numba>=0.57.1',
-    'tensorstore==0.1.45',
-    'zarr',
+    "bionemo-core",
+    "bionemo-esm2",
+    "bionemo-geneformer",
+    "bionemo-geometric",
+    "bionemo-llm",
+    "bionemo-scdl",
+    "bionemo-size-aware-batching",
+    "bionemo-webdatamodule",
+    "nltk",
+    "numba>=0.57.1",
+    "tensorstore==0.1.45",
+    "zarr",
+    "bionemo-noodles",
 ]
 
-[tool.setuptools.packages.find]
-where = ["src"]
-include = ["bionemo.*"]
-namespaces = true
-exclude = ["test*."]
+[project.license]
+file = "LICENSE"
 
-[tool.setuptools.dynamic]
-version = { file = "VERSION" }
+[tool.setuptools.packages.find]
+where = [
+    "src",
+]
+include = [
+    "bionemo.*",
+]
+namespaces = true
+exclude = [
+    "test*.",
+]
+
+[tool.setuptools.dynamic.version]
+file = "VERSION"
 
 [tool.uv]
-cache-keys = [{ git = true }]
+cache-keys = [
+    { git = true },
+]
