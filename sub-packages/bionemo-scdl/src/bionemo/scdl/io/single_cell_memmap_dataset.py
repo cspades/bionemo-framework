@@ -586,7 +586,6 @@ class SingleCellMemMapDataset(SingleCellRowDataset):
         if len(feats) == 0:
             return [0]
         num_vars = feats.column_dims()
-        print("Num vars, ", num_vars)
         return num_vars
 
     def shape(self) -> Tuple[int, List[int]]:

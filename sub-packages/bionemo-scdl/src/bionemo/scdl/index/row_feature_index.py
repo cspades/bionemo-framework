@@ -130,7 +130,6 @@ class RowFeatureIndex:
             features = []
             for feature in select_features:
                 if feature not in features_dict:
-                    print(features_dict.keys(), feature)
                     raise ValueError(f"Provided feature column {feature} in select_features not present in dataset.")
                 features.append(features_dict[feature])
         else:
@@ -149,7 +148,6 @@ class RowFeatureIndex:
             The length of the features at the row
         """
         feats, _ = self.lookup(row=row)
-        # print("IN NUMBER OF VARS", len(feats[0]), feats[0])
         return len(feats[0])
 
     def column_dims(self) -> List[int]:
