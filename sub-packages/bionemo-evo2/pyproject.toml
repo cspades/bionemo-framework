@@ -1,0 +1,35 @@
+[build-system]
+requires = ["setuptools>=64", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "bionemo-evo2"
+readme = "README.md"
+description = "Library containing data preprocessing, training, and inference tooling for Evo2."
+authors = [{ name = "BioNeMo Team", email = "bionemofeedback@nvidia.com" }]
+requires-python = ">=3.10"
+license = { file = "LICENSE" }
+dynamic = ["version"]
+dependencies = []
+
+[project.scripts]
+bionemo-evo2-train = ""
+bionemo-evo2-recipe = ""
+infer_evo2 = ""
+train_evo2 = ""
+
+# Make sure that the tokenizer files are included along with the python files during installation.
+[tool.setuptools.package-data]
+"bionemo.evo2" = []
+
+[tool.setuptools.packages.find]
+where = ["src"]
+include = ["bionemo.*"]
+namespaces = true
+exclude = ["test*."]
+
+[tool.setuptools.dynamic]
+version = { file = "VERSION" }
+
+[tool.uv]
+cache-keys = [{ git = true }]
