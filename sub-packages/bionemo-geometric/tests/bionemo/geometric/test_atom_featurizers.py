@@ -80,12 +80,14 @@ def test_degree_featurizer(test_mol):
 
 def test_total_degree_featurizer(test_mol):
     tdf = TotalDegreeFeaturizer()
-    # totdeg3 = tdf.get_features(test_mol.GetAtomWithIdx(0))
+
     totdeg3 = tdf.get_features(test_mol.GetAtomWithIdx(0))
     totdeg3_ref = [False, False, False, True, False, False]
+    assert totdeg3 == totdeg3_ref
 
     totdeg1 = tdf.get_features(test_mol.GetAtomWithIdx(2))
     totdeg1_ref = [False, True, False, False, False, False]
+    assert totdeg1 == totdeg1_ref
 
     totdeg2 = tdf.get_features(test_mol.GetAtomWithIdx(16))
     totdeg2_ref = [False, False, True, False, False, False]
@@ -322,6 +324,7 @@ def test_electronic_property_featurizer(test_mol):
 
     s_feats = ep.get_features(test_mol.GetAtomWithIdx(10))  # S
     s_feats_ref = [0.573170731707317, 0.31247281689460205, 0.5647258338044093]
+    assert s_feats == s_feats_ref
 
     cl_feats = ep.get_features(test_mol.GetAtomWithIdx(22))  # Cl
     cl_feats_ref = [0.7499999999999999, 0.4385057748997246, 1.0]
