@@ -55,6 +55,7 @@ MAX_NUM_HS = 5  # 4 + 1 (no hydrogens)
 
 
 class AtomicNumberFeaturizer(BaseFeaturizer):
+    """Class for creating featurizing atom by its atomic number."""
     def __init__(self) -> None:
         pass
 
