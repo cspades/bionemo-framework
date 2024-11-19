@@ -56,6 +56,7 @@ MAX_NUM_HS = 5  # 4 + 1 (no hydrogens)
 
 class AtomicNumberFeaturizer(BaseFeaturizer):
     """Class for featurizing atom by its atomic number."""
+
     def __init__(self) -> None:
         """Initializes AtomicNumberFeaturizer class."""
         pass
@@ -72,6 +73,7 @@ class AtomicNumberFeaturizer(BaseFeaturizer):
 
 class DegreeFeaturizer(BaseFeaturizer):
     """Class for featurizing atom by its degree (excluding hydrogens) of connectivity."""
+
     def __init__(self) -> None:
         """Initializes DegreeFeaturizer class."""
         pass
@@ -88,6 +90,7 @@ class DegreeFeaturizer(BaseFeaturizer):
 
 class TotalDegreeFeaturizer(BaseFeaturizer):
     """Class for featurizing atom by its total degree (including hydrogens) of connectivity."""
+
     def __init__(self) -> None:
         """Initializes TotalDegreeFeaturizer class."""
         pass
@@ -104,6 +107,7 @@ class TotalDegreeFeaturizer(BaseFeaturizer):
 
 class ChiralTypeFeaturizer(BaseFeaturizer):
     """Class for featurizing atom by its chirality type."""
+
     def __init__(self) -> None:
         """Initializes ChiralTypeFeaturizer class."""
         pass
@@ -120,6 +124,7 @@ class ChiralTypeFeaturizer(BaseFeaturizer):
 
 class TotalNumHFeaturizer(BaseFeaturizer):
     """Class for featurizing atom by total number of hydrogens."""
+
     def __init__(self) -> None:
         """Initializes TotalNumHFeaturizer class."""
         pass
@@ -136,6 +141,7 @@ class TotalNumHFeaturizer(BaseFeaturizer):
 
 class HybridizationFeaturizer(BaseFeaturizer):
     """Class for featurizing atom by its hybridization type."""
+
     def __init__(self) -> None:
         """Initializes HybridizationFeaturizer class."""
         pass
@@ -152,6 +158,7 @@ class HybridizationFeaturizer(BaseFeaturizer):
 
 class AromaticityFeaturizer(BaseFeaturizer):
     """Class for featurizing atom based on its aromaticity."""
+
     def __init__(self) -> None:
         """Initializes AromaticityFeaturizer class."""
         pass
@@ -168,6 +175,7 @@ class AromaticityFeaturizer(BaseFeaturizer):
 
 class PeriodicTableFeaturizer(BaseFeaturizer):
     """Class for featurizing atom by its position (period and group) in the periodic table."""
+
     def __init__(self) -> None:
         """Initializes PeriodicTableFeaturizer class."""
         self.pt = Chem.GetPeriodicTable()
@@ -190,7 +198,7 @@ class PeriodicTableFeaturizer(BaseFeaturizer):
         return None
 
     def get_group(self, atom: Chem.Atom) -> List[bool]:
-        """Returns one-ot encoded group of atom."""
+        """Returns one-hot encoded group of atom."""
         group = self.pt.GetNOuterElecs(atom.GetAtomicNum())
         return one_hot_enc(group - 1, 15)
 
@@ -218,6 +226,7 @@ class ElectronicPropertyFeaturizer(BaseFeaturizer):
 
     This class computes electronic properties like electronegativity, ionization energy, and electron affinity.
     """
+
     def __init__(self, data_file=None) -> None:
         """Initializes PeriodicTableFeaturizer class.
 
@@ -268,6 +277,7 @@ class ElectronicPropertyFeaturizer(BaseFeaturizer):
 
 class ScaffoldFeaturizer(BaseFeaturizer):
     """Class for featurizing atom based on whether it is present in Bemis-Murcko scaffold."""
+
     def __init__(self):
         """Initializes ScaffoldFeaturizer class."""
         pass
@@ -300,6 +310,7 @@ class ScaffoldFeaturizer(BaseFeaturizer):
 
 class SmartsFeaturizer(BaseFeaturizer):
     """Class for featurizing atom by hydrogen donor/acceptor and acidity/basicity."""
+
     def __init__(self):
         """Initializes SmartsFeaturizer class."""
         self.hydrogen_donor = Chem.MolFromSmarts("[$([N;!H0;v3,v4&+1]),$([O,S;H1;+0]),n&H1&+0]")
@@ -354,6 +365,7 @@ class SmartsFeaturizer(BaseFeaturizer):
 
 class CrippenFeaturizer(BaseFeaturizer):
     """Class for featurizing atom by Crippen logP and molar refractivity."""
+
     def __init__(self):
         """Initializes CrippenFeaturizer class."""
         pass

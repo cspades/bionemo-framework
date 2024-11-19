@@ -17,7 +17,7 @@
 from abc import ABC, abstractmethod, abstractproperty
 from typing import List
 
-from rdkit.Chem import Atom
+from rdkit.Chem import Atom, Mol
 
 
 class BaseFeaturizer(ABC):
@@ -28,10 +28,9 @@ class BaseFeaturizer(ABC):
         """Number of dimensions of compute feature."""
         pass
 
-    @abstractmethod
-    def compute_features(self):
+    def compute_features(self, mol: Mol) -> Mol:
         """Implement this if precomputation of features is needed."""
-        pass
+        return mol
 
     @abstractmethod
     def get_features(self):
