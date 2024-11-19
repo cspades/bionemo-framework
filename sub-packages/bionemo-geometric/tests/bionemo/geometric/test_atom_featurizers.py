@@ -404,7 +404,7 @@ def test_smarts_featurizer(test_mol, acetic_acid, methylamine):
         [False, False, False, False],
     ]
 
-    assert test_mol_props == test_mol_props
+    assert test_mol_props == test_mol_props_ref
 
     # acetic acid
     aa_featurized = sf.compute_features(acetic_acid)
