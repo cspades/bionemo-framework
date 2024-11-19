@@ -1,9 +1,24 @@
 import pytest
 from rdkit import Chem
-from bionemo.geometric.atom_featurizers import (PeriodicTableFeaturizer, 
+from rdkit.Chem.rdchem import ChiralType, HybridizationType
+
+from bionemo.geometric.atom_featurizers import (
+    AtomicNumberFeaturizer,
+    DegreeFeaturizer,
+    TotalDegreeFeaturizer,
+    ChiralTypeFeaturizer,
+    TotalNumHFeaturizer,
+    HybridizationFeaturizer,
+    AromaticityFeaturizer,
+    PeriodicTableFeaturizer, 
     ElectronicPropertyFeaturizer,
     ScaffoldFeaturizer,
-    SmartsFeaturizer)
+    SmartsFeaturizer,
+    MAX_ATOMIC_NUM,
+    MAX_HYBRIDIZATION_TYPES,
+    )
+
+from bionemo.geometric.base_featurizer import one_hot_enc
 
 
 @pytest.fixture(scope="module")
@@ -17,6 +32,100 @@ def acetic_acid():
 @pytest.fixture(scope="module")
 def methylamine():
     return Chem.MolFromSmiles("CN")
+
+@pytest.fixture(scope="module")
+def chiral_mol():
+    return Chem.MolFromSmiles("Cn1cc(C(=O)N2CC[C@@](O)(c3ccccc3)[C@H]3CCCC[C@@H]32)ccc1=O")
+
+def test_atomic_num_featurizer(test_mol):
+    anf = AtomicNumberFeaturizer()
+    assert anf.get_features(test_mol.GetAtomWithIdx(0)) == one_hot_enc(7-1, MAX_ATOMIC_NUM) # N
+    assert anf.get_features(test_mol.GetAtomWithIdx(2)) == one_hot_enc(8-1, MAX_ATOMIC_NUM) # O
+    assert anf.get_features(test_mol.GetAtomWithIdx(10)) == one_hot_enc(16-1, MAX_ATOMIC_NUM) # S
+
+
+def test_degree_featurizer(test_mol):
+    df = DegreeFeaturizer()
+    deg1 = df.get_features(test_mol.GetAtomWithIdx(0))
+    deg1_ref = [False, True, False, False, False, False]
+    assert deg1 == deg1_ref
+
+    deg3 = df.get_features(test_mol.GetAtomWithIdx(1))
+    deg3_ref = [False, False, False, True, False, False]
+    assert deg3 == deg3_ref
+
+    deg5 = df.get_features(test_mol.GetAtomWithIdx(10))
+    deg5_ref = [False, False, False, False, True, False]
+    assert deg5 == deg5_ref
+
+def test_total_degree_featurizer(test_mol):
+    tdf = TotalDegreeFeaturizer()
+    # totdeg3 = tdf.get_features(test_mol.GetAtomWithIdx(0))
+    totdeg3 = tdf.get_features(test_mol.GetAtomWithIdx(0))
+    totdeg3_ref = [False, False, False, True, False, False]
+
+    totdeg1 = tdf.get_features(test_mol.GetAtomWithIdx(2))
+    totdeg1_ref = [False, True, False, False, False, False]
+    
+    totdeg2 = tdf.get_features(test_mol.GetAtomWithIdx(16))
+    totdeg2_ref = [False, False, True, False, False, False]
+    assert totdeg2 == totdeg2_ref
+
+
+def test_chiral_type_featurizer(chiral_mol):
+    cf = ChiralTypeFeaturizer()
+    unspec_feats = cf.get_features(chiral_mol.GetAtomWithIdx(0))
+    unspec_feats_ref = one_hot_enc(int(ChiralType.CHI_UNSPECIFIED), cf.n_dim)
+    assert unspec_feats == unspec_feats_ref
+
+    cw_feats = cf.get_features(chiral_mol.GetAtomWithIdx(9))
+    cw_feats_ref = one_hot_enc(int(ChiralType.CHI_TETRAHEDRAL_CW), cf.n_dim)
+    assert cw_feats == cw_feats_ref
+
+    ccw_feats = cf.get_features(chiral_mol.GetAtomWithIdx(22))
+    ccw_feats_ref = one_hot_enc(int(ChiralType.CHI_TETRAHEDRAL_CCW), cf.n_dim)
+    assert ccw_feats == ccw_feats_ref
+
+
+def test_total_numh_featurizer(test_mol):
+    num_hf = TotalNumHFeaturizer()
+
+    h2_feats = num_hf.get_features(test_mol.GetAtomWithIdx(0))
+    h2_feats_ref = one_hot_enc(2, 5)
+    assert h2_feats == h2_feats_ref
+
+    h1_feats = num_hf.get_features(test_mol.GetAtomWithIdx(7))
+    h1_feats_ref = one_hot_enc(1, 5)
+    assert h1_feats == h1_feats_ref
+
+    h0_feats = num_hf.get_features(test_mol.GetAtomWithIdx(1))
+    h0_feats_ref = one_hot_enc(0, 5)
+    assert h0_feats == h0_feats_ref
+
+def test_hybridization_featurizer(test_mol):
+    hf = HybridizationFeaturizer()
+
+    sp2_feats = hf.get_features(test_mol.GetAtomWithIdx(1))
+    sp2_feats_ref = one_hot_enc(HybridizationType.SP2, MAX_HYBRIDIZATION_TYPES)
+    assert sp2_feats == sp2_feats_ref
+
+    sp3_feats = hf.get_features(test_mol.GetAtomWithIdx(11))
+    sp3_feats_ref = one_hot_enc(HybridizationType.SP3, MAX_HYBRIDIZATION_TYPES)
+    assert sp3_feats == sp3_feats_ref
+
+
+def test_aromaticity_featurizer(test_mol):
+    af = AromaticityFeaturizer()
+
+    non_aro_feats = af.get_features(test_mol.GetAtomWithIdx(1))
+    assert non_aro_feats == [False]
+
+    aro_feats = af.get_features(test_mol.GetAtomWithIdx(4))
+    assert aro_feats == [True]
+
+    non_aro_feats = af.get_features(test_mol.GetAtomWithIdx(22))
+    assert non_aro_feats == [False]
+
 
 def test_periodic_table_featurizer(test_mol):
     pt = PeriodicTableFeaturizer()

@@ -4,8 +4,8 @@ import pandas as pd
 from pathlib import Path
 from rdkit.Chem.Scaffolds import MurckoScaffold
 import numpy as np
-from rdkit.Chem import rdMolDescriptors
-
+from rdkit.Chem import rdMolDescriptors, Mol, Atom
+from rdkit.Chem.rdchem import ChiralType, HybridizationType
 from bionemo.geometric.base_featurizer import BaseFeaturizer, one_hot_enc, get_boolean_atomic_prop, get_double_atomic_prop
 
 # Extremum for molar refractivity
@@ -19,6 +19,115 @@ MAX_LOGP = 0.8857
 ALL_ATOM_FEATURIZERS = ["PeriodicTableFeaturizer", "ElectronicPropertyFeaturizer", "ScaffoldFeaturizer",
                         "SmartsFeaturizer", "CrippenFeaturizer"]
 
+MAX_ATOMIC_NUM = 100
+MAX_CHIRAL_TYPES = len(ChiralType.values)
+MAX_HYBRIDIZATION_TYPES = len(HybridizationType.values)
+MAX_NUM_HS = 5 # 4 + 1 (no hydrogens)
+
+class AtomicNumberFeaturizer(BaseFeaturizer):
+    def __init__(self) -> None:
+        pass
+
+    @property
+    def n_dim(self) -> int:
+        return MAX_ATOMIC_NUM
+
+    def compute_features(self, mol: Mol) -> Mol:
+        return mol
+
+    def get_features(self, atom: Atom) -> List[bool]:
+        return one_hot_enc(atom.GetAtomicNum()-1, MAX_ATOMIC_NUM)
+
+
+class DegreeFeaturizer(BaseFeaturizer):
+    def __init__(self) -> None:
+        pass
+
+    @property
+    def n_dim(self) -> int:
+        return 6
+
+    def compute_features(self, mol: Mol) -> Mol:
+        return mol
+
+    def get_features(self, atom: Atom) -> List[bool]:
+        return one_hot_enc(atom.GetDegree(), self.n_dim)
+
+
+class TotalDegreeFeaturizer(BaseFeaturizer):
+    def __init__(self) -> None:
+        pass
+
+    @property
+    def n_dim(self) -> int:
+        return 6
+
+    def compute_features(self, mol: Mol) -> Mol:
+        return mol
+
+    def get_features(self, atom: Atom) -> List[bool]:
+        return one_hot_enc(atom.GetTotalDegree(), self.n_dim)
+
+
+class ChiralTypeFeaturizer(BaseFeaturizer):
+    def __init__(self) -> None:
+        pass
+
+    @property
+    def n_dim(self) -> int:
+        return MAX_CHIRAL_TYPES
+
+    def compute_features(self, mol: Mol) -> Mol:
+        return mol
+
+    def get_features(self, atom: Atom) -> List[bool]:
+        return one_hot_enc(int(atom.GetChiralTag()), MAX_CHIRAL_TYPES)
+
+
+class TotalNumHFeaturizer(BaseFeaturizer):
+    def __init__(self) -> None:
+        pass
+
+    @property
+    def n_dim(self) -> int:
+        return MAX_NUM_HS
+
+    def compute_features(self, mol: Mol) -> Mol:
+        return mol
+
+    def get_features(self, atom: Atom) -> List[bool]:
+        return one_hot_enc(atom.GetTotalNumHs(), self.n_dim)
+
+
+class HybridizationFeaturizer(BaseFeaturizer):
+    def __init__(self) -> None:
+        pass
+
+    @property
+    def n_dim(self) -> int:
+        return MAX_HYBRIDIZATION_TYPES
+
+    def compute_features(self, mol: Mol) -> Mol:
+        return mol
+
+    def get_features(self, atom: Atom) -> List[bool]:
+        return one_hot_enc(atom.GetHybridization(), self.n_dim)
+
+
+class AromaticityFeaturizer(BaseFeaturizer):
+    def __init__(self) -> None:
+        pass
+
+    @property
+    def n_dim(self) -> int:
+        return 1
+
+    def compute_features(self, mol: Mol) -> Mol:
+        return mol
+
+    def get_features(self, atom: Atom) -> List[bool]:
+        return [atom.GetIsAromatic()]
+        
 
 class PeriodicTableFeaturizer(BaseFeaturizer):
 
