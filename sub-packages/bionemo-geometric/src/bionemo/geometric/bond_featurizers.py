@@ -25,16 +25,19 @@ ALL_BOND_FEATURIZERS = ["RingFeaturizer"]
 
 
 class RingFeaturizer(BaseFeaturizer):
-    """Multi-label one-hot encoding"""
+    """Class for featurizing bond its ring membership."""
 
     def __init__(self, n_ring_sizes=7) -> None:
+        """Initializes RingFeaturizer class."""
         self.n_ring_sizes = n_ring_sizes  # ring size 3 - 8 and UNK
 
     @property
     def n_dim(self) -> int:
+        """Returns dimensionality of the computed features."""
         return self.n_ring_sizes
 
     def compute_features(self, mol) -> Chem.Mol:
+        """Precomputes ring membership features for all bonds in the molecule."""
         ri = mol.GetRingInfo()
 
         for bond in mol.GetBonds():
@@ -44,6 +47,7 @@ class RingFeaturizer(BaseFeaturizer):
         return mol
 
     def get_features(self, bond: Chem.Bond) -> List[bool]:
+        """Returns features of the bond."""
         ring_sizes = bond.GetProp("bond_ring_sizes").split(",")
         ring_sizes = [int(r) for r in ring_sizes if r != ""]
 
