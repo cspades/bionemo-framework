@@ -1,0 +1,741 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Frequently Asked Questions (FAQ) &#8212; NVIDIA BioNeMo Framework</title>
+    
+  <!-- Loaded before other Sphinx assets -->
+  <link href="_static/styles/theme.css?digest=1999514e3f237ded88cf" rel="stylesheet">
+<link href="_static/styles/pydata-sphinx-theme.css?digest=1999514e3f237ded88cf" rel="stylesheet">
+
+    
+  <link rel="stylesheet"
+    href="_static/vendor/fontawesome/5.13.0/css/all.min.css">
+  <link rel="preload" as="font" type="font/woff2" crossorigin
+    href="_static/vendor/fontawesome/5.13.0/webfonts/fa-solid-900.woff2">
+  <link rel="preload" as="font" type="font/woff2" crossorigin
+    href="_static/vendor/fontawesome/5.13.0/webfonts/fa-brands-400.woff2">
+
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
+    <link rel="stylesheet" href="_static/styles/sphinx-book-theme.css?digest=62ba249389abaaa9ffc34bf36a076bdc1d65ee18" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="_static/mystnb.4510f1fc1dee50b3e5859aac5469c37c29e427902b24a333a5f9fcb2f0b3ac41.css" />
+    <link rel="stylesheet" type="text/css" href="_static/copybutton.css" />
+    <link rel="stylesheet" type="text/css" href="_static/tabs.css" />
+    <link rel="stylesheet" type="text/css" href="_static/custom.css" />
+    <link rel="stylesheet" type="text/css" href="_static/design-style.1e8bd061cd6da7fc9cf755528e8ffc24.min.css" />
+    
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="_static/scripts/pydata-sphinx-theme.js?digest=1999514e3f237ded88cf">
+
+    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+    <script src="_static/jquery.js"></script>
+    <script src="_static/underscore.js"></script>
+    <script src="_static/doctools.js"></script>
+    <script src="_static/clipboard.min.js"></script>
+    <script src="_static/copybutton.js"></script>
+    <script src="https://js.hcaptcha.com/1/api.js"></script>
+    <script src="//assets.adobedtm.com/5d4962a43b79/c1061d2c5e7b/launch-191c2462b890.min.js"></script>
+    <script src="_static/scripts/sphinx-book-theme.js?digest=f31d14ad54b65d19161ba51d4ffff3a77ae00456"></script>
+    <script src="_static/design-tabs.js"></script>
+    <link rel="canonical" href="https://docs.nvidia.com/bionemo-framework/0.4.0/faq-fw.html" />
+    <link rel="shortcut icon" href="_static/nvidia-logo-vert-rgb-blk-for-screen.png"/>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Bibliography" href="bibliography-fw.html" />
+    <link rel="prev" title="Pretrain, Fine-tune, and Perform Inference with DNABERT for Splice Site Prediction" href="notebooks/dnabert_pretrain_finetune.html" /> 
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="docsearch:language" content="None">
+    
+
+    <!-- Google Analytics -->
+      
+<style type="text/css">
+  ul.ablog-archive {
+    list-style: none;
+    overflow: auto;
+    margin-left: 0px;
+  }
+  ul.ablog-archive li {
+    float: left;
+    margin-right: 5px;
+    font-size: 80%;
+  }
+  ul.postlist a {
+    font-style: italic;
+  }
+  ul.postlist-style-disc {
+    list-style-type: disc;
+  }
+  ul.postlist-style-none {
+    list-style-type: none;
+  }
+  ul.postlist-style-circle {
+    list-style-type: circle;
+  }
+</style>
+
+  </head>
+  <body data-spy="scroll" data-target="#bd-toc-nav" data-offset="60">
+<!-- Checkboxes to toggle the left sidebar -->
+<input type="checkbox" class="sidebar-toggle" name="__navigation" id="__navigation" aria-label="Toggle navigation sidebar">
+<label class="overlay overlay-navbar" for="__navigation">
+    <div class="visually-hidden">Toggle navigation sidebar</div>
+</label>
+<!-- Checkboxes to toggle the in-page toc -->
+<input type="checkbox" class="sidebar-toggle" name="__page-toc" id="__page-toc" aria-label="Toggle in-page Table of Contents">
+<label class="overlay overlay-pagetoc" for="__page-toc">
+    <div class="visually-hidden">Toggle in-page Table of Contents</div>
+</label>
+<!-- Headers at the top -->
+<div class="announcement header-item noprint"></div>
+<div class="header header-item noprint"></div>
+
+    
+    <div class="container-fluid" id="banner"></div>
+
+    
+
+    <div class="container-xl">
+      <div class="row">
+          
+<!-- Sidebar -->
+<div class="bd-sidebar noprint" id="site-navigation">
+    <div class="bd-sidebar__content">
+        <div class="bd-sidebar__top"><div class="navbar-brand-box">
+    <a class="navbar-brand text-wrap" href="index.html">
+      
+        <!-- `logo` is deprecated in Sphinx 4.0, so remove this when we stop supporting 3 -->
+        
+      
+      
+      <img src="_static/nvidia-logo-horiz-rgb-blk-for-screen.png" class="logo" alt="logo">
+      
+      
+      <h1 class="site-logo" id="site-title">NVIDIA BioNeMo Framework</h1>
+      
+    </a>
+</div><form class="bd-search d-flex align-items-center" action="search.html" method="get">
+  <i class="icon fas fa-search"></i>
+  <input type="search" class="form-control" name="q" id="search-input" placeholder="Search the docs ..." aria-label="Search the docs ..." autocomplete="off" >
+</form><nav class="bd-links" id="bd-docs-nav" aria-label="Main">
+    <div class="bd-toc-item active">
+        <p aria-level="2" class="caption" role="heading">
+ <span class="caption-text">
+  GETTING STARTED
+ </span>
+</p>
+<ul class="nav bd-sidenav">
+ <li class="toctree-l1">
+  <a class="reference internal" href="index.html">
+   What is BioNeMo?
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="pre-reqs.html">
+   Hardware and Software Prerequisites
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="access-startup.html">
+   Access and Startup
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="initialization-guide.html">
+   Initialization Guide
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="tutorial-list.html">
+   BioNeMo Framework Tutorials
+  </a>
+ </li>
+</ul>
+<p aria-level="2" class="caption" role="heading">
+ <span class="caption-text">
+  BioNeMo CORE
+ </span>
+</p>
+<ul class="nav bd-sidenav">
+ <li class="toctree-l1">
+  <a class="reference internal" href="bionemo-fw-for-model-training-fw.html">
+   Fundamentals
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="data-module-fw.html">
+   Data Module
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="dwnstr-task-validation.html">
+   Validation with a Downstream Task
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="inference-triton-fw.html">
+   Inference with Nvidia Triton Server
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="deep-dive-esm1-pytriton-inference.html">
+   Example of PyTriton Inference
+  </a>
+ </li>
+</ul>
+<p aria-level="2" class="caption" role="heading">
+ <span class="caption-text">
+  BEST PRACTICES
+ </span>
+</p>
+<ul class="nav bd-sidenav">
+ <li class="toctree-l1">
+  <a class="reference internal" href="hyperparameters-fw.html">
+   Hyperparameter Usage and Tuning
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="parallelism-fw.html">
+   Training Parallelism
+  </a>
+ </li>
+</ul>
+<p aria-level="2" class="caption" role="heading">
+ <span class="caption-text">
+  MODELS
+ </span>
+</p>
+<ul class="nav bd-sidenav">
+ <li class="toctree-l1">
+  <a class="reference internal" href="models/diffdock.html">
+   DiffDock
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="models/dnabert.html">
+   DNABERT
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="models/dsmbind.html">
+   DSMBind
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="models/equidock.html">
+   EquiDock
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="models/esm1-nv.html">
+   ESM-1nv
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="models/esm2-nv.html">
+   ESM-2nv
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="models/geneformer.html">
+   Geneformer
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="models/megamolbart.html">
+   MegaMolBART
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="models/molmim.html">
+   MolMIM
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="models/openfold.html">
+   OpenFold
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="models/prott5nv.html">
+   Prott5nv
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="models/model-benchmarks.html">
+   Model Benchmarks
+  </a>
+ </li>
+</ul>
+<p aria-level="2" class="caption" role="heading">
+ <span class="caption-text">
+  DATASETS
+ </span>
+</p>
+<ul class="nav bd-sidenav">
+ <li class="toctree-l1">
+  <a class="reference internal" href="datasets/uniprot.html">
+   UniProt Dataset
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="datasets/CELLxGENE.html">
+   CELLxGENE
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="datasets/zinc15.html">
+   ZINC-15 Dataset
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="datasets/pdb.html">
+   The Protein Data Bank (PDB)
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="datasets/GRCh38.p13.html">
+   Human Reference Genome Version GRCh38.p13
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="datasets/openproteinset.html">
+   OpenProteinSet
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="datasets/moleculenet-physchem.html">
+   MoleculeNet Physical Chemistry Datasets - Lipophilicity, FreeSolv, ESOL
+  </a>
+ </li>
+</ul>
+<p aria-level="2" class="caption" role="heading">
+ <span class="caption-text">
+  TUTORIALS
+ </span>
+</p>
+<ul class="nav bd-sidenav">
+ <li class="toctree-l1">
+  <a class="reference internal" href="preprocessing-bcp-training-diffdock.html">
+   DiffDock: Preparing Workspace and Data for Pre-training
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="notebooks/esm2nv-mutant-design.html">
+   Zero-Shot Protein Design Using ESM-2nv
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="notebooks/MMB_GenerativeAI_Inference_with_examples.html">
+   BioNeMo - MegaMolBART Inferencing for Generative Chemistry
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="notebooks/MolMIM_GenerativeAI_local_inference_with_examples.html">
+   MolMIM Inferencing for Generative Chemistry and Downstream Prediction
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="notebooks/ZINC15-data-preprocessing.html">
+   ZINC Training Dataset Setup for small molecule language models
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="notebooks/bionemo-finetuning-overview.html">
+   Finetune pre-trained models in BioNeMo
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="notebooks/cma_es_guided_molecular_optimization_molmim.html">
+   MolMIM Property Guided Molecular Optimization Using CMA-ES
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="notebooks/custom-dataset-class-fw.html">
+   Adding the OAS Dataset: Modifying the Dataset Class
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="notebooks/custom-dataset-dataloader.html">
+   Adding the OAS Dataset: Customizing Dataset Object and Dataloader Functions
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="notebooks/custom-dataset-preprocessing-fw.html">
+   Adding the OAS Dataset: Downloading and Preprocessing
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="notebooks/encoder-finetuning-notebook-fw.html">
+   Encoder Fine-tuning
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="notebooks/model_training_diffdock.html">
+   DiffDock Model Training using BioNeMo
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="notebooks/model_training_equidock.html">
+   EquiDock Model Training using BioNeMo
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="notebooks/model_training_esm1nv.html">
+   ESM1nv Model Training using BioNeMo
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="notebooks/model_training_esm2nv.html">
+   ESM-2nv: Data Preprocessing and Model Training Using BioNeMo
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="notebooks/model_training_mmb.html">
+   MegaMolBART Model Training using BioNeMo
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="notebooks/model_training_molmim.html">
+   Train MolMIM from scratch on your own data using the BioNeMo Framework
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="notebooks/physchem-notebook-fw.html">
+   Finetuning LLM in BioNeMo for a Downstream Task
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="notebooks/protein-esm2nv-clustering.html">
+   Generating Embeddings for Protein Clustering
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="notebooks/retrosynthesis-notebook.html">
+   Training LLM for a Custom Downstram Task: Retrosynthesis Prediction using MegaMolBART
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="notebooks/esm2_FLIP_finetuning.html">
+   Fine-Tune ESM-2nv on FLIP Data for Sequence-Level Classification, Regression, Token-Level Classification, and with LoRA Adapters
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="notebooks/esm2_oas_inferencing.html">
+   Performing inference on OAS sequences with ESM-2nv
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="notebooks/esm2_paratope_finetuning.html">
+   Pretrain from Scratch, Continue Training from an Existing Checkpoint, and Fine-tune ESM-2nv on Custom Data
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="notebooks/dnabert_inference.html">
+   Generating and visualizing embeddings with DNABert
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="notebooks/dnabert_pretrain_finetune.html">
+   Pretrain, Fine-tune, and Perform Inference with DNABERT for Splice Site Prediction
+  </a>
+ </li>
+</ul>
+<p aria-level="2" class="caption" role="heading">
+ <span class="caption-text">
+  APPENDIX
+ </span>
+</p>
+<ul class="current nav bd-sidenav">
+ <li class="toctree-l1 current active">
+  <a class="current reference internal" href="#">
+   Frequently Asked Questions (FAQ)
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="bibliography-fw.html">
+   Bibliography
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="releasenotes-fw.html">
+   Release Notes
+  </a>
+ </li>
+</ul>
+
+    </div>
+</nav></div>
+        <div class="bd-sidebar__bottom">
+             <!-- To handle the deprecated key -->
+            
+        </div>
+    </div>
+    <div id="rtd-footer-container"></div>
+</div>
+
+
+          
+
+
+          
+<!-- A tiny helper pixel to detect if we've scrolled -->
+<div class="sbt-scroll-pixel-helper"></div>
+<!-- Main content -->
+<div class="col py-0 content-container">
+    
+    <div class="header-article row sticky-top noprint">
+        
+
+
+
+<div class="col py-1 d-flex header-article-main">
+    <div class="header-article__left">
+        
+        <label for="__navigation"
+  class="headerbtn"
+  data-toggle="tooltip"
+data-placement="right"
+title="Toggle navigation"
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fas fa-bars"></i>
+  </span>
+
+</label>
+
+        
+    </div>
+    <div class="header-article__right">
+<button onclick="toggleFullScreen()"
+  class="headerbtn"
+  data-toggle="tooltip"
+data-placement="bottom"
+title="Fullscreen mode"
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fas fa-expand"></i>
+  </span>
+
+</button>
+
+    </div>
+</div>
+
+<!-- Table of contents -->
+<div class="col-md-3 bd-toc show noprint">
+</div>
+    </div>
+    <div class="article row">
+        <div class="col pl-md-3 pl-lg-5 content-container">
+            <!-- Table of contents that is only displayed when printing the page -->
+            <div id="jb-print-docs-body" class="onlyprint">
+                <h1>Frequently Asked Questions (FAQ)</h1>
+                <!-- Table of contents -->
+                <div id="print-main-content">
+                    <div id="jb-print-toc">
+                        
+                    </div>
+                </div>
+            </div>
+            <main id="main-content" role="main">
+                
+              <div>
+                 <div class="tex2jax_ignore mathjax_ignore section" id="frequently-asked-questions-faq">
+<h1>Frequently Asked Questions (FAQ)<a class="headerlink" href="#frequently-asked-questions-faq" title="Permalink to this headline">#</a></h1>
+<ol class="arabic">
+<li><p><strong>What is the best way to convert Megatron checkpoints (<code class="docutils literal notranslate"><span class="pre">.ckpt</span></code>) to NeMo checkpoints (<code class="docutils literal notranslate"><span class="pre">.nemo</span></code>)?</strong> <br><br></p>
+<p>NeMo provides an example script for converting various model checkpoints from Megatron (<code class="docutils literal notranslate"><span class="pre">.ckpt</span></code>) to NeMo (<code class="docutils literal notranslate"><span class="pre">.nemo</span></code>) <a class="reference external" href="https://github.com/NVIDIA/NeMo/blob/main/examples/nlp/language_modeling/megatron_ckpt_to_nemo.py">here</a>. A few example sections of the code for converting different classes of models are taken from the above link and shown below. ProtT5nv is a MegatronT5 model, ESM is a MegatronBertModel, and MegaMolBART  is a MegatronBARTModel.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">checkpoint_path</span> <span class="o">=</span> <span class="n">inject_model_parallel_rank</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">checkpoint_folder</span><span class="p">,</span> <span class="n">args</span><span class="o">.</span><span class="n">checkpoint_name</span><span class="p">))</span>
+
+<span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
+    <span class="sa">f</span><span class="s1">&#39;rank: </span><span class="si">{</span><span class="n">rank</span><span class="si">}</span><span class="s1">, local_rank: </span><span class="si">{</span><span class="n">local_rank</span><span class="si">}</span><span class="s1">, is loading checkpoint: </span><span class="si">{</span><span class="n">checkpoint_path</span><span class="si">}</span><span class="s1"> for tp_rank: </span><span class="si">{</span><span class="n">app_state</span><span class="o">.</span><span class="n">tensor_model_parallel_rank</span><span class="si">}</span><span class="s1"> and pp_rank: </span><span class="si">{</span><span class="n">app_state</span><span class="o">.</span><span class="n">pipeline_model_parallel_rank</span><span class="si">}</span><span class="s1">&#39;</span>
+<span class="p">)</span>
+<span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">model_type</span> <span class="o">==</span> <span class="s1">&#39;gpt&#39;</span><span class="p">:</span>
+    <span class="n">model</span> <span class="o">=</span> <span class="n">MegatronGPTModel</span><span class="o">.</span><span class="n">load_from_checkpoint</span><span class="p">(</span><span class="n">checkpoint_path</span><span class="p">,</span> <span class="n">hparams_file</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">hparams_file</span><span class="p">,</span> <span class="n">trainer</span><span class="o">=</span><span class="n">trainer</span><span class="p">)</span>
+<span class="k">elif</span> <span class="n">args</span><span class="o">.</span><span class="n">model_type</span> <span class="o">==</span> <span class="s1">&#39;sft&#39;</span><span class="p">:</span>
+    <span class="n">model</span> <span class="o">=</span> <span class="n">MegatronGPTSFTModel</span><span class="o">.</span><span class="n">load_from_checkpoint</span><span class="p">(</span>
+        <span class="n">checkpoint_path</span><span class="p">,</span> <span class="n">hparams_file</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">hparams_file</span><span class="p">,</span> <span class="n">trainer</span><span class="o">=</span><span class="n">trainer</span>
+    <span class="p">)</span>
+    <span class="k">with</span> <span class="n">open_dict</span><span class="p">(</span><span class="n">model</span><span class="o">.</span><span class="n">cfg</span><span class="p">):</span>
+        <span class="n">model</span><span class="o">.</span><span class="n">cfg</span><span class="o">.</span><span class="n">target</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">MegatronGPTSFTModel</span><span class="o">.</span><span class="vm">__module__</span><span class="si">}</span><span class="s2">.</span><span class="si">{</span><span class="n">MegatronGPTSFTModel</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2">&quot;</span>
+<span class="k">elif</span> <span class="n">args</span><span class="o">.</span><span class="n">model_type</span> <span class="o">==</span> <span class="s1">&#39;bert&#39;</span><span class="p">:</span>
+    <span class="n">model</span> <span class="o">=</span> <span class="n">MegatronBertModel</span><span class="o">.</span><span class="n">load_from_checkpoint</span><span class="p">(</span>
+        <span class="n">checkpoint_path</span><span class="p">,</span> <span class="n">hparams_file</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">hparams_file</span><span class="p">,</span> <span class="n">trainer</span><span class="o">=</span><span class="n">trainer</span>
+    <span class="p">)</span>
+<span class="k">elif</span> <span class="n">args</span><span class="o">.</span><span class="n">model_type</span> <span class="o">==</span> <span class="s1">&#39;t5&#39;</span><span class="p">:</span>
+    <span class="n">model</span> <span class="o">=</span> <span class="n">MegatronT5Model</span><span class="o">.</span><span class="n">load_from_checkpoint</span><span class="p">(</span><span class="n">checkpoint_path</span><span class="p">,</span> <span class="n">hparams_file</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">hparams_file</span><span class="p">,</span> <span class="n">trainer</span><span class="o">=</span><span class="n">trainer</span><span class="p">)</span>
+<span class="k">elif</span> <span class="n">args</span><span class="o">.</span><span class="n">model_type</span> <span class="o">==</span> <span class="s1">&#39;bart&#39;</span><span class="p">:</span>
+    <span class="n">model</span> <span class="o">=</span> <span class="n">MegatronBARTModel</span><span class="o">.</span><span class="n">load_from_checkpoint</span><span class="p">(</span>
+        <span class="n">checkpoint_path</span><span class="p">,</span> <span class="n">hparams_file</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">hparams_file</span><span class="p">,</span> <span class="n">trainer</span><span class="o">=</span><span class="n">trainer</span>
+    <span class="p">)</span>
+<span class="k">elif</span> <span class="n">args</span><span class="o">.</span><span class="n">model_type</span> <span class="o">==</span> <span class="s1">&#39;nmt&#39;</span><span class="p">:</span>
+    <span class="n">model</span> <span class="o">=</span> <span class="n">MegatronNMTModel</span><span class="o">.</span><span class="n">load_from_checkpoint</span><span class="p">(</span><span class="n">checkpoint_path</span><span class="p">,</span> <span class="n">hparams_file</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">hparams_file</span><span class="p">,</span> <span class="n">trainer</span><span class="o">=</span><span class="n">trainer</span><span class="p">)</span>
+<span class="k">elif</span> <span class="n">args</span><span class="o">.</span><span class="n">model_type</span> <span class="o">==</span> <span class="s1">&#39;retro&#39;</span><span class="p">:</span>
+    <span class="n">model</span> <span class="o">=</span> <span class="n">MegatronRetrievalModel</span><span class="o">.</span><span class="n">load_from_checkpoint</span><span class="p">(</span>
+        <span class="n">checkpoint_path</span><span class="p">,</span> <span class="n">hparams_file</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">hparams_file</span><span class="p">,</span> <span class="n">trainer</span><span class="o">=</span><span class="n">trainer</span>
+    <span class="p">)</span>
+<span class="n">model</span><span class="o">.</span><span class="n">_save_restore_connector</span> <span class="o">=</span> <span class="n">NLPSaveRestoreConnector</span><span class="p">()</span>
+</pre></div>
+</div>
+<p><br><br></p>
+</li>
+<li><p><strong>What is the best way to run inference on multiple different checkpoints from the same container?</strong> <br><br></p>
+<p>First, mount the checkpoint files in the container using the <code class="docutils literal notranslate"><span class="pre">-v</span></code> flag when executing the docker run command. The script below is a modification of <code class="docutils literal notranslate"><span class="pre">bionemo/tests/test_esm1nv_inference.py</span></code>.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">logging</span>
+<span class="kn">from</span> <span class="nn">contextlib</span> <span class="kn">import</span> <span class="n">contextmanager</span>
+
+<span class="kn">from</span> <span class="nn">hydra</span> <span class="kn">import</span> <span class="n">compose</span><span class="p">,</span> <span class="n">initialize</span>
+<span class="kn">from</span> <span class="nn">bionemo.model.protein.esm1nv</span> <span class="kn">import</span> <span class="n">ESM1nvInference</span>
+
+<span class="n">log</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
+
+<span class="n">_INFERER</span> <span class="o">=</span> <span class="kc">None</span>
+<span class="n">CONFIG_PATH</span> <span class="o">=</span> <span class="s2">&quot;../conf&quot;</span>
+
+<span class="n">checkpoint_files</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;chkpts/esm1nv.nemo&#39;</span><span class="p">,</span>
+                    <span class="s1">&#39;chkpts/esm1nv_chk.nemo&#39;</span><span class="p">]</span>
+
+
+<span class="nd">@contextmanager</span>
+<span class="k">def</span> <span class="nf">load_model</span><span class="p">(</span><span class="n">inf_cfg</span><span class="p">):</span>
+
+    <span class="k">global</span> <span class="n">_INFERER</span>
+    <span class="k">if</span> <span class="n">_INFERER</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">_INFERER</span> <span class="o">=</span> <span class="n">ESM1nvInference</span><span class="p">(</span><span class="n">inf_cfg</span><span class="p">)</span>
+<span class="c1">#         print(vars(_INFERER))</span>
+    <span class="k">yield</span> <span class="n">_INFERER</span>
+
+
+<span class="k">def</span> <span class="nf">main</span><span class="p">():</span>
+
+    <span class="k">for</span> <span class="n">ckpt</span> <span class="ow">in</span> <span class="n">checkpoint_files</span><span class="p">:</span>
+
+        <span class="k">with</span> <span class="n">initialize</span><span class="p">(</span><span class="n">config_path</span><span class="o">=</span><span class="n">CONFIG_PATH</span><span class="p">):</span>
+            <span class="n">cfg</span> <span class="o">=</span> <span class="n">compose</span><span class="p">(</span><span class="n">config_name</span><span class="o">=</span><span class="s2">&quot;infer&quot;</span><span class="p">)</span>
+            <span class="n">cfg</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">downstream_task</span><span class="o">.</span><span class="n">input_base_model</span> <span class="o">=</span> <span class="n">ckpt</span>
+            <span class="nb">print</span><span class="p">(</span><span class="n">cfg</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">downstream_task</span><span class="o">.</span><span class="n">input_base_model</span><span class="p">)</span>
+
+            <span class="k">with</span> <span class="n">load_model</span><span class="p">(</span><span class="n">cfg</span><span class="p">)</span> <span class="k">as</span> <span class="n">inferer</span><span class="p">:</span>
+                <span class="n">seqs</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;MSLKRKNIALIPAAGIGVRFGADKPKQYVEIGSKTVLEHVLGIFERHEAVDLTVVVVSPEDTFADKVQTAFPQVRVWKNGGQTRAETVRNGVAKLLETGLAAETDNILVHDAARCCLPSEALARLIEQAGNAAEGGILAVPVADTLKRAESGQISATVDRSGLWQAQTPQLFQAGLLHRALAAENLGGITDEASAVEKLGVRPLLIQGDARNLKLTQPQDAYIVRLLLDAV&#39;</span><span class="p">,</span>
+                        <span class="s1">&#39;MIQSQINRNIRLDLADAILLSKAKKDLSFAEIADGTGLAEAFVTAALLGQQALPADAARLVGAKLDLDEDSILLLQMIPLRGCIDDRIPTDPTMYRFYEMLQVYGTTLKALVHEKFGDGIISAINFKLDVKKVADPEGGERAVITLDGKYLPTKPF&#39;</span><span class="p">]</span>
+                <span class="n">embedding</span> <span class="o">=</span> <span class="n">inferer</span><span class="o">.</span><span class="n">seq_to_embedding</span><span class="p">(</span><span class="n">seqs</span><span class="p">)</span>
+                <span class="k">assert</span> <span class="n">embedding</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+                <span class="k">assert</span> <span class="n">embedding</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="n">seqs</span><span class="p">)</span>
+                <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">embedding</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span> <span class="o">==</span> <span class="mi">2</span>
+                <span class="nb">print</span><span class="p">(</span><span class="n">embedding</span><span class="p">)</span>
+
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+    <span class="n">main</span><span class="p">()</span>
+</pre></div>
+</div>
+<p><br><br></p>
+</li>
+<li><p><strong>How can training or fine-tuning be started from a pre-trained model checkpoint?</strong> <br><br></p>
+<p>Training can be resumed by changing the <code class="docutils literal notranslate"><span class="pre">resume_from_checkpoint</span></code> parameter in the configuration. Also, it is important to verify that model parameters are set correctly after loading the model. The parameters are printed in the log file and can be review there. Alternatively, the new parameters are also preserved in any newly created NeMo checkpoints from training because a  <code class="docutils literal notranslate"><span class="pre">.nemo</span></code> file is actually a <code class="docutils literal notranslate"><span class="pre">.tgz</span></code> containing the yaml configuration and model checkpoint (<code class="docutils literal notranslate"><span class="pre">.ckpt</span></code>) file. <br><br></p>
+</li>
+<li><p><strong>A training was initiated from a pretrained model using <code class="docutils literal notranslate"><span class="pre">resume_from_checkpoint</span></code>, but that doesn’t seem to affect the parameters in the log files during model training. How should these parameters be changed?</strong> <br><br></p>
+<p>Sometimes the model parameters are changed by other, model specific, initialization steps, which interferes with their updates. To fix this, the desired changes will need to be made manually in the pre-training script after the model is loaded. The OmegaConf <code class="docutils literal notranslate"><span class="pre">open_dict</span></code> function can be used to manually edit the configuration. The updates for the model will need to made to the <code class="docutils literal notranslate"><span class="pre">cfg.model</span></code> section. <br><br></p>
+</li>
+<li><p><strong>How can an interactive session be launched on BCP using <code class="docutils literal notranslate"><span class="pre">ngc</span> <span class="pre">batch</span></code>?</strong> <br><br></p>
+<p>The following will launch an interactive session and start a Jupyter lab instance:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>ngc<span class="w"> </span>batch<span class="w"> </span>run<span class="w"> </span>--name<span class="w"> </span><span class="s2">&quot;JOB_NAME&quot;</span><span class="w"> </span><span class="se">\</span>
+--priority<span class="w"> </span>HIGH<span class="w"> </span><span class="se">\</span>
+--preempt<span class="w"> </span>RUNONCE<span class="w">	</span><span class="se">\</span>
+--total-runtime<span class="w"> </span>3600000s<span class="w"> 	</span><span class="se">\</span>
+--ace<span class="w"> </span>ACE_NAME<span class="w"> 	</span><span class="se">\</span>
+--instance<span class="w"> </span>dgxa100.80g.8.norm<span class="w"> 	</span><span class="se">\</span>
+--commandline<span class="w"> </span><span class="s2">&quot;jupyter lab  --allow-root --ip=* --port=8888 --no-browser --NotebookApp.token=&#39;&#39; --NotebookApp.allow_origin=&#39;*&#39; --ContentsManager.allow_hidden=True --notebook-dir=/ &amp; sleep infinity&quot;</span><span class="w"> 	</span><span class="se">\</span>
+--result<span class="w"> </span>/results<span class="w"> 	</span><span class="se">\</span>
+--array-type<span class="w"> </span><span class="s2">&quot;PYTORCH&quot;</span><span class="w"> 	</span><span class="se">\</span>
+--replicas<span class="w"> </span><span class="s2">&quot;4&quot;</span><span class="w"> 	</span><span class="se">\</span>
+--image<span class="w"> </span>IMAGE_LINK<span class="w"> </span><span class="se">\</span>
+--org<span class="w"> </span>ORG_ID
+--workspace<span class="w"> </span>WORKSPACE_INFO
+--port<span class="w"> </span><span class="m">8888</span>
+--port<span class="w"> </span><span class="m">9999</span>
+--order<span class="w"> </span><span class="m">50</span>
+</pre></div>
+</div>
+<p><br><br></p>
+</li>
+<li><p><strong>Is it possible to use the provided inference example to load a new/different checkpoint of the same model class?</strong> <br><br></p>
+<p>For this, the <code class="docutils literal notranslate"><span class="pre">infer.yaml</span></code> configuration file needs to be updated to something similar to below, with the path changed to the appropriate value:</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">input_base_model</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;/model/protein/esm1nv/custom_esm1nv.nemo&quot;</span>
+</pre></div>
+</div>
+<p><br><br></p>
+</li>
+<li><p><strong>What are some other relevant fine-tuning examples?</strong> <br><br></p>
+<p>The NeMo repo contains a <a class="reference external" href="https://github.com/NVIDIA/NeMo/blob/main/examples/nlp/language_modeling/megatron_t5_seq2seq_finetune.py">T5 fine-tuning example</a>. <br><br></p>
+</li>
+<li><p><strong>How can a trained model be shared with other NGC users? What about moving the model to AWS machines?</strong> <br><br></p>
+<p>To share within the same NGC org and/or team, use a workspace. For sharing with external users, use an NGC private catalog. To transfer a trained model from an NGC workspace to AWS, use the NGC CLI utility. Once the model is copied to a directory on an AWS instance, load it by updating the path in <code class="docutils literal notranslate"><span class="pre">infer.yaml</span></code> to specify trained model folder location (as above) and relaunch the <code class="docutils literal notranslate"><span class="pre">startup.sh</span></code> script from inside the container to reflect the changes for the new inference model.</p>
+<p>For running BioNeMo container on AWS, AWS’s “parallel cluster” comes pre-configured with SLURM and Pyxis/Enroot. This is not currently officially supported but it closely mirrors the configuration of internal clusters used for development and testing. <br><br></p>
+</li>
+<li><p><strong>The models have many more parameters than are contained in the yaml configuration file. Where are the remainder of the configuration parameters set?</strong> <br><br></p>
+<p>The process for training large models can be challenging and requires the configuration of many parameters, some of which will be changed infrequently. All BioNeMo models contain a base configuration file, which is located in the same directory as the configuration file directly used for training or inference. The name of the base configuration is referenced at the top of the configuration file used for training or inference. Additional parameters from the base configuration can be added to the configuration used for training and their default values changed to the desirable alternative.</p>
+</li>
+</ol>
+</div>
+
+<div class="section">
+   
+</div>
+
+              </div>
+              
+            </main>
+            <footer class="footer-article noprint">
+                
+    <!-- Previous / next buttons -->
+<div class='prev-next-area'>
+    <a class='left-prev' id="prev-link" href="notebooks/dnabert_pretrain_finetune.html" title="previous page">
+        <i class="fas fa-angle-left"></i>
+        <div class="prev-next-info">
+            <p class="prev-next-subtitle">previous</p>
+            <p class="prev-next-title">Pretrain, Fine-tune, and Perform Inference with DNABERT for Splice Site Prediction</p>
+        </div>
+    </a>
+    <a class='right-next' id="next-link" href="bibliography-fw.html" title="next page">
+    <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">Bibliography</p>
+    </div>
+    <i class="fas fa-angle-right"></i>
+    </a>
+</div>
+            </footer>
+        </div>
+    </div>
+    <div class="footer-content row">
+        <footer class="col footer"><p>
+  
+    By NVIDIA<br/>
+  
+      &copy; Copyright 2023-2024 NVIDIA CORPORATION &amp; AFFILIATES. All rights reserved..<br/>
+    Last updated on Nov 20, 2024.<br/>
+</p>
+        </footer>
+    </div>
+    
+</div>
+
+
+      </div>
+    </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="_static/scripts/pydata-sphinx-theme.js?digest=1999514e3f237ded88cf"></script>
+
+
+  </body>
+</html>

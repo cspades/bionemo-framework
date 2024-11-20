@@ -1,0 +1,1092 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Encoder Fine-tuning &#8212; NVIDIA BioNeMo Framework</title>
+    
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../_static/styles/theme.css?digest=1999514e3f237ded88cf" rel="stylesheet">
+<link href="../_static/styles/pydata-sphinx-theme.css?digest=1999514e3f237ded88cf" rel="stylesheet">
+
+    
+  <link rel="stylesheet"
+    href="../_static/vendor/fontawesome/5.13.0/css/all.min.css">
+  <link rel="preload" as="font" type="font/woff2" crossorigin
+    href="../_static/vendor/fontawesome/5.13.0/webfonts/fa-solid-900.woff2">
+  <link rel="preload" as="font" type="font/woff2" crossorigin
+    href="../_static/vendor/fontawesome/5.13.0/webfonts/fa-brands-400.woff2">
+
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
+    <link rel="stylesheet" href="../_static/styles/sphinx-book-theme.css?digest=62ba249389abaaa9ffc34bf36a076bdc1d65ee18" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="../_static/mystnb.4510f1fc1dee50b3e5859aac5469c37c29e427902b24a333a5f9fcb2f0b3ac41.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/copybutton.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/tabs.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/custom.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/design-style.1e8bd061cd6da7fc9cf755528e8ffc24.min.css" />
+    
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=1999514e3f237ded88cf">
+
+    <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+    <script src="../_static/jquery.js"></script>
+    <script src="../_static/underscore.js"></script>
+    <script src="../_static/doctools.js"></script>
+    <script src="../_static/clipboard.min.js"></script>
+    <script src="../_static/copybutton.js"></script>
+    <script src="https://js.hcaptcha.com/1/api.js"></script>
+    <script src="//assets.adobedtm.com/5d4962a43b79/c1061d2c5e7b/launch-191c2462b890.min.js"></script>
+    <script src="../_static/scripts/sphinx-book-theme.js?digest=f31d14ad54b65d19161ba51d4ffff3a77ae00456"></script>
+    <script src="../_static/design-tabs.js"></script>
+    <link rel="canonical" href="https://docs.nvidia.com/bionemo-framework/0.4.0/notebooks/encoder-finetuning-notebook-fw.html" />
+    <link rel="shortcut icon" href="../_static/nvidia-logo-vert-rgb-blk-for-screen.png"/>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="DiffDock Model Training using BioNeMo" href="model_training_diffdock.html" />
+    <link rel="prev" title="Adding the OAS Dataset: Downloading and Preprocessing" href="custom-dataset-preprocessing-fw.html" /> 
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="docsearch:language" content="None">
+    
+
+    <!-- Google Analytics -->
+      
+<style type="text/css">
+  ul.ablog-archive {
+    list-style: none;
+    overflow: auto;
+    margin-left: 0px;
+  }
+  ul.ablog-archive li {
+    float: left;
+    margin-right: 5px;
+    font-size: 80%;
+  }
+  ul.postlist a {
+    font-style: italic;
+  }
+  ul.postlist-style-disc {
+    list-style-type: disc;
+  }
+  ul.postlist-style-none {
+    list-style-type: none;
+  }
+  ul.postlist-style-circle {
+    list-style-type: circle;
+  }
+</style>
+
+  </head>
+  <body data-spy="scroll" data-target="#bd-toc-nav" data-offset="60">
+<!-- Checkboxes to toggle the left sidebar -->
+<input type="checkbox" class="sidebar-toggle" name="__navigation" id="__navigation" aria-label="Toggle navigation sidebar">
+<label class="overlay overlay-navbar" for="__navigation">
+    <div class="visually-hidden">Toggle navigation sidebar</div>
+</label>
+<!-- Checkboxes to toggle the in-page toc -->
+<input type="checkbox" class="sidebar-toggle" name="__page-toc" id="__page-toc" aria-label="Toggle in-page Table of Contents">
+<label class="overlay overlay-pagetoc" for="__page-toc">
+    <div class="visually-hidden">Toggle in-page Table of Contents</div>
+</label>
+<!-- Headers at the top -->
+<div class="announcement header-item noprint"></div>
+<div class="header header-item noprint"></div>
+
+    
+    <div class="container-fluid" id="banner"></div>
+
+    
+
+    <div class="container-xl">
+      <div class="row">
+          
+<!-- Sidebar -->
+<div class="bd-sidebar noprint" id="site-navigation">
+    <div class="bd-sidebar__content">
+        <div class="bd-sidebar__top"><div class="navbar-brand-box">
+    <a class="navbar-brand text-wrap" href="../index.html">
+      
+        <!-- `logo` is deprecated in Sphinx 4.0, so remove this when we stop supporting 3 -->
+        
+      
+      
+      <img src="../_static/nvidia-logo-horiz-rgb-blk-for-screen.png" class="logo" alt="logo">
+      
+      
+      <h1 class="site-logo" id="site-title">NVIDIA BioNeMo Framework</h1>
+      
+    </a>
+</div><form class="bd-search d-flex align-items-center" action="../search.html" method="get">
+  <i class="icon fas fa-search"></i>
+  <input type="search" class="form-control" name="q" id="search-input" placeholder="Search the docs ..." aria-label="Search the docs ..." autocomplete="off" >
+</form><nav class="bd-links" id="bd-docs-nav" aria-label="Main">
+    <div class="bd-toc-item active">
+        <p aria-level="2" class="caption" role="heading">
+ <span class="caption-text">
+  GETTING STARTED
+ </span>
+</p>
+<ul class="nav bd-sidenav">
+ <li class="toctree-l1">
+  <a class="reference internal" href="../index.html">
+   What is BioNeMo?
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../pre-reqs.html">
+   Hardware and Software Prerequisites
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../access-startup.html">
+   Access and Startup
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../initialization-guide.html">
+   Initialization Guide
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../tutorial-list.html">
+   BioNeMo Framework Tutorials
+  </a>
+ </li>
+</ul>
+<p aria-level="2" class="caption" role="heading">
+ <span class="caption-text">
+  BioNeMo CORE
+ </span>
+</p>
+<ul class="nav bd-sidenav">
+ <li class="toctree-l1">
+  <a class="reference internal" href="../bionemo-fw-for-model-training-fw.html">
+   Fundamentals
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../data-module-fw.html">
+   Data Module
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../dwnstr-task-validation.html">
+   Validation with a Downstream Task
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../inference-triton-fw.html">
+   Inference with Nvidia Triton Server
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../deep-dive-esm1-pytriton-inference.html">
+   Example of PyTriton Inference
+  </a>
+ </li>
+</ul>
+<p aria-level="2" class="caption" role="heading">
+ <span class="caption-text">
+  BEST PRACTICES
+ </span>
+</p>
+<ul class="nav bd-sidenav">
+ <li class="toctree-l1">
+  <a class="reference internal" href="../hyperparameters-fw.html">
+   Hyperparameter Usage and Tuning
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../parallelism-fw.html">
+   Training Parallelism
+  </a>
+ </li>
+</ul>
+<p aria-level="2" class="caption" role="heading">
+ <span class="caption-text">
+  MODELS
+ </span>
+</p>
+<ul class="nav bd-sidenav">
+ <li class="toctree-l1">
+  <a class="reference internal" href="../models/diffdock.html">
+   DiffDock
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../models/dnabert.html">
+   DNABERT
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../models/dsmbind.html">
+   DSMBind
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../models/equidock.html">
+   EquiDock
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../models/esm1-nv.html">
+   ESM-1nv
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../models/esm2-nv.html">
+   ESM-2nv
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../models/geneformer.html">
+   Geneformer
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../models/megamolbart.html">
+   MegaMolBART
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../models/molmim.html">
+   MolMIM
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../models/openfold.html">
+   OpenFold
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../models/prott5nv.html">
+   Prott5nv
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../models/model-benchmarks.html">
+   Model Benchmarks
+  </a>
+ </li>
+</ul>
+<p aria-level="2" class="caption" role="heading">
+ <span class="caption-text">
+  DATASETS
+ </span>
+</p>
+<ul class="nav bd-sidenav">
+ <li class="toctree-l1">
+  <a class="reference internal" href="../datasets/uniprot.html">
+   UniProt Dataset
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../datasets/CELLxGENE.html">
+   CELLxGENE
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../datasets/zinc15.html">
+   ZINC-15 Dataset
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../datasets/pdb.html">
+   The Protein Data Bank (PDB)
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../datasets/GRCh38.p13.html">
+   Human Reference Genome Version GRCh38.p13
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../datasets/openproteinset.html">
+   OpenProteinSet
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../datasets/moleculenet-physchem.html">
+   MoleculeNet Physical Chemistry Datasets - Lipophilicity, FreeSolv, ESOL
+  </a>
+ </li>
+</ul>
+<p aria-level="2" class="caption" role="heading">
+ <span class="caption-text">
+  TUTORIALS
+ </span>
+</p>
+<ul class="current nav bd-sidenav">
+ <li class="toctree-l1">
+  <a class="reference internal" href="../preprocessing-bcp-training-diffdock.html">
+   DiffDock: Preparing Workspace and Data for Pre-training
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="esm2nv-mutant-design.html">
+   Zero-Shot Protein Design Using ESM-2nv
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="MMB_GenerativeAI_Inference_with_examples.html">
+   BioNeMo - MegaMolBART Inferencing for Generative Chemistry
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="MolMIM_GenerativeAI_local_inference_with_examples.html">
+   MolMIM Inferencing for Generative Chemistry and Downstream Prediction
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="ZINC15-data-preprocessing.html">
+   ZINC Training Dataset Setup for small molecule language models
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="bionemo-finetuning-overview.html">
+   Finetune pre-trained models in BioNeMo
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="cma_es_guided_molecular_optimization_molmim.html">
+   MolMIM Property Guided Molecular Optimization Using CMA-ES
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="custom-dataset-class-fw.html">
+   Adding the OAS Dataset: Modifying the Dataset Class
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="custom-dataset-dataloader.html">
+   Adding the OAS Dataset: Customizing Dataset Object and Dataloader Functions
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="custom-dataset-preprocessing-fw.html">
+   Adding the OAS Dataset: Downloading and Preprocessing
+  </a>
+ </li>
+ <li class="toctree-l1 current active">
+  <a class="current reference internal" href="#">
+   Encoder Fine-tuning
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="model_training_diffdock.html">
+   DiffDock Model Training using BioNeMo
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="model_training_equidock.html">
+   EquiDock Model Training using BioNeMo
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="model_training_esm1nv.html">
+   ESM1nv Model Training using BioNeMo
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="model_training_esm2nv.html">
+   ESM-2nv: Data Preprocessing and Model Training Using BioNeMo
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="model_training_mmb.html">
+   MegaMolBART Model Training using BioNeMo
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="model_training_molmim.html">
+   Train MolMIM from scratch on your own data using the BioNeMo Framework
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="physchem-notebook-fw.html">
+   Finetuning LLM in BioNeMo for a Downstream Task
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="protein-esm2nv-clustering.html">
+   Generating Embeddings for Protein Clustering
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="retrosynthesis-notebook.html">
+   Training LLM for a Custom Downstram Task: Retrosynthesis Prediction using MegaMolBART
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="esm2_FLIP_finetuning.html">
+   Fine-Tune ESM-2nv on FLIP Data for Sequence-Level Classification, Regression, Token-Level Classification, and with LoRA Adapters
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="esm2_oas_inferencing.html">
+   Performing inference on OAS sequences with ESM-2nv
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="esm2_paratope_finetuning.html">
+   Pretrain from Scratch, Continue Training from an Existing Checkpoint, and Fine-tune ESM-2nv on Custom Data
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="dnabert_inference.html">
+   Generating and visualizing embeddings with DNABert
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="dnabert_pretrain_finetune.html">
+   Pretrain, Fine-tune, and Perform Inference with DNABERT for Splice Site Prediction
+  </a>
+ </li>
+</ul>
+<p aria-level="2" class="caption" role="heading">
+ <span class="caption-text">
+  APPENDIX
+ </span>
+</p>
+<ul class="nav bd-sidenav">
+ <li class="toctree-l1">
+  <a class="reference internal" href="../faq-fw.html">
+   Frequently Asked Questions (FAQ)
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../bibliography-fw.html">
+   Bibliography
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../releasenotes-fw.html">
+   Release Notes
+  </a>
+ </li>
+</ul>
+
+    </div>
+</nav></div>
+        <div class="bd-sidebar__bottom">
+             <!-- To handle the deprecated key -->
+            
+        </div>
+    </div>
+    <div id="rtd-footer-container"></div>
+</div>
+
+
+          
+
+
+          
+<!-- A tiny helper pixel to detect if we've scrolled -->
+<div class="sbt-scroll-pixel-helper"></div>
+<!-- Main content -->
+<div class="col py-0 content-container">
+    
+    <div class="header-article row sticky-top noprint">
+        
+
+
+
+<div class="col py-1 d-flex header-article-main">
+    <div class="header-article__left">
+        
+        <label for="__navigation"
+  class="headerbtn"
+  data-toggle="tooltip"
+data-placement="right"
+title="Toggle navigation"
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fas fa-bars"></i>
+  </span>
+
+</label>
+
+        
+    </div>
+    <div class="header-article__right">
+<button onclick="toggleFullScreen()"
+  class="headerbtn"
+  data-toggle="tooltip"
+data-placement="bottom"
+title="Fullscreen mode"
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fas fa-expand"></i>
+  </span>
+
+</button>
+<label for="__page-toc"
+  class="headerbtn headerbtn-page-toc"
+  
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fas fa-list"></i>
+  </span>
+
+</label>
+
+    </div>
+</div>
+
+<!-- Table of contents -->
+<div class="col-md-3 bd-toc show noprint">
+    <div class="tocsection onthispage pt-5 pb-3">
+        <i class="fas fa-list"></i> Contents
+    </div>
+    <nav id="bd-toc-nav" aria-label="Page">
+        <ul class="visible nav section-nav flex-column">
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#overview">
+   Overview
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#setup-and-assumptions">
+   Setup and Assumptions
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#getting-started">
+   Getting Started
+  </a>
+  <ul class="visible nav section-nav flex-column">
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#data-setup">
+     Data Setup
+    </a>
+    <ul class="visible nav section-nav flex-column">
+     <li class="toc-h4 nav-item toc-entry">
+      <a class="reference internal nav-link" href="#dataset-class">
+       Dataset class
+      </a>
+     </li>
+     <li class="toc-h4 nav-item toc-entry">
+      <a class="reference internal nav-link" href="#data-module">
+       Data module
+      </a>
+     </li>
+    </ul>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#setup-downstream-task-model-class">
+     Setup Downstream Task Model Class
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#config-yaml">
+     Config YAML
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#training-script">
+     Training Script
+    </a>
+   </li>
+  </ul>
+ </li>
+</ul>
+
+    </nav>
+</div>
+    </div>
+    <div class="article row">
+        <div class="col pl-md-3 pl-lg-5 content-container">
+            <!-- Table of contents that is only displayed when printing the page -->
+            <div id="jb-print-docs-body" class="onlyprint">
+                <h1>Encoder Fine-tuning</h1>
+                <!-- Table of contents -->
+                <div id="print-main-content">
+                    <div id="jb-print-toc">
+                        
+                        <div>
+                            <h2> Contents </h2>
+                        </div>
+                        <nav aria-label="Page">
+                            <ul class="visible nav section-nav flex-column">
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#overview">
+   Overview
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#setup-and-assumptions">
+   Setup and Assumptions
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#getting-started">
+   Getting Started
+  </a>
+  <ul class="visible nav section-nav flex-column">
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#data-setup">
+     Data Setup
+    </a>
+    <ul class="visible nav section-nav flex-column">
+     <li class="toc-h4 nav-item toc-entry">
+      <a class="reference internal nav-link" href="#dataset-class">
+       Dataset class
+      </a>
+     </li>
+     <li class="toc-h4 nav-item toc-entry">
+      <a class="reference internal nav-link" href="#data-module">
+       Data module
+      </a>
+     </li>
+    </ul>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#setup-downstream-task-model-class">
+     Setup Downstream Task Model Class
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#config-yaml">
+     Config YAML
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#training-script">
+     Training Script
+    </a>
+   </li>
+  </ul>
+ </li>
+</ul>
+
+                        </nav>
+                    </div>
+                </div>
+            </div>
+            <main id="main-content" role="main">
+                
+              <div>
+                 <div class="tex2jax_ignore mathjax_ignore section" id="encoder-fine-tuning">
+<h1>Encoder Fine-tuning<a class="headerlink" href="#encoder-fine-tuning" title="Permalink to this headline">#</a></h1>
+<p>This notebook serves as a demo for implementing our EncoderFineTuning class from scratch, hooking up the data, setting up the configs, and creating a fine-tuning script.</p>
+<div class="section" id="overview">
+<h2>Overview<a class="headerlink" href="#overview" title="Permalink to this headline">#</a></h2>
+<p>The task head plays a crucial role in fine-tuning for a downstream task. As a part of transfer learning, a pre-trained model is often utilized to learn generic features from a large-scale dataset. However, these features might not be directly applicable to the specific task at hand. By incorporating an MLP task head, which consists of one or more fully connected layers, the model can adapt and specialize to the target task. The MLP task head serves as a flexible and adaptable component that learns task-specific representations by leveraging the pre-trained features as a foundation. Through fine-tuning, the MLP task head enables the model to learn and extract task-specific patterns, improving performance and addressing the nuances of the downstream task. It acts as a critical bridge between the pre-trained model and the specific task, enabling efficient and effective transfer of knowledge.</p>
+<p>To assist in creating your own task/prediction head, we have created the EncoderFinetuning abstract base class to help you to quickly implement a feed forward network for training on a downstream task.</p>
+</div>
+<div class="section" id="setup-and-assumptions">
+<h2>Setup and Assumptions<a class="headerlink" href="#setup-and-assumptions" title="Permalink to this headline">#</a></h2>
+<p>This tutorial assumes that a copy of the BioNeMo framework repo exists on workstation or server and has been mounted inside the container at <code class="docutils literal notranslate"><span class="pre">/workspace/bionemo</span></code>. This path will be referred to with the variable <code class="docutils literal notranslate"><span class="pre">BIONEMO_WORKSPACE</span></code> in the tutorial.</p>
+<p>All commands should be executed inside the BioNeMo docker container.</p>
+<p>A user may create/place the following codes and execute files from <code class="docutils literal notranslate"><span class="pre">$BIONEMO_WORKSPACE/examples/&lt;molecule_or_protein&gt;/&lt;model_name&gt;/</span></code> folder, which needs to be adjusted according to the use case.</p>
+</div>
+<div class="section" id="getting-started">
+<h2>Getting Started<a class="headerlink" href="#getting-started" title="Permalink to this headline">#</a></h2>
+<p>In this notebook we will go over implementing our own downstream task model based on EncoderFinetuning, using a MLP regressor prediction head.</p>
+<p>To successfully accomplish this we need to define some key classes/files:</p>
+<ul class="simple">
+<li><p>Custom dataset class - defines functions to process our dataset and prepare batches</p></li>
+<li><p>BioNeMo data module class - performs additional the data-driven functions such as creation of train/val/test datasets</p></li>
+<li><p>Downstream Task Model class - extends the BioNeMo EncoderFinetuning class, which provides help abstract methods that help you define your prediction head architecture, loss function, pretrained model encoder that you want to fine-tune.</p></li>
+<li><p>Config yaml file - to specify model parameters and control behavior of model at runtime</p></li>
+<li><p>Training script - launches model training of our downtream task model</p></li>
+</ul>
+<div class="section" id="data-setup">
+<h3>Data Setup<a class="headerlink" href="#data-setup" title="Permalink to this headline">#</a></h3>
+<div class="section" id="dataset-class">
+<h4>Dataset class<a class="headerlink" href="#dataset-class" title="Permalink to this headline">#</a></h4>
+<p>Create a dataset class by extending from <code class="docutils literal notranslate"><span class="pre">torch.utils.data.Dataset</span></code> or from BioNeMo’s dataset classes found in <code class="docutils literal notranslate"><span class="pre">bionemo.data.datasets</span></code>.</p>
+<p>For the purposes of this demo, we’ll assume we are using the FreeSolv dataset from MoleculeNet to train our prediction, and our downstream task will be to predict the hyration free energy of small molecules in water. Therefore, the custom BioNeMo dataset class will be appropriate (found in <code class="docutils literal notranslate"><span class="pre">bionemo.data.datasets.single_value_dataset.SingleValueDataset</span></code>) as it faciliates predicting on a single value.</p>
+<p>An excerpt from the class is shown below:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">torch.utils.data</span> <span class="kn">import</span> <span class="n">Dataset</span>
+
+<span class="k">class</span> <span class="nc">SingleValueDataset</span><span class="p">(</span><span class="n">Dataset</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">datafiles</span><span class="p">,</span> <span class="n">max_seq_length</span><span class="p">,</span> <span class="n">emb_batch_size</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> 
+                 <span class="n">model</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">input_column</span><span class="p">:</span> <span class="nb">str</span><span class="o">=</span><span class="s1">&#39;SMILES&#39;</span><span class="p">,</span> 
+                 <span class="n">target_column</span><span class="p">:</span> <span class="nb">str</span><span class="o">=</span><span class="s1">&#39;y&#39;</span><span class="p">,</span> <span class="n">task</span><span class="p">:</span> <span class="nb">str</span><span class="o">=</span><span class="s2">&quot;regression&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">SingleValueDataset</span></code> accepts the path to the data, the column name of the input, the column name of the target values and other parameters. Simply extend <code class="docutils literal notranslate"><span class="pre">SingleValueDataset</span></code> class in a similar way to customize your class for your data.</p>
+</div>
+<div class="section" id="data-module">
+<h4>Data module<a class="headerlink" href="#data-module" title="Permalink to this headline">#</a></h4>
+<p>To coordinate the creation of training, validation and testing datasets from your data, we need to use a BioNeMo data module class. To do this we simply extend the <code class="docutils literal notranslate"><span class="pre">BioNeMoDataModule</span></code> class (located at <code class="docutils literal notranslate"><span class="pre">bionemo.core.BioNeMoDataModule</span></code>) which defines helpful abstract methods that use your dataset class. At minimum, we need to define our <code class="docutils literal notranslate"><span class="pre">__init__(),</span> <span class="pre">train_dataset(),</span> <span class="pre">val_dataset(),</span> <span class="pre">test_dataset()</span></code> when extending <code class="docutils literal notranslate"><span class="pre">BioNeMoDataModule</span></code>.</p>
+<p>We have already done this and created the <code class="docutils literal notranslate"><span class="pre">SingleValueDataModule</span></code> (located at <code class="docutils literal notranslate"><span class="pre">bionemo.data.datasets.single_value_dataset.SingleValueDataModule</span></code>) for use with the <code class="docutils literal notranslate"><span class="pre">SingleValueDataset</span></code>. Make note of the use of our <code class="docutils literal notranslate"><span class="pre">SingleValueDataset</span></code> class inside the <code class="docutils literal notranslate"><span class="pre">_create_dataset()</span></code> function</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">SingleValueDataModule</span><span class="p">(</span><span class="n">BioNeMoDataModule</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cfg</span><span class="p">,</span> <span class="n">trainer</span><span class="p">,</span> <span class="n">model</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">cfg</span><span class="p">,</span> <span class="n">trainer</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">model</span> <span class="o">=</span> <span class="n">model</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">parent_cfg</span> <span class="o">=</span> <span class="n">cfg</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">cfg</span><span class="o">.</span><span class="n">task_type</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;regression&quot;</span><span class="p">,</span> <span class="s2">&quot;classification&quot;</span><span class="p">]:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Invalid task_type was provided </span><span class="si">{}</span><span class="s2">. &quot;</span> <span class="o">+</span> \
+                             <span class="s2">&quot;Supported task_type: &#39;classification&#39; and &#39;regression&#39;&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cfg</span><span class="o">.</span><span class="n">task</span><span class="p">))</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">cfg</span><span class="o">.</span><span class="n">task_type</span> <span class="o">==</span> <span class="s2">&quot;classification&quot;</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">tokenizer</span> <span class="o">=</span> <span class="n">Label2IDTokenizer</span><span class="p">()</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">tokenizer</span> <span class="o">=</span> <span class="kc">None</span>
+
+    <span class="k">def</span> <span class="nf">_update_tokenizer</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tokenizer</span><span class="p">,</span> <span class="n">labels</span><span class="p">):</span>
+        <span class="n">tokenizer</span> <span class="o">=</span> <span class="n">tokenizer</span><span class="o">.</span><span class="n">build_vocab</span><span class="p">(</span><span class="n">labels</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">tokenizer</span>
+
+    <span class="c1"># helper function for creating Datasets</span>
+    <span class="k">def</span> <span class="nf">_create_dataset</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">split</span><span class="p">,</span> <span class="n">files</span><span class="p">):</span>
+        <span class="n">datafiles</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cfg</span><span class="o">.</span><span class="n">dataset_path</span><span class="p">,</span> 
+                                 <span class="n">split</span><span class="p">,</span> 
+                                 <span class="n">files</span><span class="p">)</span>
+        <span class="n">datafiles</span> <span class="o">=</span> <span class="n">expand_dataset_paths</span><span class="p">(</span><span class="n">datafiles</span><span class="p">,</span> <span class="s2">&quot;.csv&quot;</span><span class="p">)</span>
+        <span class="n">dataset</span> <span class="o">=</span> <span class="n">SingleValueDataset</span><span class="p">(</span>
+            <span class="n">datafiles</span><span class="o">=</span><span class="n">datafiles</span><span class="p">,</span> 
+            <span class="n">max_seq_length</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">parent_cfg</span><span class="o">.</span><span class="n">seq_length</span><span class="p">,</span>
+            <span class="n">emb_batch_size</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">cfg</span><span class="o">.</span><span class="n">emb_batch_size</span><span class="p">,</span>
+            <span class="n">model</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="p">,</span> 
+            <span class="n">input_column</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">cfg</span><span class="o">.</span><span class="n">sequence_column</span><span class="p">,</span> 
+            <span class="n">target_column</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">cfg</span><span class="o">.</span><span class="n">target_column</span>
+            <span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">tokenizer</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">tokenizer</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_update_tokenizer</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">tokenizer</span><span class="p">,</span> 
+                <span class="n">dataset</span><span class="o">.</span><span class="n">labels</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+                <span class="p">)</span>
+            <span class="n">dataset</span><span class="o">.</span><span class="n">labels</span> <span class="o">=</span> <span class="n">get_data</span><span class="o">.</span><span class="n">_tokenize_labels</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">tokenizer</span><span class="p">],</span> <span class="n">dataset</span><span class="o">.</span><span class="n">labels</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">),</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">cfg</span><span class="o">.</span><span class="n">num_classes</span><span class="p">])[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span> 
+        <span class="k">return</span> <span class="n">dataset</span>
+
+    <span class="c1"># uses our _create_dataset function to instantiate a training dataset</span>
+    <span class="k">def</span> <span class="nf">train_dataset</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Creates a training dataset</span>
+<span class="sd">        Returns:</span>
+<span class="sd">            Dataset: dataset to use for training</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">train_ds</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_create_dataset</span><span class="p">(</span><span class="s2">&quot;train&quot;</span><span class="p">,</span> 
+                                             <span class="bp">self</span><span class="o">.</span><span class="n">cfg</span><span class="o">.</span><span class="n">dataset</span><span class="o">.</span><span class="n">train</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">train_ds</span>
+
+    <span class="k">def</span> <span class="nf">val_dataset</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Creates a validation dataset</span>
+<span class="sd">        Returns:</span>
+<span class="sd">            Dataset: dataset to use for validation</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="s2">&quot;val&quot;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">cfg</span><span class="o">.</span><span class="n">dataset</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">val_ds</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_create_dataset</span><span class="p">(</span><span class="s2">&quot;val&quot;</span><span class="p">,</span> 
+                                             <span class="bp">self</span><span class="o">.</span><span class="n">cfg</span><span class="o">.</span><span class="n">dataset</span><span class="o">.</span><span class="n">val</span><span class="p">)</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">val_ds</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">pass</span>
+
+    <span class="k">def</span> <span class="nf">test_dataset</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Creates a testing dataset</span>
+<span class="sd">        Returns:</span>
+<span class="sd">            Dataset: dataset to use for testing</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="s2">&quot;test&quot;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">cfg</span><span class="o">.</span><span class="n">dataset</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">test_ds</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_create_dataset</span><span class="p">(</span><span class="s2">&quot;test&quot;</span><span class="p">,</span> 
+                                                <span class="bp">self</span><span class="o">.</span><span class="n">cfg</span><span class="o">.</span><span class="n">dataset</span><span class="o">.</span><span class="n">test</span><span class="p">)</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">test_ds</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">pass</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="section" id="setup-downstream-task-model-class">
+<h3>Setup Downstream Task Model Class<a class="headerlink" href="#setup-downstream-task-model-class" title="Permalink to this headline">#</a></h3>
+<p>Now that our dataset classes are created, we are ready to create the model class that will define the model architecture necessary to train on our downstream task. BioNeMo provides the EncoderFinetuning which allows us to quickly create a model for adding a prediction head to a pretrained model by quickly and easily extending the class and overriding abstract methods within the class.</p>
+<p>Let’s create a class, DownstreamTaskModel, based on EncoderFinetuning where we will setup our task head and the encoder model. We will use our MLPModel class as well, however, you can implement your own model to use with your class.</p>
+<p>It is important to note that we are required to implement the abstract methods withins the EncoderFinetuning.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">torch</span>
+<span class="kn">import</span> <span class="nn">torch.nn</span> <span class="k">as</span> <span class="nn">nn</span>
+<span class="kn">import</span> <span class="nn">bionemo.utils</span>
+<span class="kn">from</span> <span class="nn">functools</span> <span class="kn">import</span> <span class="n">lru_cache</span>
+<span class="kn">from</span> <span class="nn">nemo.utils.model_utils</span> <span class="kn">import</span> <span class="n">import_class_by_path</span>
+<span class="kn">from</span> <span class="nn">bionemo.model.core</span> <span class="kn">import</span> <span class="n">MLPModel</span>
+<span class="kn">from</span> <span class="nn">bionemo.model.core.encoder_finetuning</span> <span class="kn">import</span> <span class="n">EncoderFineTuning</span>
+
+<span class="c1">#import a BioNeMo data module or your custom data module</span>
+<span class="kn">from</span> <span class="nn">bionemo.data.datasets.single_value_dataset</span> <span class="kn">import</span> <span class="n">SingleValueDataModule</span>
+
+<span class="k">class</span> <span class="nc">DownstreamTaskModel</span><span class="p">(</span><span class="n">EncoderFineTuning</span><span class="p">):</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cfg</span><span class="p">,</span> <span class="n">trainer</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">cfg</span><span class="o">.</span><span class="n">model</span><span class="p">,</span> <span class="n">trainer</span><span class="o">=</span><span class="n">trainer</span><span class="p">)</span> 
+
+        <span class="c1">#store config parameters within object so they can be access easily</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">full_cfg</span> <span class="o">=</span> <span class="n">cfg</span>
+
+        <span class="c1"># we want our downstream model to behave differently based on whether the</span>
+        <span class="c1"># encoder_frozen config parameter is set to True or False so we store it for </span>
+        <span class="c1"># convenient access within the object</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">encoder_frozen</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">full_cfg</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">encoder_frozen</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">batch_target_name</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">cfg</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">target_column</span>
+
+    <span class="k">def</span> <span class="nf">configure_optimizers</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">setup_optimization</span><span class="p">(</span><span class="n">optim_config</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">cfg</span><span class="o">.</span><span class="n">finetuning_optim</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_scheduler</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_optimizer</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_optimizer</span><span class="p">],</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_scheduler</span><span class="p">]</span>
+
+    <span class="c1"># use this function to define what the loss func of the task head should be</span>
+    <span class="k">def</span> <span class="nf">build_loss_fn</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">bionemo</span><span class="o">.</span><span class="n">utils</span><span class="o">.</span><span class="n">lookup_or_use</span><span class="p">(</span><span class="n">torch</span><span class="o">.</span><span class="n">nn</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">cfg</span><span class="o">.</span><span class="n">downstream_task</span><span class="o">.</span><span class="n">loss_func</span><span class="p">)</span>
+
+    <span class="c1"># define the architecture of our prediction task head for the downstream task</span>
+    <span class="k">def</span> <span class="nf">build_task_head</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+        <span class="c1"># we create an instance of MLPModel using parameters defined in the config file</span>
+        <span class="c1"># choose the right task head architecture based on your downstream task (for example,. regression vs classification)</span>
+        <span class="n">regressor</span> <span class="o">=</span> <span class="n">MLPModel</span><span class="p">(</span><span class="n">layer_sizes</span><span class="o">=</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">encoder_model</span><span class="o">.</span><span class="n">cfg</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">hidden_size</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">cfg</span><span class="o">.</span><span class="n">downstream_task</span><span class="o">.</span><span class="n">hidden_layer_size</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">cfg</span><span class="o">.</span><span class="n">downstream_task</span><span class="o">.</span><span class="n">n_outputs</span><span class="p">],</span>
+            <span class="n">dropout</span><span class="o">=</span><span class="mf">0.1</span><span class="p">,</span>
+        <span class="p">)</span>
+
+        <span class="c1"># we can use pytorch libraries to further define our architecture and tensor operations</span>
+        <span class="n">task_head</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">Sequential</span><span class="p">(</span><span class="n">regressor</span><span class="p">,</span> <span class="n">nn</span><span class="o">.</span><span class="n">Flatten</span><span class="p">(</span><span class="n">start_dim</span><span class="o">=</span><span class="mi">0</span><span class="p">))</span>
+        <span class="k">return</span> <span class="n">task_head</span>
+
+    <span class="c1"># returns the model from which we will use the pretrained encoder</span>
+    <span class="k">def</span> <span class="nf">setup_encoder_model</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cfg</span><span class="p">,</span> <span class="n">trainer</span><span class="p">):</span>
+        <span class="n">infer_class</span> <span class="o">=</span> <span class="n">import_class_by_path</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">full_cfg</span><span class="o">.</span><span class="n">infer_target</span><span class="p">)</span>
+        <span class="n">pretrained_model</span> <span class="o">=</span> <span class="n">infer_class</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">full_cfg</span><span class="p">,</span> 
+            <span class="n">freeze</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">encoder_frozen</span><span class="p">,</span> <span class="c1">#determines whether encoders weights are trainable</span>
+            <span class="n">restore_path</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">full_cfg</span><span class="o">.</span><span class="n">restore_from_path</span><span class="p">,</span>
+            <span class="n">training</span><span class="o">=</span><span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">cfg</span><span class="o">.</span><span class="n">encoder_frozen</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">pretrained_model</span>
+
+    <span class="c1"># use this function to define all your data operations</span>
+    <span class="c1"># in this example, we use the config parameter to determine the value of our model variable</span>
+    <span class="c1"># then we pass it into an instance of SingleValueDataModule()</span>
+    <span class="nd">@lru_cache</span>
+    <span class="k">def</span> <span class="nf">data_setup</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">encoder_frozen</span><span class="p">:</span>
+            <span class="n">model</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">encoder_model</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">model</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">data_module</span> <span class="o">=</span> <span class="n">SingleValueDataModule</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">cfg</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">trainer</span><span class="p">,</span> <span class="n">model</span><span class="o">=</span><span class="n">model</span>
+        <span class="p">)</span>
+
+    <span class="c1"># ensures that we create our necessary datasets </span>
+    <span class="k">def</span> <span class="nf">on_fit_start</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">build_train_valid_test_datasets</span><span class="p">()</span>
+        <span class="k">return</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">on_fit_start</span><span class="p">()</span>
+
+    <span class="c1"># function that simply instatiates our datasets and stores them within our object </span>
+    <span class="k">def</span> <span class="nf">build_train_valid_test_datasets</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_train_ds</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_module</span><span class="o">.</span><span class="n">get_sampled_train_dataset</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_validation_ds</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_module</span><span class="o">.</span><span class="n">get_sampled_val_dataset</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_test_ds</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_module</span><span class="o">.</span><span class="n">get_sampled_test_dataset</span><span class="p">()</span>
+
+    <span class="c1"># define the behavior for retrieving embeddings from encoder</span>
+    <span class="k">def</span> <span class="nf">encoder_forward</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">bart_model</span><span class="p">,</span> <span class="n">batch</span><span class="p">:</span> <span class="nb">dict</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">encoder_frozen</span><span class="p">:</span>
+            <span class="n">enc_output</span> <span class="o">=</span> <span class="n">batch</span><span class="p">[</span><span class="s2">&quot;embeddings&quot;</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">enc_output</span> <span class="o">=</span> <span class="n">bart_model</span><span class="o">.</span><span class="n">seq_to_embeddings</span><span class="p">(</span><span class="n">batch</span><span class="p">[</span><span class="s2">&quot;embeddings&quot;</span><span class="p">])</span>
+        <span class="k">return</span> <span class="n">enc_output</span>
+
+    <span class="c1"># define additional operations on the encoder output</span>
+    <span class="c1"># in this example we simply convert the values of the tensor to float</span>
+    <span class="c1"># see forward() in encoder_finetuning.py for additional information</span>
+    <span class="k">def</span> <span class="nf">extract_for_task_head</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">input_tensor</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">input_tensor</span><span class="o">.</span><span class="n">float</span><span class="p">()</span>
+    
+    <span class="k">def</span> <span class="nf">get_target_from_batch</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">batch</span><span class="p">):</span>
+        <span class="n">ret</span> <span class="o">=</span> <span class="n">batch</span><span class="p">[</span><span class="s1">&#39;target&#39;</span><span class="p">]</span>
+
+        <span class="k">return</span> <span class="n">ret</span><span class="o">.</span><span class="n">float</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="config-yaml">
+<h3>Config YAML<a class="headerlink" href="#config-yaml" title="Permalink to this headline">#</a></h3>
+<p>Now that we have our <code class="docutils literal notranslate"><span class="pre">DownstreamTaskModel</span></code> defined, let’s create a config yaml file (<code class="docutils literal notranslate"><span class="pre">downstream_task_example.yaml</span></code>) that will define specific values of tunable hyperparameters, file paths and other important parameters needed by our model.</p>
+<p>An example config file can be found in <code class="docutils literal notranslate"><span class="pre">examples/molecule/megamolbart/conf/finetune_config.yaml</span></code>.</p>
+<p>Most importantly, our config file:</p>
+<ul class="simple">
+<li><p>provides the path to our pretrained model using the ‘<code class="docutils literal notranslate"><span class="pre">restore_from_path</span></code>’ parameter</p></li>
+<li><p>the model parameters, including the <code class="docutils literal notranslate"><span class="pre">loss_func,</span> <span class="pre">hidden_layer_size,</span> <span class="pre">n_outputs</span></code> to be used by our prediction head</p></li>
+<li><p>important data related parameters such as <code class="docutils literal notranslate"><span class="pre">task_type,</span> <span class="pre">dataset_path,</span> <span class="pre">sequence_column,</span> <span class="pre">target_column</span></code></p></li>
+</ul>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>name: downstream_task_example
+defaults: 
+  - pretrain_small_span_aug
+do_training: True # set to false if data preprocessing steps must be completed
+do_testing: True # set to true to run evaluation on test data after training, requires test_dataset section
+restore_from_path: /model/molecule/megamolbart/megamolbart.nemo
+target: bionemo.model.molecule.megamolbart.MegaMolBARTModel
+infer_target: bionemo.model.molecule.megamolbart.infer.MegaMolBARTInference
+
+trainer:
+  devices: 1 # number of GPUs or CPUs
+  num_nodes: 1
+  max_epochs: 100 # use max_steps instead with NeMo Megatron models
+  max_steps: 10000 # consumed_samples = global_step * micro_batch_size * data_parallel_size * accumulate_grad_batches
+  val_check_interval: 8 # set to integer when using steps to determine frequency of validation, use fraction with epochs
+  limit_val_batches: 20 # number of batches in validation step, use fraction for fraction of data, 0 to disable
+  limit_test_batches: 100 # number of batches in test step, use fraction for fraction of data, 0 to disable
+
+exp_manager:
+  wandb_logger_kwargs:
+    project: ${name}_finetuning
+    name: ${name}_finetuning_encoder_frozen_${model.encoder_frozen}
+  checkpoint_callback_params:
+    monitor: val_loss # use molecular accuracy to select best checkpoints
+    mode: min # use min or max of monitored metric to select best checkpoints
+    filename: &#39;${name}-${model.name}--{val_loss:.2f}-{step}-{consumed_samples}&#39;
+  resume_if_exists: True
+
+model:
+  encoder_frozen: True
+  post_process: False
+  micro_batch_size: 32 # NOTE: adjust to occupy ~ 90% of GPU memory
+  global_batch_size: null
+  tensor_model_parallel_size: 1  # model parallelism
+  
+  downstream_task:
+    n_outputs: 1
+    hidden_layer_size: 128
+    loss_func: MSELoss
+
+  data:
+    # Finetuning data params
+    task_type: &#39;regression&#39;
+    dataset_path: /data/physchem/SAMPL
+    sequence_column: &#39;smiles&#39;
+    target_column: &#39;expt&#39;
+    emb_batch_size: ${model.micro_batch_size}
+    dataset:
+      train: x000
+      val: x000
+      test: x000
+    num_workers: 8
+  
+  finetuning_optim:
+    name: adam
+    lr: 0.001
+    betas:
+      - 0.9
+      - 0.999
+    eps: 1e-8
+    weight_decay: 0.01
+    sched:
+      name: WarmupAnnealing
+      min_lr: 0.00001
+      last_epoch: -1
+      warmup_steps: 100
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+<div class="section" id="training-script">
+<h3>Training Script<a class="headerlink" href="#training-script" title="Permalink to this headline">#</a></h3>
+<p>Finally we’ll need a training script to launch our model training</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>from nemo.core.config import hydra_runner
+from nemo.utils import logging
+from omegaconf.omegaconf import OmegaConf
+from bionemo.model.utils import (setup_trainer,)
+
+import DownstreamTaskModel #import our model class
+
+@hydra_runner(config_path=&quot;conf&quot;, config_name=&quot;downstream_task_example&quot;) 
+def main(cfg) -&gt; None:
+
+    logging.info(&quot;\n\n************* Finetune config ****************&quot;)
+    logging.info(f&#39;\n{OmegaConf.to_yaml(cfg)}&#39;)
+
+    trainer = setup_trainer(
+         cfg, builder=None)
+
+    # we instantiate our model 
+    model = DownstreamTaskModel(cfg, trainer)
+
+    if cfg.do_training:
+        logging.info(&quot;************** Starting Training ***********&quot;)
+        trainer.fit(model) # train our downstream task model using the dataset defined in config
+        logging.info(&quot;************** Finished Training ***********&quot;)
+
+    if cfg.do_testing:
+        if &quot;test&quot; in cfg.model.data.dataset:
+            trainer.test(model)
+        else:
+            raise UserWarning(&quot;Skipping testing, test dataset file was not provided. Specify &#39;test_ds.data_file&#39; in yaml config&quot;)
+
+if __name__ == &#39;__main__&#39;:
+    main()
+</pre></div>
+</div>
+</div>
+</div>
+<p>We can launch our training by simply calling:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">python</span> <span class="n">training_script</span><span class="o">.</span><span class="n">py</span>
+</pre></div>
+</div>
+<p>More examples of training models for downstream tasks in BioNeMo can be found in our physicochemical property prediction notebook <a class="reference internal" href="physchem-notebook-fw.html"><span class="doc std std-doc">here</span></a>.</p>
+</div>
+</div>
+</div>
+
+<div class="section">
+   
+</div>
+
+              </div>
+              
+            </main>
+            <footer class="footer-article noprint">
+                
+    <!-- Previous / next buttons -->
+<div class='prev-next-area'>
+    <a class='left-prev' id="prev-link" href="custom-dataset-preprocessing-fw.html" title="previous page">
+        <i class="fas fa-angle-left"></i>
+        <div class="prev-next-info">
+            <p class="prev-next-subtitle">previous</p>
+            <p class="prev-next-title">Adding the OAS Dataset: Downloading and Preprocessing</p>
+        </div>
+    </a>
+    <a class='right-next' id="next-link" href="model_training_diffdock.html" title="next page">
+    <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">DiffDock Model Training using BioNeMo</p>
+    </div>
+    <i class="fas fa-angle-right"></i>
+    </a>
+</div>
+            </footer>
+        </div>
+    </div>
+    <div class="footer-content row">
+        <footer class="col footer"><p>
+  
+    By NVIDIA<br/>
+  
+      &copy; Copyright 2023-2024 NVIDIA CORPORATION &amp; AFFILIATES. All rights reserved..<br/>
+    Last updated on Nov 20, 2024.<br/>
+</p>
+        </footer>
+    </div>
+    
+</div>
+
+
+      </div>
+    </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="../_static/scripts/pydata-sphinx-theme.js?digest=1999514e3f237ded88cf"></script>
+
+
+  </body>
+</html>

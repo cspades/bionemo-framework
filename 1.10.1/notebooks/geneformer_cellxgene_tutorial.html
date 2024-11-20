@@ -1,0 +1,2212 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>BioNeMo - Geneformer inferencing for single cell downstream tasks &#8212; NVIDIA BioNeMo Framework</title>
+    
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../_static/styles/theme.css?digest=1999514e3f237ded88cf" rel="stylesheet">
+<link href="../_static/styles/pydata-sphinx-theme.css?digest=1999514e3f237ded88cf" rel="stylesheet">
+
+    
+  <link rel="stylesheet"
+    href="../_static/vendor/fontawesome/5.13.0/css/all.min.css">
+  <link rel="preload" as="font" type="font/woff2" crossorigin
+    href="../_static/vendor/fontawesome/5.13.0/webfonts/fa-solid-900.woff2">
+  <link rel="preload" as="font" type="font/woff2" crossorigin
+    href="../_static/vendor/fontawesome/5.13.0/webfonts/fa-brands-400.woff2">
+
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
+    <link rel="stylesheet" href="../_static/styles/sphinx-book-theme.css?digest=62ba249389abaaa9ffc34bf36a076bdc1d65ee18" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="../_static/mystnb.4510f1fc1dee50b3e5859aac5469c37c29e427902b24a333a5f9fcb2f0b3ac41.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/copybutton.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/tabs.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/custom.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/design-style.1e8bd061cd6da7fc9cf755528e8ffc24.min.css" />
+    
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=1999514e3f237ded88cf">
+
+    <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+    <script src="../_static/jquery.js"></script>
+    <script src="../_static/underscore.js"></script>
+    <script src="../_static/doctools.js"></script>
+    <script src="../_static/clipboard.min.js"></script>
+    <script src="../_static/copybutton.js"></script>
+    <script src="https://js.hcaptcha.com/1/api.js"></script>
+    <script src="//assets.adobedtm.com/5d4962a43b79/c1061d2c5e7b/launch-191c2462b890.min.js"></script>
+    <script src="../_static/scripts/sphinx-book-theme.js?digest=f31d14ad54b65d19161ba51d4ffff3a77ae00456"></script>
+    <script src="../_static/design-tabs.js"></script>
+    <link rel="canonical" href="https://docs.nvidia.com/bionemo-framework/0.4.0/notebooks/geneformer_cellxgene_tutorial.html" />
+    <link rel="shortcut icon" href="../_static/nvidia-logo-vert-rgb-blk-for-screen.png"/>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" /> 
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="docsearch:language" content="None">
+    
+
+    <!-- Google Analytics -->
+      
+<style type="text/css">
+  ul.ablog-archive {
+    list-style: none;
+    overflow: auto;
+    margin-left: 0px;
+  }
+  ul.ablog-archive li {
+    float: left;
+    margin-right: 5px;
+    font-size: 80%;
+  }
+  ul.postlist a {
+    font-style: italic;
+  }
+  ul.postlist-style-disc {
+    list-style-type: disc;
+  }
+  ul.postlist-style-none {
+    list-style-type: none;
+  }
+  ul.postlist-style-circle {
+    list-style-type: circle;
+  }
+</style>
+
+  </head>
+  <body data-spy="scroll" data-target="#bd-toc-nav" data-offset="60">
+<!-- Checkboxes to toggle the left sidebar -->
+<input type="checkbox" class="sidebar-toggle" name="__navigation" id="__navigation" aria-label="Toggle navigation sidebar">
+<label class="overlay overlay-navbar" for="__navigation">
+    <div class="visually-hidden">Toggle navigation sidebar</div>
+</label>
+<!-- Checkboxes to toggle the in-page toc -->
+<input type="checkbox" class="sidebar-toggle" name="__page-toc" id="__page-toc" aria-label="Toggle in-page Table of Contents">
+<label class="overlay overlay-pagetoc" for="__page-toc">
+    <div class="visually-hidden">Toggle in-page Table of Contents</div>
+</label>
+<!-- Headers at the top -->
+<div class="announcement header-item noprint"></div>
+<div class="header header-item noprint"></div>
+
+    
+    <div class="container-fluid" id="banner"></div>
+
+    
+
+    <div class="container-xl">
+      <div class="row">
+          
+<!-- Sidebar -->
+<div class="bd-sidebar noprint" id="site-navigation">
+    <div class="bd-sidebar__content">
+        <div class="bd-sidebar__top"><div class="navbar-brand-box">
+    <a class="navbar-brand text-wrap" href="../index.html">
+      
+        <!-- `logo` is deprecated in Sphinx 4.0, so remove this when we stop supporting 3 -->
+        
+      
+      
+      <img src="../_static/nvidia-logo-horiz-rgb-blk-for-screen.png" class="logo" alt="logo">
+      
+      
+      <h1 class="site-logo" id="site-title">NVIDIA BioNeMo Framework</h1>
+      
+    </a>
+</div><form class="bd-search d-flex align-items-center" action="../search.html" method="get">
+  <i class="icon fas fa-search"></i>
+  <input type="search" class="form-control" name="q" id="search-input" placeholder="Search the docs ..." aria-label="Search the docs ..." autocomplete="off" >
+</form><nav class="bd-links" id="bd-docs-nav" aria-label="Main">
+    <div class="bd-toc-item active">
+        <p aria-level="2" class="caption" role="heading">
+ <span class="caption-text">
+  GETTING STARTED
+ </span>
+</p>
+<ul class="nav bd-sidenav">
+ <li class="toctree-l1">
+  <a class="reference internal" href="../index.html">
+   What is BioNeMo?
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../pre-reqs.html">
+   Hardware and Software Prerequisites
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../access-startup.html">
+   Access and Startup
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../initialization-guide.html">
+   Initialization Guide
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../tutorial-list.html">
+   BioNeMo Framework Tutorials
+  </a>
+ </li>
+</ul>
+<p aria-level="2" class="caption" role="heading">
+ <span class="caption-text">
+  BioNeMo CORE
+ </span>
+</p>
+<ul class="nav bd-sidenav">
+ <li class="toctree-l1">
+  <a class="reference internal" href="../bionemo-fw-for-model-training-fw.html">
+   Fundamentals
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../data-module-fw.html">
+   Data Module
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../dwnstr-task-validation.html">
+   Validation with a Downstream Task
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../inference-triton-fw.html">
+   Inference with Nvidia Triton Server
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../deep-dive-esm1-pytriton-inference.html">
+   Example of PyTriton Inference
+  </a>
+ </li>
+</ul>
+<p aria-level="2" class="caption" role="heading">
+ <span class="caption-text">
+  BEST PRACTICES
+ </span>
+</p>
+<ul class="nav bd-sidenav">
+ <li class="toctree-l1">
+  <a class="reference internal" href="../hyperparameters-fw.html">
+   Hyperparameter Usage and Tuning
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../parallelism-fw.html">
+   Training Parallelism
+  </a>
+ </li>
+</ul>
+<p aria-level="2" class="caption" role="heading">
+ <span class="caption-text">
+  MODELS
+ </span>
+</p>
+<ul class="nav bd-sidenav">
+ <li class="toctree-l1">
+  <a class="reference internal" href="../models/diffdock.html">
+   DiffDock
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../models/dnabert.html">
+   DNABERT
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../models/dsmbind.html">
+   DSMBind
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../models/equidock.html">
+   EquiDock
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../models/esm1-nv.html">
+   ESM-1nv
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../models/esm2-nv.html">
+   ESM-2nv
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../models/geneformer.html">
+   Geneformer
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../models/megamolbart.html">
+   MegaMolBART
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../models/molmim.html">
+   MolMIM
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../models/openfold.html">
+   OpenFold
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../models/prott5nv.html">
+   Prott5nv
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../models/model-benchmarks.html">
+   Model Benchmarks
+  </a>
+ </li>
+</ul>
+<p aria-level="2" class="caption" role="heading">
+ <span class="caption-text">
+  DATASETS
+ </span>
+</p>
+<ul class="nav bd-sidenav">
+ <li class="toctree-l1">
+  <a class="reference internal" href="../datasets/uniprot.html">
+   UniProt Dataset
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../datasets/CELLxGENE.html">
+   CELLxGENE
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../datasets/zinc15.html">
+   ZINC-15 Dataset
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../datasets/pdb.html">
+   The Protein Data Bank (PDB)
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../datasets/GRCh38.p13.html">
+   Human Reference Genome Version GRCh38.p13
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../datasets/openproteinset.html">
+   OpenProteinSet
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../datasets/moleculenet-physchem.html">
+   MoleculeNet Physical Chemistry Datasets - Lipophilicity, FreeSolv, ESOL
+  </a>
+ </li>
+</ul>
+<p aria-level="2" class="caption" role="heading">
+ <span class="caption-text">
+  TUTORIALS
+ </span>
+</p>
+<ul class="nav bd-sidenav">
+ <li class="toctree-l1">
+  <a class="reference internal" href="../preprocessing-bcp-training-diffdock.html">
+   DiffDock: Preparing Workspace and Data for Pre-training
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="esm2nv-mutant-design.html">
+   Zero-Shot Protein Design Using ESM-2nv
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="MMB_GenerativeAI_Inference_with_examples.html">
+   BioNeMo - MegaMolBART Inferencing for Generative Chemistry
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="MolMIM_GenerativeAI_local_inference_with_examples.html">
+   MolMIM Inferencing for Generative Chemistry and Downstream Prediction
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="ZINC15-data-preprocessing.html">
+   ZINC Training Dataset Setup for small molecule language models
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="bionemo-finetuning-overview.html">
+   Finetune pre-trained models in BioNeMo
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="cma_es_guided_molecular_optimization_molmim.html">
+   MolMIM Property Guided Molecular Optimization Using CMA-ES
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="custom-dataset-class-fw.html">
+   Adding the OAS Dataset: Modifying the Dataset Class
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="custom-dataset-dataloader.html">
+   Adding the OAS Dataset: Customizing Dataset Object and Dataloader Functions
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="custom-dataset-preprocessing-fw.html">
+   Adding the OAS Dataset: Downloading and Preprocessing
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="encoder-finetuning-notebook-fw.html">
+   Encoder Fine-tuning
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="model_training_diffdock.html">
+   DiffDock Model Training using BioNeMo
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="model_training_equidock.html">
+   EquiDock Model Training using BioNeMo
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="model_training_esm1nv.html">
+   ESM1nv Model Training using BioNeMo
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="model_training_esm2nv.html">
+   ESM-2nv: Data Preprocessing and Model Training Using BioNeMo
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="model_training_mmb.html">
+   MegaMolBART Model Training using BioNeMo
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="model_training_molmim.html">
+   Train MolMIM from scratch on your own data using the BioNeMo Framework
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="physchem-notebook-fw.html">
+   Finetuning LLM in BioNeMo for a Downstream Task
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="protein-esm2nv-clustering.html">
+   Generating Embeddings for Protein Clustering
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="retrosynthesis-notebook.html">
+   Training LLM for a Custom Downstram Task: Retrosynthesis Prediction using MegaMolBART
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="esm2_FLIP_finetuning.html">
+   Fine-Tune ESM-2nv on FLIP Data for Sequence-Level Classification, Regression, Token-Level Classification, and with LoRA Adapters
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="esm2_oas_inferencing.html">
+   Performing inference on OAS sequences with ESM-2nv
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="esm2_paratope_finetuning.html">
+   Pretrain from Scratch, Continue Training from an Existing Checkpoint, and Fine-tune ESM-2nv on Custom Data
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="dnabert_inference.html">
+   Generating and visualizing embeddings with DNABert
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="dnabert_pretrain_finetune.html">
+   Pretrain, Fine-tune, and Perform Inference with DNABERT for Splice Site Prediction
+  </a>
+ </li>
+</ul>
+<p aria-level="2" class="caption" role="heading">
+ <span class="caption-text">
+  APPENDIX
+ </span>
+</p>
+<ul class="nav bd-sidenav">
+ <li class="toctree-l1">
+  <a class="reference internal" href="../faq-fw.html">
+   Frequently Asked Questions (FAQ)
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../bibliography-fw.html">
+   Bibliography
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../releasenotes-fw.html">
+   Release Notes
+  </a>
+ </li>
+</ul>
+
+    </div>
+</nav></div>
+        <div class="bd-sidebar__bottom">
+             <!-- To handle the deprecated key -->
+            
+        </div>
+    </div>
+    <div id="rtd-footer-container"></div>
+</div>
+
+
+          
+
+
+          
+<!-- A tiny helper pixel to detect if we've scrolled -->
+<div class="sbt-scroll-pixel-helper"></div>
+<!-- Main content -->
+<div class="col py-0 content-container">
+    
+    <div class="header-article row sticky-top noprint">
+        
+
+
+
+<div class="col py-1 d-flex header-article-main">
+    <div class="header-article__left">
+        
+        <label for="__navigation"
+  class="headerbtn"
+  data-toggle="tooltip"
+data-placement="right"
+title="Toggle navigation"
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fas fa-bars"></i>
+  </span>
+
+</label>
+
+        
+    </div>
+    <div class="header-article__right">
+<button onclick="toggleFullScreen()"
+  class="headerbtn"
+  data-toggle="tooltip"
+data-placement="bottom"
+title="Fullscreen mode"
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fas fa-expand"></i>
+  </span>
+
+</button>
+<label for="__page-toc"
+  class="headerbtn headerbtn-page-toc"
+  
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fas fa-list"></i>
+  </span>
+
+</label>
+
+    </div>
+</div>
+
+<!-- Table of contents -->
+<div class="col-md-3 bd-toc show noprint">
+    <div class="tocsection onthispage pt-5 pb-3">
+        <i class="fas fa-list"></i> Contents
+    </div>
+    <nav id="bd-toc-nav" aria-label="Page">
+        <ul class="visible nav section-nav flex-column">
+ <li class="toc-h1 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#">
+   BioNeMo - Geneformer inferencing for single cell downstream tasks
+  </a>
+  <ul class="visible nav section-nav flex-column">
+   <li class="toc-h2 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#prerequisites">
+     Prerequisites:
+    </a>
+    <ul class="visible nav section-nav flex-column">
+     <li class="toc-h3 nav-item toc-entry">
+      <a class="reference internal nav-link" href="#running-the-bionemo-container">
+       Running the BioNeMo container
+      </a>
+     </li>
+     <li class="toc-h3 nav-item toc-entry">
+      <a class="reference internal nav-link" href="#copy-this-code-and-input-files-into-jupyterlab">
+       Copy this code and input files into JupyterLab
+      </a>
+     </li>
+    </ul>
+   </li>
+   <li class="toc-h2 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#getting-example-single-cell-data-and-setting-it-up-for-inference">
+     Getting example single cell data and setting it up for inference
+    </a>
+   </li>
+  </ul>
+ </li>
+ <li class="toc-h1 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#pretraining">
+   Pretraining
+  </a>
+ </li>
+ <li class="toc-h1 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#running-inference">
+   Running inference.
+  </a>
+ </li>
+ <li class="toc-h1 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#load-inference-result-and-cluster-with-umap">
+   Load inference result and cluster with UMAP.
+  </a>
+ </li>
+</ul>
+
+    </nav>
+</div>
+    </div>
+    <div class="article row">
+        <div class="col pl-md-3 pl-lg-5 content-container">
+            <!-- Table of contents that is only displayed when printing the page -->
+            <div id="jb-print-docs-body" class="onlyprint">
+                <h1>BioNeMo - Geneformer inferencing for single cell downstream tasks</h1>
+                <!-- Table of contents -->
+                <div id="print-main-content">
+                    <div id="jb-print-toc">
+                        
+                        <div>
+                            <h2> Contents </h2>
+                        </div>
+                        <nav aria-label="Page">
+                            <ul class="visible nav section-nav flex-column">
+ <li class="toc-h1 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#">
+   BioNeMo - Geneformer inferencing for single cell downstream tasks
+  </a>
+  <ul class="visible nav section-nav flex-column">
+   <li class="toc-h2 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#prerequisites">
+     Prerequisites:
+    </a>
+    <ul class="visible nav section-nav flex-column">
+     <li class="toc-h3 nav-item toc-entry">
+      <a class="reference internal nav-link" href="#running-the-bionemo-container">
+       Running the BioNeMo container
+      </a>
+     </li>
+     <li class="toc-h3 nav-item toc-entry">
+      <a class="reference internal nav-link" href="#copy-this-code-and-input-files-into-jupyterlab">
+       Copy this code and input files into JupyterLab
+      </a>
+     </li>
+    </ul>
+   </li>
+   <li class="toc-h2 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#getting-example-single-cell-data-and-setting-it-up-for-inference">
+     Getting example single cell data and setting it up for inference
+    </a>
+   </li>
+  </ul>
+ </li>
+ <li class="toc-h1 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#pretraining">
+   Pretraining
+  </a>
+ </li>
+ <li class="toc-h1 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#running-inference">
+   Running inference.
+  </a>
+ </li>
+ <li class="toc-h1 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#load-inference-result-and-cluster-with-umap">
+   Load inference result and cluster with UMAP.
+  </a>
+ </li>
+</ul>
+
+                        </nav>
+                    </div>
+                </div>
+            </div>
+            <main id="main-content" role="main">
+                
+              <div>
+                 <div class="tex2jax_ignore mathjax_ignore section" id="bionemo-geneformer-inferencing-for-single-cell-downstream-tasks">
+<h1>BioNeMo - Geneformer inferencing for single cell downstream tasks<a class="headerlink" href="#bionemo-geneformer-inferencing-for-single-cell-downstream-tasks" title="Permalink to this headline">#</a></h1>
+<p>This tutorial showcases how to run the BioNeMo container, pre-train a geneformer model, and use it for inferencing downstream single cell tasks. At the end of this tutorial, a user will learn:</p>
+<ul class="simple">
+<li><p>launching the BioNeMo container</p></li>
+<li><p>Download data from czi to use for pre-training and inference.</p></li>
+<li><p>Convert AnnData files into the sparse CSR memmap format used by BioNeMo</p></li>
+<li><p>Kick-off pretraining with a custom single cell dataset</p></li>
+<li><p>Restore the pre-trained model and perform inference with the same czi dataset.</p></li>
+</ul>
+<div class="section" id="prerequisites">
+<h2>Prerequisites:<a class="headerlink" href="#prerequisites" title="Permalink to this headline">#</a></h2>
+<ul class="simple">
+<li><p>BioNeMo Framework container is running (refer to the <a class="reference internal" href="../index.html"><span class="doc std std-doc">Getting Started</span></a> section)</p></li>
+<li><p>Familiarity with some components of the BioNeMo framework such as the <a class="reference internal" href="../models/megamolbart.html"><span class="doc std std-doc">Models</span></a> and <span class="xref myst">Inferencing</span></p></li>
+</ul>
+<div class="section" id="running-the-bionemo-container">
+<h3>Running the BioNeMo container<a class="headerlink" href="#running-the-bionemo-container" title="Permalink to this headline">#</a></h3>
+<p>This example has been built by launching the container in a local machine with 2 x A6000 RTX GPUs. Refer to specific instructions for [remote and multi-node launch]</p>
+<p>Once the container is launched, navigate to http://0.0.0.0:8888, http://localhost:8888, or the IP address of the workstation/node. A JupyterLab instance should show up.</p>
+</div>
+<div class="section" id="copy-this-code-and-input-files-into-jupyterlab">
+<h3>Copy this code and input files into JupyterLab<a class="headerlink" href="#copy-this-code-and-input-files-into-jupyterlab" title="Permalink to this headline">#</a></h3>
+<p>In the launched JupyterLab, run the codes in a Jupyter notebook as provided in the code cells below.</p>
+</div>
+</div>
+<div class="section" id="getting-example-single-cell-data-and-setting-it-up-for-inference">
+<h2>Getting example single cell data and setting it up for inference<a class="headerlink" href="#getting-example-single-cell-data-and-setting-it-up-for-inference" title="Permalink to this headline">#</a></h2>
+<p>First, we must acquire single cell training data for inference. To do this we will install the cellxgene-census api and download a small dataset. We use the example provided by the czi api examples page to download a single h5ad file. Generally, our workflow expects a collection of h5ad files to be used for pre-training. In this case, we restrict to 100k cells from a single dataset  to keep training time and downloading time small.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="o">!</span>pip<span class="w"> </span>install<span class="w"> </span>cellxgene-census
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Defaulting to user installation because normal site-packages is not writeable
+Looking in indexes: https://pypi.org/simple, https://pypi.ngc.nvidia.com
+Requirement already satisfied: cellxgene-census in /workspace/bionemo/.local/lib/python3.10/site-packages (1.13.0)
+Requirement already satisfied: tiledbsoma~=1.9.1 in /workspace/bionemo/.local/lib/python3.10/site-packages (from cellxgene-census) (1.9.5)
+Requirement already satisfied: anndata in /usr/local/lib/python3.10/dist-packages (from cellxgene-census) (0.10.6)
+Requirement already satisfied: numpy&gt;=1.21 in /usr/local/lib/python3.10/dist-packages (from cellxgene-census) (1.24.4)
+Requirement already satisfied: requests in /usr/local/lib/python3.10/dist-packages (from cellxgene-census) (2.31.0)
+Requirement already satisfied: typing-extensions in /usr/local/lib/python3.10/dist-packages (from cellxgene-census) (4.7.1)
+Requirement already satisfied: s3fs&gt;=2021.06.1 in /workspace/bionemo/.local/lib/python3.10/site-packages (from cellxgene-census) (2024.3.1)
+Requirement already satisfied: aiobotocore&lt;3.0.0,&gt;=2.5.4 in /workspace/bionemo/.local/lib/python3.10/site-packages (from s3fs&gt;=2021.06.1-&gt;cellxgene-census) (2.12.3)
+Requirement already satisfied: fsspec==2024.3.1 in /workspace/bionemo/.local/lib/python3.10/site-packages (from s3fs&gt;=2021.06.1-&gt;cellxgene-census) (2024.3.1)
+Requirement already satisfied: aiohttp!=4.0.0a0,!=4.0.0a1 in /usr/local/lib/python3.10/dist-packages (from s3fs&gt;=2021.06.1-&gt;cellxgene-census) (3.9.0)
+Requirement already satisfied: attrs&gt;=22.2 in /usr/local/lib/python3.10/dist-packages (from tiledbsoma~=1.9.1-&gt;cellxgene-census) (23.1.0)
+Requirement already satisfied: numba&gt;=0.58.0 in /workspace/bionemo/.local/lib/python3.10/site-packages (from tiledbsoma~=1.9.1-&gt;cellxgene-census) (0.59.1)
+Requirement already satisfied: pandas in /usr/local/lib/python3.10/dist-packages (from tiledbsoma~=1.9.1-&gt;cellxgene-census) (1.5.3)
+Requirement already satisfied: pyarrow-hotfix in /usr/local/lib/python3.10/dist-packages (from tiledbsoma~=1.9.1-&gt;cellxgene-census) (0.6)
+Requirement already satisfied: scanpy&gt;=1.9.2 in /usr/local/lib/python3.10/dist-packages (from tiledbsoma~=1.9.1-&gt;cellxgene-census) (1.9.8)
+Requirement already satisfied: scipy in /usr/local/lib/python3.10/dist-packages (from tiledbsoma~=1.9.1-&gt;cellxgene-census) (1.11.1)
+Requirement already satisfied: somacore==1.0.10 in /workspace/bionemo/.local/lib/python3.10/site-packages (from tiledbsoma~=1.9.1-&gt;cellxgene-census) (1.0.10)
+Requirement already satisfied: tiledb~=0.27.0 in /workspace/bionemo/.local/lib/python3.10/site-packages (from tiledbsoma~=1.9.1-&gt;cellxgene-census) (0.27.1)
+Requirement already satisfied: pyarrow&gt;=9.0.0 in /usr/local/lib/python3.10/dist-packages (from tiledbsoma~=1.9.1-&gt;cellxgene-census) (14.0.1)
+Requirement already satisfied: array-api-compat!=1.5,&gt;1.4 in /usr/local/lib/python3.10/dist-packages (from anndata-&gt;cellxgene-census) (1.5.1)
+Requirement already satisfied: exceptiongroup in /usr/local/lib/python3.10/dist-packages (from anndata-&gt;cellxgene-census) (1.1.3)
+Requirement already satisfied: h5py&gt;=3.1 in /usr/local/lib/python3.10/dist-packages (from anndata-&gt;cellxgene-census) (3.10.0)
+Requirement already satisfied: natsort in /usr/local/lib/python3.10/dist-packages (from anndata-&gt;cellxgene-census) (8.4.0)
+Requirement already satisfied: packaging&gt;=20.0 in /usr/local/lib/python3.10/dist-packages (from anndata-&gt;cellxgene-census) (23.1)
+Requirement already satisfied: charset-normalizer&lt;4,&gt;=2 in /usr/local/lib/python3.10/dist-packages (from requests-&gt;cellxgene-census) (3.2.0)
+Requirement already satisfied: idna&lt;4,&gt;=2.5 in /usr/local/lib/python3.10/dist-packages (from requests-&gt;cellxgene-census) (3.4)
+Requirement already satisfied: urllib3&lt;3,&gt;=1.21.1 in /usr/local/lib/python3.10/dist-packages (from requests-&gt;cellxgene-census) (1.26.16)
+Requirement already satisfied: certifi&gt;=2017.4.17 in /usr/local/lib/python3.10/dist-packages (from requests-&gt;cellxgene-census) (2023.7.22)
+Requirement already satisfied: botocore&lt;1.34.70,&gt;=1.34.41 in /workspace/bionemo/.local/lib/python3.10/site-packages (from aiobotocore&lt;3.0.0,&gt;=2.5.4-&gt;s3fs&gt;=2021.06.1-&gt;cellxgene-census) (1.34.69)
+Requirement already satisfied: wrapt&lt;2.0.0,&gt;=1.10.10 in /usr/local/lib/python3.10/dist-packages (from aiobotocore&lt;3.0.0,&gt;=2.5.4-&gt;s3fs&gt;=2021.06.1-&gt;cellxgene-census) (1.14.1)
+Requirement already satisfied: aioitertools&lt;1.0.0,&gt;=0.5.1 in /workspace/bionemo/.local/lib/python3.10/site-packages (from aiobotocore&lt;3.0.0,&gt;=2.5.4-&gt;s3fs&gt;=2021.06.1-&gt;cellxgene-census) (0.11.0)
+Requirement already satisfied: multidict&lt;7.0,&gt;=4.5 in /usr/local/lib/python3.10/dist-packages (from aiohttp!=4.0.0a0,!=4.0.0a1-&gt;s3fs&gt;=2021.06.1-&gt;cellxgene-census) (6.0.4)
+Requirement already satisfied: yarl&lt;2.0,&gt;=1.0 in /usr/local/lib/python3.10/dist-packages (from aiohttp!=4.0.0a0,!=4.0.0a1-&gt;s3fs&gt;=2021.06.1-&gt;cellxgene-census) (1.9.2)
+Requirement already satisfied: frozenlist&gt;=1.1.1 in /usr/local/lib/python3.10/dist-packages (from aiohttp!=4.0.0a0,!=4.0.0a1-&gt;s3fs&gt;=2021.06.1-&gt;cellxgene-census) (1.4.0)
+Requirement already satisfied: aiosignal&gt;=1.1.2 in /usr/local/lib/python3.10/dist-packages (from aiohttp!=4.0.0a0,!=4.0.0a1-&gt;s3fs&gt;=2021.06.1-&gt;cellxgene-census) (1.3.1)
+Requirement already satisfied: async-timeout&lt;5.0,&gt;=4.0 in /usr/local/lib/python3.10/dist-packages (from aiohttp!=4.0.0a0,!=4.0.0a1-&gt;s3fs&gt;=2021.06.1-&gt;cellxgene-census) (4.0.3)
+Requirement already satisfied: llvmlite&lt;0.43,&gt;=0.42.0dev0 in /workspace/bionemo/.local/lib/python3.10/site-packages (from numba&gt;=0.58.0-&gt;tiledbsoma~=1.9.1-&gt;cellxgene-census) (0.42.0)
+Requirement already satisfied: python-dateutil&gt;=2.8.1 in /usr/local/lib/python3.10/dist-packages (from pandas-&gt;tiledbsoma~=1.9.1-&gt;cellxgene-census) (2.8.2)
+Requirement already satisfied: pytz&gt;=2020.1 in /usr/local/lib/python3.10/dist-packages (from pandas-&gt;tiledbsoma~=1.9.1-&gt;cellxgene-census) (2023.3)
+Requirement already satisfied: joblib in /usr/local/lib/python3.10/dist-packages (from scanpy&gt;=1.9.2-&gt;tiledbsoma~=1.9.1-&gt;cellxgene-census) (1.2.0)
+Requirement already satisfied: matplotlib&gt;=3.6 in /usr/local/lib/python3.10/dist-packages (from scanpy&gt;=1.9.2-&gt;tiledbsoma~=1.9.1-&gt;cellxgene-census) (3.8.0)
+Requirement already satisfied: networkx&gt;=2.3 in /usr/local/lib/python3.10/dist-packages (from scanpy&gt;=1.9.2-&gt;tiledbsoma~=1.9.1-&gt;cellxgene-census) (2.6.3)
+Requirement already satisfied: patsy in /workspace/bionemo/.local/lib/python3.10/site-packages (from scanpy&gt;=1.9.2-&gt;tiledbsoma~=1.9.1-&gt;cellxgene-census) (0.5.6)
+Requirement already satisfied: scikit-learn&gt;=0.24 in /usr/local/lib/python3.10/dist-packages (from scanpy&gt;=1.9.2-&gt;tiledbsoma~=1.9.1-&gt;cellxgene-census) (1.2.0)
+Requirement already satisfied: seaborn&gt;=0.13.0 in /workspace/bionemo/.local/lib/python3.10/site-packages (from scanpy&gt;=1.9.2-&gt;tiledbsoma~=1.9.1-&gt;cellxgene-census) (0.13.2)
+Requirement already satisfied: session-info in /usr/local/lib/python3.10/dist-packages (from scanpy&gt;=1.9.2-&gt;tiledbsoma~=1.9.1-&gt;cellxgene-census) (1.0.0)
+Requirement already satisfied: statsmodels&gt;=0.10.0rc2 in /workspace/bionemo/.local/lib/python3.10/site-packages (from scanpy&gt;=1.9.2-&gt;tiledbsoma~=1.9.1-&gt;cellxgene-census) (0.14.1)
+Requirement already satisfied: tqdm in /usr/local/lib/python3.10/dist-packages (from scanpy&gt;=1.9.2-&gt;tiledbsoma~=1.9.1-&gt;cellxgene-census) (4.66.1)
+Requirement already satisfied: umap-learn&gt;=0.3.10 in /usr/local/lib/python3.10/dist-packages (from scanpy&gt;=1.9.2-&gt;tiledbsoma~=1.9.1-&gt;cellxgene-census) (0.5.5)
+Requirement already satisfied: jmespath&lt;2.0.0,&gt;=0.7.1 in /usr/local/lib/python3.10/dist-packages (from botocore&lt;1.34.70,&gt;=1.34.41-&gt;aiobotocore&lt;3.0.0,&gt;=2.5.4-&gt;s3fs&gt;=2021.06.1-&gt;cellxgene-census) (1.0.1)
+Requirement already satisfied: contourpy&gt;=1.0.1 in /usr/local/lib/python3.10/dist-packages (from matplotlib&gt;=3.6-&gt;scanpy&gt;=1.9.2-&gt;tiledbsoma~=1.9.1-&gt;cellxgene-census) (1.1.1)
+Requirement already satisfied: cycler&gt;=0.10 in /usr/local/lib/python3.10/dist-packages (from matplotlib&gt;=3.6-&gt;scanpy&gt;=1.9.2-&gt;tiledbsoma~=1.9.1-&gt;cellxgene-census) (0.12.1)
+Requirement already satisfied: fonttools&gt;=4.22.0 in /workspace/bionemo/.local/lib/python3.10/site-packages (from matplotlib&gt;=3.6-&gt;scanpy&gt;=1.9.2-&gt;tiledbsoma~=1.9.1-&gt;cellxgene-census) (4.51.0)
+Requirement already satisfied: kiwisolver&gt;=1.0.1 in /usr/local/lib/python3.10/dist-packages (from matplotlib&gt;=3.6-&gt;scanpy&gt;=1.9.2-&gt;tiledbsoma~=1.9.1-&gt;cellxgene-census) (1.4.5)
+Requirement already satisfied: pillow&gt;=6.2.0 in /usr/local/lib/python3.10/dist-packages (from matplotlib&gt;=3.6-&gt;scanpy&gt;=1.9.2-&gt;tiledbsoma~=1.9.1-&gt;cellxgene-census) (10.2.0)
+Requirement already satisfied: pyparsing&gt;=2.3.1 in /usr/local/lib/python3.10/dist-packages (from matplotlib&gt;=3.6-&gt;scanpy&gt;=1.9.2-&gt;tiledbsoma~=1.9.1-&gt;cellxgene-census) (3.1.1)
+Requirement already satisfied: six&gt;=1.5 in /usr/local/lib/python3.10/dist-packages (from python-dateutil&gt;=2.8.1-&gt;pandas-&gt;tiledbsoma~=1.9.1-&gt;cellxgene-census) (1.16.0)
+Requirement already satisfied: threadpoolctl&gt;=2.0.0 in /usr/local/lib/python3.10/dist-packages (from scikit-learn&gt;=0.24-&gt;scanpy&gt;=1.9.2-&gt;tiledbsoma~=1.9.1-&gt;cellxgene-census) (3.2.0)
+Requirement already satisfied: pynndescent&gt;=0.5 in /usr/local/lib/python3.10/dist-packages (from umap-learn&gt;=0.3.10-&gt;scanpy&gt;=1.9.2-&gt;tiledbsoma~=1.9.1-&gt;cellxgene-census) (0.5.11)
+Requirement already satisfied: stdlib-list in /usr/local/lib/python3.10/dist-packages (from session-info-&gt;scanpy&gt;=1.9.2-&gt;tiledbsoma~=1.9.1-&gt;cellxgene-census) (0.10.0)
+
+<span class=" -Color -Color-Bold">[</span><span class=" -Color -Color-Blue">notice</span><span class=" -Color -Color-Bold">]</span> A new release of pip is available: <span class=" -Color -Color-Red">23.2.1</span> -&gt; <span class=" -Color -Color-Green">24.0</span>
+<span class=" -Color -Color-Bold">[</span><span class=" -Color -Color-Blue">notice</span><span class=" -Color -Color-Bold">]</span> To update, run: <span class=" -Color -Color-Green">python -m pip install --upgrade pip</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Below are paths required for setting up pre-training and inference.</span>
+<span class="n">tutorial_data_dir</span> <span class="o">=</span> <span class="s2">&quot;/workspace/bionemo/data/singlecell_tutorial/download_anndata&quot;</span>
+<span class="n">train_tutorial_data_dir</span> <span class="o">=</span> <span class="s2">&quot;/workspace/bionemo/data/singlecell_tutorial/download_anndata/train&quot;</span>
+<span class="n">val_tutorial_data_dir</span> <span class="o">=</span> <span class="s2">&quot;/workspace/bionemo/data/singlecell_tutorial/download_anndata/val&quot;</span>
+<span class="n">test_tutorial_data_dir</span> <span class="o">=</span> <span class="s2">&quot;/workspace/bionemo/data/singlecell_tutorial/download_anndata/test&quot;</span>
+
+<span class="n">train_tutorial_processed_dir</span> <span class="o">=</span> <span class="s2">&quot;/workspace/bionemo/data/singlecell_tutorial/processed_data/train&quot;</span>
+<span class="n">val_tutorial_processed_dir</span> <span class="o">=</span> <span class="s2">&quot;/workspace/bionemo/data/singlecell_tutorial/processed_data/val&quot;</span>
+<span class="n">test_tutorial_processed_dir</span> <span class="o">=</span> <span class="s2">&quot;/workspace/bionemo/data/singlecell_tutorial/processed_data/test&quot;</span>
+<span class="n">tutorial_output_dir</span> <span class="o">=</span> <span class="s2">&quot;/workspace/bionemo/data/singlecell_tutorial/inference_output&quot;</span>
+<span class="n">tutorial_output_inference_pickle</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">tutorial_output_dir</span><span class="si">}</span><span class="s2">/human_covid19_bcells_from_scratch.pkl&quot;</span>
+<span class="n">demo_data_train_download_path</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">train_tutorial_data_dir</span><span class="si">}</span><span class="s2">/human_covid19_bcells.h5ad&quot;</span>
+<span class="n">demo_data_val_download_path</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">val_tutorial_data_dir</span><span class="si">}</span><span class="s2">/human_covid19_bcells.h5ad&quot;</span>
+<span class="n">demo_data_test_download_path</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">test_tutorial_data_dir</span><span class="si">}</span><span class="s2">/human_covid19_bcells.h5ad&quot;</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="o">!</span>mkdir<span class="w"> </span>-p<span class="w"> </span><span class="o">{</span>train_tutorial_data_dir<span class="o">}</span>
+<span class="o">!</span>mkdir<span class="w"> </span>-p<span class="w"> </span><span class="o">{</span>val_tutorial_data_dir<span class="o">}</span>
+<span class="o">!</span>mkdir<span class="w"> </span>-p<span class="w"> </span><span class="o">{</span>test_tutorial_data_dir<span class="o">}</span>
+<span class="o">!</span>mkdir<span class="w"> </span>-p<span class="w"> </span><span class="o">{</span>train_tutorial_processed_dir<span class="o">}</span>
+<span class="o">!</span>mkdir<span class="w"> </span>-p<span class="w"> </span><span class="o">{</span>val_tutorial_processed_dir<span class="o">}</span>
+<span class="o">!</span>mkdir<span class="w"> </span>-p<span class="w"> </span><span class="o">{</span>test_tutorial_processed_dir<span class="o">}</span>
+<span class="o">!</span>mkdir<span class="w"> </span>-p<span class="w"> </span><span class="o">{</span>tutorial_output_dir<span class="o">}</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">cellxgene_census</span>
+<span class="n">frac_train</span> <span class="o">=</span> <span class="mf">0.8</span>
+<span class="n">frac_val</span> <span class="o">=</span> <span class="mf">0.1</span>
+<span class="n">frac_test</span> <span class="o">=</span> <span class="mf">0.1</span>
+
+<span class="k">with</span> <span class="n">cellxgene_census</span><span class="o">.</span><span class="n">open_soma</span><span class="p">(</span><span class="n">census_version</span><span class="o">=</span><span class="s2">&quot;2023-12-15&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">census</span><span class="p">:</span>
+    <span class="n">filter1</span> <span class="o">=</span> <span class="s2">&quot;cell_type == &#39;B cell&#39; and tissue_general == &#39;lung&#39; and disease == &#39;COVID-19&#39; and is_primary_data == True&quot;</span>
+
+    <span class="n">adata</span> <span class="o">=</span> <span class="n">cellxgene_census</span><span class="o">.</span><span class="n">get_anndata</span><span class="p">(</span>
+        <span class="n">census</span> <span class="o">=</span> <span class="n">census</span><span class="p">,</span>
+        <span class="n">organism</span> <span class="o">=</span> <span class="s2">&quot;Homo sapiens&quot;</span><span class="p">,</span>
+        <span class="n">obs_value_filter</span> <span class="o">=</span> <span class="n">filter1</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">n_train</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">adata</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="n">frac_train</span><span class="p">)</span>
+    <span class="n">n_val</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">adata</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="n">frac_val</span><span class="p">)</span>
+    <span class="n">n_test</span> <span class="o">=</span> <span class="n">adata</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">-</span> <span class="n">n_train</span> <span class="o">-</span> <span class="n">n_val</span>
+    <span class="c1"># Create some splits, bad practice since ordering may be a thing but let&#39;s just take ranges for this demo.</span>
+    <span class="n">adata_train</span> <span class="o">=</span> <span class="n">adata</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="n">n_train</span><span class="p">]</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+    <span class="n">adata_val</span> <span class="o">=</span> <span class="n">adata</span><span class="p">[</span><span class="n">n_train</span><span class="p">:(</span><span class="n">n_train</span><span class="o">+</span><span class="n">n_val</span><span class="p">)]</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+    <span class="n">adata_test</span> <span class="o">=</span> <span class="n">adata</span><span class="p">[(</span><span class="n">n_train</span><span class="o">+</span><span class="n">n_val</span><span class="p">):]</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+    <span class="n">adata_train</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">demo_data_train_download_path</span><span class="p">)</span>
+    <span class="n">adata_val</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">demo_data_val_download_path</span><span class="p">)</span>
+    <span class="n">adata_test</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">demo_data_test_download_path</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="o">!</span>ls<span class="w"> </span>-laht<span class="w"> </span><span class="o">{</span>demo_data_download_path<span class="o">}</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>ls: cannot access &#39;{demo_data_download_path}&#39;: No such file or directory
+</pre></div>
+</div>
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span># Create training data processed directory
+!python /workspace/bionemo/bionemo/data/singlecell/sc_memmap.py \
+  --data-path {train_tutorial_data_dir} \
+  --save-path {train_tutorial_processed_dir}
+
+# Create validation data processed directory
+!python /workspace/bionemo/bionemo/data/singlecell/sc_memmap.py \
+  --data-path {val_tutorial_data_dir} \
+  --save-path {val_tutorial_processed_dir}
+
+# Create test data processed directory
+!python /workspace/bionemo/bionemo/data/singlecell/sc_memmap.py \
+  --data-path {test_tutorial_data_dir} \
+  --save-path {test_tutorial_processed_dir}
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Found 1 files
+Starting to create memmap files...
+Creating metadata...: 100%|███████████████████████| 1/1 [00:00&lt;00:00,  9.13it/s]
+Done creating `metadata.json`
+Writing data into memmaps to /workspace/bionemo/data/singlecell_tutorial/processed_data/train...
+Merging AnnData into numpy memaps...: 100%|███████| 1/1 [00:00&lt;00:00,  6.56it/s]
+Saving dataframe ...
+Done creating dataset ...
+Found 1 files
+Starting to create memmap files...
+Creating metadata...: 100%|███████████████████████| 1/1 [00:00&lt;00:00,  9.86it/s]
+Done creating `metadata.json`
+Writing data into memmaps to /workspace/bionemo/data/singlecell_tutorial/processed_data/val...
+Merging AnnData into numpy memaps...: 100%|███████| 1/1 [00:00&lt;00:00,  8.41it/s]
+Saving dataframe ...
+Done creating dataset ...
+Found 1 files
+Starting to create memmap files...
+Creating metadata...: 100%|███████████████████████| 1/1 [00:00&lt;00:00,  9.72it/s]
+Done creating `metadata.json`
+Writing data into memmaps to /workspace/bionemo/data/singlecell_tutorial/processed_data/test...
+Merging AnnData into numpy memaps...: 100%|███████| 1/1 [00:00&lt;00:00,  8.02it/s]
+Saving dataframe ...
+Done creating dataset ...
+</pre></div>
+</div>
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="o">!</span>ls<span class="w"> </span>-laht<span class="w"> </span><span class="o">{</span>train_tutorial_processed_dir<span class="o">}</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>total 13M
+-rw-r--r-- 1 jstjohn domain-users 157K May 13 16:52 features.csv
+drwxr-xr-x 2 jstjohn domain-users 4.0K May 13 16:52 .
+-rw-r--r-- 1 jstjohn domain-users 5.9M May 13 16:52 gene_expression_ind.npy
+-rw-r--r-- 1 jstjohn domain-users  15K May 13 16:52 gene_expression_ptr.npy
+-rw-r--r-- 1 jstjohn domain-users 5.9M May 13 16:52 gene_expression_data.npy
+-rw-r--r-- 1 jstjohn domain-users 1.1M May 13 16:52 metadata.json
+drwxr-xr-x 5 jstjohn domain-users 4.0K May 13 16:49 ..
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="tex2jax_ignore mathjax_ignore section" id="pretraining">
+<h1>Pretraining<a class="headerlink" href="#pretraining" title="Permalink to this headline">#</a></h1>
+<p>Now that we have aquired the h5ad files we would like to use for training and converted them to a sparse memmap. We will kickoff training. This involves two distinct steps</p>
+<ul class="simple">
+<li><p>preprocessing (indicated with do_training=False), where artifacts are downloaded from huggingface to be used by the model. Importantly, we set the <code class="docutils literal notranslate"><span class="pre">dataset_path</span></code> to be the same place we created the sparse memmap files. This is how BioNeMo knows where to find files for training, including both training data and additional artifacts (such as tokenizers).</p></li>
+<li><p>pretraining, where the model is actually trained.</p></li>
+</ul>
+<p>We set the flag <code class="docutils literal notranslate"><span class="pre">max_steps</span></code> to limit the runtime. Check the full config file in <code class="docutils literal notranslate"><span class="pre">examples/singlecell/geneformer/conf</span></code> for a complete list of arguments.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span># Run preprocessing to acquire the requisite files for pre-training.
+!python /workspace/bionemo/examples/singlecell/geneformer/pretrain.py \
+  ++model.data.train_dataset_path={train_tutorial_processed_dir} \
+  ++model.data.val_dataset_path={val_tutorial_processed_dir} \
+  ++model.data.test_dataset_path={test_tutorial_processed_dir} \
+  ++do_training=False
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>[NeMo W 2024-05-13 16:53:05 nemo_logging:349] /usr/lib/python3.10/multiprocessing/popen_fork.py:66: RuntimeWarning: os.fork() was called. os.fork() is incompatible with multithreaded code, and JAX is multithreaded, so this will likely lead to a deadlock.
+      self.pid = os.fork()
+    
+[NeMo I 2024-05-13 16:53:07 megatron_hiddens:110] Registered hidden transform sampled_var_cond_gaussian at bionemo.model.core.hiddens_support.SampledVarGaussianHiddenTransform
+[NeMo I 2024-05-13 16:53:07 megatron_hiddens:110] Registered hidden transform interp_var_cond_gaussian at bionemo.model.core.hiddens_support.InterpVarGaussianHiddenTransform
+[NeMo W 2024-05-13 16:53:07 nemo_logging:349] /usr/local/lib/python3.10/dist-packages/hydra/_internal/defaults_list.py:251: UserWarning: In &#39;geneformer_config&#39;: Defaults list is missing `_self_`. See https://hydra.cc/docs/1.2/upgrades/1.0_to_1.1/default_composition_order for more information
+      warnings.warn(msg, UserWarning)
+    
+[NeMo W 2024-05-13 16:53:07 nemo_logging:349] /usr/local/lib/python3.10/dist-packages/hydra/_internal/hydra.py:119: UserWarning: Future Hydra versions will no longer change working directory at job runtime by default.
+    See https://hydra.cc/docs/1.2/upgrades/1.1_to_1.2/changes_to_job_working_dir/ for more information.
+      ret = run_job(
+    
+[NeMo I 2024-05-13 16:53:07 pretrain:33] 
+    
+    ************** Experiment configuration ***********
+[NeMo I 2024-05-13 16:53:07 pretrain:34] 
+    name: geneformer_base_config
+    restore_from_path: null
+    seed_everything: false
+    do_training: false
+    trainer:
+      devices: 1
+      num_nodes: 1
+      accelerator: gpu
+      precision: bf16-mixed
+      logger: false
+      enable_checkpointing: false
+      use_distributed_sampler: false
+      max_epochs: 1
+      max_steps: 400000
+      log_every_n_steps: 100
+      val_check_interval: 100
+      limit_val_batches: 8
+      limit_test_batches: 500
+      accumulate_grad_batches: 1
+      gradient_clip_val: 1.0
+      benchmark: false
+    exp_manager:
+      explicit_log_dir: null
+      exp_dir: ${oc.env:BIONEMO_HOME}/results/nemo_experiments/${.name}/${.wandb_logger_kwargs.name}
+      name: geneformer
+      create_wandb_logger: true
+      wandb_logger_kwargs:
+        project: null
+        name: geneformer-pretraining
+        offline: false
+      resume_if_exists: true
+      resume_ignore_no_checkpoint: true
+      create_checkpoint_callback: true
+      checkpoint_callback_params:
+        monitor: val_loss
+        save_top_k: 1
+        mode: min
+        always_save_nemo: true
+        filename: geneformer--{val_loss:.2f}-{step}-{consumed_samples}
+        model_parallel_size: ${multiply:${model.tensor_model_parallel_size}, ${model.pipeline_model_parallel_size}}
+    model:
+      tokenizer:
+        vocab_file: ${..data.train_dataset_path}/geneformer.vocab
+      micro_batch_size: 8
+      activation: relu
+      tensor_model_parallel_size: 1
+      pipeline_model_parallel_size: 1
+      use_flash_attention: true
+      seq_length: 2048
+      encoder_seq_length: ${.seq_length}
+      max_position_embeddings: ${.seq_length}
+      num_layers: 6
+      hidden_size: 256
+      ffn_hidden_size: 512
+      num_attention_heads: 4
+      init_method_std: 0.02
+      hidden_dropout: 0.02
+      attention_dropout: 0.02
+      kv_channels: null
+      apply_query_key_layer_scaling: true
+      layernorm_epsilon: 1.0e-12
+      make_vocab_size_divisible_by: 128
+      pre_process: true
+      post_process: true
+      bert_binary_head: false
+      resume_from_checkpoint: null
+      masked_softmax_fusion: true
+      native_amp_init_scale: 4294967296
+      native_amp_growth_interval: 1000
+      fp32_residual_connection: true
+      fp16_lm_cross_entropy: false
+      seed: 1234
+      use_cpu_initialization: false
+      onnx_safe: false
+      activations_checkpoint_method: null
+      activations_checkpoint_num_layers: 1
+      data:
+        data_impl: geneformer
+        probabilistic_dirichlet_sampling_train: false
+        train_dataset_path: /workspace/bionemo/data/singlecell_tutorial/processed_data/train
+        val_dataset_path: /workspace/bionemo/data/singlecell_tutorial/processed_data/val
+        test_dataset_path: /workspace/bionemo/data/singlecell_tutorial/processed_data/test
+        dataset_path: null
+        dataset: /
+        data_prefix: &#39;&#39;
+        shuffle: true
+        medians_file: ${.train_dataset_path}/medians.json
+        index_mapping_dir: ${exp_manager.exp_dir}/index_mapping
+        skip_warmup: true
+        index_mapping_type: memmap
+        num_workers: 12
+        dataloader_type: single
+        seq_length: ${model.seq_length}
+        seed: ${model.seed}
+        dynamic_padding: true
+        micro_batch_size: ${model.micro_batch_size}
+      optim:
+        name: fused_adam
+        lr: 0.001
+        weight_decay: 0.1
+        betas:
+        - 0.9
+        - 0.999
+        sched:
+          name: CosineAnnealing
+          warmup_steps: ${multiply:${trainer.max_steps}, 0.01}
+          constant_steps: ${multiply:${trainer.max_steps}, 0.05}
+          max_steps: ${trainer.max_steps}
+          min_lr: 2.0e-05
+    
+[NeMo I 2024-05-13 16:53:07 pretrain:51] ************** Starting Preprocessing ***********
+[NeMo I 2024-05-13 16:53:07 remote:103] Downloading resource: https://huggingface.co/ctheodoris/Geneformer/resolve/main/geneformer/gene_name_id_dict.pkl?download=true
+[NeMo I 2024-05-13 16:53:07 remote:121] No checksum provided, filename exists. Assuming it is complete.
+[NeMo I 2024-05-13 16:53:07 remote:103] Downloading resource: https://huggingface.co/ctheodoris/Geneformer/resolve/main/geneformer/gene_median_dictionary.pkl?download=true
+[NeMo I 2024-05-13 16:53:08 remote:121] No checksum provided, filename exists. Assuming it is complete.
+[NeMo I 2024-05-13 16:53:08 pretrain:60] *************** Preprocessing Finished ************
+</pre></div>
+</div>
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span># Pretrain the model using
+!python /workspace/bionemo/examples/singlecell/geneformer/pretrain.py \
+  --config-dir /workspace/bionemo/examples/singlecell/geneformer/conf \
+  --config-name geneformer_config \
+  ++model.data.train_dataset_path={train_tutorial_processed_dir} \
+  ++model.data.val_dataset_path={val_tutorial_processed_dir} \
+  ++model.data.test_dataset_path={test_tutorial_processed_dir} \
+  ++trainer.devices=1 \
+  ++trainer.max_steps=200 \
+  ++exp_manager.exp_dir={tutorial_output_dir} \
+  ++exp_manager.wandb_logger_kwargs.project=&quot;geneformer_pretrain_test&quot; \
+  ++model.data.output_fname={tutorial_output_inference_pickle} \
+  ++exp_manager.wandb_logger_kwargs.offline=True \
+  ++exp_manager.resume_if_exists=False \
+  ++do_training=True
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>[NeMo W 2024-05-13 16:53:22 nemo_logging:349] /usr/lib/python3.10/multiprocessing/popen_fork.py:66: RuntimeWarning: os.fork() was called. os.fork() is incompatible with multithreaded code, and JAX is multithreaded, so this will likely lead to a deadlock.
+      self.pid = os.fork()
+    
+[NeMo I 2024-05-13 16:53:24 megatron_hiddens:110] Registered hidden transform sampled_var_cond_gaussian at bionemo.model.core.hiddens_support.SampledVarGaussianHiddenTransform
+[NeMo I 2024-05-13 16:53:24 megatron_hiddens:110] Registered hidden transform interp_var_cond_gaussian at bionemo.model.core.hiddens_support.InterpVarGaussianHiddenTransform
+[NeMo W 2024-05-13 16:53:24 nemo_logging:349] /usr/local/lib/python3.10/dist-packages/hydra/_internal/defaults_list.py:251: UserWarning: In &#39;geneformer_config&#39;: Defaults list is missing `_self_`. See https://hydra.cc/docs/1.2/upgrades/1.0_to_1.1/default_composition_order for more information
+      warnings.warn(msg, UserWarning)
+    
+[NeMo W 2024-05-13 16:53:24 nemo_logging:349] /usr/local/lib/python3.10/dist-packages/hydra/_internal/hydra.py:119: UserWarning: Future Hydra versions will no longer change working directory at job runtime by default.
+    See https://hydra.cc/docs/1.2/upgrades/1.1_to_1.2/changes_to_job_working_dir/ for more information.
+      ret = run_job(
+    
+[NeMo I 2024-05-13 16:53:24 pretrain:33] 
+    
+    ************** Experiment configuration ***********
+[NeMo I 2024-05-13 16:53:24 pretrain:34] 
+    name: geneformer_base_config
+    restore_from_path: null
+    seed_everything: false
+    do_training: true
+    trainer:
+      devices: 1
+      num_nodes: 1
+      accelerator: gpu
+      precision: bf16-mixed
+      logger: false
+      enable_checkpointing: false
+      use_distributed_sampler: false
+      max_epochs: 1
+      max_steps: 200
+      log_every_n_steps: 100
+      val_check_interval: 100
+      limit_val_batches: 8
+      limit_test_batches: 500
+      accumulate_grad_batches: 1
+      gradient_clip_val: 1.0
+      benchmark: false
+    exp_manager:
+      explicit_log_dir: null
+      exp_dir: /workspace/bionemo/data/singlecell_tutorial/inference_output
+      name: geneformer
+      create_wandb_logger: true
+      wandb_logger_kwargs:
+        project: geneformer_pretrain_test
+        name: geneformer-pretraining
+        offline: true
+      resume_if_exists: false
+      resume_ignore_no_checkpoint: true
+      create_checkpoint_callback: true
+      checkpoint_callback_params:
+        monitor: val_loss
+        save_top_k: 1
+        mode: min
+        always_save_nemo: true
+        filename: geneformer--{val_loss:.2f}-{step}-{consumed_samples}
+        model_parallel_size: ${multiply:${model.tensor_model_parallel_size}, ${model.pipeline_model_parallel_size}}
+    model:
+      tokenizer:
+        vocab_file: ${..data.train_dataset_path}/geneformer.vocab
+      micro_batch_size: 8
+      activation: relu
+      tensor_model_parallel_size: 1
+      pipeline_model_parallel_size: 1
+      use_flash_attention: true
+      seq_length: 2048
+      encoder_seq_length: ${.seq_length}
+      max_position_embeddings: ${.seq_length}
+      num_layers: 6
+      hidden_size: 256
+      ffn_hidden_size: 512
+      num_attention_heads: 4
+      init_method_std: 0.02
+      hidden_dropout: 0.02
+      attention_dropout: 0.02
+      kv_channels: null
+      apply_query_key_layer_scaling: true
+      layernorm_epsilon: 1.0e-12
+      make_vocab_size_divisible_by: 128
+      pre_process: true
+      post_process: true
+      bert_binary_head: false
+      resume_from_checkpoint: null
+      masked_softmax_fusion: true
+      native_amp_init_scale: 4294967296
+      native_amp_growth_interval: 1000
+      fp32_residual_connection: true
+      fp16_lm_cross_entropy: false
+      seed: 1234
+      use_cpu_initialization: false
+      onnx_safe: false
+      activations_checkpoint_method: null
+      activations_checkpoint_num_layers: 1
+      data:
+        data_impl: geneformer
+        probabilistic_dirichlet_sampling_train: false
+        train_dataset_path: /workspace/bionemo/data/singlecell_tutorial/processed_data/train
+        val_dataset_path: /workspace/bionemo/data/singlecell_tutorial/processed_data/val
+        test_dataset_path: /workspace/bionemo/data/singlecell_tutorial/processed_data/test
+        dataset_path: null
+        dataset: /
+        data_prefix: &#39;&#39;
+        shuffle: true
+        medians_file: ${.train_dataset_path}/medians.json
+        index_mapping_dir: ${exp_manager.exp_dir}/index_mapping
+        skip_warmup: true
+        index_mapping_type: memmap
+        num_workers: 12
+        dataloader_type: single
+        seq_length: ${model.seq_length}
+        seed: ${model.seed}
+        dynamic_padding: true
+        micro_batch_size: ${model.micro_batch_size}
+        output_fname: /workspace/bionemo/data/singlecell_tutorial/inference_output/human_covid19_bcells_from_scratch.pkl
+      optim:
+        name: fused_adam
+        lr: 0.001
+        weight_decay: 0.1
+        betas:
+        - 0.9
+        - 0.999
+        sched:
+          name: CosineAnnealing
+          warmup_steps: ${multiply:${trainer.max_steps}, 0.01}
+          constant_steps: ${multiply:${trainer.max_steps}, 0.05}
+          max_steps: ${trainer.max_steps}
+          min_lr: 2.0e-05
+    
+[NeMo I 2024-05-13 16:53:24 utils:230] Selected Callbacks: [&lt;class &#39;pytorch_lightning.callbacks.model_summary.ModelSummary&#39;&gt;]
+Trainer already configured with model summary callbacks: [&lt;class &#39;pytorch_lightning.callbacks.model_summary.ModelSummary&#39;&gt;]. Skipping setting a default `ModelSummary` callback.
+GPU available: True (cuda), used: True
+TPU available: False, using: 0 TPU cores
+IPU available: False, using: 0 IPUs
+HPU available: False, using: 0 HPUs
+[NeMo I 2024-05-13 16:53:24 exp_manager:394] Experiments will be logged at /workspace/bionemo/data/singlecell_tutorial/inference_output/geneformer/2024-05-13_16-53-24
+[NeMo I 2024-05-13 16:53:24 exp_manager:835] TensorboardLogger has been set up
+<span class=" -Color -Color-Bold -Color-Bold-Blue">wandb</span>: <span class=" -Color -Color-Yellow">WARNING</span> `resume` will be ignored since W&amp;B syncing is set to `offline`. Starting a new run with run id 2024-05-13_16-53-24.
+<span class=" -Color -Color-Bold -Color-Bold-Blue">wandb</span>: Tracking run with wandb version 0.15.6
+<span class=" -Color -Color-Bold -Color-Bold-Blue">wandb</span>: W&amp;B syncing is set to <span class=" -Color -Color-Bold">`offline`</span> in this directory.  
+<span class=" -Color -Color-Bold -Color-Bold-Blue">wandb</span>: Run <span class=" -Color -Color-Bold">`wandb online`</span> or set <span class=" -Color -Color-Bold">WANDB_MODE=online</span> to enable cloud syncing.
+[NeMo I 2024-05-13 16:53:25 exp_manager:850] WandBLogger has been set up
+[NeMo W 2024-05-13 16:53:25 exp_manager:931] The checkpoint callback was told to monitor a validation value and trainer&#39;s max_steps was set to 200. Please ensure that max_steps will run for at least 1 epochs to ensure that checkpointing will not error out.
+[NeMo I 2024-05-13 16:53:25 utils:306] 
+    
+    ************** Trainer configuration ***********
+[NeMo I 2024-05-13 16:53:25 utils:307] 
+    name: geneformer_base_config
+    restore_from_path: null
+    seed_everything: false
+    do_training: true
+    trainer:
+      devices: 1
+      num_nodes: 1
+      accelerator: gpu
+      precision: bf16-mixed
+      logger: false
+      enable_checkpointing: false
+      use_distributed_sampler: false
+      max_epochs: 1
+      max_steps: 200
+      log_every_n_steps: 100
+      val_check_interval: 100
+      limit_val_batches: 8
+      limit_test_batches: 500
+      accumulate_grad_batches: 1
+      gradient_clip_val: 1.0
+      benchmark: false
+    exp_manager:
+      explicit_log_dir: null
+      exp_dir: /workspace/bionemo/data/singlecell_tutorial/inference_output
+      name: geneformer
+      create_wandb_logger: true
+      wandb_logger_kwargs:
+        project: geneformer_pretrain_test
+        name: geneformer-pretraining
+        offline: true
+      resume_if_exists: false
+      resume_ignore_no_checkpoint: true
+      create_checkpoint_callback: true
+      checkpoint_callback_params:
+        monitor: val_loss
+        save_top_k: 1
+        mode: min
+        always_save_nemo: true
+        filename: geneformer--{val_loss:.2f}-{step}-{consumed_samples}
+        model_parallel_size: ${multiply:${model.tensor_model_parallel_size}, ${model.pipeline_model_parallel_size}}
+    model:
+      tokenizer:
+        vocab_file: ${..data.train_dataset_path}/geneformer.vocab
+      micro_batch_size: 8
+      activation: relu
+      tensor_model_parallel_size: 1
+      pipeline_model_parallel_size: 1
+      use_flash_attention: true
+      seq_length: 2048
+      encoder_seq_length: ${.seq_length}
+      max_position_embeddings: ${.seq_length}
+      num_layers: 6
+      hidden_size: 256
+      ffn_hidden_size: 512
+      num_attention_heads: 4
+      init_method_std: 0.02
+      hidden_dropout: 0.02
+      attention_dropout: 0.02
+      kv_channels: null
+      apply_query_key_layer_scaling: true
+      layernorm_epsilon: 1.0e-12
+      make_vocab_size_divisible_by: 128
+      pre_process: true
+      post_process: true
+      bert_binary_head: false
+      resume_from_checkpoint: null
+      masked_softmax_fusion: true
+      native_amp_init_scale: 4294967296
+      native_amp_growth_interval: 1000
+      fp32_residual_connection: true
+      fp16_lm_cross_entropy: false
+      seed: 1234
+      use_cpu_initialization: false
+      onnx_safe: false
+      activations_checkpoint_method: null
+      activations_checkpoint_num_layers: 1
+      data:
+        data_impl: geneformer
+        probabilistic_dirichlet_sampling_train: false
+        train_dataset_path: /workspace/bionemo/data/singlecell_tutorial/processed_data/train
+        val_dataset_path: /workspace/bionemo/data/singlecell_tutorial/processed_data/val
+        test_dataset_path: /workspace/bionemo/data/singlecell_tutorial/processed_data/test
+        dataset_path: null
+        dataset: /
+        data_prefix: &#39;&#39;
+        shuffle: true
+        medians_file: ${.train_dataset_path}/medians.json
+        index_mapping_dir: ${exp_manager.exp_dir}/index_mapping
+        skip_warmup: true
+        index_mapping_type: memmap
+        num_workers: 12
+        dataloader_type: single
+        seq_length: ${model.seq_length}
+        seed: ${model.seed}
+        dynamic_padding: true
+        micro_batch_size: ${model.micro_batch_size}
+        output_fname: /workspace/bionemo/data/singlecell_tutorial/inference_output/human_covid19_bcells_from_scratch.pkl
+      optim:
+        name: fused_adam
+        lr: 0.001
+        weight_decay: 0.1
+        betas:
+        - 0.9
+        - 0.999
+        sched:
+          name: CosineAnnealing
+          warmup_steps: ${multiply:${trainer.max_steps}, 0.01}
+          constant_steps: ${multiply:${trainer.max_steps}, 0.05}
+          max_steps: ${trainer.max_steps}
+          min_lr: 2.0e-05
+      global_batch_size: 8
+      precision: bf16-mixed
+    
+[NeMo W 2024-05-13 16:53:25 modelPT:251] You tried to register an artifact under config key=tokenizer.vocab_file but an artifact for it has already been registered.
+[NeMo W 2024-05-13 16:53:25 megatron_base_model:821] The model: GeneformerModel() does not have field.name: context_parallel_size in its cfg. Add this key to cfg or config_mapping to make to make it configurable.
+[NeMo W 2024-05-13 16:53:25 megatron_base_model:821] The model: GeneformerModel() does not have field.name: virtual_pipeline_model_parallel_size in its cfg. Add this key to cfg or config_mapping to make to make it configurable.
+[NeMo W 2024-05-13 16:53:25 megatron_base_model:821] The model: GeneformerModel() does not have field.name: sequence_parallel in its cfg. Add this key to cfg or config_mapping to make to make it configurable.
+[NeMo W 2024-05-13 16:53:25 megatron_base_model:821] The model: GeneformerModel() does not have field.name: expert_model_parallel_size in its cfg. Add this key to cfg or config_mapping to make to make it configurable.
+[NeMo W 2024-05-13 16:53:25 megatron_base_model:821] The model: GeneformerModel() does not have field.name: gradient_accumulation_fusion in its cfg. Add this key to cfg or config_mapping to make to make it configurable.
+[NeMo W 2024-05-13 16:53:25 megatron_base_model:821] The model: GeneformerModel() does not have field.name: tp_comm_overlap in its cfg. Add this key to cfg or config_mapping to make to make it configurable.
+[NeMo W 2024-05-13 16:53:25 megatron_base_model:821] The model: GeneformerModel() does not have field.name: tp_comm_split_ag in its cfg. Add this key to cfg or config_mapping to make to make it configurable.
+[NeMo W 2024-05-13 16:53:25 megatron_base_model:821] The model: GeneformerModel() does not have field.name: tp_comm_split_rs in its cfg. Add this key to cfg or config_mapping to make to make it configurable.
+[NeMo W 2024-05-13 16:53:25 megatron_base_model:821] The model: GeneformerModel() does not have field.name: tp_comm_bulk_wgrad in its cfg. Add this key to cfg or config_mapping to make to make it configurable.
+[NeMo W 2024-05-13 16:53:25 megatron_base_model:821] The model: GeneformerModel() does not have field.name: tp_comm_bulk_dgrad in its cfg. Add this key to cfg or config_mapping to make to make it configurable.
+[NeMo W 2024-05-13 16:53:25 megatron_base_model:821] The model: GeneformerModel() does not have field.name: finalize_model_grads_func in its cfg. Add this key to cfg or config_mapping to make to make it configurable.
+[NeMo W 2024-05-13 16:53:25 megatron_base_model:821] The model: GeneformerModel() does not have field.name: overlap_p2p_comm in its cfg. Add this key to cfg or config_mapping to make to make it configurable.
+[NeMo W 2024-05-13 16:53:25 megatron_base_model:821] The model: GeneformerModel() does not have field.name: batch_p2p_comm in its cfg. Add this key to cfg or config_mapping to make to make it configurable.
+[NeMo W 2024-05-13 16:53:25 megatron_base_model:821] The model: GeneformerModel() does not have field.name: pipeline_model_parallel_split_rank in its cfg. Add this key to cfg or config_mapping to make to make it configurable.
+[NeMo W 2024-05-13 16:53:25 megatron_base_model:821] The model: GeneformerModel() does not have field.name: barrier_with_L1_time in its cfg. Add this key to cfg or config_mapping to make to make it configurable.
+[NeMo I 2024-05-13 16:53:25 megatron_init:234] Rank 0 has data parallel group: [0]
+[NeMo I 2024-05-13 16:53:25 megatron_init:237] All data parallel group ranks: [[0]]
+[NeMo I 2024-05-13 16:53:25 megatron_init:238] Ranks 0 has data parallel rank: 0
+[NeMo I 2024-05-13 16:53:25 megatron_init:246] Rank 0 has model parallel group: [0]
+[NeMo I 2024-05-13 16:53:25 megatron_init:247] All model parallel group ranks: [[0]]
+[NeMo I 2024-05-13 16:53:25 megatron_init:257] Rank 0 has tensor model parallel group: [0]
+[NeMo I 2024-05-13 16:53:25 megatron_init:261] All tensor model parallel group ranks: [[0]]
+[NeMo I 2024-05-13 16:53:25 megatron_init:262] Rank 0 has tensor model parallel rank: 0
+[NeMo I 2024-05-13 16:53:25 megatron_init:276] Rank 0 has pipeline model parallel group: [0]
+[NeMo I 2024-05-13 16:53:25 megatron_init:288] Rank 0 has embedding group: [0]
+[NeMo I 2024-05-13 16:53:25 megatron_init:294] All pipeline model parallel group ranks: [[0]]
+[NeMo I 2024-05-13 16:53:25 megatron_init:295] Rank 0 has pipeline model parallel rank 0
+[NeMo I 2024-05-13 16:53:25 megatron_init:296] All embedding group ranks: [[0]]
+[NeMo I 2024-05-13 16:53:25 megatron_init:297] Rank 0 has embedding rank: 0
+24-05-13 16:53:25 - PID:290675 - rank:(0, 0, 0, 0) - microbatches.py:39 - INFO - setting number of micro-batches to constant 1
+[NeMo W 2024-05-13 16:53:25 megatron_base_model:821] The model: GeneformerModel() does not have field.name: context_parallel_size in its cfg. Add this key to cfg or config_mapping to make to make it configurable.
+[NeMo W 2024-05-13 16:53:25 megatron_base_model:821] The model: GeneformerModel() does not have field.name: virtual_pipeline_model_parallel_size in its cfg. Add this key to cfg or config_mapping to make to make it configurable.
+[NeMo W 2024-05-13 16:53:25 megatron_base_model:821] The model: GeneformerModel() does not have field.name: sequence_parallel in its cfg. Add this key to cfg or config_mapping to make to make it configurable.
+[NeMo W 2024-05-13 16:53:25 megatron_base_model:821] The model: GeneformerModel() does not have field.name: expert_model_parallel_size in its cfg. Add this key to cfg or config_mapping to make to make it configurable.
+[NeMo W 2024-05-13 16:53:25 megatron_base_model:821] The model: GeneformerModel() does not have field.name: gradient_accumulation_fusion in its cfg. Add this key to cfg or config_mapping to make to make it configurable.
+[NeMo W 2024-05-13 16:53:25 megatron_base_model:821] The model: GeneformerModel() does not have field.name: tp_comm_overlap in its cfg. Add this key to cfg or config_mapping to make to make it configurable.
+[NeMo W 2024-05-13 16:53:25 megatron_base_model:821] The model: GeneformerModel() does not have field.name: tp_comm_split_ag in its cfg. Add this key to cfg or config_mapping to make to make it configurable.
+[NeMo W 2024-05-13 16:53:25 megatron_base_model:821] The model: GeneformerModel() does not have field.name: tp_comm_split_rs in its cfg. Add this key to cfg or config_mapping to make to make it configurable.
+[NeMo W 2024-05-13 16:53:25 megatron_base_model:821] The model: GeneformerModel() does not have field.name: tp_comm_bulk_wgrad in its cfg. Add this key to cfg or config_mapping to make to make it configurable.
+[NeMo W 2024-05-13 16:53:25 megatron_base_model:821] The model: GeneformerModel() does not have field.name: tp_comm_bulk_dgrad in its cfg. Add this key to cfg or config_mapping to make to make it configurable.
+[NeMo W 2024-05-13 16:53:25 megatron_base_model:821] The model: GeneformerModel() does not have field.name: finalize_model_grads_func in its cfg. Add this key to cfg or config_mapping to make to make it configurable.
+[NeMo W 2024-05-13 16:53:25 megatron_base_model:821] The model: GeneformerModel() does not have field.name: overlap_p2p_comm in its cfg. Add this key to cfg or config_mapping to make to make it configurable.
+[NeMo W 2024-05-13 16:53:25 megatron_base_model:821] The model: GeneformerModel() does not have field.name: batch_p2p_comm in its cfg. Add this key to cfg or config_mapping to make to make it configurable.
+[NeMo W 2024-05-13 16:53:25 megatron_base_model:821] The model: GeneformerModel() does not have field.name: pipeline_model_parallel_split_rank in its cfg. Add this key to cfg or config_mapping to make to make it configurable.
+[NeMo W 2024-05-13 16:53:25 megatron_base_model:821] The model: GeneformerModel() does not have field.name: barrier_with_L1_time in its cfg. Add this key to cfg or config_mapping to make to make it configurable.
+[NeMo W 2024-05-13 16:53:25 modelPT:251] You tried to register an artifact under config key=tokenizer.vocab_file but an artifact for it has already been registered.
+[NeMo I 2024-05-13 16:53:25 megatron_base_model:315] Padded vocab_size: 25472, original vocab_size: 25429, dummy tokens: 43.
+[NeMo I 2024-05-13 16:53:26 pretrain:47] ************** Starting Training ***********
+[NeMo W 2024-05-13 16:53:26 nemo_logging:349] /usr/local/lib/python3.10/dist-packages/pytorch_lightning/trainer/configuration_validator.py:153: UserWarning: The `batch_idx` argument in `GeneformerModel.on_train_batch_start` hook may not match with the actual batch index when using a `dataloader_iter` argument in your `training_step`.
+      rank_zero_warn(
+    
+[NeMo W 2024-05-13 16:53:26 nemo_logging:349] /usr/local/lib/python3.10/dist-packages/pytorch_lightning/trainer/configuration_validator.py:153: UserWarning: The `batch_idx` argument in `GeneformerModel.on_train_batch_end` hook may not match with the actual batch index when using a `dataloader_iter` argument in your `training_step`.
+      rank_zero_warn(
+    
+Initializing distributed: GLOBAL_RANK: 0, MEMBER: 1/1
+----------------------------------------------------------------------------------------------------
+distributed_backend=nccl
+All distributed processes registered. Starting with 1 processes
+----------------------------------------------------------------------------------------------------
+
+Pipeline model parallel rank: 0, Tensor model parallel rank: 0, Number of model parameters on device: 1.03e+07. Total number of model parameters: 1.03e+07.
+[NeMo I 2024-05-13 16:53:26 core:263] Building Bert datasets.
+ &gt; WARNING: could not find index map file /workspace/bionemo/data/singlecell_tutorial/inference_output/index_mapping/_train_1600_indexmap_1600mns_2046msl_0.00ssp_1234s.npy, building the indices on rank 0 ...
+[NeMo I 2024-05-13 16:53:26 dataset_utils:1303]  &gt; building samples index mapping for train_1600 ...
+make: Entering directory &#39;/usr/local/lib/python3.10/dist-packages/nemo/collections/nlp/data/language_modeling/megatron&#39;
+make: Nothing to be done for &#39;default&#39;.
+make: Leaving directory &#39;/usr/local/lib/python3.10/dist-packages/nemo/collections/nlp/data/language_modeling/megatron&#39;
+    using uint32 for data mapping...
+    using:
+     number of documents:            1850
+     sentences range:                [0, 1850)
+     total number of sentences:      1850
+     number of epochs:               2147483646
+     maximum number of samples:      1600
+     maximum sequence length:        2046
+     short sequence probability:     0
+     short sequence ration (1/prob): 0
+     seed:                           1234
+    reached 1600 samples after 1 epochs ...
+   number of empty documents: 0
+   number of documents with one sentence: 1850
+   number of documents with long sentences: 0
+   will create mapping for 1850 samples
+[NeMo I 2024-05-13 16:53:26 dataset_utils:1324]  &gt; done building samples index maping
+[NeMo I 2024-05-13 16:53:26 dataset_utils:1326]  &gt; saved the index mapping in /workspace/bionemo/data/singlecell_tutorial/inference_output/index_mapping/_train_1600_indexmap_1600mns_2046msl_0.00ssp_1234s.npy
+[NeMo I 2024-05-13 16:53:26 dataset_utils:1328]  &gt; elasped time to build and save samples mapping (seconds): 0.050445
+[NeMo W 2024-05-13 16:53:26 nemo_logging:349] /usr/local/lib/python3.10/dist-packages/nemo/collections/nlp/data/language_modeling/megatron/dataset_utils.py:1332: UserWarning: The torch.cuda.*DtypeTensor constructors are no longer recommended. It&#39;s best to use methods such as torch.tensor(data, dtype=*, device=&#39;cuda&#39;) to create tensors. (Triggered internally at /opt/pytorch/pytorch/torch/csrc/tensor/python_tensor.cpp:83.)
+      counts = torch.cuda.LongTensor([1])
+    
+ &gt; WARNING: could not find index map file /workspace/bionemo/data/singlecell_tutorial/inference_output/index_mapping/_val_64_indexmap_64mns_2046msl_0.00ssp_1234s.npy, building the indices on rank 0 ...
+[NeMo I 2024-05-13 16:53:27 dataset_utils:1303]  &gt; building samples index mapping for val_64 ...
+make: Entering directory &#39;/usr/local/lib/python3.10/dist-packages/nemo/collections/nlp/data/language_modeling/megatron&#39;
+make: Nothing to be done for &#39;default&#39;.
+make: Leaving directory &#39;/usr/local/lib/python3.10/dist-packages/nemo/collections/nlp/data/language_modeling/megatron&#39;
+    using uint32 for data mapping...
+    using:
+     number of documents:            231
+     sentences range:                [0, 231)
+     total number of sentences:      231
+     number of epochs:               2147483646
+     maximum number of samples:      64
+     maximum sequence length:        2046
+     short sequence probability:     0
+     short sequence ration (1/prob): 0
+     seed:                           1234
+    reached 64 samples after 1 epochs ...
+   number of empty documents: 0
+   number of documents with one sentence: 231
+   number of documents with long sentences: 0
+   will create mapping for 231 samples
+[NeMo I 2024-05-13 16:53:27 dataset_utils:1324]  &gt; done building samples index maping
+[NeMo I 2024-05-13 16:53:27 dataset_utils:1326]  &gt; saved the index mapping in /workspace/bionemo/data/singlecell_tutorial/inference_output/index_mapping/_val_64_indexmap_64mns_2046msl_0.00ssp_1234s.npy
+[NeMo I 2024-05-13 16:53:27 dataset_utils:1328]  &gt; elasped time to build and save samples mapping (seconds): 0.046324
+ &gt; WARNING: could not find index map file /workspace/bionemo/data/singlecell_tutorial/inference_output/index_mapping/_test_232_indexmap_232mns_2046msl_0.00ssp_1234s.npy, building the indices on rank 0 ...
+[NeMo I 2024-05-13 16:53:27 dataset_utils:1303]  &gt; building samples index mapping for test_232 ...
+make: Entering directory &#39;/usr/local/lib/python3.10/dist-packages/nemo/collections/nlp/data/language_modeling/megatron&#39;
+make: Nothing to be done for &#39;default&#39;.
+make: Leaving directory &#39;/usr/local/lib/python3.10/dist-packages/nemo/collections/nlp/data/language_modeling/megatron&#39;
+    using uint32 for data mapping...
+    using:
+     number of documents:            232
+     sentences range:                [0, 232)
+     total number of sentences:      232
+     number of epochs:               2147483646
+     maximum number of samples:      232
+     maximum sequence length:        2046
+     short sequence probability:     0
+     short sequence ration (1/prob): 0
+     seed:                           1234
+    reached 232 samples after 1 epochs ...
+   number of empty documents: 0
+   number of documents with one sentence: 232
+   number of documents with long sentences: 0
+   will create mapping for 232 samples
+[NeMo I 2024-05-13 16:53:27 dataset_utils:1324]  &gt; done building samples index maping
+[NeMo I 2024-05-13 16:53:27 dataset_utils:1326]  &gt; saved the index mapping in /workspace/bionemo/data/singlecell_tutorial/inference_output/index_mapping/_test_232_indexmap_232mns_2046msl_0.00ssp_1234s.npy
+[NeMo I 2024-05-13 16:53:27 dataset_utils:1328]  &gt; elasped time to build and save samples mapping (seconds): 0.042735
+[NeMo I 2024-05-13 16:53:27 core:269] Length of train dataset: 1600
+[NeMo I 2024-05-13 16:53:27 core:270] Length of val dataset: 64
+[NeMo I 2024-05-13 16:53:27 core:271] Length of test dataset: 232
+[NeMo I 2024-05-13 16:53:27 core:272] Finished building Bert datasets.
+Setting up train dataloader with len(len(self._train_ds)): 1600 and consumed samples: 0
+[NeMo I 2024-05-13 16:53:27 data_samplers:76] Instantiating MegatronPretrainingSampler with total_samples: 1600 and consumed_samples: 0
+[NeMo I 2024-05-13 16:53:27 data_samplers:76] Instantiating MegatronPretrainingSampler with total_samples: 64 and consumed_samples: 0
+[NeMo I 2024-05-13 16:53:27 data_samplers:76] Instantiating MegatronPretrainingSampler with total_samples: 232 and consumed_samples: 0
+LOCAL_RANK: 0 - CUDA_VISIBLE_DEVICES: [0,1]
+[NeMo I 2024-05-13 16:53:27 nlp_overrides:150] Configuring DDP for model parallelism.
+[NeMo I 2024-05-13 16:53:27 modelPT:728] Optimizer config = FusedAdam (
+    Parameter Group 0
+        betas: [0.9, 0.999]
+        bias_correction: True
+        eps: 1e-08
+        lr: 0.001
+        weight_decay: 0.1
+    
+    Parameter Group 1
+        betas: [0.9, 0.999]
+        bias_correction: True
+        eps: 1e-08
+        lr: 0.001
+        weight_decay: 0.0
+    )
+[NeMo I 2024-05-13 16:53:27 lr_scheduler:910] Scheduler &quot;&lt;nemo.core.optim.lr_scheduler.CosineAnnealing object at 0x7fed7615f220&gt;&quot; 
+    will be used during training (effective maximum steps = 200) - 
+    Parameters : 
+    (warmup_steps: 2.0
+    constant_steps: 10.0
+    max_steps: 200
+    min_lr: 2.0e-05
+    )
+
+  | Name                           | Type                     | Params
+----------------------------------------------------------------------------
+0 | model                          | BertModel                | 10.3 M
+1 | model.language_model           | TransformerLanguageModel | 10.2 M
+2 | model.language_model.embedding | Embedding                | 7.0 M 
+3 | model.language_model.encoder   | ParallelTransformer      | 3.2 M 
+4 | model.lm_head                  | BertLMHead               | 91.8 K
+5 | model.lm_head.dense            | Linear                   | 65.8 K
+6 | model.lm_head.layernorm        | MixedFusedLayerNorm      | 512   
+----------------------------------------------------------------------------
+10.3 M    Trainable params
+0         Non-trainable params
+10.3 M    Total params
+41.200    Total estimated model params size (MB)
+Sanity Checking: 0it [00:00, ?it/s][NeMo W 2024-05-13 16:53:27 nemo_logging:349] /usr/local/lib/python3.10/dist-packages/pytorch_lightning/trainer/connectors/data_connector.py:438: PossibleUserWarning: The dataloader, val_dataloader, does not have many workers which may be a bottleneck. Consider increasing the value of the `num_workers` argument` (try 64 which is the number of cpus on this machine) in the `DataLoader` init to improve performance.
+      rank_zero_warn(
+    
+[NeMo W 2024-05-13 16:53:27 nemo_logging:349] /usr/local/lib/python3.10/dist-packages/pytorch_lightning/loops/utilities.py:148: UserWarning: Found `dataloader_iter` argument in the `validation_step`. Note that the support for this signature is experimental and the behavior is subject to change.
+      rank_zero_warn(
+    
+Sanity Checking DataLoader 0:   0%|                       | 0/2 [00:00&lt;?, ?it/s][NeMo W 2024-05-13 16:53:27 nemo_logging:349] /usr/local/lib/python3.10/dist-packages/nemo/collections/nlp/modules/common/megatron/fused_bias_dropout_add.py:70: UserWarning: nvfuser integration in TorchScript is deprecated. (Triggered internally at /opt/pytorch/pytorch/torch/csrc/jit/codegen/cuda/interface.cpp:235.)
+      return bias_dropout_add_fused_inference_(*args)
+    
+Sanity Checking DataLoader 0: : 3it [00:01,  2.18it/s]                          [NeMo W 2024-05-13 16:53:28 nemo_logging:349] /usr/local/lib/python3.10/dist-packages/pytorch_lightning/trainer/connectors/logger_connector/result.py:433: PossibleUserWarning: It is recommended to use `self.log(&#39;val_loss&#39;, ..., sync_dist=True)` when logging on epoch level in distributed setting to accumulate the metric across devices.
+      warning_cache.warn(
+    
+[NeMo W 2024-05-13 16:53:28 nemo_logging:349] /usr/lib/python3.10/multiprocessing/popen_fork.py:66: RuntimeWarning: os.fork() was called. os.fork() is incompatible with multithreaded code, and JAX is multithreaded, so this will likely lead to a deadlock.
+      self.pid = os.fork()
+    
+[NeMo W 2024-05-13 16:53:29 nemo_logging:349] /usr/local/lib/python3.10/dist-packages/pytorch_lightning/loops/utilities.py:148: UserWarning: Found `dataloader_iter` argument in the `training_step`. Note that the support for this signature is experimental and the behavior is subject to change.
+      rank_zero_warn(
+    
+Epoch 0:   0%|                                          | 0/200 [00:00&lt;?, ?it/s][NeMo W 2024-05-13 16:53:30 nemo_logging:349] /usr/local/lib/python3.10/dist-packages/pytorch_lightning/trainer/connectors/logger_connector/result.py:212: UserWarning: You called `self.log(&#39;global_step&#39;, ...)` in your `training_step` but the value needs to be floating point. Converting it to torch.float32.
+      warning_cache.warn(
+    
+[NeMo W 2024-05-13 16:53:30 nemo_logging:349] /usr/local/lib/python3.10/dist-packages/pytorch_lightning/trainer/connectors/logger_connector/result.py:212: UserWarning: You called `self.log(&#39;consumed_samples&#39;, ...)` in your `training_step` but the value needs to be floating point. Converting it to torch.float32.
+      warning_cache.warn(
+    
+Epoch 0:  50%|▌| 100/200 [00:30&lt;00:30,  3.24it/s, v_num=3-24, reduced_train_loss
+Validation: 0it [00:00, ?it/s]
+Validation:   0%|                                         | 0/8 [00:00&lt;?, ?it/s]
+Validation DataLoader 0:   0%|                            | 0/8 [00:00&lt;?, ?it/s]
+Validation DataLoader 0:  12%|██▌                 | 1/8 [00:00&lt;00:00,  7.28it/s]
+Validation DataLoader 0:  25%|█████               | 2/8 [00:00&lt;00:00,  7.40it/s]
+Validation DataLoader 0:  38%|███████▌            | 3/8 [00:00&lt;00:00,  7.57it/s]
+Validation DataLoader 0:  50%|██████████          | 4/8 [00:00&lt;00:00,  7.52it/s]
+Validation DataLoader 0:  62%|████████████▌       | 5/8 [00:00&lt;00:00,  7.50it/s]
+Validation DataLoader 0:  75%|███████████████     | 6/8 [00:00&lt;00:00,  7.58it/s]
+Validation DataLoader 0:  88%|█████████████████▌  | 7/8 [00:00&lt;00:00,  7.57it/s]
+Validation DataLoader 0: 100%|████████████████████| 8/8 [00:01&lt;00:00,  7.57it/s]
+Epoch 0:  50%|▌| 100/200 [00:31&lt;00:31,  3.13it/s, v_num=3-24, reduced_train_loss
+                                                 Epoch 0, global step 100: &#39;val_loss&#39; reached 9.03883 (best 9.03883), saving model to &#39;/workspace/bionemo/data/singlecell_tutorial/inference_output/geneformer/2024-05-13_16-53-24/checkpoints/geneformer--val_loss=9.04-step=100-consumed_samples=800.0.ckpt&#39; as top 1
+[NeMo I 2024-05-13 16:54:01 nemo_model_checkpoint:183] New .nemo model saved to: /workspace/bionemo/data/singlecell_tutorial/inference_output/geneformer/2024-05-13_16-53-24/checkpoints/geneformer.nemo
+[NeMo I 2024-05-13 16:54:01 nemo_model_checkpoint:183] New .nemo model saved to: /workspace/bionemo/data/singlecell_tutorial/inference_output/geneformer/2024-05-13_16-53-24/checkpoints/geneformer.nemo
+Epoch 0: 100%|█| 200/200 [01:02&lt;00:00,  3.22it/s, v_num=3-24, reduced_train_loss
+Validation: 0it [00:00, ?it/s]
+Validation:   0%|                                         | 0/8 [00:00&lt;?, ?it/s]
+Validation DataLoader 0:   0%|                            | 0/8 [00:00&lt;?, ?it/s]
+Validation DataLoader 0:  12%|██▌                 | 1/8 [00:00&lt;00:00,  7.58it/s]
+Validation DataLoader 0:  25%|█████               | 2/8 [00:00&lt;00:00,  7.47it/s]
+Validation DataLoader 0:  38%|███████▌            | 3/8 [00:00&lt;00:00,  7.49it/s]
+Validation DataLoader 0:  50%|██████████          | 4/8 [00:00&lt;00:00,  7.53it/s]
+Validation DataLoader 0:  62%|████████████▌       | 5/8 [00:00&lt;00:00,  7.51it/s]
+Validation DataLoader 0:  75%|███████████████     | 6/8 [00:00&lt;00:00,  7.51it/s]
+Validation DataLoader 0:  88%|█████████████████▌  | 7/8 [00:00&lt;00:00,  7.57it/s]
+Validation DataLoader 0: 100%|████████████████████| 8/8 [00:01&lt;00:00,  7.55it/s]
+Epoch 0: 100%|█| 200/200 [01:03&lt;00:00,  3.16it/s, v_num=3-24, reduced_train_loss
+                                                 Epoch 0, global step 200: &#39;val_loss&#39; reached 9.00171 (best 9.00171), saving model to &#39;/workspace/bionemo/data/singlecell_tutorial/inference_output/geneformer/2024-05-13_16-53-24/checkpoints/geneformer--val_loss=9.00-step=200-consumed_samples=1600.0.ckpt&#39; as top 1
+[NeMo I 2024-05-13 16:54:32 nemo_model_checkpoint:183] New .nemo model saved to: /workspace/bionemo/data/singlecell_tutorial/inference_output/geneformer/2024-05-13_16-53-24/checkpoints/geneformer.nemo
+[NeMo I 2024-05-13 16:54:32 nlp_overrides:412] Removing checkpoint: /workspace/bionemo/data/singlecell_tutorial/inference_output/geneformer/2024-05-13_16-53-24/checkpoints/geneformer--val_loss=9.04-step=100-consumed_samples=800.0.ckpt
+[NeMo I 2024-05-13 16:54:32 nemo_model_checkpoint:183] New .nemo model saved to: /workspace/bionemo/data/singlecell_tutorial/inference_output/geneformer/2024-05-13_16-53-24/checkpoints/geneformer.nemo
+[NeMo I 2024-05-13 16:54:33 nlp_overrides:412] Removing checkpoint: /workspace/bionemo/data/singlecell_tutorial/inference_output/geneformer/2024-05-13_16-53-24/checkpoints/geneformer--val_loss=9.04-step=100-consumed_samples=800.0-last.ckpt
+Epoch 0: 100%|█| 200/200 [01:04&lt;00:00,  3.12it/s, v_num=3-24, reduced_train_loss`Trainer.fit` stopped: `max_steps=200` reached.
+Epoch 0: 100%|█| 200/200 [01:04&lt;00:00,  3.12it/s, v_num=3-24, reduced_train_loss
+[NeMo I 2024-05-13 16:54:33 pretrain:49] *************** Finish Training ************
+<span class=" -Color -Color-Bold -Color-Bold-Blue">wandb</span>: Waiting for W&amp;B process to finish... <span class=" -Color -Color-Green">(success).</span>
+<span class=" -Color -Color-Bold -Color-Bold-Blue">wandb</span>: 
+<span class=" -Color -Color-Bold -Color-Bold-Blue">wandb</span>: Run history:
+<span class=" -Color -Color-Bold -Color-Bold-Blue">wandb</span>:            consumed_samples ▁█
+<span class=" -Color -Color-Bold -Color-Bold-Blue">wandb</span>:                       epoch ▁▁▁▁
+<span class=" -Color -Color-Bold -Color-Bold-Blue">wandb</span>:                 global_step ▁█
+<span class=" -Color -Color-Bold -Color-Bold-Blue">wandb</span>:                   grad_norm ▁█
+<span class=" -Color -Color-Bold -Color-Bold-Blue">wandb</span>:                          lr █▁
+<span class=" -Color -Color-Bold -Color-Bold-Blue">wandb</span>:          reduced_train_loss █▁
+<span class=" -Color -Color-Bold -Color-Bold-Blue">wandb</span>:  train_backward_timing in s █▁
+<span class=" -Color -Color-Bold -Color-Bold-Blue">wandb</span>:      train_step_timing in s █▁
+<span class=" -Color -Color-Bold -Color-Bold-Blue">wandb</span>:         trainer/global_step ▄▁▁▁▁▁▁▁▁▁▄█▁▁▁▁▁▁▂▂▂█
+<span class=" -Color -Color-Bold -Color-Bold-Blue">wandb</span>:                    val_loss █▁
+<span class=" -Color -Color-Bold -Color-Bold-Blue">wandb</span>: validation_step_timing in s ██▇██▇██▁██████▇█▁
+<span class=" -Color -Color-Bold -Color-Bold-Blue">wandb</span>: 
+<span class=" -Color -Color-Bold -Color-Bold-Blue">wandb</span>: Run summary:
+<span class=" -Color -Color-Bold -Color-Bold-Blue">wandb</span>:            consumed_samples 1600.0
+<span class=" -Color -Color-Bold -Color-Bold-Blue">wandb</span>:                       epoch 0
+<span class=" -Color -Color-Bold -Color-Bold-Blue">wandb</span>:                 global_step 199.0
+<span class=" -Color -Color-Bold -Color-Bold-Blue">wandb</span>:                   grad_norm 0.73804
+<span class=" -Color -Color-Bold -Color-Bold-Blue">wandb</span>:                          lr 2e-05
+<span class=" -Color -Color-Bold -Color-Bold-Blue">wandb</span>:          reduced_train_loss 8.66306
+<span class=" -Color -Color-Bold -Color-Bold-Blue">wandb</span>:  train_backward_timing in s 3e-05
+<span class=" -Color -Color-Bold -Color-Bold-Blue">wandb</span>:      train_step_timing in s 0.28713
+<span class=" -Color -Color-Bold -Color-Bold-Blue">wandb</span>:         trainer/global_step 199
+<span class=" -Color -Color-Bold -Color-Bold-Blue">wandb</span>:                    val_loss 9.00171
+<span class=" -Color -Color-Bold -Color-Bold-Blue">wandb</span>: validation_step_timing in s 0.00013
+<span class=" -Color -Color-Bold -Color-Bold-Blue">wandb</span>: 
+<span class=" -Color -Color-Bold -Color-Bold-Blue">wandb</span>: You can sync this run to the cloud by running:
+<span class=" -Color -Color-Bold -Color-Bold-Blue">wandb</span>: <span class=" -Color -Color-Bold">wandb sync /workspace/bionemo/data/singlecell_tutorial/inference_output/wandb/offline-run-20240513_165325-2024-05-13_16-53-24</span>
+<span class=" -Color -Color-Bold -Color-Bold-Blue">wandb</span>: Find logs at: <span class=" -Color -Color-Bold -Color-Bold-Magenta">/workspace/bionemo/data/singlecell_tutorial/inference_output/wandb/offline-run-20240513_165325-2024-05-13_16-53-24/logs</span>
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+<div class="tex2jax_ignore mathjax_ignore section" id="running-inference">
+<h1>Running inference.<a class="headerlink" href="#running-inference" title="Permalink to this headline">#</a></h1>
+<p>We can see from the above training job that the model was trained for a short number of steps. Note the end of the log file the experiment manager leaves a message about where the resulting <code class="docutils literal notranslate"><span class="pre">.nemo</span></code> file is written. This file is used for finetuning, inference, or training from an existing set of model weights. See the example produced below from our run:</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>[NeMo I 2024-04-26 22:02:36 nemo_model_checkpoint:183] New .nemo model saved to: /workspace/bionemo/data/singlecell_tutorial/inference_output/geneformer/2024-05-13_16-33-16/checkpoints/geneformer.nemo
+[NeMo I 2024-04-26 22:02:36 nlp_overrides:412] Removing checkpoint: /workspace/bionemo/data/singlecell_tutorial/inference_output/geneformer/2024-05-13_16-33-16/checkpoints/geneformer--val_loss=8.70-step=100-consumed_samples=800.0-last.ckpt
+Epoch 0: 100%|█| 200/200 [00:27&lt;00:00,  7.17it/s, v_num=2-05, reduced_train_loss`Trainer.fit` stopped: `max_steps=200` reached.
+Epoch 0: 100%|█| 200/200 [00:27&lt;00:00,  7.17it/s, v_num=2-05, reduced_train_loss
+</pre></div>
+</div>
+<p>We will take the <code class="docutils literal notranslate"><span class="pre">.nemo</span></code> file logged:
+<code class="docutils literal notranslate"><span class="pre">/workspace/bionemo/data/singlecell_tutorial/inference_output/geneformer/2024-04-26_22-02-05/checkpoints/geneformer.nemo</span></code></p>
+<p>and use this for inference.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">pretrained_nemo_file</span> <span class="o">=</span> <span class="s1">&#39;/workspace/bionemo/data/singlecell_tutorial/inference_output/geneformer/2024-05-13_16-53-24/checkpoints/geneformer.nemo&#39;</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span># Run inference on test
+!python /workspace/bionemo/bionemo/model/infer.py \
+  --config-dir /workspace/bionemo/examples/singlecell/geneformer/conf \
+  --config-name infer \
+  ++model.downstream_task.restore_from_path={pretrained_nemo_file} \
+  ++model.data.dataset_path={test_tutorial_processed_dir} \
+  ++exp_manager.exp_dir={tutorial_output_dir} \
+  ++model.data.output_fname={tutorial_output_inference_pickle} 
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>[NeMo W 2024-05-13 16:55:27 nemo_logging:349] /usr/lib/python3.10/multiprocessing/popen_fork.py:66: RuntimeWarning: os.fork() was called. os.fork() is incompatible with multithreaded code, and JAX is multithreaded, so this will likely lead to a deadlock.
+      self.pid = os.fork()
+    
+[NeMo I 2024-05-13 16:55:28 megatron_hiddens:110] Registered hidden transform sampled_var_cond_gaussian at bionemo.model.core.hiddens_support.SampledVarGaussianHiddenTransform
+[NeMo I 2024-05-13 16:55:28 megatron_hiddens:110] Registered hidden transform interp_var_cond_gaussian at bionemo.model.core.hiddens_support.InterpVarGaussianHiddenTransform
+[NeMo W 2024-05-13 16:55:28 nemo_logging:349] /usr/local/lib/python3.10/dist-packages/hydra/_internal/hydra.py:119: UserWarning: Future Hydra versions will no longer change working directory at job runtime by default.
+    See https://hydra.cc/docs/1.2/upgrades/1.1_to_1.2/changes_to_job_working_dir/ for more information.
+      ret = run_job(
+    
+[NeMo I 2024-05-13 16:55:28 loading:31] 
+    
+    ************** Experiment configuration ***********
+[NeMo I 2024-05-13 16:55:28 loading:32] 
+    name: geneformer_inference
+    desc: Minimum configuration for initializing a Geneformer model for inference.
+    trainer:
+      precision: bf16-mixed
+      devices: 1
+      num_nodes: 1
+      accelerator: gpu
+      logger: false
+    exp_manager:
+      explicit_log_dir: null
+      exp_dir: /workspace/bionemo/data/singlecell_tutorial/inference_output
+      name: ${name}
+      create_checkpoint_callback: false
+    model:
+      micro_batch_size: ${model.data.batch_size}
+      downstream_task:
+        restore_from_path: /workspace/bionemo/data/singlecell_tutorial/inference_output/geneformer/2024-05-13_16-53-24/checkpoints/geneformer.nemo
+        outputs:
+        - embeddings
+        - hiddens
+      data:
+        num_workers: 4
+        batch_size: 128
+        dataset_path: /workspace/bionemo/data/singlecell_tutorial/processed_data/test
+        output_fname: /workspace/bionemo/data/singlecell_tutorial/inference_output/human_covid19_bcells_from_scratch.pkl
+        index_mapping_dir: null
+        data_fields_map:
+          sequence: sequence
+          id: id
+        data_impl: geneformer
+        data_impl_kwargs:
+          csv_fields_mmap:
+            newline_int: 10
+            header_lines: 1
+            workers: null
+            sort_dataset_paths: false
+            data_sep: &#39;,&#39;
+            data_fields:
+              id: 0
+              sequence: 1
+          fasta_fields_mmap:
+            data_fields:
+              id: 0
+              sequence: 1
+        dynamic_padding: true
+      post_process: false
+      inference_output_everything: false
+    target: bionemo.model.singlecell.geneformer.model.GeneformerModel
+    infer_target: bionemo.model.singlecell.geneformer.infer.GeneformerInference
+    formatters:
+      simple:
+        format: &#39;[%(asctime)s][%(name)s][%(levelname)s] - %(message)s&#39;
+    handlers:
+      console:
+        class: logging.StreamHandler
+        formatter: simple
+        stream: ext://sys.stdout
+      file:
+        class: logging.FileHandler
+        formatter: simple
+        filename: /logs/inference.log
+    root:
+      level: INFO
+      handlers:
+      - console
+    disable_existing_loggers: false
+    
+[NeMo I 2024-05-13 16:55:28 utils:333] Restoring model from /workspace/bionemo/data/singlecell_tutorial/inference_output/geneformer/2024-05-13_16-53-24/checkpoints/geneformer.nemo
+[NeMo I 2024-05-13 16:55:28 utils:337] Loading model class: bionemo.model.singlecell.geneformer.model.GeneformerModel
+GPU available: True (cuda), used: True
+TPU available: False, using: 0 TPU cores
+IPU available: False, using: 0 IPUs
+HPU available: False, using: 0 HPUs
+[NeMo I 2024-05-13 16:55:29 exp_manager:394] Experiments will be logged at /workspace/bionemo/data/singlecell_tutorial/inference_output/geneformer_inference/2024-05-13_16-55-29
+[NeMo I 2024-05-13 16:55:29 exp_manager:835] TensorboardLogger has been set up
+[NeMo I 2024-05-13 16:55:29 utils:306] 
+    
+    ************** Trainer configuration ***********
+[NeMo I 2024-05-13 16:55:29 utils:307] 
+    name: geneformer_inference
+    desc: Minimum configuration for initializing a Geneformer model for inference.
+    trainer:
+      precision: bf16-mixed
+      devices: 1
+      num_nodes: 1
+      accelerator: gpu
+      logger: false
+      accumulate_grad_batches: 1
+    exp_manager:
+      explicit_log_dir: null
+      exp_dir: /workspace/bionemo/data/singlecell_tutorial/inference_output
+      name: ${name}
+      create_checkpoint_callback: false
+    model:
+      tokenizer:
+        vocab_file: nemo:92fcea8a75d2427ea07b5094b6d6cb20_geneformer.vocab
+      micro_batch_size: ${model.data.batch_size}
+      activation: relu
+      tensor_model_parallel_size: 1
+      pipeline_model_parallel_size: 1
+      use_flash_attention: true
+      seq_length: 2048
+      encoder_seq_length: 2048
+      max_position_embeddings: 2048
+      num_layers: 6
+      hidden_size: 256
+      ffn_hidden_size: 512
+      num_attention_heads: 4
+      init_method_std: 0.02
+      hidden_dropout: 0.02
+      attention_dropout: 0.02
+      kv_channels: null
+      apply_query_key_layer_scaling: true
+      layernorm_epsilon: 1.0e-12
+      make_vocab_size_divisible_by: 128
+      pre_process: true
+      post_process: false
+      bert_binary_head: false
+      resume_from_checkpoint: null
+      masked_softmax_fusion: true
+      native_amp_init_scale: 4294967296
+      native_amp_growth_interval: 1000
+      fp32_residual_connection: true
+      fp16_lm_cross_entropy: false
+      seed: 1234
+      use_cpu_initialization: false
+      onnx_safe: false
+      activations_checkpoint_method: null
+      activations_checkpoint_num_layers: 1
+      data:
+        data_impl: geneformer
+        probabilistic_dirichlet_sampling_train: false
+        train_dataset_path: /workspace/bionemo/data/singlecell_tutorial/processed_data/train
+        val_dataset_path: /workspace/bionemo/data/singlecell_tutorial/processed_data/val
+        test_dataset_path: /workspace/bionemo/data/singlecell_tutorial/processed_data/test
+        dataset_path: /workspace/bionemo/data/singlecell_tutorial/processed_data/test
+        dataset: /
+        data_prefix: &#39;&#39;
+        shuffle: true
+        medians_file: nemo:b94a7da5807840419b10b3bf4c6126fe_medians.json
+        index_mapping_dir: null
+        skip_warmup: true
+        index_mapping_type: memmap
+        num_workers: 4
+        dataloader_type: single
+        seq_length: 2048
+        seed: 1234
+        dynamic_padding: true
+        micro_batch_size: 8
+        output_fname: /workspace/bionemo/data/singlecell_tutorial/inference_output/human_covid19_bcells_from_scratch.pkl
+        batch_size: 128
+        data_fields_map:
+          sequence: sequence
+          id: id
+        data_impl_kwargs:
+          csv_fields_mmap:
+            newline_int: 10
+            header_lines: 1
+            workers: null
+            sort_dataset_paths: false
+            data_sep: &#39;,&#39;
+            data_fields:
+              id: 0
+              sequence: 1
+          fasta_fields_mmap:
+            data_fields:
+              id: 0
+              sequence: 1
+      optim:
+        name: fused_adam
+        lr: 0.001
+        weight_decay: 0.1
+        betas:
+        - 0.9
+        - 0.999
+        sched:
+          name: CosineAnnealing
+          warmup_steps: 2.0
+          constant_steps: 10.0
+          max_steps: 200
+          min_lr: 2.0e-05
+      global_batch_size: 128
+      precision: bf16-mixed
+      target: bionemo.model.singlecell.geneformer.model.GeneformerModel
+      nemo_version: 1.22.0
+      downstream_task:
+        restore_from_path: /workspace/bionemo/data/singlecell_tutorial/inference_output/geneformer/2024-05-13_16-53-24/checkpoints/geneformer.nemo
+        outputs:
+        - embeddings
+        - hiddens
+      inference_output_everything: false
+    target: bionemo.model.singlecell.geneformer.model.GeneformerModel
+    infer_target: bionemo.model.singlecell.geneformer.infer.GeneformerInference
+    formatters:
+      simple:
+        format: &#39;[%(asctime)s][%(name)s][%(levelname)s] - %(message)s&#39;
+    handlers:
+      console:
+        class: logging.StreamHandler
+        formatter: simple
+        stream: ext://sys.stdout
+      file:
+        class: logging.FileHandler
+        formatter: simple
+        filename: /logs/inference.log
+    root:
+      level: INFO
+      handlers:
+      - console
+    disable_existing_loggers: false
+    
+[NeMo W 2024-05-13 16:55:29 modelPT:251] You tried to register an artifact under config key=tokenizer.vocab_file but an artifact for it has already been registered.
+[NeMo W 2024-05-13 16:55:29 megatron_base_model:821] The model: GeneformerModel() does not have field.name: context_parallel_size in its cfg. Add this key to cfg or config_mapping to make to make it configurable.
+[NeMo W 2024-05-13 16:55:29 megatron_base_model:821] The model: GeneformerModel() does not have field.name: virtual_pipeline_model_parallel_size in its cfg. Add this key to cfg or config_mapping to make to make it configurable.
+[NeMo W 2024-05-13 16:55:29 megatron_base_model:821] The model: GeneformerModel() does not have field.name: sequence_parallel in its cfg. Add this key to cfg or config_mapping to make to make it configurable.
+[NeMo W 2024-05-13 16:55:29 megatron_base_model:821] The model: GeneformerModel() does not have field.name: expert_model_parallel_size in its cfg. Add this key to cfg or config_mapping to make to make it configurable.
+[NeMo W 2024-05-13 16:55:29 megatron_base_model:821] The model: GeneformerModel() does not have field.name: gradient_accumulation_fusion in its cfg. Add this key to cfg or config_mapping to make to make it configurable.
+[NeMo W 2024-05-13 16:55:29 megatron_base_model:821] The model: GeneformerModel() does not have field.name: tp_comm_overlap in its cfg. Add this key to cfg or config_mapping to make to make it configurable.
+[NeMo W 2024-05-13 16:55:29 megatron_base_model:821] The model: GeneformerModel() does not have field.name: tp_comm_split_ag in its cfg. Add this key to cfg or config_mapping to make to make it configurable.
+[NeMo W 2024-05-13 16:55:29 megatron_base_model:821] The model: GeneformerModel() does not have field.name: tp_comm_split_rs in its cfg. Add this key to cfg or config_mapping to make to make it configurable.
+[NeMo W 2024-05-13 16:55:29 megatron_base_model:821] The model: GeneformerModel() does not have field.name: tp_comm_bulk_wgrad in its cfg. Add this key to cfg or config_mapping to make to make it configurable.
+[NeMo W 2024-05-13 16:55:29 megatron_base_model:821] The model: GeneformerModel() does not have field.name: tp_comm_bulk_dgrad in its cfg. Add this key to cfg or config_mapping to make to make it configurable.
+[NeMo W 2024-05-13 16:55:29 megatron_base_model:821] The model: GeneformerModel() does not have field.name: finalize_model_grads_func in its cfg. Add this key to cfg or config_mapping to make to make it configurable.
+[NeMo W 2024-05-13 16:55:29 megatron_base_model:821] The model: GeneformerModel() does not have field.name: overlap_p2p_comm in its cfg. Add this key to cfg or config_mapping to make to make it configurable.
+[NeMo W 2024-05-13 16:55:29 megatron_base_model:821] The model: GeneformerModel() does not have field.name: batch_p2p_comm in its cfg. Add this key to cfg or config_mapping to make to make it configurable.
+[NeMo W 2024-05-13 16:55:29 megatron_base_model:821] The model: GeneformerModel() does not have field.name: pipeline_model_parallel_split_rank in its cfg. Add this key to cfg or config_mapping to make to make it configurable.
+[NeMo W 2024-05-13 16:55:29 megatron_base_model:821] The model: GeneformerModel() does not have field.name: barrier_with_L1_time in its cfg. Add this key to cfg or config_mapping to make to make it configurable.
+[NeMo I 2024-05-13 16:55:29 megatron_init:234] Rank 0 has data parallel group: [0]
+[NeMo I 2024-05-13 16:55:29 megatron_init:237] All data parallel group ranks: [[0]]
+[NeMo I 2024-05-13 16:55:29 megatron_init:238] Ranks 0 has data parallel rank: 0
+[NeMo I 2024-05-13 16:55:29 megatron_init:246] Rank 0 has model parallel group: [0]
+[NeMo I 2024-05-13 16:55:29 megatron_init:247] All model parallel group ranks: [[0]]
+[NeMo I 2024-05-13 16:55:29 megatron_init:257] Rank 0 has tensor model parallel group: [0]
+[NeMo I 2024-05-13 16:55:29 megatron_init:261] All tensor model parallel group ranks: [[0]]
+[NeMo I 2024-05-13 16:55:29 megatron_init:262] Rank 0 has tensor model parallel rank: 0
+[NeMo I 2024-05-13 16:55:29 megatron_init:276] Rank 0 has pipeline model parallel group: [0]
+[NeMo I 2024-05-13 16:55:29 megatron_init:288] Rank 0 has embedding group: [0]
+[NeMo I 2024-05-13 16:55:29 megatron_init:294] All pipeline model parallel group ranks: [[0]]
+[NeMo I 2024-05-13 16:55:29 megatron_init:295] Rank 0 has pipeline model parallel rank 0
+[NeMo I 2024-05-13 16:55:29 megatron_init:296] All embedding group ranks: [[0]]
+[NeMo I 2024-05-13 16:55:29 megatron_init:297] Rank 0 has embedding rank: 0
+24-05-13 16:55:29 - PID:294681 - rank:(0, 0, 0, 0) - microbatches.py:39 - INFO - setting number of micro-batches to constant 1
+[NeMo W 2024-05-13 16:55:29 megatron_base_model:821] The model: GeneformerModel() does not have field.name: context_parallel_size in its cfg. Add this key to cfg or config_mapping to make to make it configurable.
+[NeMo W 2024-05-13 16:55:29 megatron_base_model:821] The model: GeneformerModel() does not have field.name: virtual_pipeline_model_parallel_size in its cfg. Add this key to cfg or config_mapping to make to make it configurable.
+[NeMo W 2024-05-13 16:55:29 megatron_base_model:821] The model: GeneformerModel() does not have field.name: sequence_parallel in its cfg. Add this key to cfg or config_mapping to make to make it configurable.
+[NeMo W 2024-05-13 16:55:29 megatron_base_model:821] The model: GeneformerModel() does not have field.name: expert_model_parallel_size in its cfg. Add this key to cfg or config_mapping to make to make it configurable.
+[NeMo W 2024-05-13 16:55:29 megatron_base_model:821] The model: GeneformerModel() does not have field.name: gradient_accumulation_fusion in its cfg. Add this key to cfg or config_mapping to make to make it configurable.
+[NeMo W 2024-05-13 16:55:29 megatron_base_model:821] The model: GeneformerModel() does not have field.name: tp_comm_overlap in its cfg. Add this key to cfg or config_mapping to make to make it configurable.
+[NeMo W 2024-05-13 16:55:29 megatron_base_model:821] The model: GeneformerModel() does not have field.name: tp_comm_split_ag in its cfg. Add this key to cfg or config_mapping to make to make it configurable.
+[NeMo W 2024-05-13 16:55:29 megatron_base_model:821] The model: GeneformerModel() does not have field.name: tp_comm_split_rs in its cfg. Add this key to cfg or config_mapping to make to make it configurable.
+[NeMo W 2024-05-13 16:55:29 megatron_base_model:821] The model: GeneformerModel() does not have field.name: tp_comm_bulk_wgrad in its cfg. Add this key to cfg or config_mapping to make to make it configurable.
+[NeMo W 2024-05-13 16:55:29 megatron_base_model:821] The model: GeneformerModel() does not have field.name: tp_comm_bulk_dgrad in its cfg. Add this key to cfg or config_mapping to make to make it configurable.
+[NeMo W 2024-05-13 16:55:29 megatron_base_model:821] The model: GeneformerModel() does not have field.name: finalize_model_grads_func in its cfg. Add this key to cfg or config_mapping to make to make it configurable.
+[NeMo W 2024-05-13 16:55:29 megatron_base_model:821] The model: GeneformerModel() does not have field.name: overlap_p2p_comm in its cfg. Add this key to cfg or config_mapping to make to make it configurable.
+[NeMo W 2024-05-13 16:55:29 megatron_base_model:821] The model: GeneformerModel() does not have field.name: batch_p2p_comm in its cfg. Add this key to cfg or config_mapping to make to make it configurable.
+[NeMo W 2024-05-13 16:55:29 megatron_base_model:821] The model: GeneformerModel() does not have field.name: pipeline_model_parallel_split_rank in its cfg. Add this key to cfg or config_mapping to make to make it configurable.
+[NeMo W 2024-05-13 16:55:29 megatron_base_model:821] The model: GeneformerModel() does not have field.name: barrier_with_L1_time in its cfg. Add this key to cfg or config_mapping to make to make it configurable.
+[NeMo W 2024-05-13 16:55:29 modelPT:251] You tried to register an artifact under config key=tokenizer.vocab_file but an artifact for it has already been registered.
+[NeMo I 2024-05-13 16:55:29 megatron_base_model:315] Padded vocab_size: 25472, original vocab_size: 25429, dummy tokens: 43.
+[NeMo I 2024-05-13 16:55:30 nlp_overrides:752] Model GeneformerModel was successfully restored from /workspace/bionemo/data/singlecell_tutorial/inference_output/geneformer/2024-05-13_16-53-24/checkpoints/geneformer.nemo.
+[NeMo I 2024-05-13 16:55:30 utils:471] DDP is not initialized. Initializing...
+Initializing distributed: GLOBAL_RANK: 0, MEMBER: 1/1
+----------------------------------------------------------------------------------------------------
+distributed_backend=nccl
+All distributed processes registered. Starting with 1 processes
+----------------------------------------------------------------------------------------------------
+
+[NeMo W 2024-05-13 16:55:30 nemo_logging:349] /usr/local/lib/python3.10/dist-packages/apex/transformer/pipeline_parallel/utils.py:81: UserWarning: This function is only for unittest
+      warnings.warn(&quot;This function is only for unittest&quot;)
+    
+[NeMo W 2024-05-13 16:55:30 nemo_logging:349] /usr/local/lib/python3.10/dist-packages/nemo/collections/nlp/modules/common/megatron/fused_bias_dropout_add.py:70: UserWarning: nvfuser integration in TorchScript is deprecated. (Triggered internally at /opt/pytorch/pytorch/torch/csrc/jit/codegen/cuda/interface.cpp:235.)
+      return bias_dropout_add_fused_inference_(*args)
+    
+[NeMo I 2024-05-13 16:55:31 loading:43] 
+    
+    ************** Restored model configuration ***********
+[NeMo I 2024-05-13 16:55:31 loading:44] 
+    tokenizer:
+      vocab_file: /tmp/tmp13zi86ni/92fcea8a75d2427ea07b5094b6d6cb20_geneformer.vocab
+    micro_batch_size: 128
+    activation: relu
+    tensor_model_parallel_size: 1
+    pipeline_model_parallel_size: 1
+    use_flash_attention: true
+    seq_length: 2048
+    encoder_seq_length: 2048
+    max_position_embeddings: 2048
+    num_layers: 6
+    hidden_size: 256
+    ffn_hidden_size: 512
+    num_attention_heads: 4
+    init_method_std: 0.02
+    hidden_dropout: 0.02
+    attention_dropout: 0.02
+    kv_channels: null
+    apply_query_key_layer_scaling: true
+    layernorm_epsilon: 1.0e-12
+    make_vocab_size_divisible_by: 128
+    pre_process: true
+    post_process: false
+    bert_binary_head: false
+    resume_from_checkpoint: null
+    masked_softmax_fusion: true
+    native_amp_init_scale: 4294967296
+    native_amp_growth_interval: 1000
+    fp32_residual_connection: true
+    fp16_lm_cross_entropy: false
+    seed: 1234
+    use_cpu_initialization: false
+    onnx_safe: false
+    activations_checkpoint_method: null
+    activations_checkpoint_num_layers: 1
+    data:
+      data_impl: geneformer
+      probabilistic_dirichlet_sampling_train: false
+      train_dataset_path: /workspace/bionemo/data/singlecell_tutorial/processed_data/train
+      val_dataset_path: /workspace/bionemo/data/singlecell_tutorial/processed_data/val
+      test_dataset_path: /workspace/bionemo/data/singlecell_tutorial/processed_data/test
+      dataset_path: /workspace/bionemo/data/singlecell_tutorial/processed_data/test
+      dataset: /
+      data_prefix: &#39;&#39;
+      shuffle: true
+      medians_file: nemo:b94a7da5807840419b10b3bf4c6126fe_medians.json
+      index_mapping_dir: null
+      skip_warmup: true
+      index_mapping_type: memmap
+      num_workers: 4
+      dataloader_type: single
+      seq_length: 2048
+      seed: 1234
+      dynamic_padding: true
+      micro_batch_size: 8
+      output_fname: /workspace/bionemo/data/singlecell_tutorial/inference_output/human_covid19_bcells_from_scratch.pkl
+      batch_size: 128
+      data_fields_map:
+        sequence: sequence
+        id: id
+      data_impl_kwargs:
+        csv_fields_mmap:
+          newline_int: 10
+          header_lines: 1
+          workers: null
+          sort_dataset_paths: false
+          data_sep: &#39;,&#39;
+          data_fields:
+            id: 0
+            sequence: 1
+        fasta_fields_mmap:
+          data_fields:
+            id: 0
+            sequence: 1
+    optim:
+      name: fused_adam
+      lr: 0.001
+      weight_decay: 0.1
+      betas:
+      - 0.9
+      - 0.999
+      sched:
+        name: CosineAnnealing
+        warmup_steps: 2.0
+        constant_steps: 10.0
+        max_steps: 200
+        min_lr: 2.0e-05
+    global_batch_size: 128
+    precision: bf16-mixed
+    target: bionemo.model.singlecell.geneformer.model.GeneformerModel
+    nemo_version: 1.22.0
+    downstream_task:
+      restore_from_path: /workspace/bionemo/data/singlecell_tutorial/inference_output/geneformer/2024-05-13_16-53-24/checkpoints/geneformer.nemo
+      outputs:
+      - embeddings
+      - hiddens
+    inference_output_everything: false
+    
+LOCAL_RANK: 0 - CUDA_VISIBLE_DEVICES: [0,1]
+[NeMo W 2024-05-13 16:55:31 nemo_logging:349] /usr/lib/python3.10/multiprocessing/popen_fork.py:66: RuntimeWarning: os.fork() was called. os.fork() is incompatible with multithreaded code, and JAX is multithreaded, so this will likely lead to a deadlock.
+      self.pid = os.fork()
+    
+Predicting DataLoader 0: 100%|████████████████████| 2/2 [00:00&lt;00:00,  2.14it/s]
+[NeMo I 2024-05-13 16:55:32 run_inference:50] Collecting results from all GPUs...
+[NeMo I 2024-05-13 16:55:32 infer:73] Saving 232 samples to /workspace/bionemo/data/singlecell_tutorial/inference_output/human_covid19_bcells_from_scratch.pkl
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+<div class="tex2jax_ignore mathjax_ignore section" id="load-inference-result-and-cluster-with-umap">
+<h1>Load inference result and cluster with UMAP.<a class="headerlink" href="#load-inference-result-and-cluster-with-umap" title="Permalink to this headline">#</a></h1>
+<p>Now we will inspect our result. First, we expect there to be one prediction for each cell, we can compare the shape of the anndata object to the predictions produced by our model. After this, we can simply pass our embeddings into umap, and view the result! In this case its a very poorly trained model with very few cells, so keep expectations low!</p>
+<p>The inference_results pickle file contains one set of hiddens and embeddings for each cell. The hiddens contain the embedding per-token, whereas the embeddings contain the mean embedding for all gene tokens with special tokens (CLS, MASK, etc) removed.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">pickle</span>
+<span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">tutorial_output_inference_pickle</span><span class="p">,</span> <span class="s1">&#39;rb&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">inference_handle</span><span class="p">:</span>
+    <span class="n">inference_results</span> <span class="o">=</span> <span class="n">pickle</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">inference_handle</span><span class="p">)</span>
+<span class="nb">len</span><span class="p">(</span><span class="n">inference_results</span><span class="p">),</span> <span class="n">adata</span><span class="o">.</span><span class="n">shape</span><span class="p">,</span> <span class="n">inference_results</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>(232, (2313, 60664), dict_keys([&#39;embeddings&#39;]))
+</pre></div>
+</div>
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">inference_results</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="s1">&#39;embeddings&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">shape</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>(256,)
+</pre></div>
+</div>
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">umap</span>
+<span class="n">reducer</span> <span class="o">=</span> <span class="n">umap</span><span class="o">.</span><span class="n">UMAP</span><span class="p">()</span>
+<span class="n">embedding</span> <span class="o">=</span> <span class="n">reducer</span><span class="o">.</span><span class="n">fit_transform</span><span class="p">([</span><span class="n">x</span><span class="p">[</span><span class="s1">&#39;embeddings&#39;</span><span class="p">]</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">inference_results</span><span class="p">])</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">embedding</span><span class="o">.</span><span class="n">shape</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>(232, 2)
+</pre></div>
+</div>
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">assert</span> <span class="n">adata_test</span><span class="o">.</span><span class="n">obs</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="n">inference_results</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">matplotlib</span> <span class="kn">import</span> <span class="n">pyplot</span> <span class="k">as</span> <span class="n">plt</span>
+
+<span class="n">results</span> <span class="o">=</span> <span class="n">adata_test</span><span class="o">.</span><span class="n">obs</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+<span class="n">results</span><span class="p">[</span><span class="s1">&#39;x&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">embedding</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">]</span>
+<span class="n">results</span><span class="p">[</span><span class="s1">&#39;y&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">embedding</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">]</span>
+
+<span class="n">covariates</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;assay&quot;</span><span class="p">,</span> <span class="s2">&quot;development_stage&quot;</span><span class="p">,</span> <span class="s2">&quot;dataset_id&quot;</span><span class="p">,</span> <span class="s2">&quot;sex&quot;</span><span class="p">]</span>
+<span class="n">fig</span><span class="p">,</span> <span class="n">axes</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="n">nrows</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">ncols</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">sharex</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">sharey</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span><span class="mi">10</span><span class="p">))</span>
+
+<span class="k">for</span> <span class="n">ax</span><span class="p">,</span><span class="n">covar</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">axes</span><span class="o">.</span><span class="n">flat</span><span class="p">,</span> <span class="n">covariates</span><span class="p">):</span>
+    <span class="k">for</span> <span class="n">cov</span><span class="p">,</span> <span class="n">cov_df</span> <span class="ow">in</span> <span class="n">results</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="n">covar</span><span class="p">):</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span>
+            <span class="n">cov_df</span><span class="o">.</span><span class="n">x</span><span class="p">,</span>
+            <span class="n">cov_df</span><span class="o">.</span><span class="n">y</span><span class="p">,</span>
+            <span class="n">s</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span>
+            <span class="n">alpha</span><span class="o">=</span><span class="mf">0.75</span><span class="p">,</span>
+            <span class="n">label</span><span class="o">=</span><span class="n">cov</span><span class="p">,</span>
+        <span class="p">)</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">results</span><span class="p">[</span><span class="n">covar</span><span class="p">]</span><span class="o">.</span><span class="n">unique</span><span class="p">())</span> <span class="o">&lt;</span> <span class="mi">8</span><span class="p">:</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">legend</span><span class="p">()</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Embeddings by </span><span class="si">{</span><span class="n">covar</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<img alt="../_images/c9cc1567477a23f81bb3fb69f419ac2ac9bf3f95503f7033d7bb02fb4887080a.png" src="../_images/c9cc1567477a23f81bb3fb69f419ac2ac9bf3f95503f7033d7bb02fb4887080a.png" />
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">adata_test</span><span class="o">.</span><span class="n">obs</span><span class="o">.</span><span class="n">columns</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Index([&#39;soma_joinid&#39;, &#39;dataset_id&#39;, &#39;assay&#39;, &#39;assay_ontology_term_id&#39;,
+       &#39;cell_type&#39;, &#39;cell_type_ontology_term_id&#39;, &#39;development_stage&#39;,
+       &#39;development_stage_ontology_term_id&#39;, &#39;disease&#39;,
+       &#39;disease_ontology_term_id&#39;, &#39;donor_id&#39;, &#39;is_primary_data&#39;,
+       &#39;self_reported_ethnicity&#39;, &#39;self_reported_ethnicity_ontology_term_id&#39;,
+       &#39;sex&#39;, &#39;sex_ontology_term_id&#39;, &#39;suspension_type&#39;, &#39;tissue&#39;,
+       &#39;tissue_ontology_term_id&#39;, &#39;tissue_general&#39;,
+       &#39;tissue_general_ontology_term_id&#39;, &#39;raw_sum&#39;, &#39;nnz&#39;, &#39;raw_mean_nnz&#39;,
+       &#39;raw_variance_nnz&#39;, &#39;n_measured_vars&#39;],
+      dtype=&#39;object&#39;)
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+
+<div class="section">
+   
+</div>
+
+              </div>
+              
+            </main>
+            <footer class="footer-article noprint">
+                
+    <!-- Previous / next buttons -->
+<div class='prev-next-area'>
+</div>
+            </footer>
+        </div>
+    </div>
+    <div class="footer-content row">
+        <footer class="col footer"><p>
+  
+    By NVIDIA<br/>
+  
+      &copy; Copyright 2023-2024 NVIDIA CORPORATION &amp; AFFILIATES. All rights reserved..<br/>
+    Last updated on Nov 20, 2024.<br/>
+</p>
+        </footer>
+    </div>
+    
+</div>
+
+
+      </div>
+    </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="../_static/scripts/pydata-sphinx-theme.js?digest=1999514e3f237ded88cf"></script>
+
+
+  </body>
+</html>

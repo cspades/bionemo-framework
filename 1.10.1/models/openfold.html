@@ -1,0 +1,1344 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>OpenFold &#8212; NVIDIA BioNeMo Framework</title>
+    
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../_static/styles/theme.css?digest=1999514e3f237ded88cf" rel="stylesheet">
+<link href="../_static/styles/pydata-sphinx-theme.css?digest=1999514e3f237ded88cf" rel="stylesheet">
+
+    
+  <link rel="stylesheet"
+    href="../_static/vendor/fontawesome/5.13.0/css/all.min.css">
+  <link rel="preload" as="font" type="font/woff2" crossorigin
+    href="../_static/vendor/fontawesome/5.13.0/webfonts/fa-solid-900.woff2">
+  <link rel="preload" as="font" type="font/woff2" crossorigin
+    href="../_static/vendor/fontawesome/5.13.0/webfonts/fa-brands-400.woff2">
+
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
+    <link rel="stylesheet" href="../_static/styles/sphinx-book-theme.css?digest=62ba249389abaaa9ffc34bf36a076bdc1d65ee18" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="../_static/mystnb.4510f1fc1dee50b3e5859aac5469c37c29e427902b24a333a5f9fcb2f0b3ac41.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/copybutton.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/tabs.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/custom.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/design-style.1e8bd061cd6da7fc9cf755528e8ffc24.min.css" />
+    
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=1999514e3f237ded88cf">
+
+    <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+    <script src="../_static/jquery.js"></script>
+    <script src="../_static/underscore.js"></script>
+    <script src="../_static/doctools.js"></script>
+    <script src="../_static/clipboard.min.js"></script>
+    <script src="../_static/copybutton.js"></script>
+    <script src="https://js.hcaptcha.com/1/api.js"></script>
+    <script src="//assets.adobedtm.com/5d4962a43b79/c1061d2c5e7b/launch-191c2462b890.min.js"></script>
+    <script src="../_static/scripts/sphinx-book-theme.js?digest=f31d14ad54b65d19161ba51d4ffff3a77ae00456"></script>
+    <script src="../_static/design-tabs.js"></script>
+    <script>window.MathJax = {"options": {"processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+    <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <link rel="canonical" href="https://docs.nvidia.com/bionemo-framework/0.4.0/models/openfold.html" />
+    <link rel="shortcut icon" href="../_static/nvidia-logo-vert-rgb-blk-for-screen.png"/>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Prott5nv" href="prott5nv.html" />
+    <link rel="prev" title="MolMIM" href="molmim.html" /> 
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="docsearch:language" content="None">
+    
+
+    <!-- Google Analytics -->
+      
+<style type="text/css">
+  ul.ablog-archive {
+    list-style: none;
+    overflow: auto;
+    margin-left: 0px;
+  }
+  ul.ablog-archive li {
+    float: left;
+    margin-right: 5px;
+    font-size: 80%;
+  }
+  ul.postlist a {
+    font-style: italic;
+  }
+  ul.postlist-style-disc {
+    list-style-type: disc;
+  }
+  ul.postlist-style-none {
+    list-style-type: none;
+  }
+  ul.postlist-style-circle {
+    list-style-type: circle;
+  }
+</style>
+
+  </head>
+  <body data-spy="scroll" data-target="#bd-toc-nav" data-offset="60">
+<!-- Checkboxes to toggle the left sidebar -->
+<input type="checkbox" class="sidebar-toggle" name="__navigation" id="__navigation" aria-label="Toggle navigation sidebar">
+<label class="overlay overlay-navbar" for="__navigation">
+    <div class="visually-hidden">Toggle navigation sidebar</div>
+</label>
+<!-- Checkboxes to toggle the in-page toc -->
+<input type="checkbox" class="sidebar-toggle" name="__page-toc" id="__page-toc" aria-label="Toggle in-page Table of Contents">
+<label class="overlay overlay-pagetoc" for="__page-toc">
+    <div class="visually-hidden">Toggle in-page Table of Contents</div>
+</label>
+<!-- Headers at the top -->
+<div class="announcement header-item noprint"></div>
+<div class="header header-item noprint"></div>
+
+    
+    <div class="container-fluid" id="banner"></div>
+
+    
+
+    <div class="container-xl">
+      <div class="row">
+          
+<!-- Sidebar -->
+<div class="bd-sidebar noprint" id="site-navigation">
+    <div class="bd-sidebar__content">
+        <div class="bd-sidebar__top"><div class="navbar-brand-box">
+    <a class="navbar-brand text-wrap" href="../index.html">
+      
+        <!-- `logo` is deprecated in Sphinx 4.0, so remove this when we stop supporting 3 -->
+        
+      
+      
+      <img src="../_static/nvidia-logo-horiz-rgb-blk-for-screen.png" class="logo" alt="logo">
+      
+      
+      <h1 class="site-logo" id="site-title">NVIDIA BioNeMo Framework</h1>
+      
+    </a>
+</div><form class="bd-search d-flex align-items-center" action="../search.html" method="get">
+  <i class="icon fas fa-search"></i>
+  <input type="search" class="form-control" name="q" id="search-input" placeholder="Search the docs ..." aria-label="Search the docs ..." autocomplete="off" >
+</form><nav class="bd-links" id="bd-docs-nav" aria-label="Main">
+    <div class="bd-toc-item active">
+        <p aria-level="2" class="caption" role="heading">
+ <span class="caption-text">
+  GETTING STARTED
+ </span>
+</p>
+<ul class="nav bd-sidenav">
+ <li class="toctree-l1">
+  <a class="reference internal" href="../index.html">
+   What is BioNeMo?
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../pre-reqs.html">
+   Hardware and Software Prerequisites
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../access-startup.html">
+   Access and Startup
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../initialization-guide.html">
+   Initialization Guide
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../tutorial-list.html">
+   BioNeMo Framework Tutorials
+  </a>
+ </li>
+</ul>
+<p aria-level="2" class="caption" role="heading">
+ <span class="caption-text">
+  BioNeMo CORE
+ </span>
+</p>
+<ul class="nav bd-sidenav">
+ <li class="toctree-l1">
+  <a class="reference internal" href="../bionemo-fw-for-model-training-fw.html">
+   Fundamentals
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../data-module-fw.html">
+   Data Module
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../dwnstr-task-validation.html">
+   Validation with a Downstream Task
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../inference-triton-fw.html">
+   Inference with Nvidia Triton Server
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../deep-dive-esm1-pytriton-inference.html">
+   Example of PyTriton Inference
+  </a>
+ </li>
+</ul>
+<p aria-level="2" class="caption" role="heading">
+ <span class="caption-text">
+  BEST PRACTICES
+ </span>
+</p>
+<ul class="nav bd-sidenav">
+ <li class="toctree-l1">
+  <a class="reference internal" href="../hyperparameters-fw.html">
+   Hyperparameter Usage and Tuning
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../parallelism-fw.html">
+   Training Parallelism
+  </a>
+ </li>
+</ul>
+<p aria-level="2" class="caption" role="heading">
+ <span class="caption-text">
+  MODELS
+ </span>
+</p>
+<ul class="current nav bd-sidenav">
+ <li class="toctree-l1">
+  <a class="reference internal" href="diffdock.html">
+   DiffDock
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="dnabert.html">
+   DNABERT
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="dsmbind.html">
+   DSMBind
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="equidock.html">
+   EquiDock
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="esm1-nv.html">
+   ESM-1nv
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="esm2-nv.html">
+   ESM-2nv
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="geneformer.html">
+   Geneformer
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="megamolbart.html">
+   MegaMolBART
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="molmim.html">
+   MolMIM
+  </a>
+ </li>
+ <li class="toctree-l1 current active">
+  <a class="current reference internal" href="#">
+   OpenFold
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="prott5nv.html">
+   Prott5nv
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="model-benchmarks.html">
+   Model Benchmarks
+  </a>
+ </li>
+</ul>
+<p aria-level="2" class="caption" role="heading">
+ <span class="caption-text">
+  DATASETS
+ </span>
+</p>
+<ul class="nav bd-sidenav">
+ <li class="toctree-l1">
+  <a class="reference internal" href="../datasets/uniprot.html">
+   UniProt Dataset
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../datasets/CELLxGENE.html">
+   CELLxGENE
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../datasets/zinc15.html">
+   ZINC-15 Dataset
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../datasets/pdb.html">
+   The Protein Data Bank (PDB)
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../datasets/GRCh38.p13.html">
+   Human Reference Genome Version GRCh38.p13
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../datasets/openproteinset.html">
+   OpenProteinSet
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../datasets/moleculenet-physchem.html">
+   MoleculeNet Physical Chemistry Datasets - Lipophilicity, FreeSolv, ESOL
+  </a>
+ </li>
+</ul>
+<p aria-level="2" class="caption" role="heading">
+ <span class="caption-text">
+  TUTORIALS
+ </span>
+</p>
+<ul class="nav bd-sidenav">
+ <li class="toctree-l1">
+  <a class="reference internal" href="../preprocessing-bcp-training-diffdock.html">
+   DiffDock: Preparing Workspace and Data for Pre-training
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../notebooks/esm2nv-mutant-design.html">
+   Zero-Shot Protein Design Using ESM-2nv
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../notebooks/MMB_GenerativeAI_Inference_with_examples.html">
+   BioNeMo - MegaMolBART Inferencing for Generative Chemistry
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../notebooks/MolMIM_GenerativeAI_local_inference_with_examples.html">
+   MolMIM Inferencing for Generative Chemistry and Downstream Prediction
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../notebooks/ZINC15-data-preprocessing.html">
+   ZINC Training Dataset Setup for small molecule language models
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../notebooks/bionemo-finetuning-overview.html">
+   Finetune pre-trained models in BioNeMo
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../notebooks/cma_es_guided_molecular_optimization_molmim.html">
+   MolMIM Property Guided Molecular Optimization Using CMA-ES
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../notebooks/custom-dataset-class-fw.html">
+   Adding the OAS Dataset: Modifying the Dataset Class
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../notebooks/custom-dataset-dataloader.html">
+   Adding the OAS Dataset: Customizing Dataset Object and Dataloader Functions
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../notebooks/custom-dataset-preprocessing-fw.html">
+   Adding the OAS Dataset: Downloading and Preprocessing
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../notebooks/encoder-finetuning-notebook-fw.html">
+   Encoder Fine-tuning
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../notebooks/model_training_diffdock.html">
+   DiffDock Model Training using BioNeMo
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../notebooks/model_training_equidock.html">
+   EquiDock Model Training using BioNeMo
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../notebooks/model_training_esm1nv.html">
+   ESM1nv Model Training using BioNeMo
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../notebooks/model_training_esm2nv.html">
+   ESM-2nv: Data Preprocessing and Model Training Using BioNeMo
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../notebooks/model_training_mmb.html">
+   MegaMolBART Model Training using BioNeMo
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../notebooks/model_training_molmim.html">
+   Train MolMIM from scratch on your own data using the BioNeMo Framework
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../notebooks/physchem-notebook-fw.html">
+   Finetuning LLM in BioNeMo for a Downstream Task
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../notebooks/protein-esm2nv-clustering.html">
+   Generating Embeddings for Protein Clustering
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../notebooks/retrosynthesis-notebook.html">
+   Training LLM for a Custom Downstram Task: Retrosynthesis Prediction using MegaMolBART
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../notebooks/esm2_FLIP_finetuning.html">
+   Fine-Tune ESM-2nv on FLIP Data for Sequence-Level Classification, Regression, Token-Level Classification, and with LoRA Adapters
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../notebooks/esm2_oas_inferencing.html">
+   Performing inference on OAS sequences with ESM-2nv
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../notebooks/esm2_paratope_finetuning.html">
+   Pretrain from Scratch, Continue Training from an Existing Checkpoint, and Fine-tune ESM-2nv on Custom Data
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../notebooks/dnabert_inference.html">
+   Generating and visualizing embeddings with DNABert
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../notebooks/dnabert_pretrain_finetune.html">
+   Pretrain, Fine-tune, and Perform Inference with DNABERT for Splice Site Prediction
+  </a>
+ </li>
+</ul>
+<p aria-level="2" class="caption" role="heading">
+ <span class="caption-text">
+  APPENDIX
+ </span>
+</p>
+<ul class="nav bd-sidenav">
+ <li class="toctree-l1">
+  <a class="reference internal" href="../faq-fw.html">
+   Frequently Asked Questions (FAQ)
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../bibliography-fw.html">
+   Bibliography
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../releasenotes-fw.html">
+   Release Notes
+  </a>
+ </li>
+</ul>
+
+    </div>
+</nav></div>
+        <div class="bd-sidebar__bottom">
+             <!-- To handle the deprecated key -->
+            
+        </div>
+    </div>
+    <div id="rtd-footer-container"></div>
+</div>
+
+
+          
+
+
+          
+<!-- A tiny helper pixel to detect if we've scrolled -->
+<div class="sbt-scroll-pixel-helper"></div>
+<!-- Main content -->
+<div class="col py-0 content-container">
+    
+    <div class="header-article row sticky-top noprint">
+        
+
+
+
+<div class="col py-1 d-flex header-article-main">
+    <div class="header-article__left">
+        
+        <label for="__navigation"
+  class="headerbtn"
+  data-toggle="tooltip"
+data-placement="right"
+title="Toggle navigation"
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fas fa-bars"></i>
+  </span>
+
+</label>
+
+        
+    </div>
+    <div class="header-article__right">
+<button onclick="toggleFullScreen()"
+  class="headerbtn"
+  data-toggle="tooltip"
+data-placement="bottom"
+title="Fullscreen mode"
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fas fa-expand"></i>
+  </span>
+
+</button>
+<label for="__page-toc"
+  class="headerbtn headerbtn-page-toc"
+  
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fas fa-list"></i>
+  </span>
+
+</label>
+
+    </div>
+</div>
+
+<!-- Table of contents -->
+<div class="col-md-3 bd-toc show noprint">
+    <div class="tocsection onthispage pt-5 pb-3">
+        <i class="fas fa-list"></i> Contents
+    </div>
+    <nav id="bd-toc-nav" aria-label="Page">
+        <ul class="visible nav section-nav flex-column">
+ <li class="toc-h1 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#">
+   OpenFold
+  </a>
+ </li>
+ <li class="toc-h1 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#model-overview">
+   Model Overview
+  </a>
+  <ul class="visible nav section-nav flex-column">
+   <li class="toc-h2 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#user-guide">
+     User guide
+    </a>
+    <ul class="visible nav section-nav flex-column">
+     <li class="toc-h3 nav-item toc-entry">
+      <a class="reference internal nav-link" href="#inference">
+       Inference
+      </a>
+     </li>
+     <li class="toc-h3 nav-item toc-entry">
+      <a class="reference internal nav-link" href="#training">
+       Training
+      </a>
+     </li>
+    </ul>
+   </li>
+   <li class="toc-h2 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#description">
+     Description:
+    </a>
+   </li>
+   <li class="toc-h2 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#references">
+     References:
+    </a>
+   </li>
+   <li class="toc-h2 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#model-architecture">
+     Model Architecture:
+    </a>
+   </li>
+   <li class="toc-h2 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#input">
+     Input:
+    </a>
+   </li>
+   <li class="toc-h2 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#output">
+     Output:
+    </a>
+   </li>
+   <li class="toc-h2 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#software-integration">
+     Software Integration:
+    </a>
+   </li>
+   <li class="toc-h2 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#model-version-s">
+     Model Version(s):
+    </a>
+   </li>
+  </ul>
+ </li>
+ <li class="toc-h1 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#training-evaluation">
+   Training &amp; Evaluation:
+  </a>
+  <ul class="visible nav section-nav flex-column">
+   <li class="toc-h2 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#training-dataset">
+     Training Dataset:
+    </a>
+   </li>
+   <li class="toc-h2 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#evaluation-dataset">
+     Evaluation Dataset:
+    </a>
+   </li>
+   <li class="toc-h2 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#id1">
+     Inference:
+    </a>
+   </li>
+   <li class="toc-h2 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#accuracy-benchmarks">
+     Accuracy Benchmarks
+    </a>
+    <ul class="visible nav section-nav flex-column">
+     <li class="toc-h3 nav-item toc-entry">
+      <a class="reference internal nav-link" href="#cluster-specs">
+       Cluster specs
+      </a>
+     </li>
+     <li class="toc-h3 nav-item toc-entry">
+      <a class="reference internal nav-link" href="#parameter-settings">
+       Parameter settings
+      </a>
+      <ul class="visible nav section-nav flex-column">
+       <li class="toc-h4 nav-item toc-entry">
+        <a class="reference internal nav-link" href="#optimisations">
+         Optimisations
+        </a>
+       </li>
+      </ul>
+     </li>
+     <li class="toc-h3 nav-item toc-entry">
+      <a class="reference internal nav-link" href="#initial-training">
+       Initial Training
+      </a>
+     </li>
+     <li class="toc-h3 nav-item toc-entry">
+      <a class="reference internal nav-link" href="#fine-tuning">
+       Fine tuning
+      </a>
+     </li>
+    </ul>
+   </li>
+   <li class="toc-h2 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#performance-benchmarks">
+     Performance Benchmarks
+    </a>
+    <ul class="visible nav section-nav flex-column">
+     <li class="toc-h3 nav-item toc-entry">
+      <a class="reference internal nav-link" href="#id2">
+       Initial Training
+      </a>
+     </li>
+     <li class="toc-h3 nav-item toc-entry">
+      <a class="reference internal nav-link" href="#id3">
+       Fine-tuning
+      </a>
+     </li>
+    </ul>
+   </li>
+   <li class="toc-h2 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#ethical-considerations">
+     Ethical Considerations:
+    </a>
+   </li>
+  </ul>
+ </li>
+</ul>
+
+    </nav>
+</div>
+    </div>
+    <div class="article row">
+        <div class="col pl-md-3 pl-lg-5 content-container">
+            <!-- Table of contents that is only displayed when printing the page -->
+            <div id="jb-print-docs-body" class="onlyprint">
+                <h1>OpenFold</h1>
+                <!-- Table of contents -->
+                <div id="print-main-content">
+                    <div id="jb-print-toc">
+                        
+                        <div>
+                            <h2> Contents </h2>
+                        </div>
+                        <nav aria-label="Page">
+                            <ul class="visible nav section-nav flex-column">
+ <li class="toc-h1 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#">
+   OpenFold
+  </a>
+ </li>
+ <li class="toc-h1 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#model-overview">
+   Model Overview
+  </a>
+  <ul class="visible nav section-nav flex-column">
+   <li class="toc-h2 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#user-guide">
+     User guide
+    </a>
+    <ul class="visible nav section-nav flex-column">
+     <li class="toc-h3 nav-item toc-entry">
+      <a class="reference internal nav-link" href="#inference">
+       Inference
+      </a>
+     </li>
+     <li class="toc-h3 nav-item toc-entry">
+      <a class="reference internal nav-link" href="#training">
+       Training
+      </a>
+     </li>
+    </ul>
+   </li>
+   <li class="toc-h2 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#description">
+     Description:
+    </a>
+   </li>
+   <li class="toc-h2 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#references">
+     References:
+    </a>
+   </li>
+   <li class="toc-h2 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#model-architecture">
+     Model Architecture:
+    </a>
+   </li>
+   <li class="toc-h2 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#input">
+     Input:
+    </a>
+   </li>
+   <li class="toc-h2 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#output">
+     Output:
+    </a>
+   </li>
+   <li class="toc-h2 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#software-integration">
+     Software Integration:
+    </a>
+   </li>
+   <li class="toc-h2 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#model-version-s">
+     Model Version(s):
+    </a>
+   </li>
+  </ul>
+ </li>
+ <li class="toc-h1 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#training-evaluation">
+   Training &amp; Evaluation:
+  </a>
+  <ul class="visible nav section-nav flex-column">
+   <li class="toc-h2 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#training-dataset">
+     Training Dataset:
+    </a>
+   </li>
+   <li class="toc-h2 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#evaluation-dataset">
+     Evaluation Dataset:
+    </a>
+   </li>
+   <li class="toc-h2 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#id1">
+     Inference:
+    </a>
+   </li>
+   <li class="toc-h2 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#accuracy-benchmarks">
+     Accuracy Benchmarks
+    </a>
+    <ul class="visible nav section-nav flex-column">
+     <li class="toc-h3 nav-item toc-entry">
+      <a class="reference internal nav-link" href="#cluster-specs">
+       Cluster specs
+      </a>
+     </li>
+     <li class="toc-h3 nav-item toc-entry">
+      <a class="reference internal nav-link" href="#parameter-settings">
+       Parameter settings
+      </a>
+      <ul class="visible nav section-nav flex-column">
+       <li class="toc-h4 nav-item toc-entry">
+        <a class="reference internal nav-link" href="#optimisations">
+         Optimisations
+        </a>
+       </li>
+      </ul>
+     </li>
+     <li class="toc-h3 nav-item toc-entry">
+      <a class="reference internal nav-link" href="#initial-training">
+       Initial Training
+      </a>
+     </li>
+     <li class="toc-h3 nav-item toc-entry">
+      <a class="reference internal nav-link" href="#fine-tuning">
+       Fine tuning
+      </a>
+     </li>
+    </ul>
+   </li>
+   <li class="toc-h2 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#performance-benchmarks">
+     Performance Benchmarks
+    </a>
+    <ul class="visible nav section-nav flex-column">
+     <li class="toc-h3 nav-item toc-entry">
+      <a class="reference internal nav-link" href="#id2">
+       Initial Training
+      </a>
+     </li>
+     <li class="toc-h3 nav-item toc-entry">
+      <a class="reference internal nav-link" href="#id3">
+       Fine-tuning
+      </a>
+     </li>
+    </ul>
+   </li>
+   <li class="toc-h2 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#ethical-considerations">
+     Ethical Considerations:
+    </a>
+   </li>
+  </ul>
+ </li>
+</ul>
+
+                        </nav>
+                    </div>
+                </div>
+            </div>
+            <main id="main-content" role="main">
+                
+              <div>
+                 <div class="tex2jax_ignore mathjax_ignore section" id="openfold">
+<h1>OpenFold<a class="headerlink" href="#openfold" title="Permalink to this headline">#</a></h1>
+</div>
+<div class="tex2jax_ignore mathjax_ignore section" id="model-overview">
+<h1>Model Overview<a class="headerlink" href="#model-overview" title="Permalink to this headline">#</a></h1>
+<div class="section" id="user-guide">
+<h2>User guide<a class="headerlink" href="#user-guide" title="Permalink to this headline">#</a></h2>
+<p>We provide example training and inference scripts under <code class="docutils literal notranslate"><span class="pre">examples/protein/openfold</span></code> and their configuration files under the subdirectory <code class="docutils literal notranslate"><span class="pre">conf</span></code>. Users can download 4 different checkpoints: a pair of initial-training and fintuining from the public OpenFold repository and converted to .nemo format, and another pair of in-house trained checkpoints, with the following command.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python<span class="w"> </span>download_artifacts.py<span class="w"> </span>--models<span class="w"> </span>openfold_finetuning_inhouse<span class="w"> </span>--model_dir<span class="w"> </span>models<span class="w">  </span><span class="c1"># NGC setup is required</span>
+</pre></div>
+</div>
+<p>If users are interested in diving into BioNeMo in details, users can refer to <code class="docutils literal notranslate"><span class="pre">bionemo/model/protein/openfold</span></code> for the model class and <code class="docutils literal notranslate"><span class="pre">bionemo/data/protein/openfold</span></code> for data utilities. Configuration parsing is handled by <a class="reference external" href="https://hydra.cc/docs/intro/">hydra config</a> and default parameters are stored in yaml format.  Find these config yamls in examples/protein/openfold/config.</p>
+<div class="section" id="inference">
+<h3>Inference<a class="headerlink" href="#inference" title="Permalink to this headline">#</a></h3>
+<p>Users can initiate inference with <code class="docutils literal notranslate"><span class="pre">examples/protein/openfold/infer.py</span></code> and provide the input sequence(s) and optional multiple sequence alignment(s) (MSA) for inference. There is MSA data in ${model.data.dataset_path}/inference/msas/, and users can follow a step-by-step guidance in jupyter notebook in <code class="docutils literal notranslate"><span class="pre">nbs/inference.ipynb</span></code> if desired. If the notebook fails due to a timeout error, increase inference_timeout_s to 300 at <code class="docutils literal notranslate"><span class="pre">ModelClient(&quot;localhost&quot;,</span> <span class="pre">&quot;bionemo_openfold&quot;,</span> <span class="pre">inference_timeout_s=</span> <span class="pre">180)</span></code>.</p>
+<p>For additional template-based inference, users would provide template hhr or generate templates on-the-fly after installing the necessary alignment software under <code class="docutils literal notranslate"><span class="pre">scripts/install_third_party.sh</span></code>. Alternatively, users can download the pdb70 database. To do this, download http://wwwuser.gwdg.de/~compbiol/data/hhsuite/databases/hhsuite_dbs/old-releases/pdb70_from_mmcif_200401.tar.gz. Then, perform alignments on the desired sequences with <code class="docutils literal notranslate"><span class="pre">scripts/precompute_alignments</span></code>. Then, generate_templates_if_missing should be set to True and the value pdb70_database_path in conf/infer.yaml to should be set to the pdb directory.</p>
+<p>More details are available in <code class="docutils literal notranslate"><span class="pre">conf/infer.yaml</span></code>.</p>
+</div>
+<div class="section" id="training">
+<h3>Training<a class="headerlink" href="#training" title="Permalink to this headline">#</a></h3>
+<p>OpenFold training is a two-stage process, broken down into (1) initial training and (2) fine-tuning. Dataset download and preprocessing for both training stages is handled by the command</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Will take up to 2-3 days and ~2TB storage.</span>
+python<span class="w"> </span>examples/protein/openfold/train.py<span class="w"> </span>++do_preprocess<span class="o">=</span><span class="nb">true</span><span class="w"> </span>++do_training<span class="o">=</span><span class="nb">false</span>
+</pre></div>
+</div>
+<p>To create smaller training data variant for accelerated testing, refer to option <code class="docutils literal notranslate"><span class="pre">sample</span></code> in <code class="docutils literal notranslate"><span class="pre">conf/openfold_initial_training.yaml</span></code>.</p>
+<p>Users can initiate model training with <code class="docutils literal notranslate"><span class="pre">examples/protein/openfold/train.py</span></code>. To override initial training (default behavior) to fine-tuning, redirect the configuration with the following command</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python<span class="w"> </span>examples/protein/openfold/train.py<span class="w"> </span>--config-name<span class="w"> </span>openfold_finetuning.yaml
+</pre></div>
+</div>
+</div>
+</div>
+<div class="section" id="description">
+<h2>Description:<a class="headerlink" href="#description" title="Permalink to this headline">#</a></h2>
+<!-- This document gives a brief summary of the BioNeMo framework's implementation of OpenFold. This implementation is derived from public OpenFold and DeepMind AlphaFold-2.  Below we summarize
+- user guide on inference and training
+- dataset and preprocessing
+- accuracy and runtime results -->
+<p>OpenFold predicts protein structures from protein sequence inputs and optional multiple sequence alignments (MSAs) and template(s). This implementation supports initial training, fine-tuning and inference under BioNeMo framework.</p>
+<p>Users are advised to read the licensing terms under <a class="reference external" href="https://github.com/aqlaboratory/openfold">public OpenFold</a> and <a class="reference external" href="https://github.com/google-deepmind/alphafold">DeepMind AlphaFold-2</a> repositories as well as our copyright text.</p>
+<p>This model is ready for commercial use. <br></p>
+</div>
+<div class="section" id="references">
+<h2>References:<a class="headerlink" href="#references" title="Permalink to this headline">#</a></h2>
+<p>To cite OpenFold:</p>
+<div class="highlight-bibtex notranslate"><div class="highlight"><pre><span></span><span class="nc">@article</span><span class="w"> </span><span class="p">{</span><span class="nl">Ahdritz2022.11.20.517210</span><span class="p">,</span>
+<span class="w">   </span><span class="na">author</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="s">{Ahdritz, Gustaf and Bouatta, Nazim and Floristean, Christina and Kadyan, Sachin and Xia, Qinghui and Gerecke, William and O{\textquoteright}Donnell, Timothy J and Berenberg, Daniel and Fisk, Ian and Zanichelli, Niccolò and Zhang, Bo and Nowaczynski, Arkadiusz and Wang, Bei and Stepniewska-Dziubinska, Marta M and Zhang, Shang and Ojewole, Adegoke and Guney, Murat Efe and Biderman, Stella and Watkins, Andrew M and Ra, Stephen and Lorenzo, Pablo Ribalta and Nivon, Lucas and Weitzner, Brian and Ban, Yih-En Andrew and Sorger, Peter K and Mostaque, Emad and Zhang, Zhao and Bonneau, Richard and AlQuraishi, Mohammed}</span><span class="p">,</span>
+<span class="w">   </span><span class="na">title</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="s">{{O}pen{F}old: {R}etraining {A}lpha{F}old2 yields new insights into its learning mechanisms and capacity for generalization}</span><span class="p">,</span>
+<span class="w">   </span><span class="na">elocation-id</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="s">{2022.11.20.517210}</span><span class="p">,</span>
+<span class="w">   </span><span class="na">year</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="s">{2022}</span><span class="p">,</span>
+<span class="w">   </span><span class="na">doi</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="s">{10.1101/2022.11.20.517210}</span><span class="p">,</span>
+<span class="w">   </span><span class="na">publisher</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="s">{Cold Spring Harbor Laboratory}</span><span class="p">,</span>
+<span class="w">   </span><span class="na">URL</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="s">{https://www.biorxiv.org/content/10.1101/2022.11.20.517210}</span><span class="p">,</span>
+<span class="w">   </span><span class="na">eprint</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="s">{https://www.biorxiv.org/content/early/2022/11/22/2022.11.20.517210.full.pdf}</span><span class="p">,</span>
+<span class="w">   </span><span class="na">journal</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="s">{bioRxiv}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>To cite AlphaFold-2:</p>
+<div class="highlight-bibtex notranslate"><div class="highlight"><pre><span></span><span class="nc">@Article</span><span class="p">{</span><span class="nl">AlphaFold2021</span><span class="p">,</span>
+<span class="w"> </span><span class="na">author</span><span class="w">  </span><span class="p">=</span><span class="w"> </span><span class="s">{Jumper, John and Evans, Richard and Pritzel, Alexander and Green, Tim and Figurnov, Michael and Ronneberger, Olaf and Tunyasuvunakool, Kathryn and Bates, Russ and {\v{Z}}{\&#39;\i}dek, Augustin and Potapenko, Anna and Bridgland, Alex and Meyer, Clemens and Kohl, Simon A A and Ballard, Andrew J and Cowie, Andrew and Romera-Paredes, Bernardino and Nikolov, Stanislav and Jain, Rishub and Adler, Jonas and Back, Trevor and Petersen, Stig and Reiman, David and Clancy, Ellen and Zielinski, Michal and Steinegger, Martin and Pacholska, Michalina and Berghammer, Tamas and Bodenstein, Sebastian and Silver, David and Vinyals, Oriol and Senior, Andrew W and Kavukcuoglu, Koray and Kohli, Pushmeet and Hassabis, Demis}</span><span class="p">,</span>
+<span class="w"> </span><span class="na">journal</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="s">{Nature}</span><span class="p">,</span>
+<span class="w"> </span><span class="na">title</span><span class="w">   </span><span class="p">=</span><span class="w"> </span><span class="s">{Highly accurate protein structure prediction with {AlphaFold}}</span><span class="p">,</span>
+<span class="w"> </span><span class="na">year</span><span class="w">    </span><span class="p">=</span><span class="w"> </span><span class="s">{2021}</span><span class="p">,</span>
+<span class="w"> </span><span class="na">volume</span><span class="w">  </span><span class="p">=</span><span class="w"> </span><span class="s">{596}</span><span class="p">,</span>
+<span class="w"> </span><span class="na">number</span><span class="w">  </span><span class="p">=</span><span class="w"> </span><span class="s">{7873}</span><span class="p">,</span>
+<span class="w"> </span><span class="na">pages</span><span class="w">   </span><span class="p">=</span><span class="w"> </span><span class="s">{583--589}</span><span class="p">,</span>
+<span class="w"> </span><span class="na">doi</span><span class="w">     </span><span class="p">=</span><span class="w"> </span><span class="s">{10.1038/s41586-021-03819-2}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>If you use OpenProteinSet in initial training and fine-tuning, please also cite:</p>
+<div class="highlight-bibtex notranslate"><div class="highlight"><pre><span></span><span class="nc">@misc</span><span class="p">{</span><span class="nl">ahdritz2023openproteinset</span><span class="p">,</span>
+<span class="w">     </span><span class="na">title</span><span class="p">=</span><span class="s">{{O}pen{P}rotein{S}et: {T}raining data for structural biology at scale}</span><span class="p">,</span>
+<span class="w">     </span><span class="na">author</span><span class="p">=</span><span class="s">{Gustaf Ahdritz and Nazim Bouatta and Sachin Kadyan and Lukas Jarosch and Daniel Berenberg and Ian Fisk and Andrew M. Watkins and Stephen Ra and Richard Bonneau and Mohammed AlQuraishi}</span><span class="p">,</span>
+<span class="w">     </span><span class="na">year</span><span class="p">=</span><span class="s">{2023}</span><span class="p">,</span>
+<span class="w">     </span><span class="na">eprint</span><span class="p">=</span><span class="s">{2308.05326}</span><span class="p">,</span>
+<span class="w">     </span><span class="na">archivePrefix</span><span class="p">=</span><span class="s">{arXiv}</span><span class="p">,</span>
+<span class="w">     </span><span class="na">primaryClass</span><span class="p">=</span><span class="s">{q-bio.BM}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="model-architecture">
+<h2>Model Architecture:<a class="headerlink" href="#model-architecture" title="Permalink to this headline">#</a></h2>
+<p><strong>Architecture Type:</strong> Pose Estimation  <br>
+<strong>Network Architecture:</strong> AlphaFold-2 <br></p>
+</div>
+<div class="section" id="input">
+<h2>Input:<a class="headerlink" href="#input" title="Permalink to this headline">#</a></h2>
+<p><strong>Input Type(s):</strong> Protein Sequence, (optional) Multiple Sequence Alignment(s) and (optional) Strutural Template(s) <br>
+<strong>Input Format(s):</strong> None, a3m (text file), hhr (text file) <br>
+<strong>Input Parameters:</strong> 1D <br>
+<strong>Other Properties Related to Input:</strong> None <br></p>
+</div>
+<div class="section" id="output">
+<h2>Output:<a class="headerlink" href="#output" title="Permalink to this headline">#</a></h2>
+<p><strong>Output Type(s):</strong> Protrin Structure Pose(s), (optional) Confidence Metrics, (optional) Embeddings <br>
+<strong>Output Format:</strong> PDB (text file), Pickle file, Pickle file <br>
+<strong>Output Parameters:</strong> 3D <br>
+<strong>Other Properties Related to Output:</strong> Pose (num_atm_ x 3), (optional) Confidence Metric: pLDDT (num_res_) and PAE (num_res_ x num_res_), (optional) Embeddings (num_res_ x emb_dims, or num_res_ x num_res_ x emb_dims) <br></p>
+</div>
+<div class="section" id="software-integration">
+<h2>Software Integration:<a class="headerlink" href="#software-integration" title="Permalink to this headline">#</a></h2>
+<p><strong>Runtime Engine(s):</strong></p>
+<ul class="simple">
+<li><p>NeMo, BioNeMo <br></p></li>
+</ul>
+<p><strong>Supported Hardware Microarchitecture Compatibility:</strong> <br></p>
+<ul class="simple">
+<li><p>[Ampere] <br></p></li>
+<li><p>[Hopper] <br></p></li>
+</ul>
+<p><strong>[Preferred/Supported] Operating System(s):</strong> <br></p>
+<ul class="simple">
+<li><p>[Linux]</p></li>
+</ul>
+</div>
+<div class="section" id="model-version-s">
+<h2>Model Version(s):<a class="headerlink" href="#model-version-s" title="Permalink to this headline">#</a></h2>
+<p>OpenFold under BioNeMo framework  <br></p>
+</div>
+</div>
+<div class="tex2jax_ignore mathjax_ignore section" id="training-evaluation">
+<h1>Training &amp; Evaluation:<a class="headerlink" href="#training-evaluation" title="Permalink to this headline">#</a></h1>
+<div class="section" id="training-dataset">
+<h2>Training Dataset:<a class="headerlink" href="#training-dataset" title="Permalink to this headline">#</a></h2>
+<p><strong>Link:</strong>  <a class="reference external" href="https://www.rcsb.org">PDB-mmCIF dataset</a>, <a class="reference external" href="https://arxiv.org/abs/2308.05326">OpenProteinSet</a>  <br>
+<strong>Data Collection Method by dataset</strong> <br></p>
+<ul class="simple">
+<li><p>PDB-mmCIF dataset: [Automatic] and [Human] <br></p></li>
+<li><p>OpenProteinSet: [Automatic] <br></p></li>
+</ul>
+<p><strong>Labeling Method by dataset</strong> <br></p>
+<ul class="simple">
+<li><p>[Not Applicable] <br></p></li>
+</ul>
+<p><strong>Properties:</strong> PDB-mmCIF dataset: 200k samples of experimental protein structures. OpenProteinSet: 269k samples on sequence alignments. <br>
+<strong>Dataset License(s):</strong> PDB-mmCIF dataset: <a class="reference external" href="https://www.rcsb.org/pages/usage-policy">CC0 1.0 Universal</a>. OpenProteinSet: <a class="reference external" href="https://registry.opendata.aws/openfold/">CC BY 4.0</a>.</p>
+</div>
+<div class="section" id="evaluation-dataset">
+<h2>Evaluation Dataset:<a class="headerlink" href="#evaluation-dataset" title="Permalink to this headline">#</a></h2>
+<p><strong>Link:</strong> <a class="reference external" href="https://cameo3d.org/">CAMEO</a>   <br>
+<strong>Data Collection Method by dataset</strong> <br></p>
+<ul class="simple">
+<li><p>CAMEO dataset: [Automatic] and [Human] <br></p></li>
+</ul>
+<p><strong>Labeling Method by dataset</strong> <br></p>
+<ul class="simple">
+<li><p>[Not Applicable] <br></p></li>
+</ul>
+<p><strong>Properties:</strong> Our during-training validation dataset is the CAMEO dataset on the date range 2021-09-17 to 2021-12-11.  There are ~200 sequence-structure pairs.  This validation dataset is automatically created by setting the cameo start and end dates in <code class="docutils literal notranslate"><span class="pre">examples/protein/openfold/conf/openfold_initial_training.yaml</span></code>.
+<br>
+<strong>Dataset License(s):</strong> CAMEO dataset: <a class="reference external" href="https://cameo3d.org/cameong_terms/">Terms and Conditions</a>.</p>
+</div>
+<div class="section" id="id1">
+<h2>Inference:<a class="headerlink" href="#id1" title="Permalink to this headline">#</a></h2>
+<p><strong>Engine:</strong> NeMo, BioNeMo, Triton <br>
+<strong>Test Hardware:</strong> <br></p>
+<ul class="simple">
+<li><p>[Ampere] <br></p></li>
+<li><p>[Hopper] <br></p></li>
+</ul>
+</div>
+<div class="section" id="accuracy-benchmarks">
+<h2>Accuracy Benchmarks<a class="headerlink" href="#accuracy-benchmarks" title="Permalink to this headline">#</a></h2>
+<p>Accuracy and performance benchmarks were obtained with the following machine configurations:</p>
+<div class="section" id="cluster-specs">
+<h3>Cluster specs<a class="headerlink" href="#cluster-specs" title="Permalink to this headline">#</a></h3>
+<table class="colwidths-auto table">
+<thead>
+<tr class="row-odd"><th class="text-center head"><p>Label</p></th>
+<th class="text-center head"><p>GPU type</p></th>
+<th class="text-center head"><p>Driver Version</p></th>
+<th class="text-center head"><p>memory per GPU</p></th>
+<th class="text-center head"><p>number of gpu</p></th>
+<th class="text-center head"><p>number of nodes</p></th>
+<th class="text-center head"><p>cpu type</p></th>
+<th class="text-center head"><p>cores per cpu</p></th>
+<th class="text-center head"><p>num cpu per node</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td class="text-center"><p>I</p></td>
+<td class="text-center"><p>NVIDA A100</p></td>
+<td class="text-center"><p>unknown</p></td>
+<td class="text-center"><p>80 GB</p></td>
+<td class="text-center"><p>128</p></td>
+<td class="text-center"><p>16</p></td>
+<td class="text-center"><p>unknown</p></td>
+<td class="text-center"><p>unknown</p></td>
+<td class="text-center"><p>unknown</p></td>
+</tr>
+<tr class="row-odd"><td class="text-center"><p>O</p></td>
+<td class="text-center"><p>NVIDIA A100-SXM4-80GB</p></td>
+<td class="text-center"><p>535.129.03</p></td>
+<td class="text-center"><p>80 GB</p></td>
+<td class="text-center"><p>128</p></td>
+<td class="text-center"><p>16</p></td>
+<td class="text-center"><p><a class="reference external" href="https://www.amd.com/en/products/cpu/amd-epyc-7713">AMD EPYC 7J13</a></p></td>
+<td class="text-center"><p>64</p></td>
+<td class="text-center"><p>256</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="parameter-settings">
+<h3>Parameter settings<a class="headerlink" href="#parameter-settings" title="Permalink to this headline">#</a></h3>
+<p>The following parameters are described and configured in the current version of <code class="docutils literal notranslate"><span class="pre">examples/proteint/openfold/conf/openfold_initial_training.yaml</span></code></p>
+<ul class="simple">
+<li><p>model.num_steps_per_epoch</p></li>
+<li><p>model.optimisations</p></li>
+<li><p>trainer.precision</p></li>
+</ul>
+<div class="section" id="optimisations">
+<h4>Optimisations<a class="headerlink" href="#optimisations" title="Permalink to this headline">#</a></h4>
+<p>In the BioNeMo - OpenFold project, we integrate optimisations from the NVIDIA team that submits code to <a class="reference external" href="https://mlcommons.org/benchmarks/training-hpc/">MLPerf benchmarks</a>. Here we give more detail on the specific optimisations available in the BioNeMo Project.</p>
+<table class="colwidths-auto table">
+<thead>
+<tr class="row-odd"><th class="text-center head"><p>optimisation setting</p></th>
+<th class="text-center head"><p>integrated into bionemo</p></th>
+<th class="text-center head"><p>employed in training speed benchmark</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td class="text-center"><p>model.optimisations=[mha_fused_gemm]</p></td>
+<td class="text-center"><p>yes</p></td>
+<td class="text-center"><p>no</p></td>
+</tr>
+<tr class="row-odd"><td class="text-center"><p>model.optimisations=[dataloader_pq]</p></td>
+<td class="text-center"><p>yes</p></td>
+<td class="text-center"><p>yes</p></td>
+</tr>
+<tr class="row-even"><td class="text-center"><p>trainer.precision=bf16-mixed precision</p></td>
+<td class="text-center"><p>yes</p></td>
+<td class="text-center"><p>yes</p></td>
+</tr>
+<tr class="row-odd"><td class="text-center"><p>model.optimisations=[layernorm_inductor]</p></td>
+<td class="text-center"><p>yes</p></td>
+<td class="text-center"><p>yes</p></td>
+</tr>
+<tr class="row-even"><td class="text-center"><p>model.optimisations=[layernorm_triton]</p></td>
+<td class="text-center"><p>yes</p></td>
+<td class="text-center"><p>yes</p></td>
+</tr>
+<tr class="row-odd"><td class="text-center"><p>model.optimisations=[mha_triton]</p></td>
+<td class="text-center"><p>yes</p></td>
+<td class="text-center"><p>yes</p></td>
+</tr>
+<tr class="row-even"><td class="text-center"><p>model.optimisations=[FusedAdamSWA]</p></td>
+<td class="text-center"><p>yes</p></td>
+<td class="text-center"><p>no</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<div class="section" id="initial-training">
+<h3>Initial Training<a class="headerlink" href="#initial-training" title="Permalink to this headline">#</a></h3>
+<p>We conducted a set of training experiments, for a fixed number of 80,000 steps, and report the final value
+of the validation metric, LDDT-CA [%], compute on the Evaluation Dataset described above.</p>
+<table class="colwidths-auto table">
+<thead>
+<tr class="row-odd"><th class="text-center head"><p>model.optimisations</p></th>
+<th class="text-center head"><p>trainer.precision</p></th>
+<th class="text-center head"><p>model.num_steps_per_epoch</p></th>
+<th class="text-center head"><p>machine spec</p></th>
+<th class="text-center head"><p>LDDT-CA [%]</p></th>
+<th class="text-center head"><p>job-completion date</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td class="text-center"><p>no optimisations implemented with this version</p></td>
+<td class="text-center"><p>32</p></td>
+<td class="text-center"><p>80,000</p></td>
+<td class="text-center"><p>I</p></td>
+<td class="text-center"><p>89.82</p></td>
+<td class="text-center"><p>2023q4*</p></td>
+</tr>
+<tr class="row-odd"><td class="text-center"><p>[]</p></td>
+<td class="text-center"><p>32</p></td>
+<td class="text-center"><p>80,000</p></td>
+<td class="text-center"><p>O</p></td>
+<td class="text-center"><p>90.030</p></td>
+<td class="text-center"><p>2024-04-29</p></td>
+</tr>
+<tr class="row-even"><td class="text-center"><p>[layernorm_inductor,layernorm_triton,mha_triton]</p></td>
+<td class="text-center"><p>bf16-mixed</p></td>
+<td class="text-center"><p>80,000</p></td>
+<td class="text-center"><p>O</p></td>
+<td class="text-center"><p>90.025</p></td>
+<td class="text-center"><p>2024-04-19</p></td>
+</tr>
+</tbody>
+</table>
+<p>For the row above labeled ‘no optimisations implemented with this version’, the parameter
+‘model.optimistaions’ did not exist</p>
+</div>
+<div class="section" id="fine-tuning">
+<h3>Fine tuning<a class="headerlink" href="#fine-tuning" title="Permalink to this headline">#</a></h3>
+<p>We conducted a set of fine-tuning experiments, with a pre-specified fixed number of 12,000 steps.</p>
+<table class="colwidths-auto table">
+<thead>
+<tr class="row-odd"><th class="text-center head"><p>model.optimisations</p></th>
+<th class="text-center head"><p>trainer.precision</p></th>
+<th class="text-center head"><p>model.num_steps_per_epoch</p></th>
+<th class="text-center head"><p>machine spec</p></th>
+<th class="text-center head"><p>LDDT-CA [%]</p></th>
+<th class="text-center head"><p>job-completion date</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td class="text-center"><p>no optimisations implemented with this version</p></td>
+<td class="text-center"><p>32</p></td>
+<td class="text-center"><p>12,000</p></td>
+<td class="text-center"><p>I</p></td>
+<td class="text-center"><p>91.0</p></td>
+<td class="text-center"><p>2023q4*</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<div class="section" id="performance-benchmarks">
+<h2>Performance Benchmarks<a class="headerlink" href="#performance-benchmarks" title="Permalink to this headline">#</a></h2>
+<div class="section" id="id2">
+<h3>Initial Training<a class="headerlink" href="#id2" title="Permalink to this headline">#</a></h3>
+<p>In the table below, we show the results of initial training benchmarks, with the following protocol.
+For run ‘a’, we run training with a large value of ‘trainer.max_steps’ and when we see the validation metric (lddt-ca) for
+the EMA model above 89%, we manually end the training job.  As a post-processing step we compute metrics</p>
+<div class="math notranslate nohighlight">
+\[ \text{crossing-step}  = \text{the first training step when the validation metric is larger than 89\%} \]</div>
+<p>For the other runs ‘b’ and ‘c’, we run training until the step execeeds the crossing step for run ‘a’</p>
+<p>For all runs ‘a’, ‘b’, ‘c’, we set the termination-step to the value of the crossing-step obtained for run ‘a’,
+and then we compute:</p>
+<div class="math notranslate nohighlight">
+\[ \text{time-wo-val-days } = \text{ training time without validation phase, in days, until the termination-step} \]</div>
+<div class="math notranslate nohighlight">
+\[ \text{time-wi-val-days } = \text{ training time with validation phase, in days, until the termination-step } \]</div>
+<div class="math notranslate nohighlight">
+\[ \text{training-speed-kpi} = \frac{\text{sum of training step times for run 'a', until the termination-step}}{\text{sum of training step times with optimization setting X, until the termination-step}} \]</div>
+<p>These training jobs are conducted with the settings in the config file
+<code class="docutils literal notranslate"><span class="pre">examples/protein/openfold/config/openfold_initial_training.yaml</span></code>,
+with certain parameters having the override values in the table.  Each training
+job is a sequence of sub-jobs, each sub-job managed by
+<a class="reference external" href="https://slurm.schedmd.com/sbatch.html">slurm</a> with a 4h walltime.</p>
+<table class="colwidths-auto table">
+<thead>
+<tr class="row-odd"><th class="text-center head"><p>run id</p></th>
+<th class="text-center head"><p>model.optimisations</p></th>
+<th class="text-center head"><p>trainer.precision</p></th>
+<th class="text-center head"><p>machine spec</p></th>
+<th class="text-center head"><p>job completion date</p></th>
+<th class="text-center head"><p>termination-step</p></th>
+<th class="text-center head"><p>training step time [secs]</p></th>
+<th class="text-center head"><p>time-wo-val-days</p></th>
+<th class="text-center head"><p>time-wi-val-days</p></th>
+<th class="text-center head"><p>training-speed-kpi</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td class="text-center"><p>a</p></td>
+<td class="text-center"><p>[]</p></td>
+<td class="text-center"><p>32</p></td>
+<td class="text-center"><p>O</p></td>
+<td class="text-center"><p>2024-05-28</p></td>
+<td class="text-center"><p>44773</p></td>
+<td class="text-center"><p>7.28</p></td>
+<td class="text-center"><p>3.77</p></td>
+<td class="text-center"><p>3.92</p></td>
+<td class="text-center"><p>1</p></td>
+</tr>
+<tr class="row-odd"><td class="text-center"><p>b</p></td>
+<td class="text-center"><p>[layernorm_inductor,layernorm_triton,mha_triton]</p></td>
+<td class="text-center"><p>bf16-mixed</p></td>
+<td class="text-center"><p>O</p></td>
+<td class="text-center"><p>2024-06-13</p></td>
+<td class="text-center"><p>44773</p></td>
+<td class="text-center"><p>6.21</p></td>
+<td class="text-center"><p>3.19</p></td>
+<td class="text-center"><p>3.34</p></td>
+<td class="text-center"><p>1.18</p></td>
+</tr>
+<tr class="row-even"><td class="text-center"><p>c</p></td>
+<td class="text-center"><p>[layernorm_inductor,layernorm_triton,mha_triton, dataloader_pq]</p></td>
+<td class="text-center"><p>bf16-mixed</p></td>
+<td class="text-center"><p>O</p></td>
+<td class="text-center"><p>2024-06-22</p></td>
+<td class="text-center"><p>44773</p></td>
+<td class="text-center"><p>5.92</p></td>
+<td class="text-center"><p>3.07</p></td>
+<td class="text-center"><p>3.22</p></td>
+<td class="text-center"><p>1.23</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="id3">
+<h3>Fine-tuning<a class="headerlink" href="#id3" title="Permalink to this headline">#</a></h3>
+<p>For fine-tuning, we conducted a single experiment with a fixed number of steps: 12,000.</p>
+<table class="colwidths-auto table">
+<thead>
+<tr class="row-odd"><th class="text-center head"><p>model.optimisations</p></th>
+<th class="text-center head"><p>trainer.precision</p></th>
+<th class="text-center head"><p>model.num_steps_per_epoch</p></th>
+<th class="text-center head"><p>machine spec</p></th>
+<th class="text-center head"><p>time per training step (sec)</p></th>
+<th class="text-center head"><p>job-completion date</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td class="text-center"><p>no optimisations implemeention in this version</p></td>
+<td class="text-center"><p>32</p></td>
+<td class="text-center"><p>12,000</p></td>
+<td class="text-center"><p>I</p></td>
+<td class="text-center"><p>24.91</p></td>
+<td class="text-center"><p>2023q4*</p></td>
+</tr>
+</tbody>
+</table>
+<p>*Best guess.</p>
+</div>
+</div>
+<div class="section" id="ethical-considerations">
+<h2>Ethical Considerations:<a class="headerlink" href="#ethical-considerations" title="Permalink to this headline">#</a></h2>
+<p>NVIDIA believes Trustworthy AI is a shared responsibility and we have established policies and practices to enable development for a wide array of AI applications.  When downloaded or used in accordance with our terms of service, developers should work with their supporting model team to ensure this model meets requirements for the relevant industry and use case and addresses unforeseen product misuse.  For more detailed information on ethical considerations for this model, please see the Model Card++ Explainability, Bias, Safety &amp; Security, and Privacy Subcards.  Please report security vulnerabilities or NVIDIA AI Concerns <a class="reference external" href="https://www.nvidia.com/en-us/support/submit-security-vulnerability/">here</a>.</p>
+</div>
+</div>
+
+<div class="section">
+   
+</div>
+
+              </div>
+              
+            </main>
+            <footer class="footer-article noprint">
+                
+    <!-- Previous / next buttons -->
+<div class='prev-next-area'>
+    <a class='left-prev' id="prev-link" href="molmim.html" title="previous page">
+        <i class="fas fa-angle-left"></i>
+        <div class="prev-next-info">
+            <p class="prev-next-subtitle">previous</p>
+            <p class="prev-next-title">MolMIM</p>
+        </div>
+    </a>
+    <a class='right-next' id="next-link" href="prott5nv.html" title="next page">
+    <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">Prott5nv</p>
+    </div>
+    <i class="fas fa-angle-right"></i>
+    </a>
+</div>
+            </footer>
+        </div>
+    </div>
+    <div class="footer-content row">
+        <footer class="col footer"><p>
+  
+    By NVIDIA<br/>
+  
+      &copy; Copyright 2023-2024 NVIDIA CORPORATION &amp; AFFILIATES. All rights reserved..<br/>
+    Last updated on Nov 20, 2024.<br/>
+</p>
+        </footer>
+    </div>
+    
+</div>
+
+
+      </div>
+    </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="../_static/scripts/pydata-sphinx-theme.js?digest=1999514e3f237ded88cf"></script>
+
+
+  </body>
+</html>

@@ -1,0 +1,995 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Train MolMIM from scratch on your own data using the BioNeMo Framework &#8212; NVIDIA BioNeMo Framework</title>
+    
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../_static/styles/theme.css?digest=1999514e3f237ded88cf" rel="stylesheet">
+<link href="../_static/styles/pydata-sphinx-theme.css?digest=1999514e3f237ded88cf" rel="stylesheet">
+
+    
+  <link rel="stylesheet"
+    href="../_static/vendor/fontawesome/5.13.0/css/all.min.css">
+  <link rel="preload" as="font" type="font/woff2" crossorigin
+    href="../_static/vendor/fontawesome/5.13.0/webfonts/fa-solid-900.woff2">
+  <link rel="preload" as="font" type="font/woff2" crossorigin
+    href="../_static/vendor/fontawesome/5.13.0/webfonts/fa-brands-400.woff2">
+
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
+    <link rel="stylesheet" href="../_static/styles/sphinx-book-theme.css?digest=62ba249389abaaa9ffc34bf36a076bdc1d65ee18" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="../_static/mystnb.4510f1fc1dee50b3e5859aac5469c37c29e427902b24a333a5f9fcb2f0b3ac41.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/copybutton.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/tabs.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/custom.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/design-style.1e8bd061cd6da7fc9cf755528e8ffc24.min.css" />
+    
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=1999514e3f237ded88cf">
+
+    <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+    <script src="../_static/jquery.js"></script>
+    <script src="../_static/underscore.js"></script>
+    <script src="../_static/doctools.js"></script>
+    <script src="../_static/clipboard.min.js"></script>
+    <script src="../_static/copybutton.js"></script>
+    <script src="https://js.hcaptcha.com/1/api.js"></script>
+    <script src="//assets.adobedtm.com/5d4962a43b79/c1061d2c5e7b/launch-191c2462b890.min.js"></script>
+    <script src="../_static/scripts/sphinx-book-theme.js?digest=f31d14ad54b65d19161ba51d4ffff3a77ae00456"></script>
+    <script src="../_static/design-tabs.js"></script>
+    <link rel="canonical" href="https://docs.nvidia.com/bionemo-framework/0.4.0/notebooks/model_training_molmim.html" />
+    <link rel="shortcut icon" href="../_static/nvidia-logo-vert-rgb-blk-for-screen.png"/>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Finetuning LLM in BioNeMo for a Downstream Task" href="physchem-notebook-fw.html" />
+    <link rel="prev" title="MegaMolBART Model Training using BioNeMo" href="model_training_mmb.html" /> 
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="docsearch:language" content="None">
+    
+
+    <!-- Google Analytics -->
+      
+<style type="text/css">
+  ul.ablog-archive {
+    list-style: none;
+    overflow: auto;
+    margin-left: 0px;
+  }
+  ul.ablog-archive li {
+    float: left;
+    margin-right: 5px;
+    font-size: 80%;
+  }
+  ul.postlist a {
+    font-style: italic;
+  }
+  ul.postlist-style-disc {
+    list-style-type: disc;
+  }
+  ul.postlist-style-none {
+    list-style-type: none;
+  }
+  ul.postlist-style-circle {
+    list-style-type: circle;
+  }
+</style>
+
+  </head>
+  <body data-spy="scroll" data-target="#bd-toc-nav" data-offset="60">
+<!-- Checkboxes to toggle the left sidebar -->
+<input type="checkbox" class="sidebar-toggle" name="__navigation" id="__navigation" aria-label="Toggle navigation sidebar">
+<label class="overlay overlay-navbar" for="__navigation">
+    <div class="visually-hidden">Toggle navigation sidebar</div>
+</label>
+<!-- Checkboxes to toggle the in-page toc -->
+<input type="checkbox" class="sidebar-toggle" name="__page-toc" id="__page-toc" aria-label="Toggle in-page Table of Contents">
+<label class="overlay overlay-pagetoc" for="__page-toc">
+    <div class="visually-hidden">Toggle in-page Table of Contents</div>
+</label>
+<!-- Headers at the top -->
+<div class="announcement header-item noprint"></div>
+<div class="header header-item noprint"></div>
+
+    
+    <div class="container-fluid" id="banner"></div>
+
+    
+
+    <div class="container-xl">
+      <div class="row">
+          
+<!-- Sidebar -->
+<div class="bd-sidebar noprint" id="site-navigation">
+    <div class="bd-sidebar__content">
+        <div class="bd-sidebar__top"><div class="navbar-brand-box">
+    <a class="navbar-brand text-wrap" href="../index.html">
+      
+        <!-- `logo` is deprecated in Sphinx 4.0, so remove this when we stop supporting 3 -->
+        
+      
+      
+      <img src="../_static/nvidia-logo-horiz-rgb-blk-for-screen.png" class="logo" alt="logo">
+      
+      
+      <h1 class="site-logo" id="site-title">NVIDIA BioNeMo Framework</h1>
+      
+    </a>
+</div><form class="bd-search d-flex align-items-center" action="../search.html" method="get">
+  <i class="icon fas fa-search"></i>
+  <input type="search" class="form-control" name="q" id="search-input" placeholder="Search the docs ..." aria-label="Search the docs ..." autocomplete="off" >
+</form><nav class="bd-links" id="bd-docs-nav" aria-label="Main">
+    <div class="bd-toc-item active">
+        <p aria-level="2" class="caption" role="heading">
+ <span class="caption-text">
+  GETTING STARTED
+ </span>
+</p>
+<ul class="nav bd-sidenav">
+ <li class="toctree-l1">
+  <a class="reference internal" href="../index.html">
+   What is BioNeMo?
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../pre-reqs.html">
+   Hardware and Software Prerequisites
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../access-startup.html">
+   Access and Startup
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../initialization-guide.html">
+   Initialization Guide
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../tutorial-list.html">
+   BioNeMo Framework Tutorials
+  </a>
+ </li>
+</ul>
+<p aria-level="2" class="caption" role="heading">
+ <span class="caption-text">
+  BioNeMo CORE
+ </span>
+</p>
+<ul class="nav bd-sidenav">
+ <li class="toctree-l1">
+  <a class="reference internal" href="../bionemo-fw-for-model-training-fw.html">
+   Fundamentals
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../data-module-fw.html">
+   Data Module
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../dwnstr-task-validation.html">
+   Validation with a Downstream Task
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../inference-triton-fw.html">
+   Inference with Nvidia Triton Server
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../deep-dive-esm1-pytriton-inference.html">
+   Example of PyTriton Inference
+  </a>
+ </li>
+</ul>
+<p aria-level="2" class="caption" role="heading">
+ <span class="caption-text">
+  BEST PRACTICES
+ </span>
+</p>
+<ul class="nav bd-sidenav">
+ <li class="toctree-l1">
+  <a class="reference internal" href="../hyperparameters-fw.html">
+   Hyperparameter Usage and Tuning
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../parallelism-fw.html">
+   Training Parallelism
+  </a>
+ </li>
+</ul>
+<p aria-level="2" class="caption" role="heading">
+ <span class="caption-text">
+  MODELS
+ </span>
+</p>
+<ul class="nav bd-sidenav">
+ <li class="toctree-l1">
+  <a class="reference internal" href="../models/diffdock.html">
+   DiffDock
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../models/dnabert.html">
+   DNABERT
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../models/dsmbind.html">
+   DSMBind
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../models/equidock.html">
+   EquiDock
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../models/esm1-nv.html">
+   ESM-1nv
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../models/esm2-nv.html">
+   ESM-2nv
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../models/geneformer.html">
+   Geneformer
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../models/megamolbart.html">
+   MegaMolBART
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../models/molmim.html">
+   MolMIM
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../models/openfold.html">
+   OpenFold
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../models/prott5nv.html">
+   Prott5nv
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../models/model-benchmarks.html">
+   Model Benchmarks
+  </a>
+ </li>
+</ul>
+<p aria-level="2" class="caption" role="heading">
+ <span class="caption-text">
+  DATASETS
+ </span>
+</p>
+<ul class="nav bd-sidenav">
+ <li class="toctree-l1">
+  <a class="reference internal" href="../datasets/uniprot.html">
+   UniProt Dataset
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../datasets/CELLxGENE.html">
+   CELLxGENE
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../datasets/zinc15.html">
+   ZINC-15 Dataset
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../datasets/pdb.html">
+   The Protein Data Bank (PDB)
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../datasets/GRCh38.p13.html">
+   Human Reference Genome Version GRCh38.p13
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../datasets/openproteinset.html">
+   OpenProteinSet
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../datasets/moleculenet-physchem.html">
+   MoleculeNet Physical Chemistry Datasets - Lipophilicity, FreeSolv, ESOL
+  </a>
+ </li>
+</ul>
+<p aria-level="2" class="caption" role="heading">
+ <span class="caption-text">
+  TUTORIALS
+ </span>
+</p>
+<ul class="current nav bd-sidenav">
+ <li class="toctree-l1">
+  <a class="reference internal" href="../preprocessing-bcp-training-diffdock.html">
+   DiffDock: Preparing Workspace and Data for Pre-training
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="esm2nv-mutant-design.html">
+   Zero-Shot Protein Design Using ESM-2nv
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="MMB_GenerativeAI_Inference_with_examples.html">
+   BioNeMo - MegaMolBART Inferencing for Generative Chemistry
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="MolMIM_GenerativeAI_local_inference_with_examples.html">
+   MolMIM Inferencing for Generative Chemistry and Downstream Prediction
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="ZINC15-data-preprocessing.html">
+   ZINC Training Dataset Setup for small molecule language models
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="bionemo-finetuning-overview.html">
+   Finetune pre-trained models in BioNeMo
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="cma_es_guided_molecular_optimization_molmim.html">
+   MolMIM Property Guided Molecular Optimization Using CMA-ES
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="custom-dataset-class-fw.html">
+   Adding the OAS Dataset: Modifying the Dataset Class
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="custom-dataset-dataloader.html">
+   Adding the OAS Dataset: Customizing Dataset Object and Dataloader Functions
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="custom-dataset-preprocessing-fw.html">
+   Adding the OAS Dataset: Downloading and Preprocessing
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="encoder-finetuning-notebook-fw.html">
+   Encoder Fine-tuning
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="model_training_diffdock.html">
+   DiffDock Model Training using BioNeMo
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="model_training_equidock.html">
+   EquiDock Model Training using BioNeMo
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="model_training_esm1nv.html">
+   ESM1nv Model Training using BioNeMo
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="model_training_esm2nv.html">
+   ESM-2nv: Data Preprocessing and Model Training Using BioNeMo
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="model_training_mmb.html">
+   MegaMolBART Model Training using BioNeMo
+  </a>
+ </li>
+ <li class="toctree-l1 current active">
+  <a class="current reference internal" href="#">
+   Train MolMIM from scratch on your own data using the BioNeMo Framework
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="physchem-notebook-fw.html">
+   Finetuning LLM in BioNeMo for a Downstream Task
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="protein-esm2nv-clustering.html">
+   Generating Embeddings for Protein Clustering
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="retrosynthesis-notebook.html">
+   Training LLM for a Custom Downstram Task: Retrosynthesis Prediction using MegaMolBART
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="esm2_FLIP_finetuning.html">
+   Fine-Tune ESM-2nv on FLIP Data for Sequence-Level Classification, Regression, Token-Level Classification, and with LoRA Adapters
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="esm2_oas_inferencing.html">
+   Performing inference on OAS sequences with ESM-2nv
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="esm2_paratope_finetuning.html">
+   Pretrain from Scratch, Continue Training from an Existing Checkpoint, and Fine-tune ESM-2nv on Custom Data
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="dnabert_inference.html">
+   Generating and visualizing embeddings with DNABert
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="dnabert_pretrain_finetune.html">
+   Pretrain, Fine-tune, and Perform Inference with DNABERT for Splice Site Prediction
+  </a>
+ </li>
+</ul>
+<p aria-level="2" class="caption" role="heading">
+ <span class="caption-text">
+  APPENDIX
+ </span>
+</p>
+<ul class="nav bd-sidenav">
+ <li class="toctree-l1">
+  <a class="reference internal" href="../faq-fw.html">
+   Frequently Asked Questions (FAQ)
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../bibliography-fw.html">
+   Bibliography
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../releasenotes-fw.html">
+   Release Notes
+  </a>
+ </li>
+</ul>
+
+    </div>
+</nav></div>
+        <div class="bd-sidebar__bottom">
+             <!-- To handle the deprecated key -->
+            
+        </div>
+    </div>
+    <div id="rtd-footer-container"></div>
+</div>
+
+
+          
+
+
+          
+<!-- A tiny helper pixel to detect if we've scrolled -->
+<div class="sbt-scroll-pixel-helper"></div>
+<!-- Main content -->
+<div class="col py-0 content-container">
+    
+    <div class="header-article row sticky-top noprint">
+        
+
+
+
+<div class="col py-1 d-flex header-article-main">
+    <div class="header-article__left">
+        
+        <label for="__navigation"
+  class="headerbtn"
+  data-toggle="tooltip"
+data-placement="right"
+title="Toggle navigation"
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fas fa-bars"></i>
+  </span>
+
+</label>
+
+        
+    </div>
+    <div class="header-article__right">
+<button onclick="toggleFullScreen()"
+  class="headerbtn"
+  data-toggle="tooltip"
+data-placement="bottom"
+title="Fullscreen mode"
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fas fa-expand"></i>
+  </span>
+
+</button>
+<label for="__page-toc"
+  class="headerbtn headerbtn-page-toc"
+  
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fas fa-list"></i>
+  </span>
+
+</label>
+
+    </div>
+</div>
+
+<!-- Table of contents -->
+<div class="col-md-3 bd-toc show noprint">
+    <div class="tocsection onthispage pt-5 pb-3">
+        <i class="fas fa-list"></i> Contents
+    </div>
+    <nav id="bd-toc-nav" aria-label="Page">
+        <ul class="visible nav section-nav flex-column">
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#demo-objectives">
+   Demo objectives:
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#overview-molmim-model">
+   Overview - MolMIM model
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#setup-and-assumptions">
+   Setup and Assumptions
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#dataset-preparation">
+   1. Dataset preparation
+  </a>
+  <ul class="visible nav section-nav flex-column">
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#download-the-dataset">
+     Download the dataset
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#filter-for-vocabulary-compliance">
+     Filter for vocabulary compliance
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#split-dataset-to-create-training-validation-and-test-sets">
+     Split dataset to create training, validation and test sets
+    </a>
+   </li>
+  </ul>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#pretrain-molmim-from-scratch">
+   2. Pretrain MolMIM from scratch
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#continue-training-on-an-existing-model-checkpoint">
+   3. Continue training on an existing model checkpoint
+  </a>
+ </li>
+</ul>
+
+    </nav>
+</div>
+    </div>
+    <div class="article row">
+        <div class="col pl-md-3 pl-lg-5 content-container">
+            <!-- Table of contents that is only displayed when printing the page -->
+            <div id="jb-print-docs-body" class="onlyprint">
+                <h1>Train MolMIM from scratch on your own data using the BioNeMo Framework</h1>
+                <!-- Table of contents -->
+                <div id="print-main-content">
+                    <div id="jb-print-toc">
+                        
+                        <div>
+                            <h2> Contents </h2>
+                        </div>
+                        <nav aria-label="Page">
+                            <ul class="visible nav section-nav flex-column">
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#demo-objectives">
+   Demo objectives:
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#overview-molmim-model">
+   Overview - MolMIM model
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#setup-and-assumptions">
+   Setup and Assumptions
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#dataset-preparation">
+   1. Dataset preparation
+  </a>
+  <ul class="visible nav section-nav flex-column">
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#download-the-dataset">
+     Download the dataset
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#filter-for-vocabulary-compliance">
+     Filter for vocabulary compliance
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#split-dataset-to-create-training-validation-and-test-sets">
+     Split dataset to create training, validation and test sets
+    </a>
+   </li>
+  </ul>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#pretrain-molmim-from-scratch">
+   2. Pretrain MolMIM from scratch
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#continue-training-on-an-existing-model-checkpoint">
+   3. Continue training on an existing model checkpoint
+  </a>
+ </li>
+</ul>
+
+                        </nav>
+                    </div>
+                </div>
+            </div>
+            <main id="main-content" role="main">
+                
+              <div>
+                 <div class="tex2jax_ignore mathjax_ignore section" id="train-molmim-from-scratch-on-your-own-data-using-the-bionemo-framework">
+<h1>Train MolMIM from scratch on your own data using the BioNeMo Framework<a class="headerlink" href="#train-molmim-from-scratch-on-your-own-data-using-the-bionemo-framework" title="Permalink to this headline">#</a></h1>
+<p>The purpose of this tutorial is to provide an example use case of training MolMIM model using the BioNeMo framework.</p>
+<div class="section" id="demo-objectives">
+<h2>Demo objectives:<a class="headerlink" href="#demo-objectives" title="Permalink to this headline">#</a></h2>
+<ul class="simple">
+<li><p>Learn how to prepare your own train, validation and test datasets for MolMIM training -&gt; data processing steps including input validation, deduplication, filtering based on tokenizer vocabulary, dataset splitting</p></li>
+<li><p>Train a MolMIM model from scratch (highlighting config options for customisable training)</p></li>
+<li><p>Continue training an existing MolMIM model checkpoint</p></li>
+</ul>
+<p><strong>Note:</strong> this notebook was developed and tested for BioNeMo framework container 1.7<br />
+Tested GPUs: A1000, A6000 (total notebook runtime using single GPU ~2 mins)</p>
+</div>
+<div class="section" id="overview-molmim-model">
+<h2>Overview - MolMIM model<a class="headerlink" href="#overview-molmim-model" title="Permalink to this headline">#</a></h2>
+<p>MolMIM is a probabilistic auto-encoder for small molecule drug discovery, trained with Mutual Information Machine (MIM) learning. It provides a fixed size embedding for each molecule and produces a latent space from which samples can be drawn and novel SMILES strings generated from a specific starting molecule. By using optimizers in tandem with MolMIM, specific properties of the molecules can be optimized and novel derivatives generated. For more information, we direct the reader to <a class="reference external" href="https://arxiv.org/pdf/2208.09016">Reidenbach, et al. (2023)</a>.</p>
+<p>Architecture (see schematic below):</p>
+<ul class="simple">
+<li><p>Perceiver Encoder</p></li>
+<li><p>Transformer Decoder</p></li>
+<li><p>Latent MLP heads for latent variable characterization</p></li>
+</ul>
+<p><img alt="Schematic of MolMIM model" src="../_images/MolMIM_model.png" /></p>
+<p>Current MolMIM models were pretrained using only molecules that conform to Lipinski’s rule of 5, here we will give an example of how you could train a custom model on molecules of your choice, without filtering using the Rule of 5.</p>
+</div>
+<div class="section" id="setup-and-assumptions">
+<h2>Setup and Assumptions<a class="headerlink" href="#setup-and-assumptions" title="Permalink to this headline">#</a></h2>
+<p>This tutorial assumes that the user has access to BioNeMo framework container and GPU compute, please check the <a class="reference internal" href="../index.html"><span class="doc std std-doc">Getting Started</span></a> section for more information.</p>
+<p>All model training related commands should be executed inside the BioNeMo docker container.</p>
+<p><strong>Note:</strong> The interactive job launch example shown here using the Jupyter Lab interface is intended for initial user experience/trial runs. It is <strong>strongly</strong> advised to launch the model training jobs using the launch script as a part of the <code class="docutils literal notranslate"><span class="pre">ngc</span> <span class="pre">batch</span> <span class="pre">run</span></code> command, as mentioned in <a class="reference internal" href="../access-startup.html"><span class="doc std std-doc">Access and Startup</span></a>.</p>
+<div class="alert alert-block alert-info"> <b>NOTE</b> Some of the cells below generate long text output.  We're using <pre>%%capture --no-display --no-stderr cell_output</pre> to suppress this output.  Comment or delete this line in the cells below to restore full output.</div><p>First we install and import all our required packages</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>%%capture --no-display --no-stderr cell_output
+! pip install PyTDC
+</pre></div>
+</div>
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Importing required libraries </span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">from</span> <span class="nn">pathlib</span> <span class="kn">import</span> <span class="n">Path</span>
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+<span class="kn">from</span> <span class="nn">rdkit</span> <span class="kn">import</span> <span class="n">Chem</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Literal</span> 
+<span class="kn">import</span> <span class="nn">warnings</span>
+<span class="n">warnings</span><span class="o">.</span><span class="n">filterwarnings</span><span class="p">(</span><span class="s1">&#39;ignore&#39;</span><span class="p">)</span>
+<span class="n">warnings</span><span class="o">.</span><span class="n">simplefilter</span><span class="p">(</span><span class="s1">&#39;ignore&#39;</span><span class="p">)</span>
+
+<span class="c1"># Importing libraries to download and split datasets from the Therapeutic Data Commons https://tdcommons.ai/</span>
+<span class="kn">from</span> <span class="nn">tdc.single_pred</span> <span class="kn">import</span> <span class="n">Tox</span>
+<span class="kn">from</span> <span class="nn">tdc.base_dataset</span> <span class="kn">import</span> <span class="n">DataLoader</span>
+
+<span class="kn">from</span> <span class="nn">nemo.collections.common.tokenizers.regex_tokenizer</span> <span class="kn">import</span> <span class="n">RegExTokenizer</span>
+
+<span class="n">bionemo_home</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s1">&#39;BIONEMO_HOME&#39;</span><span class="p">]</span>
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+<div class="section" id="dataset-preparation">
+<h2>1. Dataset preparation<a class="headerlink" href="#dataset-preparation" title="Permalink to this headline">#</a></h2>
+<p>Here we go through data preparation steps for an example dataset from the <a class="reference external" href="https://tdcommons.ai/">Therapeutic Data Commons</a>: a regression dataset - the percent inhibition of the human ether-à-go-go related gene (hERG) channel by a given compound at a 10 µM concentration. This dataset contains a total of 306892 molecules.</p>
+<div class="section" id="download-the-dataset">
+<h3>Download the dataset<a class="headerlink" href="#download-the-dataset" title="Permalink to this headline">#</a></h3>
+<p>First we download the dataset, and perform some basic data processing, for example canonicalising the SMILES strings and dropping duplicate entries.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">canonicalise_smiles</span><span class="p">(</span><span class="n">smiles</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Returns the canonical SMILES string for the input SMILES string </span>
+<span class="sd">    or np.nan if it was not possible to generate a valid mol object from the input string</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">mol</span> <span class="o">=</span> <span class="n">Chem</span><span class="o">.</span><span class="n">MolFromSmiles</span><span class="p">(</span><span class="n">smiles</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span> <span class="k">if</span> <span class="n">mol</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">Chem</span><span class="o">.</span><span class="n">MolToSmiles</span><span class="p">(</span><span class="n">mol</span><span class="p">)</span>
+
+<span class="c1"># Specify dataset for download</span>
+<span class="n">dataset_name</span> <span class="o">=</span> <span class="s1">&#39;herg_central&#39;</span>
+<span class="n">task</span> <span class="o">=</span> <span class="s1">&#39;hERG_at_10uM&#39;</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Preparing raw </span><span class="si">{</span><span class="n">dataset_name</span><span class="si">}</span><span class="s2"> dataset from TD Commons, filtered for task: </span><span class="si">{</span><span class="n">task</span><span class="si">}</span><span class="s2">.&quot;</span><span class="p">)</span>
+<span class="n">data</span> <span class="o">=</span> <span class="n">Tox</span><span class="p">(</span><span class="n">name</span> <span class="o">=</span> <span class="n">dataset_name</span><span class="p">,</span> <span class="n">label_name</span> <span class="o">=</span> <span class="n">task</span><span class="p">)</span>
+<span class="n">data_df</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">get_data</span><span class="p">()</span>
+
+<span class="c1"># Take only the first 10,000 molecules in order to reduce tutorial run time</span>
+<span class="n">data_df</span> <span class="o">=</span> <span class="n">data_df</span><span class="p">[:</span><span class="mi">10000</span><span class="p">]</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Generating canonical SMILES strings from the provided SMILES...&quot;</span><span class="p">)</span>
+<span class="n">data_df</span><span class="p">[</span><span class="s2">&quot;canonical_smiles&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">data_df</span><span class="p">[</span><span class="s2">&quot;Drug&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">map</span><span class="p">(</span><span class="n">canonicalise_smiles</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Dropping duplicate molecules (first instance kept)...&quot;</span><span class="p">)</span>
+<span class="n">unique_df</span> <span class="o">=</span> <span class="n">data_df</span><span class="o">.</span><span class="n">drop_duplicates</span><span class="p">(</span><span class="n">subset</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;canonical_smiles&quot;</span><span class="p">])</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">data_df</span><span class="p">)</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="nb">len</span><span class="p">(</span><span class="n">unique_df</span><span class="p">)</span><span class="si">}</span><span class="s2"> duplicates removed.&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Found local copy...
+Loading...
+</pre></div>
+</div>
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Preparing raw herg_central dataset from TD Commons, filtered for task: hERG_at_10uM.
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Done!
+</pre></div>
+</div>
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Generating canonical SMILES strings from the provided SMILES...
+Dropping duplicate molecules (first instance kept)...
+0 duplicates removed.
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+<div class="section" id="filter-for-vocabulary-compliance">
+<h3>Filter for vocabulary compliance<a class="headerlink" href="#filter-for-vocabulary-compliance" title="Permalink to this headline">#</a></h3>
+<p>Next, we exclude SMILES strings exceeding the model’s maximum token limit and molecules with tokens absent from the model’s vocabulary. To accomplish this, we import the model’s existing vocabulary files.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">max_token_length</span> <span class="o">=</span> <span class="mi">126</span>
+<span class="c1"># Note: the maximum token length generated from the smiles string should be 2 less than the max_seq_length specified in the model config. </span>
+<span class="c1"># This is to account for the extra tokens &lt;BOS&gt; and &lt;EOS&gt;</span>
+
+<span class="k">def</span> <span class="nf">vocab_compliance_check</span><span class="p">(</span><span class="n">smiles</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">tokenizer</span><span class="p">:</span> <span class="n">RegExTokenizer</span><span class="p">,</span> <span class="n">max_token_length</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Checks if the SMILES string only contains vocabulary in the tokenizer&#39;s vocabulary</span>
+<span class="sd">    and if the token length is less than or equal to `max_token_length&quot;&quot;&quot;</span>
+    <span class="n">tokens</span> <span class="o">=</span> <span class="n">tokenizer</span><span class="o">.</span><span class="n">text_to_tokens</span><span class="p">(</span><span class="n">smiles</span><span class="p">)</span>
+    <span class="n">vocab_allowed</span> <span class="o">=</span> <span class="n">tokenizer</span><span class="o">.</span><span class="n">vocab</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span>
+    <span class="k">return</span> <span class="nb">set</span><span class="p">(</span><span class="n">tokens</span><span class="p">)</span><span class="o">.</span><span class="n">issubset</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">vocab_allowed</span><span class="p">))</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">tokens</span><span class="p">)</span> <span class="o">&lt;=</span> <span class="n">max_token_length</span>
+
+<span class="n">model_name</span> <span class="o">=</span> <span class="s2">&quot;molmim&quot;</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Filtering out molecules which are not present in the </span><span class="si">{</span><span class="n">model_name</span><span class="si">}</span><span class="s2"> tokenizer vocabulary or with max token length greater than </span><span class="si">{</span><span class="n">max_token_length</span><span class="si">}</span><span class="s2">...&quot;</span><span class="p">)</span>
+<span class="n">tokenizer_path</span> <span class="o">=</span> <span class="n">bionemo_home</span> <span class="o">+</span> <span class="s2">&quot;/tokenizers/molecule/</span><span class="si">{model_name}</span><span class="s2">/vocab/</span><span class="si">{model_name}</span><span class="s2">.</span><span class="si">{extension}</span><span class="s2">&quot;</span>
+<span class="n">tokenizer</span> <span class="o">=</span> <span class="n">RegExTokenizer</span><span class="p">()</span><span class="o">.</span><span class="n">load_tokenizer</span><span class="p">(</span><span class="n">regex_file</span><span class="o">=</span><span class="n">tokenizer_path</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">model_name</span><span class="o">=</span><span class="n">model_name</span><span class="p">,</span> <span class="n">extension</span><span class="o">=</span><span class="s2">&quot;model&quot;</span><span class="p">),</span> <span class="n">vocab_file</span><span class="o">=</span><span class="n">tokenizer_path</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">model_name</span><span class="o">=</span><span class="n">model_name</span><span class="p">,</span> <span class="n">extension</span><span class="o">=</span><span class="s2">&quot;vocab&quot;</span><span class="p">))</span>
+<span class="n">unique_df</span><span class="p">[</span><span class="s2">&quot;vocab_compliant&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">unique_df</span><span class="p">[</span><span class="s2">&quot;canonical_smiles&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="k">lambda</span> <span class="n">smi</span><span class="p">:</span> <span class="n">vocab_compliance_check</span><span class="p">(</span><span class="n">smi</span><span class="p">,</span> <span class="n">tokenizer</span><span class="p">,</span> <span class="n">max_token_length</span><span class="p">))</span>
+<span class="c1"># Select only molecules which are vocab compliant</span>
+<span class="n">filtered_df</span><span class="o">=</span> <span class="n">unique_df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">unique_df</span><span class="p">[</span><span class="s1">&#39;vocab_compliant&#39;</span><span class="p">]]</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">unique_df</span><span class="p">)</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="nb">len</span><span class="p">(</span><span class="n">filtered_df</span><span class="p">)</span><span class="si">}</span><span class="s2"> molecules removed.&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Filtering out molecules which are not present in the molmim tokenizer vocabulary or with max token length greater than 126...
+[NeMo I 2024-09-03 15:07:43 regex_tokenizer:240] Loading vocabulary from file = /workspace/bionemo/tokenizers/molecule/molmim/vocab/molmim.vocab
+[NeMo I 2024-09-03 15:07:43 regex_tokenizer:254] Loading regex from file = /workspace/bionemo/tokenizers/molecule/molmim/vocab/molmim.model
+1 molecules removed.
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+<div class="section" id="split-dataset-to-create-training-validation-and-test-sets">
+<h3>Split dataset to create training, validation and test sets<a class="headerlink" href="#split-dataset-to-create-training-validation-and-test-sets" title="Permalink to this headline">#</a></h3>
+<p>Finally, we split the dataset into training, validation, and test sets with a ratio of 7:1:2, respectively. These sets are then saved as CSV files in designated subdirectories (<code class="docutils literal notranslate"><span class="pre">train</span></code>, <code class="docutils literal notranslate"><span class="pre">val</span></code> and <code class="docutils literal notranslate"><span class="pre">test</span></code>) as required for model training. Other dataset variables e.g. columns, headers, dataset_path are specified in the config used for training, see example config files in <code class="docutils literal notranslate"><span class="pre">examples/conf/molecule</span></code> for more information.
+We use a scaffold split here to make the test set more difficult, as it contains molecules with different structures.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">generate_splits</span><span class="p">(</span><span class="n">data</span><span class="p">:</span> <span class="n">DataLoader</span><span class="p">,</span> <span class="n">filtered_df</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">method</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="s1">&#39;scaffold&#39;</span><span class="p">,</span> <span class="s1">&#39;random&#39;</span><span class="p">],</span> <span class="n">seed</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">frac</span><span class="p">:</span> <span class="nb">list</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Splits the data into train, validation and test sets by the specified method, according to the specified fractions </span>
+<span class="sd">    and returns a dictionary of dataframes</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># Update data object with filtered molecules</span>
+    <span class="n">data</span><span class="o">.</span><span class="n">entity1</span> <span class="o">=</span> <span class="n">filtered_df</span><span class="o">.</span><span class="n">canonical_smiles</span>
+    <span class="n">data</span><span class="o">.</span><span class="n">entity1_idx</span> <span class="o">=</span> <span class="n">filtered_df</span><span class="o">.</span><span class="n">Drug_ID</span>
+    <span class="n">data</span><span class="o">.</span><span class="n">y</span> <span class="o">=</span> <span class="n">filtered_df</span><span class="o">.</span><span class="n">Y</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Generating train/valid/test sets according to </span><span class="si">{</span><span class="n">method</span><span class="si">}</span><span class="s2"> strategy in the following fractions of the total dataset: </span><span class="si">{</span><span class="n">frac</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">data</span><span class="o">.</span><span class="n">get_split</span><span class="p">(</span><span class="n">method</span><span class="o">=</span><span class="n">method</span><span class="p">,</span> <span class="n">seed</span><span class="o">=</span><span class="n">seed</span><span class="p">,</span> <span class="n">frac</span><span class="o">=</span><span class="n">frac</span><span class="p">)</span>
+    
+
+<span class="n">splits</span> <span class="o">=</span> <span class="n">generate_splits</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">filtered_df</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s1">&#39;scaffold&#39;</span><span class="p">,</span> <span class="n">seed</span><span class="o">=</span><span class="mi">42</span><span class="p">,</span> <span class="n">frac</span><span class="o">=</span> <span class="p">[</span><span class="mf">0.7</span><span class="p">,</span><span class="mf">0.1</span><span class="p">,</span><span class="mf">0.2</span><span class="p">])</span>
+<span class="n">directory_mapping</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;valid&quot;</span><span class="p">:</span><span class="s2">&quot;val&quot;</span><span class="p">}</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Writing sets to file...&quot;</span><span class="p">)</span>
+<span class="k">for</span> <span class="n">molecule_set</span> <span class="ow">in</span> <span class="n">splits</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+    <span class="n">set_name</span> <span class="o">=</span> <span class="n">directory_mapping</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">molecule_set</span><span class="p">,</span> <span class="n">molecule_set</span><span class="p">)</span>
+    <span class="n">splits</span><span class="p">[</span><span class="n">molecule_set</span><span class="p">]</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span> <span class="p">{</span><span class="s2">&quot;Drug&quot;</span><span class="p">:</span><span class="s2">&quot;smiles&quot;</span><span class="p">},</span> <span class="n">inplace</span> <span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">output_dir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">bionemo_home</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;data/processed/</span><span class="si">{</span><span class="n">task</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="n">set_name</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="n">Path</span><span class="p">(</span><span class="n">output_dir</span><span class="p">)</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">parents</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">outfilename</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">output_dir</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">set_name</span><span class="si">}</span><span class="s2">_set.csv&quot;</span><span class="p">)</span>
+    <span class="n">splits</span><span class="p">[</span><span class="n">molecule_set</span><span class="p">]</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span><span class="n">outfilename</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Saved </span><span class="si">{</span><span class="n">set_name</span><span class="si">}</span><span class="s2"> set molecules to </span><span class="si">{</span><span class="n">outfilename</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Generating train/valid/test sets according to scaffold strategy in the following fractions of the total dataset: [0.7, 0.1, 0.2]
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>100%|█████████████████████████████████████████████████████████████████████████████████| 9999/9999 [00:01&lt;00:00, 6815.68it/s]
+</pre></div>
+</div>
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Writing sets to file...
+Saved train set molecules to /workspace/bionemo/data/processed/hERG_at_10uM/train/train_set.csv
+Saved val set molecules to /workspace/bionemo/data/processed/hERG_at_10uM/val/val_set.csv
+Saved test set molecules to /workspace/bionemo/data/processed/hERG_at_10uM/test/test_set.csv
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="section" id="pretrain-molmim-from-scratch">
+<h2>2. Pretrain MolMIM from scratch<a class="headerlink" href="#pretrain-molmim-from-scratch" title="Permalink to this headline">#</a></h2>
+<p>Here we will run pretraining from scratch using the default config “pretrain_xsmall_canonicalized.yaml”. Other example configs can be found in directory <code class="docutils literal notranslate"><span class="pre">examples/molecule/molmim/conf</span></code>. We will override some config arguments at runtime using Hydra.</p>
+<p>The column containing the SMILES strings in the input datasets is specified with the argument <code class="docutils literal notranslate"><span class="pre">model.data.data_impl_kwargs.csv_mmap.data_col</span></code>. We specify the directory containing our newly created <code class="docutils literal notranslate"><span class="pre">train</span></code>, <code class="docutils literal notranslate"><span class="pre">val</span></code> and <code class="docutils literal notranslate"><span class="pre">test</span></code> subdirectories using the argument <code class="docutils literal notranslate"><span class="pre">model.data.dataset_path</span></code> and the names of our input files using argument <code class="docutils literal notranslate"><span class="pre">model.data.dataset.train</span></code> etc.</p>
+<p>Note, index files are written to the file specified in <code class="docutils literal notranslate"><span class="pre">model.data.index_mapping_dir</span></code>, if index files here are present they will be read rather than written. Therefore, we here clear the index files first to avoid unintentional errors which could occur if changing model or dataset params in this notebook playground.
+For the same reason we set <code class="docutils literal notranslate"><span class="pre">exp_manager.resume_if_exists</span></code> to be <code class="docutils literal notranslate"><span class="pre">False</span></code>, otherwise if training was interrupted and then restarted, training will continue from the last saved checkpoint, and errors could occur if model params in the config had been changed.</p>
+<p>We will also reduce the number of training steps (<code class="docutils literal notranslate"><span class="pre">trainer.max_steps</span></code>) and correspondingly the step interval for checking the validation set (<code class="docutils literal notranslate"><span class="pre">trainer.val_check_interval</span></code>) just for the purpose of this demonstration.</p>
+<p>Optional: Add arguments for logging with Weights and Biases and login when prompted</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>%%capture --no-display --no-stderr cell_output
+! rm -rf data/data_index
+! cd {bionemo_home} &amp;&amp; python examples/molecule/molmim/pretrain.py \
+    do_training=True \
+    ++model.data.dataset_path=&quot;data/processed/{task}/&quot; \
+    ++model.data.dataset.train=&quot;train_set&quot; \
+    ++model.data.dataset.val=&quot;val_set&quot; \
+    ++model.data.dataset.test=&quot;test_set&quot; \
+    ++model.data.index_mapping_dir=&quot;data/data_index/&quot; \
+    ++model.data.data_impl_kwargs.csv_mmap.data_col=1 \
+    ++model.dwnstr_task_validation.enabled=False \
+    ++model.global_batch_size=null \
+    ++trainer.devices=1 \
+    ++trainer.accelerator=&#39;gpu&#39; \
+    ++trainer.max_steps=200 \
+    ++trainer.val_check_interval=100 \
+    ++exp_manager.create_wandb_logger=False \
+    ++exp_manager.resume_if_exists=False
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+<div class="section" id="continue-training-on-an-existing-model-checkpoint">
+<h2>3. Continue training on an existing model checkpoint<a class="headerlink" href="#continue-training-on-an-existing-model-checkpoint" title="Permalink to this headline">#</a></h2>
+<p>To do this, we run the <code class="docutils literal notranslate"><span class="pre">pretrain.py</span></code> script but specify the <code class="docutils literal notranslate"><span class="pre">++exp_manager.resume_if_exists=True</span></code> argument. We will use the model we just trained above and we will override some config arguments at runtime using Hydra. Specifically, we will increase the max_steps argument to <code class="docutils literal notranslate"><span class="pre">400</span></code>, which will train an additional 200 steps on top of the 200 that were taken in the initial training run.</p>
+<p>Note: ensure the config specified matches the existing model to be loaded.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>%%capture --no-display --no-stderr cell_output
+model_path = &quot;/result/nemo_experiments/MolMIM/MolMIM-xsmall_pretraining/checkpoints/MolMIM.nemo&quot;
+
+! rm -rf data/data_index
+! cd {bionemo_home} &amp;&amp; python examples/molecule/molmim/pretrain.py \
+    do_training=True \
+    ++model.data.dataset_path=&quot;data/processed/{task}/&quot; \
+    ++model.data.dataset.train=&quot;train_set&quot; \
+    ++model.data.dataset.val=&quot;val_set&quot; \
+    ++model.data.dataset.test=&quot;test_set&quot; \
+    ++model.data.index_mapping_dir=&quot;data/data_index/&quot; \
+    ++model.data.data_impl_kwargs.csv_mmap.data_col=1 \
+    ++model.dwnstr_task_validation.enabled=False \
+    ++model.global_batch_size=null \
+    ++trainer.devices=1 \
+    ++trainer.accelerator=&#39;gpu&#39; \
+    ++trainer.max_steps=400 \
+    ++trainer.val_check_interval=100 \
+    ++exp_manager.create_wandb_logger=False \
+    ++exp_manager.resume_if_exists=True
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+</div>
+
+<div class="section">
+   
+</div>
+
+              </div>
+              
+            </main>
+            <footer class="footer-article noprint">
+                
+    <!-- Previous / next buttons -->
+<div class='prev-next-area'>
+    <a class='left-prev' id="prev-link" href="model_training_mmb.html" title="previous page">
+        <i class="fas fa-angle-left"></i>
+        <div class="prev-next-info">
+            <p class="prev-next-subtitle">previous</p>
+            <p class="prev-next-title">MegaMolBART Model Training using BioNeMo</p>
+        </div>
+    </a>
+    <a class='right-next' id="next-link" href="physchem-notebook-fw.html" title="next page">
+    <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">Finetuning LLM in BioNeMo for a Downstream Task</p>
+    </div>
+    <i class="fas fa-angle-right"></i>
+    </a>
+</div>
+            </footer>
+        </div>
+    </div>
+    <div class="footer-content row">
+        <footer class="col footer"><p>
+  
+    By NVIDIA<br/>
+  
+      &copy; Copyright 2023-2024 NVIDIA CORPORATION &amp; AFFILIATES. All rights reserved..<br/>
+    Last updated on Nov 20, 2024.<br/>
+</p>
+        </footer>
+    </div>
+    
+</div>
+
+
+      </div>
+    </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="../_static/scripts/pydata-sphinx-theme.js?digest=1999514e3f237ded88cf"></script>
+
+
+  </body>
+</html>

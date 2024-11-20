@@ -1,0 +1,1823 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>BioNeMo - MegaMolBART Inferencing for Generative Chemistry &#8212; NVIDIA BioNeMo Framework</title>
+    
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../_static/styles/theme.css?digest=1999514e3f237ded88cf" rel="stylesheet">
+<link href="../_static/styles/pydata-sphinx-theme.css?digest=1999514e3f237ded88cf" rel="stylesheet">
+
+    
+  <link rel="stylesheet"
+    href="../_static/vendor/fontawesome/5.13.0/css/all.min.css">
+  <link rel="preload" as="font" type="font/woff2" crossorigin
+    href="../_static/vendor/fontawesome/5.13.0/webfonts/fa-solid-900.woff2">
+  <link rel="preload" as="font" type="font/woff2" crossorigin
+    href="../_static/vendor/fontawesome/5.13.0/webfonts/fa-brands-400.woff2">
+
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
+    <link rel="stylesheet" href="../_static/styles/sphinx-book-theme.css?digest=62ba249389abaaa9ffc34bf36a076bdc1d65ee18" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="../_static/mystnb.4510f1fc1dee50b3e5859aac5469c37c29e427902b24a333a5f9fcb2f0b3ac41.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/copybutton.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/tabs.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/custom.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/design-style.1e8bd061cd6da7fc9cf755528e8ffc24.min.css" />
+    
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=1999514e3f237ded88cf">
+
+    <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+    <script src="../_static/jquery.js"></script>
+    <script src="../_static/underscore.js"></script>
+    <script src="../_static/doctools.js"></script>
+    <script src="../_static/clipboard.min.js"></script>
+    <script src="../_static/copybutton.js"></script>
+    <script src="https://js.hcaptcha.com/1/api.js"></script>
+    <script src="//assets.adobedtm.com/5d4962a43b79/c1061d2c5e7b/launch-191c2462b890.min.js"></script>
+    <script src="../_static/scripts/sphinx-book-theme.js?digest=f31d14ad54b65d19161ba51d4ffff3a77ae00456"></script>
+    <script src="../_static/design-tabs.js"></script>
+    <link rel="canonical" href="https://docs.nvidia.com/bionemo-framework/0.4.0/notebooks/MMB_GenerativeAI_Inference_with_examples.html" />
+    <link rel="shortcut icon" href="../_static/nvidia-logo-vert-rgb-blk-for-screen.png"/>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="MolMIM Inferencing for Generative Chemistry and Downstream Prediction" href="MolMIM_GenerativeAI_local_inference_with_examples.html" />
+    <link rel="prev" title="Zero-Shot Protein Design Using ESM-2nv" href="esm2nv-mutant-design.html" /> 
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="docsearch:language" content="None">
+    
+
+    <!-- Google Analytics -->
+      
+<style type="text/css">
+  ul.ablog-archive {
+    list-style: none;
+    overflow: auto;
+    margin-left: 0px;
+  }
+  ul.ablog-archive li {
+    float: left;
+    margin-right: 5px;
+    font-size: 80%;
+  }
+  ul.postlist a {
+    font-style: italic;
+  }
+  ul.postlist-style-disc {
+    list-style-type: disc;
+  }
+  ul.postlist-style-none {
+    list-style-type: none;
+  }
+  ul.postlist-style-circle {
+    list-style-type: circle;
+  }
+</style>
+
+  </head>
+  <body data-spy="scroll" data-target="#bd-toc-nav" data-offset="60">
+<!-- Checkboxes to toggle the left sidebar -->
+<input type="checkbox" class="sidebar-toggle" name="__navigation" id="__navigation" aria-label="Toggle navigation sidebar">
+<label class="overlay overlay-navbar" for="__navigation">
+    <div class="visually-hidden">Toggle navigation sidebar</div>
+</label>
+<!-- Checkboxes to toggle the in-page toc -->
+<input type="checkbox" class="sidebar-toggle" name="__page-toc" id="__page-toc" aria-label="Toggle in-page Table of Contents">
+<label class="overlay overlay-pagetoc" for="__page-toc">
+    <div class="visually-hidden">Toggle in-page Table of Contents</div>
+</label>
+<!-- Headers at the top -->
+<div class="announcement header-item noprint"></div>
+<div class="header header-item noprint"></div>
+
+    
+    <div class="container-fluid" id="banner"></div>
+
+    
+
+    <div class="container-xl">
+      <div class="row">
+          
+<!-- Sidebar -->
+<div class="bd-sidebar noprint" id="site-navigation">
+    <div class="bd-sidebar__content">
+        <div class="bd-sidebar__top"><div class="navbar-brand-box">
+    <a class="navbar-brand text-wrap" href="../index.html">
+      
+        <!-- `logo` is deprecated in Sphinx 4.0, so remove this when we stop supporting 3 -->
+        
+      
+      
+      <img src="../_static/nvidia-logo-horiz-rgb-blk-for-screen.png" class="logo" alt="logo">
+      
+      
+      <h1 class="site-logo" id="site-title">NVIDIA BioNeMo Framework</h1>
+      
+    </a>
+</div><form class="bd-search d-flex align-items-center" action="../search.html" method="get">
+  <i class="icon fas fa-search"></i>
+  <input type="search" class="form-control" name="q" id="search-input" placeholder="Search the docs ..." aria-label="Search the docs ..." autocomplete="off" >
+</form><nav class="bd-links" id="bd-docs-nav" aria-label="Main">
+    <div class="bd-toc-item active">
+        <p aria-level="2" class="caption" role="heading">
+ <span class="caption-text">
+  GETTING STARTED
+ </span>
+</p>
+<ul class="nav bd-sidenav">
+ <li class="toctree-l1">
+  <a class="reference internal" href="../index.html">
+   What is BioNeMo?
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../pre-reqs.html">
+   Hardware and Software Prerequisites
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../access-startup.html">
+   Access and Startup
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../initialization-guide.html">
+   Initialization Guide
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../tutorial-list.html">
+   BioNeMo Framework Tutorials
+  </a>
+ </li>
+</ul>
+<p aria-level="2" class="caption" role="heading">
+ <span class="caption-text">
+  BioNeMo CORE
+ </span>
+</p>
+<ul class="nav bd-sidenav">
+ <li class="toctree-l1">
+  <a class="reference internal" href="../bionemo-fw-for-model-training-fw.html">
+   Fundamentals
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../data-module-fw.html">
+   Data Module
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../dwnstr-task-validation.html">
+   Validation with a Downstream Task
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../inference-triton-fw.html">
+   Inference with Nvidia Triton Server
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../deep-dive-esm1-pytriton-inference.html">
+   Example of PyTriton Inference
+  </a>
+ </li>
+</ul>
+<p aria-level="2" class="caption" role="heading">
+ <span class="caption-text">
+  BEST PRACTICES
+ </span>
+</p>
+<ul class="nav bd-sidenav">
+ <li class="toctree-l1">
+  <a class="reference internal" href="../hyperparameters-fw.html">
+   Hyperparameter Usage and Tuning
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../parallelism-fw.html">
+   Training Parallelism
+  </a>
+ </li>
+</ul>
+<p aria-level="2" class="caption" role="heading">
+ <span class="caption-text">
+  MODELS
+ </span>
+</p>
+<ul class="nav bd-sidenav">
+ <li class="toctree-l1">
+  <a class="reference internal" href="../models/diffdock.html">
+   DiffDock
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../models/dnabert.html">
+   DNABERT
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../models/dsmbind.html">
+   DSMBind
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../models/equidock.html">
+   EquiDock
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../models/esm1-nv.html">
+   ESM-1nv
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../models/esm2-nv.html">
+   ESM-2nv
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../models/geneformer.html">
+   Geneformer
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../models/megamolbart.html">
+   MegaMolBART
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../models/molmim.html">
+   MolMIM
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../models/openfold.html">
+   OpenFold
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../models/prott5nv.html">
+   Prott5nv
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../models/model-benchmarks.html">
+   Model Benchmarks
+  </a>
+ </li>
+</ul>
+<p aria-level="2" class="caption" role="heading">
+ <span class="caption-text">
+  DATASETS
+ </span>
+</p>
+<ul class="nav bd-sidenav">
+ <li class="toctree-l1">
+  <a class="reference internal" href="../datasets/uniprot.html">
+   UniProt Dataset
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../datasets/CELLxGENE.html">
+   CELLxGENE
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../datasets/zinc15.html">
+   ZINC-15 Dataset
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../datasets/pdb.html">
+   The Protein Data Bank (PDB)
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../datasets/GRCh38.p13.html">
+   Human Reference Genome Version GRCh38.p13
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../datasets/openproteinset.html">
+   OpenProteinSet
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../datasets/moleculenet-physchem.html">
+   MoleculeNet Physical Chemistry Datasets - Lipophilicity, FreeSolv, ESOL
+  </a>
+ </li>
+</ul>
+<p aria-level="2" class="caption" role="heading">
+ <span class="caption-text">
+  TUTORIALS
+ </span>
+</p>
+<ul class="current nav bd-sidenav">
+ <li class="toctree-l1">
+  <a class="reference internal" href="../preprocessing-bcp-training-diffdock.html">
+   DiffDock: Preparing Workspace and Data for Pre-training
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="esm2nv-mutant-design.html">
+   Zero-Shot Protein Design Using ESM-2nv
+  </a>
+ </li>
+ <li class="toctree-l1 current active">
+  <a class="current reference internal" href="#">
+   BioNeMo - MegaMolBART Inferencing for Generative Chemistry
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="MolMIM_GenerativeAI_local_inference_with_examples.html">
+   MolMIM Inferencing for Generative Chemistry and Downstream Prediction
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="ZINC15-data-preprocessing.html">
+   ZINC Training Dataset Setup for small molecule language models
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="bionemo-finetuning-overview.html">
+   Finetune pre-trained models in BioNeMo
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="cma_es_guided_molecular_optimization_molmim.html">
+   MolMIM Property Guided Molecular Optimization Using CMA-ES
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="custom-dataset-class-fw.html">
+   Adding the OAS Dataset: Modifying the Dataset Class
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="custom-dataset-dataloader.html">
+   Adding the OAS Dataset: Customizing Dataset Object and Dataloader Functions
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="custom-dataset-preprocessing-fw.html">
+   Adding the OAS Dataset: Downloading and Preprocessing
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="encoder-finetuning-notebook-fw.html">
+   Encoder Fine-tuning
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="model_training_diffdock.html">
+   DiffDock Model Training using BioNeMo
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="model_training_equidock.html">
+   EquiDock Model Training using BioNeMo
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="model_training_esm1nv.html">
+   ESM1nv Model Training using BioNeMo
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="model_training_esm2nv.html">
+   ESM-2nv: Data Preprocessing and Model Training Using BioNeMo
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="model_training_mmb.html">
+   MegaMolBART Model Training using BioNeMo
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="model_training_molmim.html">
+   Train MolMIM from scratch on your own data using the BioNeMo Framework
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="physchem-notebook-fw.html">
+   Finetuning LLM in BioNeMo for a Downstream Task
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="protein-esm2nv-clustering.html">
+   Generating Embeddings for Protein Clustering
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="retrosynthesis-notebook.html">
+   Training LLM for a Custom Downstram Task: Retrosynthesis Prediction using MegaMolBART
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="esm2_FLIP_finetuning.html">
+   Fine-Tune ESM-2nv on FLIP Data for Sequence-Level Classification, Regression, Token-Level Classification, and with LoRA Adapters
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="esm2_oas_inferencing.html">
+   Performing inference on OAS sequences with ESM-2nv
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="esm2_paratope_finetuning.html">
+   Pretrain from Scratch, Continue Training from an Existing Checkpoint, and Fine-tune ESM-2nv on Custom Data
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="dnabert_inference.html">
+   Generating and visualizing embeddings with DNABert
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="dnabert_pretrain_finetune.html">
+   Pretrain, Fine-tune, and Perform Inference with DNABERT for Splice Site Prediction
+  </a>
+ </li>
+</ul>
+<p aria-level="2" class="caption" role="heading">
+ <span class="caption-text">
+  APPENDIX
+ </span>
+</p>
+<ul class="nav bd-sidenav">
+ <li class="toctree-l1">
+  <a class="reference internal" href="../faq-fw.html">
+   Frequently Asked Questions (FAQ)
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../bibliography-fw.html">
+   Bibliography
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../releasenotes-fw.html">
+   Release Notes
+  </a>
+ </li>
+</ul>
+
+    </div>
+</nav></div>
+        <div class="bd-sidebar__bottom">
+             <!-- To handle the deprecated key -->
+            
+        </div>
+    </div>
+    <div id="rtd-footer-container"></div>
+</div>
+
+
+          
+
+
+          
+<!-- A tiny helper pixel to detect if we've scrolled -->
+<div class="sbt-scroll-pixel-helper"></div>
+<!-- Main content -->
+<div class="col py-0 content-container">
+    
+    <div class="header-article row sticky-top noprint">
+        
+
+
+
+<div class="col py-1 d-flex header-article-main">
+    <div class="header-article__left">
+        
+        <label for="__navigation"
+  class="headerbtn"
+  data-toggle="tooltip"
+data-placement="right"
+title="Toggle navigation"
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fas fa-bars"></i>
+  </span>
+
+</label>
+
+        
+    </div>
+    <div class="header-article__right">
+<button onclick="toggleFullScreen()"
+  class="headerbtn"
+  data-toggle="tooltip"
+data-placement="bottom"
+title="Fullscreen mode"
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fas fa-expand"></i>
+  </span>
+
+</button>
+<label for="__page-toc"
+  class="headerbtn headerbtn-page-toc"
+  
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fas fa-list"></i>
+  </span>
+
+</label>
+
+    </div>
+</div>
+
+<!-- Table of contents -->
+<div class="col-md-3 bd-toc show noprint">
+    <div class="tocsection onthispage pt-5 pb-3">
+        <i class="fas fa-list"></i> Contents
+    </div>
+    <nav id="bd-toc-nav" aria-label="Page">
+        <ul class="visible nav section-nav flex-column">
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#setting-up-megamolbart">
+   Setting up MegaMolBART
+  </a>
+  <ul class="visible nav section-nav flex-column">
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#prerequisites">
+     Prerequisites:
+    </a>
+    <ul class="visible nav section-nav flex-column">
+     <li class="toc-h4 nav-item toc-entry">
+      <a class="reference internal nav-link" href="#downloading-pre-trained-models">
+       Downloading pre-trained models
+      </a>
+     </li>
+     <li class="toc-h4 nav-item toc-entry">
+      <a class="reference internal nav-link" href="#running-the-bionemo-container">
+       Running the BioNeMo container
+      </a>
+     </li>
+     <li class="toc-h4 nav-item toc-entry">
+      <a class="reference internal nav-link" href="#copy-this-code-and-input-files-into-jupyterlab">
+       Copy this code and input files into JupyterLab
+      </a>
+     </li>
+    </ul>
+   </li>
+  </ul>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#id1">
+   Setting up MegaMolBART
+  </a>
+  <ul class="visible nav section-nav flex-column">
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#id2">
+     Prerequisites:
+    </a>
+    <ul class="visible nav section-nav flex-column">
+     <li class="toc-h4 nav-item toc-entry">
+      <a class="reference internal nav-link" href="#id3">
+       Downloading pre-trained models
+      </a>
+     </li>
+     <li class="toc-h4 nav-item toc-entry">
+      <a class="reference internal nav-link" href="#id4">
+       Running the BioNeMo container
+      </a>
+     </li>
+     <li class="toc-h4 nav-item toc-entry">
+      <a class="reference internal nav-link" href="#id5">
+       Copy this code and input files into JupyterLab
+      </a>
+     </li>
+    </ul>
+   </li>
+  </ul>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#overview">
+   Overview
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#bionemo-megamolbart-inference-functions">
+   BioNeMo-MegaMolBART Inference Functions:
+  </a>
+  <ul class="visible nav section-nav flex-column">
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#setup-the-connection-to-the-inference-wrapper-and-providing-example-compounds">
+     Setup the connection to the inference wrapper and providing example compounds
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#going-from-smiles-to-hidden-state">
+     Going from SMILES to hidden state
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#smiles-to-embedding">
+     SMILES to Embedding
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#hidden-state-to-smiles">
+     Hidden state to SMILES
+    </a>
+   </li>
+  </ul>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#molecule-generation-chemical-space-exploration">
+   Molecule Generation / Chemical Space Exploration
+  </a>
+  <ul class="visible nav section-nav flex-column">
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#first-let-s-define-chem-sample-the-generation-function">
+     First, let’s define
+     <code class="docutils literal notranslate">
+      <span class="pre">
+       chem_sample
+      </span>
+     </code>
+     — the generation function
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#generating-analogous-small-molecules-and-visualizing-them">
+     Generating analogous small molecules and visualizing them
+    </a>
+   </li>
+  </ul>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#downstream-prediction-model-using-learned-embeddings-from-pre-trained-model">
+   Downstream Prediction Model using Learned Embeddings from Pre-trained Model
+  </a>
+  <ul class="visible nav section-nav flex-column">
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#example-compound-water-solubility-esol-prediction">
+     Example: Compound Water Solubility (ESOL) Prediction
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#preprocessing-dataset-using-cudf">
+     Preprocessing dataset using cuDF
+    </a>
+    <ul class="visible nav section-nav flex-column">
+     <li class="toc-h4 nav-item toc-entry">
+      <a class="reference internal nav-link" href="#obtaining-the-embeddings-using-seqs-to-embedding">
+       Obtaining the embeddings using
+       <strong>
+        <code class="docutils literal notranslate">
+         <span class="pre">
+          seqs_to_embedding
+         </span>
+        </code>
+       </strong>
+      </a>
+     </li>
+     <li class="toc-h4 nav-item toc-entry">
+      <a class="reference internal nav-link" href="#obtaining-the-morgan-fingerprints-using-rd-kit-functionalities">
+       Obtaining the
+       <em>
+        Morgan Fingerprints
+       </em>
+       using RD-Kit functionalities
+      </a>
+     </li>
+    </ul>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#generating-ml-models-using-cuml">
+     Generating ML models using cuML
+    </a>
+   </li>
+  </ul>
+ </li>
+</ul>
+
+    </nav>
+</div>
+    </div>
+    <div class="article row">
+        <div class="col pl-md-3 pl-lg-5 content-container">
+            <!-- Table of contents that is only displayed when printing the page -->
+            <div id="jb-print-docs-body" class="onlyprint">
+                <h1>BioNeMo - MegaMolBART Inferencing for Generative Chemistry</h1>
+                <!-- Table of contents -->
+                <div id="print-main-content">
+                    <div id="jb-print-toc">
+                        
+                        <div>
+                            <h2> Contents </h2>
+                        </div>
+                        <nav aria-label="Page">
+                            <ul class="visible nav section-nav flex-column">
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#setting-up-megamolbart">
+   Setting up MegaMolBART
+  </a>
+  <ul class="visible nav section-nav flex-column">
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#prerequisites">
+     Prerequisites:
+    </a>
+    <ul class="visible nav section-nav flex-column">
+     <li class="toc-h4 nav-item toc-entry">
+      <a class="reference internal nav-link" href="#downloading-pre-trained-models">
+       Downloading pre-trained models
+      </a>
+     </li>
+     <li class="toc-h4 nav-item toc-entry">
+      <a class="reference internal nav-link" href="#running-the-bionemo-container">
+       Running the BioNeMo container
+      </a>
+     </li>
+     <li class="toc-h4 nav-item toc-entry">
+      <a class="reference internal nav-link" href="#copy-this-code-and-input-files-into-jupyterlab">
+       Copy this code and input files into JupyterLab
+      </a>
+     </li>
+    </ul>
+   </li>
+  </ul>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#id1">
+   Setting up MegaMolBART
+  </a>
+  <ul class="visible nav section-nav flex-column">
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#id2">
+     Prerequisites:
+    </a>
+    <ul class="visible nav section-nav flex-column">
+     <li class="toc-h4 nav-item toc-entry">
+      <a class="reference internal nav-link" href="#id3">
+       Downloading pre-trained models
+      </a>
+     </li>
+     <li class="toc-h4 nav-item toc-entry">
+      <a class="reference internal nav-link" href="#id4">
+       Running the BioNeMo container
+      </a>
+     </li>
+     <li class="toc-h4 nav-item toc-entry">
+      <a class="reference internal nav-link" href="#id5">
+       Copy this code and input files into JupyterLab
+      </a>
+     </li>
+    </ul>
+   </li>
+  </ul>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#overview">
+   Overview
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#bionemo-megamolbart-inference-functions">
+   BioNeMo-MegaMolBART Inference Functions:
+  </a>
+  <ul class="visible nav section-nav flex-column">
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#setup-the-connection-to-the-inference-wrapper-and-providing-example-compounds">
+     Setup the connection to the inference wrapper and providing example compounds
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#going-from-smiles-to-hidden-state">
+     Going from SMILES to hidden state
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#smiles-to-embedding">
+     SMILES to Embedding
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#hidden-state-to-smiles">
+     Hidden state to SMILES
+    </a>
+   </li>
+  </ul>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#molecule-generation-chemical-space-exploration">
+   Molecule Generation / Chemical Space Exploration
+  </a>
+  <ul class="visible nav section-nav flex-column">
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#first-let-s-define-chem-sample-the-generation-function">
+     First, let’s define
+     <code class="docutils literal notranslate">
+      <span class="pre">
+       chem_sample
+      </span>
+     </code>
+     — the generation function
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#generating-analogous-small-molecules-and-visualizing-them">
+     Generating analogous small molecules and visualizing them
+    </a>
+   </li>
+  </ul>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#downstream-prediction-model-using-learned-embeddings-from-pre-trained-model">
+   Downstream Prediction Model using Learned Embeddings from Pre-trained Model
+  </a>
+  <ul class="visible nav section-nav flex-column">
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#example-compound-water-solubility-esol-prediction">
+     Example: Compound Water Solubility (ESOL) Prediction
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#preprocessing-dataset-using-cudf">
+     Preprocessing dataset using cuDF
+    </a>
+    <ul class="visible nav section-nav flex-column">
+     <li class="toc-h4 nav-item toc-entry">
+      <a class="reference internal nav-link" href="#obtaining-the-embeddings-using-seqs-to-embedding">
+       Obtaining the embeddings using
+       <strong>
+        <code class="docutils literal notranslate">
+         <span class="pre">
+          seqs_to_embedding
+         </span>
+        </code>
+       </strong>
+      </a>
+     </li>
+     <li class="toc-h4 nav-item toc-entry">
+      <a class="reference internal nav-link" href="#obtaining-the-morgan-fingerprints-using-rd-kit-functionalities">
+       Obtaining the
+       <em>
+        Morgan Fingerprints
+       </em>
+       using RD-Kit functionalities
+      </a>
+     </li>
+    </ul>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#generating-ml-models-using-cuml">
+     Generating ML models using cuML
+    </a>
+   </li>
+  </ul>
+ </li>
+</ul>
+
+                        </nav>
+                    </div>
+                </div>
+            </div>
+            <main id="main-content" role="main">
+                
+              <div>
+                 <div class="tex2jax_ignore mathjax_ignore section" id="bionemo-megamolbart-inferencing-for-generative-chemistry">
+<h1>BioNeMo - MegaMolBART Inferencing for Generative Chemistry<a class="headerlink" href="#bionemo-megamolbart-inferencing-for-generative-chemistry" title="Permalink to this headline">#</a></h1>
+<p>This tutorial showcases how to run a container for with a pre-trained MegaMolBART model, and using it for inferencing and generative chemistry related tasks. At the end of this tutorial, a user will learn</p>
+<ul class="simple">
+<li><p>launching the BioNeMo container for MegaMolBART inferencing</p></li>
+<li><p>various functionalities provided in BioNeMo for obtaining chemical embeddings</p></li>
+<li><p>use the learned representations for generative AI and downstream predictive modeling tasks</p></li>
+</ul>
+<p><a id='contents'></a></p>
+<div class="section" id="setting-up-megamolbart">
+<h2>Setting up MegaMolBART<a class="headerlink" href="#setting-up-megamolbart" title="Permalink to this headline">#</a></h2>
+<div class="section" id="prerequisites">
+<h3>Prerequisites:<a class="headerlink" href="#prerequisites" title="Permalink to this headline">#</a></h3>
+<ul class="simple">
+<li><p>BioNeMo Framework container is running (refer to the <a class="reference internal" href="../index.html"><span class="doc std std-doc">Getting Started</span></a> section)</p></li>
+<li><p>Familiarity with some components of the BioNeMo framework such as the <a class="reference internal" href="../models/megamolbart.html"><span class="doc std std-doc">Models</span></a> and <span class="xref myst">Inferencing</span></p></li>
+</ul>
+<div class="section" id="downloading-pre-trained-models">
+<h4>Downloading pre-trained models<a class="headerlink" href="#downloading-pre-trained-models" title="Permalink to this headline">#</a></h4>
+<p>This example requires a MegaMolBART pre-trained model, which the user can download and mount the directory containing the model while launching the container, as described below.</p>
+<p>The basic building blocks are already implemented in the BioNeMo Framework. It comes with a set of scripts that make it easier to download pre-trained models from NVIDIA NGC. As of the pre-release version (13 JUN 2023), we have the following models available.
+- Molecule/MegaMolBART
+- Protein/ESM-1nv
+- Protein/ProtT5nv</p>
+<p>Once the container has been successfully pulled and the <code class="docutils literal notranslate"><span class="pre">.env</span></code> file configured correctly, download the pre-trained models with <strong><code class="docutils literal notranslate"><span class="pre">bash</span> <span class="pre">launch.sh</span> <span class="pre">download</span></code></strong> in the BioNeMo directory</p>
+<p>For example, we can see MegaMolBart being download from <strong><code class="docutils literal notranslate"><span class="pre">https://api.ngc.nvidia.com/v2/models/nvidia/clara/megamolbart_0_2/versions/0.2.0/zip</span></code></strong></p>
+<p>Once execution is complete, you will see files with the <code class="docutils literal notranslate"><span class="pre">.nemo</span></code> extension within the folder specified in the <code class="docutils literal notranslate"><span class="pre">DOCKER_MODELS_PATH</span></code> configuration of your <code class="docutils literal notranslate"><span class="pre">.env</span></code> file.</p>
+</div>
+<div class="section" id="running-the-bionemo-container">
+<h4>Running the BioNeMo container<a class="headerlink" href="#running-the-bionemo-container" title="Permalink to this headline">#</a></h4>
+<p>This example has been built by launching the container in a local machine with 2 x A6000 RTX GPUs. Refer to specific instructions for [remote and multi-node launch]</p>
+<p><strong><code class="docutils literal notranslate"><span class="pre">docker</span> <span class="pre">run</span> <span class="pre">-it</span> <span class="pre">-p</span> <span class="pre">8888:8888</span> <span class="pre">--gpus</span> <span class="pre">all</span> <span class="pre">-v</span> <span class="pre">&lt;model_directory&gt;:&lt;/model&gt;</span> <span class="pre">&lt;BioNeMo_Image_Link&gt;</span> <span class="pre">&lt;model&gt;</span></code></strong></p>
+<p>We ran the following command to initiate the container to run MegaMolBART model on BioNeMo:</p>
+<p>In the command below, update the <code class="docutils literal notranslate"><span class="pre">nvcr.io</span></code> with the correct BioNeMo NGC container link.</p>
+<p><strong><code class="docutils literal notranslate"><span class="pre">docker</span> <span class="pre">run</span> <span class="pre">-it</span> <span class="pre">-p</span> <span class="pre">8888:8888</span> <span class="pre">--gpus</span> <span class="pre">all</span> <span class="pre">-v</span> <span class="pre">~/path/to/downloaded/model:/model</span> <span class="pre">{nvcr.io}</span> <span class="pre">megamolbart</span></code></strong></p>
+<p>Once the container is launched, navigate to http://0.0.0.0:8888, http://localhost:8888, or the IP address of the workstation/node. A JupyterLab instance should show up.</p>
+</div>
+<div class="section" id="copy-this-code-and-input-files-into-jupyterlab">
+<h4>Copy this code and input files into JupyterLab<a class="headerlink" href="#copy-this-code-and-input-files-into-jupyterlab" title="Permalink to this headline">#</a></h4>
+<p>In the launched JupyterLab, run the codes in a Jupyter notebook as provided in the code cells below, and copy the <a class="reference download internal" download="" href="../_downloads/b2609e27c3b12c8110ad0e54919f6be6/benchmark_MoleculeNet_ESOL.csv"><span class="xref download myst"><code class="docutils literal notranslate"><span class="pre">benchmark_MoleculeNet_ESOL.csv</span></code></span></a> to the Jupyter-Lab working directory.</p>
+<p><a id='contents'></a></p>
+</div>
+</div>
+</div>
+<div class="section" id="id1">
+<h2>Setting up MegaMolBART<a class="headerlink" href="#id1" title="Permalink to this headline">#</a></h2>
+<div class="section" id="id2">
+<h3>Prerequisites:<a class="headerlink" href="#id2" title="Permalink to this headline">#</a></h3>
+<ul class="simple">
+<li><p>BioNeMo Framework container is running (refer to the <a class="reference internal" href="../index.html"><span class="doc std std-doc">Getting Started</span></a> section)</p></li>
+<li><p>Familiarity with some components of the BioNeMo framework such as the <a class="reference internal" href="../models/megamolbart.html"><span class="doc std std-doc">Models</span></a> and <span class="xref myst">Inferencing</span></p></li>
+</ul>
+<div class="section" id="id3">
+<h4>Downloading pre-trained models<a class="headerlink" href="#id3" title="Permalink to this headline">#</a></h4>
+<p>This example requires a MegaMolBART pre-trained model, which the user can download and mount the directory containing the model while launching the container, as described below.</p>
+<p>The basic building blocks are already implemented in the BioNeMo Framework. It comes with a set of scripts that make it easier to download pre-trained models from NVIDIA NGC. As of the pre-release version (13 JUN 2023), we have the following models available.
+- Molecule/MegaMolBART
+- Protein/ESM-1nv
+- Protein/ProtT5nv</p>
+<p>Once the container has been successfully pulled and the <code class="docutils literal notranslate"><span class="pre">.env</span></code> file configured correctly, download the pre-trained models with <strong><code class="docutils literal notranslate"><span class="pre">bash</span> <span class="pre">launch.sh</span> <span class="pre">download</span></code></strong> in the BioNeMo directory</p>
+<p>For example, we can see MegaMolBart being download from <strong><code class="docutils literal notranslate"><span class="pre">https://api.ngc.nvidia.com/v2/models/nvidia/clara/megamolbart_0_2/versions/0.2.0/zip</span></code></strong></p>
+<p>Once execution is complete, you will see files with the <code class="docutils literal notranslate"><span class="pre">.nemo</span></code> extension within the folder specified in the <code class="docutils literal notranslate"><span class="pre">DOCKER_MODELS_PATH</span></code> configuration of your <code class="docutils literal notranslate"><span class="pre">.env</span></code> file.</p>
+</div>
+<div class="section" id="id4">
+<h4>Running the BioNeMo container<a class="headerlink" href="#id4" title="Permalink to this headline">#</a></h4>
+<p>This example has been built by launching the container in a local machine with 2 x A6000 RTX GPUs. Refer to specific instructions for [remote and multi-node launch]</p>
+<p><strong><code class="docutils literal notranslate"><span class="pre">docker</span> <span class="pre">run</span> <span class="pre">-it</span> <span class="pre">-p</span> <span class="pre">8888:8888</span> <span class="pre">--gpus</span> <span class="pre">all</span> <span class="pre">-v</span> <span class="pre">&lt;model_directory&gt;:&lt;/model&gt;</span> <span class="pre">&lt;BioNeMo_Image_Link&gt;</span> <span class="pre">&lt;model&gt;</span></code></strong></p>
+<p>We ran the following command to initiate the container to run MegaMolBART model on BioNeMo:</p>
+<p>In the command below, update the <code class="docutils literal notranslate"><span class="pre">nvcr.io</span></code> with the correct BioNeMo NGC container link.</p>
+<p><strong><code class="docutils literal notranslate"><span class="pre">docker</span> <span class="pre">run</span> <span class="pre">-it</span> <span class="pre">-p</span> <span class="pre">8888:8888</span> <span class="pre">--gpus</span> <span class="pre">all</span> <span class="pre">-v</span> <span class="pre">~/path/to/downloaded/model:/model</span> <span class="pre">{nvcr.io}</span> <span class="pre">megamolbart</span></code></strong></p>
+<p>Once the container is launched, navigate to http://0.0.0.0:8888, http://localhost:8888, or the IP address of the workstation/node. A JupyterLab instance should show up.</p>
+</div>
+<div class="section" id="id5">
+<h4>Copy this code and input files into JupyterLab<a class="headerlink" href="#id5" title="Permalink to this headline">#</a></h4>
+<p>In the launched JupyterLab, run the codes in a Jupyter notebook as provided in the code cells below, and copy the <a class="reference download internal" download="" href="../_downloads/b2609e27c3b12c8110ad0e54919f6be6/benchmark_MoleculeNet_ESOL.csv"><span class="xref download myst"><code class="docutils literal notranslate"><span class="pre">benchmark_MoleculeNet_ESOL.csv</span></code></span></a> to the Jupyter-Lab working directory.</p>
+<hr class="docutils" />
+<p><a id='contents'></a></p>
+</div>
+</div>
+</div>
+<div class="section" id="overview">
+<h2>Overview<a class="headerlink" href="#overview" title="Permalink to this headline">#</a></h2>
+<p>This walk-through will cover the following aspects of BioNeMo-MegaMolBART. For more details, visit the <a class="reference external" href="https://www.nvidia.com/en-us/clara/drug-discovery/">BioNeMo-MegaMolBART on NVIDIA Clara Discovery</a>.</p>
+<p><a href='#section1'> <strong>BioNeMo-MegaMolBART Inference Functions</strong></a>:</p>
+<ul class="simple">
+<li><p>In this section, we will explore the key inference functionalities of the pre-trained model accessible through the <strong><code class="docutils literal notranslate"><span class="pre">InferenceWrapper</span></code></strong>.</p></li>
+</ul>
+<p>It includes functions to obtain latent space representations  <strong><code class="docutils literal notranslate"><span class="pre">seqs_to_hidden</span></code></strong>, embeddings <strong><code class="docutils literal notranslate"><span class="pre">seqs_to_embedding</span></code></strong> using input SMILES, as well as obtaining SMILES from latent space representations <strong><code class="docutils literal notranslate"><span class="pre">hidden_to_seqs</span></code></strong>.
+<br><br><br></p>
+<p><a href='#section2'> <strong>Molecule Generation / Chemical Space Exploration</strong></a>:</p>
+<ul class="simple">
+<li><p>Here, we will explore the chemical space around input query compound, and generate related compounds.</p></li>
+</ul>
+<p><br><br>
+<img alt="mmb_1" src="../_images/MMB_molecule_generation_1.png" />
+<br><br><br></p>
+<p><a href='#section3'> <strong>Using Embeddings for Predictive Modeling</strong></a>:</p>
+<ul class="simple">
+<li><p>Finally, we will use the embeddings obtained from the BioNeMo-MegaMolBART for a chemical dataset and use these embeddings as features to create a machine learning model to predict properties of the compounds. To evaluate the quality of these embeddings, we will also obtain Morgan Fingerprints to create a comparable prediction model.</p></li>
+</ul>
+<p><br><br><br>
+<img alt="mmb_1" src="../_images/MMB_molecule_generation_2.png" />
+<br><br><br></p>
+<hr class="docutils" />
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>The following cells containing python code snippets can be directly copied and executed into a Python environment such as a Jupyter notebook running in a BioNemo container.</p>
+</div>
+<p><em><strong>Importing required libraries</strong></em></p>
+<p>In the following cell, we are importing the libraries required for running the intended tasks for this tutorial.</p>
+<p>It includes open-source CUDA accelarated data science and machiene learning libraries such as cuML, cuDF, cuPY. For more information, check out <a class="reference external" href="https://rapids.ai/">NVIDIA RAPIDS</a>.</p>
+<p><a class="reference external" href="https://github.com/rapidsai/cudf">cuDF</a> provides a pandas-like API that will be familiar to data engineers &amp; data scientists, so they can use it to easily accelerate their workflows without going into the details of CUDA programming. Similarly, <a class="reference external" href="https://github.com/rapidsai/cuml">cuML</a> enables data scientists, researchers, and software engineers to run traditional tabular ML tasks on GPUs. In most cases, cuML’s Python API matches the API from scikit-learn.</p>
+<p>Additionally, we will be using RD-Kit package, which is an open-source cheminformatics package (https://www.rdkit.org/).</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Importing required libraries from RAPIDS, Pandas and NumPy packages</span>
+<span class="kn">from</span> <span class="nn">infer</span> <span class="kn">import</span> <span class="n">InferenceWrapper</span>
+<span class="kn">import</span> <span class="nn">cuml</span>
+<span class="kn">import</span> <span class="nn">cudf</span>
+<span class="kn">import</span> <span class="nn">cupy</span> <span class="k">as</span> <span class="nn">cp</span>
+<span class="kn">from</span> <span class="nn">cuml</span> <span class="kn">import</span> <span class="n">LinearRegression</span>
+<span class="kn">from</span> <span class="nn">cuml.svm</span> <span class="kn">import</span> <span class="n">SVR</span>
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+<span class="kn">import</span> <span class="nn">pickle</span>
+<span class="kn">import</span> <span class="nn">logging</span>
+<span class="kn">import</span> <span class="nn">warnings</span>
+<span class="n">warnings</span><span class="o">.</span><span class="n">filterwarnings</span><span class="p">(</span><span class="s1">&#39;ignore&#39;</span><span class="p">)</span>
+<span class="n">warnings</span><span class="o">.</span><span class="n">simplefilter</span><span class="p">(</span><span class="s1">&#39;ignore&#39;</span><span class="p">)</span>
+
+<span class="c1"># Importing libraries from RD-Kit for handling and manipulating chemical data</span>
+<span class="kn">from</span> <span class="nn">rdkit</span> <span class="kn">import</span> <span class="n">Chem</span>
+<span class="kn">from</span> <span class="nn">rdkit.Chem</span> <span class="kn">import</span> <span class="n">AllChem</span><span class="p">,</span> <span class="n">Draw</span>
+<span class="kn">from</span> <span class="nn">rdkit.Chem.Draw</span> <span class="kn">import</span> <span class="n">IPythonConsole</span>
+<span class="kn">from</span> <span class="nn">rdkit.Chem</span> <span class="kn">import</span> <span class="n">PandasTools</span>
+<span class="kn">from</span> <span class="nn">rdkit.Chem</span> <span class="kn">import</span> <span class="n">rdFingerprintGenerator</span>
+<span class="kn">from</span> <span class="nn">rdkit.Chem.Fingerprints</span> <span class="kn">import</span> <span class="n">FingerprintMols</span>
+<span class="kn">from</span> <span class="nn">rdkit</span> <span class="kn">import</span> <span class="n">RDLogger</span>
+<span class="n">RDLogger</span><span class="o">.</span><span class="n">DisableLog</span><span class="p">(</span><span class="s1">&#39;rdApp.*&#39;</span><span class="p">)</span>
+<span class="n">IPythonConsole</span><span class="o">.</span><span class="n">molSize</span><span class="o">=</span><span class="mi">250</span><span class="p">,</span><span class="mi">250</span>
+</pre></div>
+</div>
+</div>
+</div>
+<p><a id='section1'></a></p>
+</div>
+<div class="section" id="bionemo-megamolbart-inference-functions">
+<h2>BioNeMo-MegaMolBART Inference Functions:<a class="headerlink" href="#bionemo-megamolbart-inference-functions" title="Permalink to this headline">#</a></h2>
+<div class="section" id="setup-the-connection-to-the-inference-wrapper-and-providing-example-compounds">
+<h3>Setup the connection to the inference wrapper and providing example compounds<a class="headerlink" href="#setup-the-connection-to-the-inference-wrapper-and-providing-example-compounds" title="Permalink to this headline">#</a></h3>
+<p>In this cell, we are making a connection to the <strong><code class="docutils literal notranslate"><span class="pre">InferenceWrapper</span></code></strong> and accessing the inferencing functions in the following cell.</p>
+<p><strong><code class="docutils literal notranslate"><span class="pre">InferenceWrapper</span></code></strong> is an adaptor that allows interaction with the inference service of BioNeMo_MegaMolBART pre-trained model.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Making a connection to the InferenceWrapper </span>
+<span class="n">connection</span> <span class="o">=</span> <span class="n">InferenceWrapper</span><span class="p">()</span>
+
+<span class="c1"># Here, we are taking two example SMILES for two widely used Antimalarial drugs -- Mefloquine and Hydroxychloroquine</span>
+<span class="n">smis</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;OC(c1cc(C(F)(F)F)nc2c(C(F)(F)F)cccc12)C1CCCCN1&#39;</span><span class="p">,</span>     
+        <span class="s1">&#39;CCN(CCO)CCCC(C)Nc1ccnc2cc(Cl)ccc12&#39;</span><span class="p">]</span> 
+
+<span class="c1"># Let us draw these two drugs and see how their 2-D structure looks like, using RD-Kit&#39;s functionalities</span>
+<span class="n">m1</span> <span class="o">=</span> <span class="n">Chem</span><span class="o">.</span><span class="n">MolFromSmiles</span><span class="p">(</span><span class="n">smis</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+<span class="n">m2</span> <span class="o">=</span> <span class="n">Chem</span><span class="o">.</span><span class="n">MolFromSmiles</span><span class="p">(</span><span class="n">smis</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+<span class="n">Draw</span><span class="o">.</span><span class="n">MolsToGridImage</span><span class="p">((</span><span class="n">m1</span><span class="p">,</span><span class="n">m2</span><span class="p">),</span> <span class="n">legends</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;Mefloquine&quot;</span><span class="p">,</span><span class="s2">&quot;Hydroxychloroquine&quot;</span><span class="p">],</span> <span class="n">subImgSize</span><span class="o">=</span><span class="p">(</span><span class="mi">300</span><span class="p">,</span><span class="mi">200</span><span class="p">))</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<img alt="../_images/f97e1e478ade92308c198a50a37d808249440f980b51a8e21629ffd39c5c1133.png" src="../_images/f97e1e478ade92308c198a50a37d808249440f980b51a8e21629ffd39c5c1133.png" />
+</div>
+</div>
+</div>
+<div class="section" id="going-from-smiles-to-hidden-state">
+<h3>Going from SMILES to hidden state<a class="headerlink" href="#going-from-smiles-to-hidden-state" title="Permalink to this headline">#</a></h3>
+<p>The <strong><code class="docutils literal notranslate"><span class="pre">seqs_to_hidden</span></code></strong> functionality, accessible through the <strong><code class="docutils literal notranslate"><span class="pre">InferenceWrapper</span></code></strong>, queries the model to fetch the latent space representation of the SMILES.
+<br> <br>  A high level conceptual depiction below shows the process of obtaining the hidden states. <br><br>
+<img alt="mmb_3" src="../_images/MMB_molecule_generation_3.png" /></p>
+<p>Now that we looked at how the two example drug structures look in 2D, let’s use the pre-trained BioNeMo-MegaMolBART model to obtain their hidden state representations.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># obraining the hidden state representations for input SMILES</span>
+<span class="n">hidden_states</span><span class="p">,</span> <span class="n">pad_masks</span> <span class="o">=</span> <span class="n">connection</span><span class="o">.</span><span class="n">seqs_to_hidden</span><span class="p">(</span><span class="n">smis</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+<p>and let’s look at the shape of the hidden state representations</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">hidden_states</span><span class="o">.</span><span class="n">shape</span><span class="p">,</span> <span class="n">pad_masks</span><span class="o">.</span><span class="n">shape</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>(torch.Size([2, 46, 512]), torch.Size([2, 46]))
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+<div class="section" id="smiles-to-embedding">
+<h3>SMILES to Embedding<a class="headerlink" href="#smiles-to-embedding" title="Permalink to this headline">#</a></h3>
+<p>Here, the <strong><code class="docutils literal notranslate"><span class="pre">seqs_to_embedding</span></code></strong> function queries the model to fetch the encoder embedding for the input SMILES.</p>
+<p><img alt="mmb_4" src="../_images/MMB_molecule_generation_4.png" /></p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Similarly, let&#39;s obtain the learned embeddings for these two compounds.</span>
+<span class="n">embedding</span> <span class="o">=</span> <span class="n">connection</span><span class="o">.</span><span class="n">seqs_to_embedding</span><span class="p">(</span><span class="n">smis</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+<br>
+<p>Let’s check the shapes of obtained embeddings</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">embedding</span><span class="o">.</span><span class="n">shape</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>torch.Size([2, 512])
+</pre></div>
+</div>
+</div>
+</div>
+<p><br> Looking at the shape of the embeddings, do you recognize the difference between embeddings and the hidden state dimensions?
+<br><br>Why is this difference?</p>
+</div>
+<div class="section" id="hidden-state-to-smiles">
+<h3>Hidden state to SMILES<a class="headerlink" href="#hidden-state-to-smiles" title="Permalink to this headline">#</a></h3>
+<p>In order to obtain SMILES from the latent space chemical representation, the <strong><code class="docutils literal notranslate"><span class="pre">hidden_to_seqs</span></code></strong> is used for decoding the latent space representation (here, <em>hidden state</em>) back to SMILES.
+<br></p>
+<p><img alt="mmb_5" src="../_images/MMB_molecule_generation_5.png" /></p>
+<p>In this cell, we will obtain SMILES chemical representation from a hidden state for the two example compounds.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Obtaining SMILES chemical representation from a hidden state using the hidden_to_seqs function </span>
+<span class="n">inferred_smis</span> <span class="o">=</span> <span class="n">connection</span><span class="o">.</span><span class="n">hidden_to_seqs</span><span class="p">(</span><span class="n">hidden_states</span><span class="p">,</span> <span class="n">pad_masks</span><span class="p">)</span>
+
+<span class="c1"># let&#39;s look at the inferred SMILES</span>
+<span class="n">inferred_smis</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>[&#39;c1ccc2c(C(C3CCCCN3)O)cc(C(F)(F)F)nc2c1C(F)(F)F&#39;, &#39;C(CCC(C)Nc1ccnc2cc(Cl)ccc21)N(CC)CCO&#39;]
+</pre></div>
+</div>
+</div>
+</div>
+<br>
+Let's visualize these two inferred SMILES using RD-Kit functionalities<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># First converting inferred SMILES to Mol object using RD-Kit</span>
+<span class="n">inf_1</span> <span class="o">=</span> <span class="n">Chem</span><span class="o">.</span><span class="n">MolFromSmiles</span><span class="p">(</span><span class="n">inferred_smis</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+<span class="n">inf_2</span> <span class="o">=</span> <span class="n">Chem</span><span class="o">.</span><span class="n">MolFromSmiles</span><span class="p">(</span><span class="n">inferred_smis</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+
+<span class="c1"># ...followed by drawing them as 2-D structures</span>
+<span class="n">Draw</span><span class="o">.</span><span class="n">MolsToGridImage</span><span class="p">((</span><span class="n">inf_1</span><span class="p">,</span><span class="n">inf_2</span><span class="p">),</span><span class="n">legends</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;inferred compound 1&quot;</span><span class="p">,</span><span class="s2">&quot;inferred compound 2&quot;</span><span class="p">],</span> <span class="n">subImgSize</span><span class="o">=</span><span class="p">(</span><span class="mi">350</span><span class="p">,</span><span class="mi">350</span><span class="p">))</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<img alt="../_images/f03e366c2111f21ad861fbfdf4871a0a03fae5749581cc7d2e25e23eef8f3f68.png" src="../_images/f03e366c2111f21ad861fbfdf4871a0a03fae5749581cc7d2e25e23eef8f3f68.png" />
+</div>
+</div>
+<p><br><br><br>
+Comparing these inferred compounds to the original input - they are the same compounds! In the next section, you will learn how to generate different compounds from the input.
+<br><br>
+<strong>This concludes the first objective of evaluating the inference functionalities of BioNeMo_MegaMolBART.</strong></p>
+<p><a href='#contents'> <strong>[Go to the top]</strong></a></p>
+<p><a id='section2'></a></p>
+</div>
+</div>
+<div class="section" id="molecule-generation-chemical-space-exploration">
+<h2>Molecule Generation / Chemical Space Exploration<a class="headerlink" href="#molecule-generation-chemical-space-exploration" title="Permalink to this headline">#</a></h2>
+<p>In this section, we will use the pre-trained BioNeMo-MegaMolBART model for generating designs of novel small-molecules which are analogous to the query compound(s).</p>
+<p>First, we will obtain the hidden state representation for the query compounds using the <strong><code class="docutils literal notranslate"><span class="pre">seqs_to_hidden</span></code></strong> functionality (as also described in the previous section).</p>
+<p>Once the hidden state(s) are obtained, we will use the function <strong><code class="docutils literal notranslate"><span class="pre">chem_sample</span></code></strong>, as defined below, to manipulate the hidden states, followed by decoding those to generate new chemical designs.</p>
+<p><br><br>
+<img alt="mmb_1" src="../_images/MMB_molecule_generation_1.png" />
+<br><br><br></p>
+<div class="section" id="first-let-s-define-chem-sample-the-generation-function">
+<h3>First, let’s define <code class="docutils literal notranslate"><span class="pre">chem_sample</span></code> — the generation function<a class="headerlink" href="#first-let-s-define-chem-sample-the-generation-function" title="Permalink to this headline">#</a></h3>
+<p>The function takes query SMILES as an input, and returns valid and unique set of generated SMILES.</p>
+<p><strong><code class="docutils literal notranslate"><span class="pre">chem_sample</span></code></strong> function has two main components.</p>
+<ol class="arabic simple">
+<li><p>Obtaining the hidden state representation for the input SMILES, followed by perturbing the copies of hidden states, and decoding those perturbed hidden states to obtain new SMILES.</p></li>
+<li><p>Using the RD-Kit functionalities, check the uniqueness of the generated SMILES set, and retain those that are valid expressions.</p></li>
+</ol>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Importing PyTorch library (for more details: https://pytorch.org/)</span>
+<span class="kn">import</span> <span class="nn">torch</span>
+
+<span class="c1"># Defining the chemical sampling/generation function</span>
+<span class="k">def</span> <span class="nf">chem_sample</span><span class="p">(</span><span class="n">smis</span><span class="p">):</span>
+    
+    <span class="n">num_samples</span> <span class="o">=</span> <span class="mi">20</span>       <span class="c1"># Maximum number of generated molecules per query compound</span>
+    <span class="n">scaled_radius</span> <span class="o">=</span> <span class="mf">0.7</span>    <span class="c1"># Radius of exploration [range: 0.0 - 1.0] --- the extent of perturbation of the original hidden state for sampling</span>
+    <span class="n">hidden_states</span><span class="p">,</span> <span class="n">enc_masks</span> <span class="o">=</span> <span class="n">connection</span><span class="o">.</span><span class="n">seqs_to_hidden</span><span class="p">(</span><span class="n">smis</span><span class="p">)</span>    <span class="c1"># Obtaining the hidden state representation(s) for input SMILES</span>
+    <span class="n">sample_masks</span> <span class="o">=</span> <span class="n">enc_masks</span><span class="o">.</span><span class="n">repeat_interleave</span><span class="p">(</span><span class="n">num_samples</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>    <span class="c1"># This and following lines are perturbing the hidden state to obtain analogous compounds</span>
+    <span class="n">perturbed_hiddens</span> <span class="o">=</span> <span class="n">hidden_states</span><span class="o">.</span><span class="n">repeat_interleave</span><span class="p">(</span><span class="n">num_samples</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+    <span class="n">perturbed_hiddens</span> <span class="o">=</span> <span class="n">perturbed_hiddens</span> <span class="o">+</span> <span class="p">(</span><span class="n">scaled_radius</span> <span class="o">*</span> <span class="n">torch</span><span class="o">.</span><span class="n">randn</span><span class="p">(</span><span class="n">perturbed_hiddens</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">perturbed_hiddens</span><span class="o">.</span><span class="n">device</span><span class="p">))</span>
+    <span class="n">samples</span> <span class="o">=</span> <span class="n">connection</span><span class="o">.</span><span class="n">hidden_to_seqs</span><span class="p">(</span><span class="n">perturbed_hiddens</span><span class="p">,</span> <span class="n">sample_masks</span><span class="p">)</span>
+    
+    <span class="c1"># In this code block, we are doing some checks for the validity of the generated SMILES and for de-duplication of the set,</span>
+    <span class="c1">#    returning only valid and unique SMILES</span>
+    <span class="n">samples</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">samples</span><span class="p">)</span>
+    <span class="n">valid_molecules</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">smi</span> <span class="ow">in</span> <span class="nb">set</span><span class="p">(</span><span class="n">samples</span><span class="p">):</span>
+        <span class="n">isvalid</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="n">mol</span> <span class="o">=</span> <span class="n">Chem</span><span class="o">.</span><span class="n">MolFromSmiles</span><span class="p">(</span><span class="n">smi</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">mol</span><span class="p">:</span>
+            <span class="n">isvalid</span> <span class="o">=</span> <span class="kc">True</span>
+            <span class="n">valid_molecules</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">smi</span><span class="p">)</span>
+    <span class="n">uniq_canonical_smiles</span> <span class="o">=</span> <span class="p">[</span><span class="n">Chem</span><span class="o">.</span><span class="n">MolToSmiles</span><span class="p">(</span><span class="n">Chem</span><span class="o">.</span><span class="n">MolFromSmiles</span><span class="p">(</span><span class="n">smi</span><span class="p">),</span><span class="kc">True</span><span class="p">)</span> <span class="k">for</span> <span class="n">smi</span> <span class="ow">in</span> <span class="n">valid_molecules</span><span class="p">]</span>
+    
+    <span class="k">return</span> <span class="n">uniq_canonical_smiles</span>
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+<div class="section" id="generating-analogous-small-molecules-and-visualizing-them">
+<h3>Generating analogous small molecules and visualizing them<a class="headerlink" href="#generating-analogous-small-molecules-and-visualizing-them" title="Permalink to this headline">#</a></h3>
+<p>In this step, we will use the same two example drug molecules – Mefloquine and Hydroxychloroquine – for generating new analogues.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># The example SMILES for two widely used Antimalarial drugs -- Mefloquine and Hydroxychloroquine</span>
+<span class="n">smis</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;OC(c1cc(C(F)(F)F)nc2c(C(F)(F)F)cccc12)C1CCCCN1&#39;</span><span class="p">,</span>     
+        <span class="s1">&#39;CCN(CCO)CCCC(C)Nc1ccnc2cc(Cl)ccc12&#39;</span><span class="p">]</span> 
+
+<span class="c1"># Using the chem_sample function and providing smis as input</span>
+<span class="n">gen_smis</span> <span class="o">=</span> <span class="n">chem_sample</span><span class="p">(</span><span class="n">smis</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+<p><br> Now, let’s take a look at the generated designs.</p>
+<p>You will recognize some of the generated designs analogous to the first query (Mefloquine), whereas others would be more similar to the second query (Hydroxychloroquine).</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">mols_from_gen_smis</span> <span class="o">=</span> <span class="p">[</span><span class="n">Chem</span><span class="o">.</span><span class="n">MolFromSmiles</span><span class="p">(</span><span class="n">smi</span><span class="p">)</span> <span class="k">for</span> <span class="n">smi</span> <span class="ow">in</span> <span class="nb">set</span><span class="p">(</span><span class="n">gen_smis</span><span class="p">)]</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Total unique molecule designs obtained: &quot;</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">mols_from_gen_smis</span><span class="p">))</span>
+<span class="n">Draw</span><span class="o">.</span><span class="n">MolsToGridImage</span><span class="p">(</span><span class="n">mols_from_gen_smis</span><span class="p">,</span> <span class="n">molsPerRow</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">subImgSize</span><span class="o">=</span><span class="p">(</span><span class="mi">350</span><span class="p">,</span><span class="mi">350</span><span class="p">))</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Total unique molecule designs obtained:  17
+</pre></div>
+</div>
+<img alt="../_images/9aedb30f626b3c6c31e022e39075d32d7436f95fd18d6cfa719e9765a93f672a.png" src="../_images/9aedb30f626b3c6c31e022e39075d32d7436f95fd18d6cfa719e9765a93f672a.png" />
+</div>
+</div>
+<p><br><br><br></p>
+<p>How many molecular designs were obtained from this step?</p>
+<p>What would change in the process if you try different values for <em>number of samples</em> and <em>sampling radious</em> in the <strong><code class="docutils literal notranslate"><span class="pre">chem_sample</span></code></strong> function?</p>
+<p><strong>This concludes the Second objective of using the BioNeMo-MegaMolBART pre-trained model for chemical space exploration and generative chemistry.</strong></p>
+<p><a href='#contents'> <strong>[Go to the top]</strong></a></p>
+<hr class="docutils" />
+<p><a id='section3'></a></p>
+</div>
+</div>
+<div class="section" id="downstream-prediction-model-using-learned-embeddings-from-pre-trained-model">
+<h2>Downstream Prediction Model using Learned Embeddings from Pre-trained Model<a class="headerlink" href="#downstream-prediction-model-using-learned-embeddings-from-pre-trained-model" title="Permalink to this headline">#</a></h2>
+<p>One of the improtant tasks for chemoinformaticians is to develop models for predicting properties of small molecules.</p>
+<p>These properties may include physicochemical parameters, such as lipophilicity, solubility, hydration free energy (LogP, LogD, and so on). It can also include certain pharmacokinetic/dynamic behaviors such as Blood-Brain-Barrier/CNS permeability, Vd, and so on.</p>
+<p>Modeling such properties can often become challenging along with choosing the appropriate and relevant descriptors/features for developing such prediction models.</p>
+<p>In this section, we will use the embeddings as a feature set for training a machine learning model for physico-chemical parameter predictions. Then, we will compare how this model performs compared to a model developed using chemical fingerprints (here, <em>Morgan Fingerprints</em>).</p>
+<p>In the section below, we will be using the one of the following datasets curated by MoleculeNet – ESOL dataset (https://moleculenet.org/datasets-1)</p>
+<ul class="simple">
+<li><p><strong>Lipophilicity</strong>: Experimental results of octanol/water distribution coefficient(logD at pH 7.4) [n=4200]</p></li>
+<li><p><strong>FreeSolv</strong>: Experimental and calculated hydration free energy of small molecules in water [n=642]</p></li>
+<li><p><strong>ESOL</strong>: Water solubility data(log solubility in mols per litre) for common organic small molecules [n=1129]</p></li>
+</ul>
+<p><br><br>
+<img alt="mmb_2" src="../_images/MMB_molecule_generation_2.png" />
+<br><br><br></p>
+<div class="section" id="example-compound-water-solubility-esol-prediction">
+<h3>Example: Compound Water Solubility (ESOL) Prediction<a class="headerlink" href="#example-compound-water-solubility-esol-prediction" title="Permalink to this headline">#</a></h3>
+<p>In this example, we will use the <strong>ESOL</strong> dataset from Moleculenet. The dataset is modified for this example purposes to include the relevant columns and placed in <strong><code class="docutils literal notranslate"><span class="pre">/data</span></code></strong> directory as <strong><code class="docutils literal notranslate"><span class="pre">benchmark_MoleculeNet_ESOL.csv</span></code></strong>.</p>
+<p>We will load the data from <code class="docutils literal notranslate"><span class="pre">benchmark_MoleculeNet_ESOL.csv</span></code> file in a <em>cuDF</em> dataframe format. After that, we will obtain the embeddings for compounds that are present in the <a class="reference external" href="https://github.com/rapidsai/cudf">cuDF</a> dataframe by using previously introduced <strong><code class="docutils literal notranslate"><span class="pre">seqs_to_embedding</span></code></strong> functionality of the BioNeMo-MegaMolBART pre-trained model.</p>
+<p>Similarly, we will obtain <em>Morgan Fingerprints</em> for the compounds in the dataframe using RD-Kit’s <strong><code class="docutils literal notranslate"><span class="pre">AllChem.GetMorganFingerprintAsBitVect()</span></code></strong> functionality.</p>
+<p>Finally, we will generate two <em>Support Vector Rgression</em> model – using the embeddings and the <em>Morgan Fingerprints</em> – with functionalities from <a class="reference external" href="https://github.com/rapidsai/cuml">cuML</a> library. At the end, we will compare the performances of both the models.</p>
+</div>
+<div class="section" id="preprocessing-dataset-using-cudf">
+<h3>Preprocessing dataset using cuDF<a class="headerlink" href="#preprocessing-dataset-using-cudf" title="Permalink to this headline">#</a></h3>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Reading the benchmark_MoleculeNet_ESOL.csv file as cuDF DataFrame format</span>
+<span class="n">ex_data_file</span> <span class="o">=</span> <span class="s1">&#39;./benchmark_MoleculeNet_ESOL.csv&#39;</span>
+<span class="n">ex_df</span> <span class="o">=</span> <span class="n">cudf</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">ex_data_file</span><span class="p">)</span>
+
+<span class="c1"># Checking the dimensions of the dataframe and the first few rows</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">ex_df</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
+<span class="n">ex_df</span><span class="o">.</span><span class="n">head</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>(1128, 4)
+</pre></div>
+</div>
+<div class="output text_html"><div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>index</th>
+      <th>task</th>
+      <th>SMILES</th>
+      <th>measured log solubility in mols per litre</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>0</td>
+      <td>ESOL</td>
+      <td>Cc1cccc(C)c1O</td>
+      <td>-1.290</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>1</td>
+      <td>ESOL</td>
+      <td>ClCC(Cl)(Cl)Cl</td>
+      <td>-2.180</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>2</td>
+      <td>ESOL</td>
+      <td>CC34CCC1C(=CCc2cc(O)ccc12)C3CCC4=O</td>
+      <td>-5.282</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>3</td>
+      <td>ESOL</td>
+      <td>c1ccc2c(c1)ccc3c2ccc4c5ccccc5ccc43</td>
+      <td>-7.870</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>4</td>
+      <td>ESOL</td>
+      <td>CCCCCCCC(=O)C</td>
+      <td>-2.580</td>
+    </tr>
+  </tbody>
+</table>
+</div></div></div>
+</div>
+<div class="section" id="obtaining-the-embeddings-using-seqs-to-embedding">
+<h4>Obtaining the embeddings using <strong><code class="docutils literal notranslate"><span class="pre">seqs_to_embedding</span></code></strong><a class="headerlink" href="#obtaining-the-embeddings-using-seqs-to-embedding" title="Permalink to this headline">#</a></h4>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="o">%%time</span>
+<span class="c1"># Generating embeddings for the compounds in the dataframe. </span>
+<span class="c1"># We process batches of 100 compounds at a time.</span>
+<span class="n">start</span> <span class="o">=</span> <span class="mi">0</span>
+<span class="n">ex_emb_df</span> <span class="o">=</span> <span class="n">cudf</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">()</span>
+<span class="k">while</span> <span class="n">start</span> <span class="o">&lt;</span> <span class="n">ex_df</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]:</span>
+    <span class="n">smis</span> <span class="o">=</span> <span class="n">ex_df</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="n">start</span><span class="p">:</span> <span class="n">start</span><span class="o">+</span><span class="mi">100</span><span class="p">,</span> <span class="mi">2</span><span class="p">]</span>
+    <span class="n">x_val</span> <span class="o">=</span> <span class="n">ex_df</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="n">start</span><span class="p">:</span> <span class="n">start</span><span class="o">+</span><span class="mi">100</span><span class="p">,</span> <span class="mi">3</span><span class="p">]</span>
+    <span class="n">embedding</span> <span class="o">=</span> <span class="n">connection</span><span class="o">.</span><span class="n">seqs_to_embedding</span><span class="p">(</span><span class="n">smis</span><span class="o">.</span><span class="n">to_arrow</span><span class="p">()</span><span class="o">.</span><span class="n">to_pylist</span><span class="p">())</span>
+    <span class="n">ex_emb_df</span> <span class="o">=</span> <span class="n">cudf</span><span class="o">.</span><span class="n">concat</span><span class="p">([</span><span class="n">ex_emb_df</span><span class="p">,</span>
+                             <span class="n">cudf</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span><span class="s2">&quot;SMILES&quot;</span><span class="p">:</span> <span class="n">smis</span><span class="p">,</span>
+                                             <span class="s2">&quot;EMBEDDINGS&quot;</span><span class="p">:</span> <span class="n">embedding</span><span class="o">.</span><span class="n">tolist</span><span class="p">(),</span>
+                                             <span class="s2">&quot;Y&quot;</span><span class="p">:</span> <span class="n">x_val</span><span class="p">})])</span>                   <span class="c1"># The ESOL value is captured in the &#39;Y&#39; column</span>
+    <span class="n">start</span> <span class="o">=</span> <span class="n">start</span> <span class="o">+</span> <span class="mi">100</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>CPU times: user 214 ms, sys: 29.1 ms, total: 243 ms
+Wall time: 926 ms
+</pre></div>
+</div>
+</div>
+</div>
+<p>Let’s look at the new column added with the embedding vectors</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">ex_emb_df</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_html"><div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>SMILES</th>
+      <th>EMBEDDINGS</th>
+      <th>Y</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>Cc1cccc(C)c1O</td>
+      <td>[-0.1522216796875, 0.053375244140625, 0.899414...</td>
+      <td>-1.290</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>ClCC(Cl)(Cl)Cl</td>
+      <td>[-0.1292724609375, 0.05462646484375, -0.490966...</td>
+      <td>-2.180</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>CC34CCC1C(=CCc2cc(O)ccc12)C3CCC4=O</td>
+      <td>[0.041015625, -0.1116943359375, 0.7314453125, ...</td>
+      <td>-5.282</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>c1ccc2c(c1)ccc3c2ccc4c5ccccc5ccc43</td>
+      <td>[0.00371551513671875, -0.143798828125, 0.95605...</td>
+      <td>-7.870</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>CCCCCCCC(=O)C</td>
+      <td>[-0.23486328125, 0.345458984375, 0.8876953125,...</td>
+      <td>-2.580</td>
+    </tr>
+    <tr>
+      <th>...</th>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+    </tr>
+    <tr>
+      <th>1123</th>
+      <td>OCCCC=C</td>
+      <td>[-0.68896484375, -0.0209503173828125, 0.631835...</td>
+      <td>-0.150</td>
+    </tr>
+    <tr>
+      <th>1124</th>
+      <td>Clc1ccccc1I</td>
+      <td>[-0.1920166015625, -0.1954345703125, 0.3972167...</td>
+      <td>-3.540</td>
+    </tr>
+    <tr>
+      <th>1125</th>
+      <td>CCC(CC)C=O</td>
+      <td>[0.04486083984375, 0.26318359375, 0.4929199218...</td>
+      <td>-1.520</td>
+    </tr>
+    <tr>
+      <th>1126</th>
+      <td>Clc1ccc(Cl)cc1</td>
+      <td>[-0.267333984375, -0.55908203125, 0.0827026367...</td>
+      <td>-3.270</td>
+    </tr>
+    <tr>
+      <th>1127</th>
+      <td>c1ccc2c(c1)ccc3c4ccccc4ccc23</td>
+      <td>[0.0887451171875, 0.049560546875, 0.8999023437...</td>
+      <td>-8.057</td>
+    </tr>
+  </tbody>
+</table>
+<p>1128 rows × 3 columns</p>
+</div></div></div>
+</div>
+</div>
+<div class="section" id="obtaining-the-morgan-fingerprints-using-rd-kit-functionalities">
+<h4>Obtaining the <em>Morgan Fingerprints</em> using RD-Kit functionalities<a class="headerlink" href="#obtaining-the-morgan-fingerprints-using-rd-kit-functionalities" title="Permalink to this headline">#</a></h4>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="o">%%time</span>
+<span class="c1"># Here, we will define a function to return Morgan Fingerprints for a list of input SMILES</span>
+<span class="k">def</span> <span class="nf">get_fp_arr</span><span class="p">(</span><span class="n">df_smi</span><span class="p">):</span>
+    <span class="n">fp_array</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">smi</span> <span class="ow">in</span> <span class="n">df_smi</span><span class="p">:</span>
+        <span class="n">m</span> <span class="o">=</span> <span class="n">Chem</span><span class="o">.</span><span class="n">MolFromSmiles</span><span class="p">(</span><span class="n">smi</span><span class="p">)</span>                               <span class="c1"># Converting SMILES to RD-Kit&#39;s MOL format</span>
+        <span class="n">fp</span> <span class="o">=</span>  <span class="n">AllChem</span><span class="o">.</span><span class="n">GetMorganFingerprintAsBitVect</span><span class="p">(</span><span class="n">m</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">1024</span><span class="p">)</span>   <span class="c1"># Obtain Morgan Fingerprints as a Bit-vector</span>
+        <span class="n">fp</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">fromstring</span><span class="p">(</span><span class="n">fp</span><span class="o">.</span><span class="n">ToBitString</span><span class="p">(),</span> <span class="s1">&#39;u1&#39;</span><span class="p">)</span> <span class="o">-</span> <span class="nb">ord</span><span class="p">(</span><span class="s1">&#39;0&#39;</span><span class="p">)</span>     <span class="c1"># Converting Bit-vector to string type</span>
+        <span class="n">fp_array</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">fp</span><span class="p">)</span>
+    <span class="n">fp_array</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">fp_array</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">fp_array</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
+
+<span class="c1"># Passing the SMILES list to the get_fp_arr function, and saving the returned list of Morgan Fingerprints as a DataFrame column named &#39;FINGERPRINTS&#39;</span>
+<span class="n">ex_emb_df</span><span class="p">[</span><span class="s1">&#39;FINGERPRINT&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">get_fp_arr</span><span class="p">(</span><span class="n">ex_emb_df</span><span class="p">[</span><span class="s1">&#39;SMILES&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">to_arrow</span><span class="p">()</span><span class="o">.</span><span class="n">to_pylist</span><span class="p">())</span>
+
+<span class="c1"># Let&#39;s take a look at the DataFrame after Morgan_Fingerprint calculation</span>
+<span class="n">ex_emb_df</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>CPU times: user 249 ms, sys: 37 ms, total: 286 ms
+Wall time: 269 ms
+</pre></div>
+</div>
+<div class="output text_html"><div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>SMILES</th>
+      <th>EMBEDDINGS</th>
+      <th>Y</th>
+      <th>FINGERPRINT</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>Cc1cccc(C)c1O</td>
+      <td>[-0.1522216796875, 0.053375244140625, 0.899414...</td>
+      <td>-1.290</td>
+      <td>[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, ...</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>ClCC(Cl)(Cl)Cl</td>
+      <td>[-0.1292724609375, 0.05462646484375, -0.490966...</td>
+      <td>-2.180</td>
+      <td>[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, ...</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>CC34CCC1C(=CCc2cc(O)ccc12)C3CCC4=O</td>
+      <td>[0.041015625, -0.1116943359375, 0.7314453125, ...</td>
+      <td>-5.282</td>
+      <td>[0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, ...</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>c1ccc2c(c1)ccc3c2ccc4c5ccccc5ccc43</td>
+      <td>[0.00371551513671875, -0.143798828125, 0.95605...</td>
+      <td>-7.870</td>
+      <td>[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, ...</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>CCCCCCCC(=O)C</td>
+      <td>[-0.23486328125, 0.345458984375, 0.8876953125,...</td>
+      <td>-2.580</td>
+      <td>[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, ...</td>
+    </tr>
+    <tr>
+      <th>...</th>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+    </tr>
+    <tr>
+      <th>1123</th>
+      <td>OCCCC=C</td>
+      <td>[-0.68896484375, -0.0209503173828125, 0.631835...</td>
+      <td>-0.150</td>
+      <td>[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, ...</td>
+    </tr>
+    <tr>
+      <th>1124</th>
+      <td>Clc1ccccc1I</td>
+      <td>[-0.1920166015625, -0.1954345703125, 0.3972167...</td>
+      <td>-3.540</td>
+      <td>[0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, ...</td>
+    </tr>
+    <tr>
+      <th>1125</th>
+      <td>CCC(CC)C=O</td>
+      <td>[0.04486083984375, 0.26318359375, 0.4929199218...</td>
+      <td>-1.520</td>
+      <td>[0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, ...</td>
+    </tr>
+    <tr>
+      <th>1126</th>
+      <td>Clc1ccc(Cl)cc1</td>
+      <td>[-0.267333984375, -0.55908203125, 0.0827026367...</td>
+      <td>-3.270</td>
+      <td>[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, ...</td>
+    </tr>
+    <tr>
+      <th>1127</th>
+      <td>c1ccc2c(c1)ccc3c4ccccc4ccc23</td>
+      <td>[0.0887451171875, 0.049560546875, 0.8999023437...</td>
+      <td>-8.057</td>
+      <td>[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, ...</td>
+    </tr>
+  </tbody>
+</table>
+<p>1128 rows × 4 columns</p>
+</div></div></div>
+</div>
+</div>
+</div>
+<div class="section" id="generating-ml-models-using-cuml">
+<h3>Generating ML models using cuML<a class="headerlink" href="#generating-ml-models-using-cuml" title="Permalink to this headline">#</a></h3>
+<p>Now that we have both the embeddings and the Morgan Fingerprints calculated for the ESOL dataset, let’s use the <em>cuML</em> to generate a prediction model.</p>
+<p>Here, we will be creating a <em>Support Vector Regression</em> model. For more details, refer to https://docs.rapids.ai/api/cuml/stable/api.html#support-vector-machines.
+<br><br>
+First, let’s make a model using <em>Morgan Fingerprints</em>:</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1">### Using Morgan fingerprints for developing a Support Vector Regression prediction model ###</span>
+
+<span class="c1"># Splitting the input dataset into Training (70%) and Test sets(30%)</span>
+<span class="n">tempX</span> <span class="o">=</span> <span class="n">cp</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">ex_emb_df</span><span class="p">[</span><span class="s1">&#39;FINGERPRINT&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">to_arrow</span><span class="p">()</span><span class="o">.</span><span class="n">to_pylist</span><span class="p">(),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">cp</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
+<span class="n">tempY</span> <span class="o">=</span> <span class="n">cp</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">ex_emb_df</span><span class="p">[</span><span class="s1">&#39;Y&#39;</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="n">cp</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
+<span class="n">x_train</span><span class="p">,</span> <span class="n">x_test_mfp</span><span class="p">,</span> <span class="n">y_train</span><span class="p">,</span> <span class="n">y_test_mfp</span>  <span class="o">=</span> <span class="n">cuml</span><span class="o">.</span><span class="n">train_test_split</span><span class="p">(</span><span class="n">tempX</span><span class="p">,</span> <span class="n">tempY</span><span class="p">,</span> <span class="n">train_size</span><span class="o">=</span><span class="mf">0.7</span><span class="p">,</span> <span class="n">random_state</span><span class="o">=</span><span class="mi">1993</span><span class="p">)</span>
+
+<span class="c1"># Defining Support vector regression model parameters </span>
+<span class="n">reg_mfp</span> <span class="o">=</span> <span class="n">SVR</span><span class="p">(</span><span class="n">kernel</span><span class="o">=</span><span class="s1">&#39;rbf&#39;</span><span class="p">,</span> <span class="n">gamma</span><span class="o">=</span><span class="s1">&#39;scale&#39;</span><span class="p">,</span> <span class="n">C</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">epsilon</span><span class="o">=</span><span class="mf">0.1</span><span class="p">)</span>     <span class="c1"># You may change the model parameters and observe the change in the performance</span>
+
+<span class="c1"># Fitting the model on the training dataset</span>
+<span class="n">reg_mfp</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">x_train</span><span class="p">,</span> <span class="n">y_train</span><span class="p">)</span>
+<span class="n">SVR</span><span class="p">()</span>
+
+<span class="c1"># Using the fitted model for prediction of the ESOL values for the test dataset compounds</span>
+<span class="n">pred_mfp</span> <span class="o">=</span> <span class="n">reg_mfp</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">x_test_mfp</span><span class="p">)</span>
+
+<span class="c1"># Performance measures of SVR model - Mean Squared Error and R-squared values</span>
+<span class="n">mfp_SVR_MSE</span> <span class="o">=</span> <span class="n">cuml</span><span class="o">.</span><span class="n">metrics</span><span class="o">.</span><span class="n">mean_squared_error</span><span class="p">(</span><span class="n">y_test_mfp</span><span class="p">,</span> <span class="n">pred_mfp</span><span class="p">)</span>
+<span class="n">mfp_SVR_R2</span> <span class="o">=</span> <span class="n">cuml</span><span class="o">.</span><span class="n">metrics</span><span class="o">.</span><span class="n">r2_score</span><span class="p">(</span><span class="n">y_test_mfp</span><span class="p">,</span> <span class="n">pred_mfp</span><span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Fingerprint_SVR_MSE: &quot;</span><span class="p">,</span> <span class="n">mfp_SVR_MSE</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Fingerprint_SVR_r2: &quot;</span><span class="p">,</span> <span class="n">mfp_SVR_R2</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Fingerprint_SVR_MSE:  1.1670166
+Fingerprint_SVR_r2:  0.7400424480438232
+</pre></div>
+</div>
+</div>
+</div>
+<p><br><br>
+Now, let’s use BioNeMo-MegaMolBART Embeddings for developing a Support Vector Regression prediction model</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1">### Using BioNeMo-MegaMolBART Embeddings for developing a SVR model ###</span>
+
+<span class="c1"># Splitting dataset into training and testing sets</span>
+<span class="n">tempX</span> <span class="o">=</span> <span class="n">cp</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">ex_emb_df</span><span class="p">[</span><span class="s1">&#39;EMBEDDINGS&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">to_arrow</span><span class="p">()</span><span class="o">.</span><span class="n">to_pylist</span><span class="p">(),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">cp</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
+<span class="n">tempY</span> <span class="o">=</span> <span class="n">cp</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">ex_emb_df</span><span class="p">[</span><span class="s1">&#39;Y&#39;</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="n">cp</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
+<span class="n">x_train</span><span class="p">,</span> <span class="n">x_test_emb</span><span class="p">,</span> <span class="n">y_train</span><span class="p">,</span> <span class="n">y_test_emb</span>  <span class="o">=</span> <span class="n">cuml</span><span class="o">.</span><span class="n">train_test_split</span><span class="p">(</span><span class="n">tempX</span><span class="p">,</span> <span class="n">tempY</span><span class="p">,</span> <span class="n">train_size</span><span class="o">=</span><span class="mf">0.7</span><span class="p">,</span> <span class="n">random_state</span><span class="o">=</span><span class="mi">1993</span><span class="p">)</span>
+
+<span class="c1"># Defining Support vector regression model parameters </span>
+<span class="n">reg_emb</span> <span class="o">=</span> <span class="n">SVR</span><span class="p">(</span><span class="n">kernel</span><span class="o">=</span><span class="s1">&#39;rbf&#39;</span><span class="p">,</span> <span class="n">gamma</span><span class="o">=</span><span class="s1">&#39;scale&#39;</span><span class="p">,</span> <span class="n">C</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">epsilon</span><span class="o">=</span><span class="mf">0.1</span><span class="p">)</span>    <span class="c1"># You may change the model parameters and observe the change in the performance</span>
+
+<span class="c1"># Fitting the model on the training dataset</span>
+<span class="n">reg_emb</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">x_train</span><span class="p">,</span> <span class="n">y_train</span><span class="p">)</span>
+
+<span class="c1"># Using the fitted model for prediction of the ESOL values for the test dataset compounds</span>
+<span class="n">pred_emb</span> <span class="o">=</span> <span class="n">reg_emb</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">x_test_emb</span><span class="p">)</span>
+
+<span class="c1"># Performance measures of SVR model</span>
+<span class="n">emb_SVR_MSE</span> <span class="o">=</span> <span class="n">cuml</span><span class="o">.</span><span class="n">metrics</span><span class="o">.</span><span class="n">mean_squared_error</span><span class="p">(</span><span class="n">y_test_emb</span><span class="p">,</span> <span class="n">pred_emb</span><span class="p">)</span>
+<span class="n">emb_SVR_R2</span> <span class="o">=</span> <span class="n">cuml</span><span class="o">.</span><span class="n">metrics</span><span class="o">.</span><span class="n">r2_score</span><span class="p">(</span><span class="n">y_test_emb</span><span class="p">,</span> <span class="n">pred_emb</span><span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Embeddings_SVR_MSE: &quot;</span><span class="p">,</span> <span class="n">emb_SVR_MSE</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Embeddings_SVR_r2: &quot;</span><span class="p">,</span> <span class="n">emb_SVR_R2</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Embeddings_SVR_MSE:  0.42920947
+Embeddings_SVR_r2:  0.904391884803772
+</pre></div>
+</div>
+</div>
+</div>
+<p><br><br></p>
+<p>Let’s plot the MSE and R-squared values obtained for both the models.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+
+<span class="n">plt</span><span class="o">.</span><span class="n">rcParams</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="s1">&#39;font.size&#39;</span><span class="p">:</span> <span class="mi">14</span><span class="p">})</span>
+<span class="n">data</span> <span class="o">=</span> <span class="p">[[</span><span class="n">cp</span><span class="o">.</span><span class="n">asnumpy</span><span class="p">(</span><span class="n">mfp_SVR_MSE</span><span class="p">),</span> <span class="n">mfp_SVR_R2</span><span class="p">],</span>
+<span class="p">[</span><span class="n">cp</span><span class="o">.</span><span class="n">asnumpy</span><span class="p">(</span><span class="n">emb_SVR_MSE</span><span class="p">),</span> <span class="n">emb_SVR_R2</span><span class="p">]]</span>
+<span class="n">X</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+<span class="n">fig</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">()</span>
+<span class="n">ax</span> <span class="o">=</span> <span class="n">fig</span><span class="o">.</span><span class="n">add_axes</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">])</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">bar</span><span class="p">(</span><span class="n">X</span> <span class="o">+</span> <span class="mf">0.00</span><span class="p">,</span> <span class="n">data</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">color</span> <span class="o">=</span> <span class="s1">&#39;b&#39;</span><span class="p">,</span> <span class="n">width</span> <span class="o">=</span> <span class="mf">0.20</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">bar</span><span class="p">(</span><span class="n">X</span> <span class="o">+</span> <span class="mf">0.20</span><span class="p">,</span> <span class="n">data</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">color</span> <span class="o">=</span> <span class="s1">&#39;#76b900&#39;</span><span class="p">,</span> <span class="n">width</span> <span class="o">=</span> <span class="mf">0.20</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">set_xticks</span><span class="p">([</span><span class="mf">0.1</span><span class="p">,</span> <span class="mf">1.1</span><span class="p">])</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">set_xticklabels</span><span class="p">([</span><span class="s1">&#39;[MSE] </span><span class="se">\n</span><span class="s1"> Mean Squared Error&#39;</span><span class="p">,</span> <span class="s1">&#39;$R^2$&#39;</span><span class="p">])</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">legend</span><span class="p">([</span><span class="s1">&#39;Morgan Fingerprints&#39;</span><span class="p">,</span> <span class="s1">&#39;MegaMolBART Embeddings&#39;</span><span class="p">],</span><span class="n">loc</span><span class="o">=</span><span class="s1">&#39;best&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>&lt;matplotlib.legend.Legend at 0x7fb6fd285c10&gt;
+</pre></div>
+</div>
+<img alt="../_images/01bfdfa97c86533c3ec6a5b40586db7e6397f09474859022b5420a40f4fedf1a.png" src="../_images/01bfdfa97c86533c3ec6a5b40586db7e6397f09474859022b5420a40f4fedf1a.png" />
+</div>
+</div>
+<p><br><br></p>
+<p>Let’s also examine the experimental and predicted ESOL values from both regressors trained on different featurizations.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">plt</span><span class="o">.</span><span class="n">rcParams</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="s1">&#39;font.size&#39;</span><span class="p">:</span> <span class="mi">14</span><span class="p">})</span>
+<span class="n">fig</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">()</span>
+<span class="n">ax</span> <span class="o">=</span> <span class="n">fig</span><span class="o">.</span><span class="n">add_axes</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">])</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span><span class="n">cp</span><span class="o">.</span><span class="n">asnumpy</span><span class="p">(</span><span class="n">y_test_mfp</span><span class="p">),</span> <span class="n">cp</span><span class="o">.</span><span class="n">asnumpy</span><span class="p">(</span><span class="n">pred_mfp</span><span class="p">),</span> <span class="n">s</span><span class="o">=</span><span class="mi">15</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s1">&#39;Morgan Fingerprints&#39;</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span><span class="n">cp</span><span class="o">.</span><span class="n">asnumpy</span><span class="p">(</span><span class="n">y_test_mfp</span><span class="p">),</span> <span class="n">cp</span><span class="o">.</span><span class="n">asnumpy</span><span class="p">(</span><span class="n">pred_emb</span><span class="p">),</span> <span class="n">s</span><span class="o">=</span><span class="mi">15</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s1">&#39;MegaMolBART Embeddings&#39;</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="n">alpha</span><span class="o">=</span><span class="mf">0.3</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">([</span><span class="o">-</span><span class="mi">12</span><span class="p">,</span> <span class="mi">2</span><span class="p">],</span> <span class="p">[</span><span class="o">-</span><span class="mi">12</span><span class="p">,</span> <span class="mi">2</span><span class="p">],</span> <span class="s1">&#39;r--&#39;</span><span class="p">)</span> <span class="c1"># The &quot;perfect prediction&quot; line</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s1">&#39;ESOL, experiment&#39;</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s1">&#39;ESOL, predicted&#39;</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">legend</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>&lt;matplotlib.legend.Legend at 0x7fb74006fa60&gt;
+</pre></div>
+</div>
+<img alt="../_images/9d2bd57dc4d85d7ad4329ff37b60ebc2cbe7ddc450fa189ea76ff387740e5e55.png" src="../_images/9d2bd57dc4d85d7ad4329ff37b60ebc2cbe7ddc450fa189ea76ff387740e5e55.png" />
+</div>
+</div>
+<p><br><br><br></p>
+<p>Predictions made with the model trained with MegaMolBART embeddings are closer to the experimental values.</p>
+<p><strong>This concludes the final objective of using the embeddings for predictive modeling of downstream tasks.</strong></p>
+<p><a href='#contents'> <strong>[Go to the top]</strong></a></p>
+</div>
+</div>
+</div>
+
+<div class="section">
+   
+</div>
+
+              </div>
+              
+            </main>
+            <footer class="footer-article noprint">
+                
+    <!-- Previous / next buttons -->
+<div class='prev-next-area'>
+    <a class='left-prev' id="prev-link" href="esm2nv-mutant-design.html" title="previous page">
+        <i class="fas fa-angle-left"></i>
+        <div class="prev-next-info">
+            <p class="prev-next-subtitle">previous</p>
+            <p class="prev-next-title">Zero-Shot Protein Design Using ESM-2nv</p>
+        </div>
+    </a>
+    <a class='right-next' id="next-link" href="MolMIM_GenerativeAI_local_inference_with_examples.html" title="next page">
+    <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">MolMIM Inferencing for Generative Chemistry and Downstream Prediction</p>
+    </div>
+    <i class="fas fa-angle-right"></i>
+    </a>
+</div>
+            </footer>
+        </div>
+    </div>
+    <div class="footer-content row">
+        <footer class="col footer"><p>
+  
+    By NVIDIA<br/>
+  
+      &copy; Copyright 2023-2024 NVIDIA CORPORATION &amp; AFFILIATES. All rights reserved..<br/>
+    Last updated on Nov 20, 2024.<br/>
+</p>
+        </footer>
+    </div>
+    
+</div>
+
+
+      </div>
+    </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="../_static/scripts/pydata-sphinx-theme.js?digest=1999514e3f237ded88cf"></script>
+
+
+  </body>
+</html>

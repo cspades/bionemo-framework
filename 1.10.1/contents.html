@@ -1,0 +1,1531 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Contents &#8212; NVIDIA BioNeMo Framework</title>
+    
+  <!-- Loaded before other Sphinx assets -->
+  <link href="_static/styles/theme.css?digest=1999514e3f237ded88cf" rel="stylesheet">
+<link href="_static/styles/pydata-sphinx-theme.css?digest=1999514e3f237ded88cf" rel="stylesheet">
+
+    
+  <link rel="stylesheet"
+    href="_static/vendor/fontawesome/5.13.0/css/all.min.css">
+  <link rel="preload" as="font" type="font/woff2" crossorigin
+    href="_static/vendor/fontawesome/5.13.0/webfonts/fa-solid-900.woff2">
+  <link rel="preload" as="font" type="font/woff2" crossorigin
+    href="_static/vendor/fontawesome/5.13.0/webfonts/fa-brands-400.woff2">
+
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
+    <link rel="stylesheet" href="_static/styles/sphinx-book-theme.css?digest=62ba249389abaaa9ffc34bf36a076bdc1d65ee18" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="_static/mystnb.4510f1fc1dee50b3e5859aac5469c37c29e427902b24a333a5f9fcb2f0b3ac41.css" />
+    <link rel="stylesheet" type="text/css" href="_static/copybutton.css" />
+    <link rel="stylesheet" type="text/css" href="_static/tabs.css" />
+    <link rel="stylesheet" type="text/css" href="_static/custom.css" />
+    <link rel="stylesheet" type="text/css" href="_static/design-style.1e8bd061cd6da7fc9cf755528e8ffc24.min.css" />
+    
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="_static/scripts/pydata-sphinx-theme.js?digest=1999514e3f237ded88cf">
+
+    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+    <script src="_static/jquery.js"></script>
+    <script src="_static/underscore.js"></script>
+    <script src="_static/doctools.js"></script>
+    <script src="_static/clipboard.min.js"></script>
+    <script src="_static/copybutton.js"></script>
+    <script src="https://js.hcaptcha.com/1/api.js"></script>
+    <script src="//assets.adobedtm.com/5d4962a43b79/c1061d2c5e7b/launch-191c2462b890.min.js"></script>
+    <script src="_static/scripts/sphinx-book-theme.js?digest=f31d14ad54b65d19161ba51d4ffff3a77ae00456"></script>
+    <script src="_static/design-tabs.js"></script>
+    <link rel="canonical" href="https://docs.nvidia.com/bionemo-framework/0.4.0/contents.html" />
+    <link rel="shortcut icon" href="_static/nvidia-logo-vert-rgb-blk-for-screen.png"/>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="What is BioNeMo?" href="index.html" /> 
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="docsearch:language" content="None">
+    
+
+    <!-- Google Analytics -->
+      
+<style type="text/css">
+  ul.ablog-archive {
+    list-style: none;
+    overflow: auto;
+    margin-left: 0px;
+  }
+  ul.ablog-archive li {
+    float: left;
+    margin-right: 5px;
+    font-size: 80%;
+  }
+  ul.postlist a {
+    font-style: italic;
+  }
+  ul.postlist-style-disc {
+    list-style-type: disc;
+  }
+  ul.postlist-style-none {
+    list-style-type: none;
+  }
+  ul.postlist-style-circle {
+    list-style-type: circle;
+  }
+</style>
+
+  </head>
+  <body data-spy="scroll" data-target="#bd-toc-nav" data-offset="60">
+<!-- Checkboxes to toggle the left sidebar -->
+<input type="checkbox" class="sidebar-toggle" name="__navigation" id="__navigation" aria-label="Toggle navigation sidebar">
+<label class="overlay overlay-navbar" for="__navigation">
+    <div class="visually-hidden">Toggle navigation sidebar</div>
+</label>
+<!-- Checkboxes to toggle the in-page toc -->
+<input type="checkbox" class="sidebar-toggle" name="__page-toc" id="__page-toc" aria-label="Toggle in-page Table of Contents">
+<label class="overlay overlay-pagetoc" for="__page-toc">
+    <div class="visually-hidden">Toggle in-page Table of Contents</div>
+</label>
+<!-- Headers at the top -->
+<div class="announcement header-item noprint"></div>
+<div class="header header-item noprint"></div>
+
+    
+    <div class="container-fluid" id="banner"></div>
+
+    
+
+    <div class="container-xl">
+      <div class="row">
+          
+<!-- Sidebar -->
+<div class="bd-sidebar noprint" id="site-navigation">
+    <div class="bd-sidebar__content">
+        <div class="bd-sidebar__top"><div class="navbar-brand-box">
+    <a class="navbar-brand text-wrap" href="index.html">
+      
+        <!-- `logo` is deprecated in Sphinx 4.0, so remove this when we stop supporting 3 -->
+        
+      
+      
+      <img src="_static/nvidia-logo-horiz-rgb-blk-for-screen.png" class="logo" alt="logo">
+      
+      
+      <h1 class="site-logo" id="site-title">NVIDIA BioNeMo Framework</h1>
+      
+    </a>
+</div><form class="bd-search d-flex align-items-center" action="search.html" method="get">
+  <i class="icon fas fa-search"></i>
+  <input type="search" class="form-control" name="q" id="search-input" placeholder="Search the docs ..." aria-label="Search the docs ..." autocomplete="off" >
+</form><nav class="bd-links" id="bd-docs-nav" aria-label="Main">
+    <div class="bd-toc-item active">
+        <p aria-level="2" class="caption" role="heading">
+ <span class="caption-text">
+  GETTING STARTED
+ </span>
+</p>
+<ul class="nav bd-sidenav">
+ <li class="toctree-l1">
+  <a class="reference internal" href="index.html">
+   What is BioNeMo?
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="pre-reqs.html">
+   Hardware and Software Prerequisites
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="access-startup.html">
+   Access and Startup
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="initialization-guide.html">
+   Initialization Guide
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="tutorial-list.html">
+   BioNeMo Framework Tutorials
+  </a>
+ </li>
+</ul>
+<p aria-level="2" class="caption" role="heading">
+ <span class="caption-text">
+  BioNeMo CORE
+ </span>
+</p>
+<ul class="nav bd-sidenav">
+ <li class="toctree-l1">
+  <a class="reference internal" href="bionemo-fw-for-model-training-fw.html">
+   Fundamentals
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="data-module-fw.html">
+   Data Module
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="dwnstr-task-validation.html">
+   Validation with a Downstream Task
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="inference-triton-fw.html">
+   Inference with Nvidia Triton Server
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="deep-dive-esm1-pytriton-inference.html">
+   Example of PyTriton Inference
+  </a>
+ </li>
+</ul>
+<p aria-level="2" class="caption" role="heading">
+ <span class="caption-text">
+  BEST PRACTICES
+ </span>
+</p>
+<ul class="nav bd-sidenav">
+ <li class="toctree-l1">
+  <a class="reference internal" href="hyperparameters-fw.html">
+   Hyperparameter Usage and Tuning
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="parallelism-fw.html">
+   Training Parallelism
+  </a>
+ </li>
+</ul>
+<p aria-level="2" class="caption" role="heading">
+ <span class="caption-text">
+  MODELS
+ </span>
+</p>
+<ul class="nav bd-sidenav">
+ <li class="toctree-l1">
+  <a class="reference internal" href="models/diffdock.html">
+   DiffDock
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="models/dnabert.html">
+   DNABERT
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="models/dsmbind.html">
+   DSMBind
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="models/equidock.html">
+   EquiDock
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="models/esm1-nv.html">
+   ESM-1nv
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="models/esm2-nv.html">
+   ESM-2nv
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="models/geneformer.html">
+   Geneformer
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="models/megamolbart.html">
+   MegaMolBART
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="models/molmim.html">
+   MolMIM
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="models/openfold.html">
+   OpenFold
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="models/prott5nv.html">
+   Prott5nv
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="models/model-benchmarks.html">
+   Model Benchmarks
+  </a>
+ </li>
+</ul>
+<p aria-level="2" class="caption" role="heading">
+ <span class="caption-text">
+  DATASETS
+ </span>
+</p>
+<ul class="nav bd-sidenav">
+ <li class="toctree-l1">
+  <a class="reference internal" href="datasets/uniprot.html">
+   UniProt Dataset
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="datasets/CELLxGENE.html">
+   CELLxGENE
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="datasets/zinc15.html">
+   ZINC-15 Dataset
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="datasets/pdb.html">
+   The Protein Data Bank (PDB)
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="datasets/GRCh38.p13.html">
+   Human Reference Genome Version GRCh38.p13
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="datasets/openproteinset.html">
+   OpenProteinSet
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="datasets/moleculenet-physchem.html">
+   MoleculeNet Physical Chemistry Datasets - Lipophilicity, FreeSolv, ESOL
+  </a>
+ </li>
+</ul>
+<p aria-level="2" class="caption" role="heading">
+ <span class="caption-text">
+  TUTORIALS
+ </span>
+</p>
+<ul class="nav bd-sidenav">
+ <li class="toctree-l1">
+  <a class="reference internal" href="preprocessing-bcp-training-diffdock.html">
+   DiffDock: Preparing Workspace and Data for Pre-training
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="notebooks/esm2nv-mutant-design.html">
+   Zero-Shot Protein Design Using ESM-2nv
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="notebooks/MMB_GenerativeAI_Inference_with_examples.html">
+   BioNeMo - MegaMolBART Inferencing for Generative Chemistry
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="notebooks/MolMIM_GenerativeAI_local_inference_with_examples.html">
+   MolMIM Inferencing for Generative Chemistry and Downstream Prediction
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="notebooks/ZINC15-data-preprocessing.html">
+   ZINC Training Dataset Setup for small molecule language models
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="notebooks/bionemo-finetuning-overview.html">
+   Finetune pre-trained models in BioNeMo
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="notebooks/cma_es_guided_molecular_optimization_molmim.html">
+   MolMIM Property Guided Molecular Optimization Using CMA-ES
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="notebooks/custom-dataset-class-fw.html">
+   Adding the OAS Dataset: Modifying the Dataset Class
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="notebooks/custom-dataset-dataloader.html">
+   Adding the OAS Dataset: Customizing Dataset Object and Dataloader Functions
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="notebooks/custom-dataset-preprocessing-fw.html">
+   Adding the OAS Dataset: Downloading and Preprocessing
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="notebooks/encoder-finetuning-notebook-fw.html">
+   Encoder Fine-tuning
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="notebooks/model_training_diffdock.html">
+   DiffDock Model Training using BioNeMo
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="notebooks/model_training_equidock.html">
+   EquiDock Model Training using BioNeMo
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="notebooks/model_training_esm1nv.html">
+   ESM1nv Model Training using BioNeMo
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="notebooks/model_training_esm2nv.html">
+   ESM-2nv: Data Preprocessing and Model Training Using BioNeMo
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="notebooks/model_training_mmb.html">
+   MegaMolBART Model Training using BioNeMo
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="notebooks/model_training_molmim.html">
+   Train MolMIM from scratch on your own data using the BioNeMo Framework
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="notebooks/physchem-notebook-fw.html">
+   Finetuning LLM in BioNeMo for a Downstream Task
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="notebooks/protein-esm2nv-clustering.html">
+   Generating Embeddings for Protein Clustering
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="notebooks/retrosynthesis-notebook.html">
+   Training LLM for a Custom Downstram Task: Retrosynthesis Prediction using MegaMolBART
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="notebooks/esm2_FLIP_finetuning.html">
+   Fine-Tune ESM-2nv on FLIP Data for Sequence-Level Classification, Regression, Token-Level Classification, and with LoRA Adapters
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="notebooks/esm2_oas_inferencing.html">
+   Performing inference on OAS sequences with ESM-2nv
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="notebooks/esm2_paratope_finetuning.html">
+   Pretrain from Scratch, Continue Training from an Existing Checkpoint, and Fine-tune ESM-2nv on Custom Data
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="notebooks/dnabert_inference.html">
+   Generating and visualizing embeddings with DNABert
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="notebooks/dnabert_pretrain_finetune.html">
+   Pretrain, Fine-tune, and Perform Inference with DNABERT for Splice Site Prediction
+  </a>
+ </li>
+</ul>
+<p aria-level="2" class="caption" role="heading">
+ <span class="caption-text">
+  APPENDIX
+ </span>
+</p>
+<ul class="nav bd-sidenav">
+ <li class="toctree-l1">
+  <a class="reference internal" href="faq-fw.html">
+   Frequently Asked Questions (FAQ)
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="bibliography-fw.html">
+   Bibliography
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="releasenotes-fw.html">
+   Release Notes
+  </a>
+ </li>
+</ul>
+
+    </div>
+</nav></div>
+        <div class="bd-sidebar__bottom">
+             <!-- To handle the deprecated key -->
+            
+        </div>
+    </div>
+    <div id="rtd-footer-container"></div>
+</div>
+
+
+          
+
+
+          
+<!-- A tiny helper pixel to detect if we've scrolled -->
+<div class="sbt-scroll-pixel-helper"></div>
+<!-- Main content -->
+<div class="col py-0 content-container">
+    
+    <div class="header-article row sticky-top noprint">
+        
+
+
+
+<div class="col py-1 d-flex header-article-main">
+    <div class="header-article__left">
+        
+        <label for="__navigation"
+  class="headerbtn"
+  data-toggle="tooltip"
+data-placement="right"
+title="Toggle navigation"
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fas fa-bars"></i>
+  </span>
+
+</label>
+
+        
+    </div>
+    <div class="header-article__right">
+<button onclick="toggleFullScreen()"
+  class="headerbtn"
+  data-toggle="tooltip"
+data-placement="bottom"
+title="Fullscreen mode"
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fas fa-expand"></i>
+  </span>
+
+</button>
+
+    </div>
+</div>
+
+<!-- Table of contents -->
+<div class="col-md-3 bd-toc show noprint">
+</div>
+    </div>
+    <div class="article row">
+        <div class="col pl-md-3 pl-lg-5 content-container">
+            <!-- Table of contents that is only displayed when printing the page -->
+            <div id="jb-print-docs-body" class="onlyprint">
+                <h1>Contents</h1>
+                <!-- Table of contents -->
+                <div id="print-main-content">
+                    <div id="jb-print-toc">
+                        
+                    </div>
+                </div>
+            </div>
+            <main id="main-content" role="main">
+                
+              <div>
+                 <div class="tex2jax_ignore mathjax_ignore section" id="contents">
+<h1>Contents<a class="headerlink" href="#contents" title="Permalink to this headline">#</a></h1>
+<div class="toctree-wrapper compound">
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">GETTING STARTED</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="index.html">What is BioNeMo?</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="index.html#bionemo-customer-success-stories">BioNeMo Customer Success Stories</a></li>
+<li class="toctree-l2"><a class="reference internal" href="index.html#bionemo-framework-fundamentals">BioNeMo Framework: Fundamentals</a></li>
+<li class="toctree-l2"><a class="reference internal" href="index.html#bionemo-framework-available-models">BioNeMo Framework: Available Models</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="pre-reqs.html">Hardware and Software Prerequisites</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="pre-reqs.html#hardware">Hardware</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pre-reqs.html#software">Software</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="access-startup.html">Access and Startup</a></li>
+<li class="toctree-l1"><a class="reference internal" href="access-startup.html#access-the-bionemo-framework">Access the BioNeMo Framework</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="access-startup.html#ngc-account-and-api-key-configuration">NGC Account and API Key Configuration</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="access-startup.html#startup-instructions">Startup Instructions</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="access-startup.html#running-the-container-on-a-local-machine">Running the Container on a Local Machine</a></li>
+<li class="toctree-l2"><a class="reference internal" href="access-startup.html#running-the-container-in-the-cloud-through-major-csps">Running the Container in the Cloud through Major CSPs</a></li>
+<li class="toctree-l2"><a class="reference internal" href="access-startup.html#running-the-container-on-dgx-cloud">Running the Container on DGX Cloud</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="initialization-guide.html">Initialization Guide</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="initialization-guide.html#ngc-cli-configuration">NGC CLI Configuration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="initialization-guide.html#first-time-setup">First-Time Setup</a></li>
+<li class="toctree-l2"><a class="reference internal" href="initialization-guide.html#download-model-weights">Download Model Weights</a></li>
+<li class="toctree-l2"><a class="reference internal" href="initialization-guide.html#directory-structure">Directory Structure</a></li>
+<li class="toctree-l2"><a class="reference internal" href="initialization-guide.html#weights-and-biases-setup-optional">Weights and Biases Setup (Optional)</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="tutorial-list.html">BioNeMo Framework Tutorials</a></li>
+</ul>
+</div>
+<div class="toctree-wrapper compound">
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">BioNeMo CORE</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="bionemo-fw-for-model-training-fw.html">Fundamentals</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="bionemo-fw-for-model-training-fw.html#overview-core-features">Overview &amp; Core Features</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bionemo-fw-for-model-training-fw.html#creating-new-models">Creating New Models</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bionemo-fw-for-model-training-fw.html#config-files">Config Files</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bionemo-fw-for-model-training-fw.html#command-line-configuration">Command Line Configuration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bionemo-fw-for-model-training-fw.html#checkpoints">Checkpoints</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="bionemo-fw-for-model-training-fw.html#save-restore-connectors">Save-Restore Connectors</a></li>
+<li class="toctree-l3"><a class="reference internal" href="bionemo-fw-for-model-training-fw.html#modifying-a-checkpoint-dictionary">Modifying a Checkpoint Dictionary</a></li>
+<li class="toctree-l3"><a class="reference internal" href="bionemo-fw-for-model-training-fw.html#fine-tuning-pre-trained-checkpoints">Fine Tuning Pre-trained Checkpoints</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="bionemo-fw-for-model-training-fw.html#datasets">Datasets</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bionemo-fw-for-model-training-fw.html#weights-biases-integration">Weights &amp; Biases Integration</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="bionemo-fw-for-model-training-fw.html#api-setup">API Setup</a></li>
+<li class="toctree-l3"><a class="reference internal" href="bionemo-fw-for-model-training-fw.html#weights-and-biases-charts">Weights and Biases Charts</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="data-module-fw.html">Data Module</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="data-module-fw.html#overview">Overview</a></li>
+<li class="toctree-l2"><a class="reference internal" href="data-module-fw.html#reasons-for-using-bionemos-data-module">Reasons for using BioNeMo’s Data Module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="data-module-fw.html#how-to-use-bionemo-datamodule">How to use BioNeMo DataModule</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="dwnstr-task-validation.html">Validation with a Downstream Task</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="dwnstr-task-validation.html#overview">Overview</a></li>
+<li class="toctree-l2"><a class="reference internal" href="dwnstr-task-validation.html#input-data-format">Input Data Format</a></li>
+<li class="toctree-l2"><a class="reference internal" href="dwnstr-task-validation.html#supported-downstream-tasks">Supported Downstream Tasks</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="dwnstr-task-validation.html#sequence-level-regression">Sequence-Level Regression</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dwnstr-task-validation.html#sequence-level-classification">Sequence-Level Classification</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dwnstr-task-validation.html#token-level-classification">Token-Level Classification</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="dwnstr-task-validation.html#downstream-task-model-architectures">Downstream Task Model Architectures</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="dwnstr-task-validation.html#mlp-model">MLP Model</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dwnstr-task-validation.html#convnet-model">ConvNet model</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="dwnstr-task-validation.html#intended-use">Intended Use</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="dwnstr-task-validation.html#setup">Setup</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dwnstr-task-validation.html#model-configuration">Model Configuration</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dwnstr-task-validation.html#universal-parameters">Universal Parameters</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dwnstr-task-validation.html#singlevaluepredictioncallback-parameters"><code class="docutils literal notranslate"><span class="pre">SingleValuePredictionCallback</span></code> Parameters</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dwnstr-task-validation.html#pertokenpredictioncallback-parameters"><code class="docutils literal notranslate"><span class="pre">PerTokenPredictionCallback</span></code> Parameters</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dwnstr-task-validation.html#optimization-parameters">Optimization Parameters</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="dwnstr-task-validation.html#logging-with-weights-biases-and-tensorboard">Logging with Weights &amp; Biases and Tensorboard</a></li>
+<li class="toctree-l2"><a class="reference internal" href="dwnstr-task-validation.html#limitations">Limitations</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="inference-triton-fw.html">Inference with Nvidia Triton Server</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="inference-triton-fw.html#start-inference-server">Start Inference Server</a></li>
+<li class="toctree-l2"><a class="reference internal" href="inference-triton-fw.html#perform-inference-as-a-client">Perform Inference as a Client</a></li>
+<li class="toctree-l2"><a class="reference internal" href="inference-triton-fw.html#detailed-example-of-pytriton-inference">Detailed Example of PyTriton Inference</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="deep-dive-esm1-pytriton-inference.html">Example of PyTriton Inference</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="deep-dive-esm1-pytriton-inference.html#detailed-example-with-esm-1nv">Detailed Example with ESM-1nv</a></li>
+<li class="toctree-l2"><a class="reference internal" href="deep-dive-esm1-pytriton-inference.html#extending-these-examples">Extending These Examples</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="toctree-wrapper compound">
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">BEST PRACTICES</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="hyperparameters-fw.html">Hyperparameter Usage and Tuning</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="hyperparameters-fw.html#general-information">General Information</a></li>
+<li class="toctree-l2"><a class="reference internal" href="hyperparameters-fw.html#hyperparameter-tuning-tips">Hyperparameter Tuning Tips</a></li>
+<li class="toctree-l2"><a class="reference internal" href="hyperparameters-fw.html#recommended-hyperparameter-search-method">Recommended Hyperparameter Search Method</a></li>
+<li class="toctree-l2"><a class="reference internal" href="hyperparameters-fw.html#general-training-tips">General Training Tips</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="parallelism-fw.html">Training Parallelism</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="parallelism-fw.html#supported-parallelism-features">Supported Parallelism Features</a></li>
+<li class="toctree-l2"><a class="reference internal" href="parallelism-fw.html#model-parallelism-guidelines">Model Parallelism Guidelines</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="toctree-wrapper compound">
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">MODELS</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="models/diffdock.html">DiffDock</a></li>
+<li class="toctree-l1"><a class="reference internal" href="models/diffdock.html#model-overview">Model Overview</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="models/diffdock.html#description">Description:</a></li>
+<li class="toctree-l2"><a class="reference internal" href="models/diffdock.html#third-party-community-consideration">Third-Party Community Consideration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="models/diffdock.html#references">References:</a></li>
+<li class="toctree-l2"><a class="reference internal" href="models/diffdock.html#model-architecture">Model Architecture:</a></li>
+<li class="toctree-l2"><a class="reference internal" href="models/diffdock.html#input">Input:</a></li>
+<li class="toctree-l2"><a class="reference internal" href="models/diffdock.html#output">Output:</a></li>
+<li class="toctree-l2"><a class="reference internal" href="models/diffdock.html#software-integration">Software Integration:</a></li>
+<li class="toctree-l2"><a class="reference internal" href="models/diffdock.html#model-version-s">Model Version(s):</a></li>
+<li class="toctree-l2"><a class="reference internal" href="models/diffdock.html#change-log">Change Log:</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="models/diffdock.html#evaluation">Evaluation:</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="models/diffdock.html#evaluation-dataset">Evaluation Dataset:</a></li>
+<li class="toctree-l2"><a class="reference internal" href="models/diffdock.html#inference">Inference:</a></li>
+<li class="toctree-l2"><a class="reference internal" href="models/diffdock.html#benchmarks">Benchmarks</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="models/diffdock.html#accuracy-benchmarks">Accuracy Benchmarks</a></li>
+<li class="toctree-l3"><a class="reference internal" href="models/diffdock.html#training-performance-benchmarks">Training Performance Benchmarks</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="models/diffdock.html#limitations">Limitations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="models/diffdock.html#license">License</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="models/dnabert.html">DNABERT</a></li>
+<li class="toctree-l1"><a class="reference internal" href="models/dnabert.html#model-overview">Model Overview</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="models/dnabert.html#description">Description:</a></li>
+<li class="toctree-l2"><a class="reference internal" href="models/dnabert.html#references">References:</a></li>
+<li class="toctree-l2"><a class="reference internal" href="models/dnabert.html#model-architecture">Model Architecture:</a></li>
+<li class="toctree-l2"><a class="reference internal" href="models/dnabert.html#input-enter-none-as-needed">Input: (Enter “None” As Needed)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="models/dnabert.html#output-enter-none-as-needed">Output: (Enter “None” As Needed)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="models/dnabert.html#software-integration">Software Integration:</a></li>
+<li class="toctree-l2"><a class="reference internal" href="models/dnabert.html#model-version-s">Model Version(s):</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="models/dnabert.html#training-evaluation">Training &amp; Evaluation:</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="models/dnabert.html#training-dataset">Training Dataset:</a></li>
+<li class="toctree-l2"><a class="reference internal" href="models/dnabert.html#evaluation-dataset">Evaluation Dataset:</a></li>
+<li class="toctree-l2"><a class="reference internal" href="models/dnabert.html#inference">Inference:</a></li>
+<li class="toctree-l2"><a class="reference internal" href="models/dnabert.html#accuracy-benchmarks">Accuracy Benchmarks</a></li>
+<li class="toctree-l2"><a class="reference internal" href="models/dnabert.html#performance-benchmarks">Performance Benchmarks</a></li>
+<li class="toctree-l2"><a class="reference internal" href="models/dnabert.html#ethical-considerations">Ethical Considerations:</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="models/dsmbind.html">DSMBind</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="models/dsmbind.html#description">Description:</a></li>
+<li class="toctree-l2"><a class="reference internal" href="models/dsmbind.html#third-party-community-consideration">Third-Party Community Consideration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="models/dsmbind.html#license">License</a></li>
+<li class="toctree-l2"><a class="reference internal" href="models/dsmbind.html#references">References:</a></li>
+<li class="toctree-l2"><a class="reference internal" href="models/dsmbind.html#model-architecture">Model Architecture:</a></li>
+<li class="toctree-l2"><a class="reference internal" href="models/dsmbind.html#input">Input:</a></li>
+<li class="toctree-l2"><a class="reference internal" href="models/dsmbind.html#output">Output:</a></li>
+<li class="toctree-l2"><a class="reference internal" href="models/dsmbind.html#software-integration">Software Integration:</a></li>
+<li class="toctree-l2"><a class="reference internal" href="models/dsmbind.html#model-version-s">Model Version(s):</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="models/dsmbind.html#training-evaluation">Training &amp; Evaluation:</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="models/dsmbind.html#training-dataset">Training Dataset:</a></li>
+<li class="toctree-l2"><a class="reference internal" href="models/dsmbind.html#evaluation-dataset">Evaluation Dataset:</a></li>
+<li class="toctree-l2"><a class="reference internal" href="models/dsmbind.html#inference">Inference:</a></li>
+<li class="toctree-l2"><a class="reference internal" href="models/dsmbind.html#evaluation-results">Evaluation Results</a></li>
+<li class="toctree-l2"><a class="reference internal" href="models/dsmbind.html#limitations">Limitations</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="models/equidock.html">EquiDock</a></li>
+<li class="toctree-l1"><a class="reference internal" href="models/equidock.html#model-overview">Model Overview</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="models/equidock.html#description">Description:</a></li>
+<li class="toctree-l2"><a class="reference internal" href="models/equidock.html#third-party-community-consideration">Third-Party Community Consideration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="models/equidock.html#references">References:</a></li>
+<li class="toctree-l2"><a class="reference internal" href="models/equidock.html#model-architecture">Model Architecture:</a></li>
+<li class="toctree-l2"><a class="reference internal" href="models/equidock.html#input">Input:</a></li>
+<li class="toctree-l2"><a class="reference internal" href="models/equidock.html#output">Output:</a></li>
+<li class="toctree-l2"><a class="reference internal" href="models/equidock.html#software-integration">Software Integration:</a></li>
+<li class="toctree-l2"><a class="reference internal" href="models/equidock.html#model-version-s">Model Version(s):</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="models/equidock.html#training-evaluation">Training &amp; Evaluation:</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="models/equidock.html#training-dataset">Training Dataset:</a></li>
+<li class="toctree-l2"><a class="reference internal" href="models/equidock.html#evaluation-dataset">Evaluation Dataset:</a></li>
+<li class="toctree-l2"><a class="reference internal" href="models/equidock.html#inference">Inference:</a></li>
+<li class="toctree-l2"><a class="reference internal" href="models/equidock.html#ethical-considerations">Ethical Considerations:</a></li>
+<li class="toctree-l2"><a class="reference internal" href="models/equidock.html#benchmarks">Benchmarks</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="models/equidock.html#accuracy-benchmarks">Accuracy Benchmarks</a></li>
+<li class="toctree-l3"><a class="reference internal" href="models/equidock.html#training-performance-benchmarks">Training Performance Benchmarks</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="models/equidock.html#license">License</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="models/esm1-nv.html">ESM-1nv</a></li>
+<li class="toctree-l1"><a class="reference internal" href="models/esm1-nv.html#model-overview">Model Overview</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="models/esm1-nv.html#description">Description:</a></li>
+<li class="toctree-l2"><a class="reference internal" href="models/esm1-nv.html#references">References:</a></li>
+<li class="toctree-l2"><a class="reference internal" href="models/esm1-nv.html#model-architecture">Model Architecture:</a></li>
+<li class="toctree-l2"><a class="reference internal" href="models/esm1-nv.html#input-enter-none-as-needed">Input: (Enter “None” As Needed)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="models/esm1-nv.html#output-enter-none-as-needed">Output: (Enter “None” As Needed)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="models/esm1-nv.html#software-integration">Software Integration:</a></li>
+<li class="toctree-l2"><a class="reference internal" href="models/esm1-nv.html#model-version-s">Model Version(s):</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="models/esm1-nv.html#training-evaluation">Training &amp; Evaluation:</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="models/esm1-nv.html#training-dataset">Training Dataset:</a></li>
+<li class="toctree-l2"><a class="reference internal" href="models/esm1-nv.html#evaluation-dataset">Evaluation Dataset:</a></li>
+<li class="toctree-l2"><a class="reference internal" href="models/esm1-nv.html#inference">Inference:</a></li>
+<li class="toctree-l2"><a class="reference internal" href="models/esm1-nv.html#ethical-considerations">Ethical Considerations:</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="models/esm2-nv.html">ESM-2nv</a></li>
+<li class="toctree-l1"><a class="reference internal" href="models/esm2-nv.html#model-overview">Model Overview</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="models/esm2-nv.html#description">Description:</a></li>
+<li class="toctree-l2"><a class="reference internal" href="models/esm2-nv.html#third-party-community-consideration">Third-Party Community Consideration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="models/esm2-nv.html#references">References:</a></li>
+<li class="toctree-l2"><a class="reference internal" href="models/esm2-nv.html#model-architecture">Model Architecture:</a></li>
+<li class="toctree-l2"><a class="reference internal" href="models/esm2-nv.html#input">Input:</a></li>
+<li class="toctree-l2"><a class="reference internal" href="models/esm2-nv.html#output">Output:</a></li>
+<li class="toctree-l2"><a class="reference internal" href="models/esm2-nv.html#software-integration">Software Integration:</a></li>
+<li class="toctree-l2"><a class="reference internal" href="models/esm2-nv.html#model-version-s">Model Version(s):</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="models/esm2-nv.html#training-evaluation">Training &amp; Evaluation:</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="models/esm2-nv.html#training-dataset">Training Dataset:</a></li>
+<li class="toctree-l2"><a class="reference internal" href="models/esm2-nv.html#evaluation-dataset">Evaluation Dataset:</a></li>
+<li class="toctree-l2"><a class="reference internal" href="models/esm2-nv.html#inference">Inference:</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="models/esm2-nv.html#accuracy-benchmarks">Accuracy Benchmarks</a></li>
+<li class="toctree-l3"><a class="reference internal" href="models/esm2-nv.html#training-performance-benchmarks">Training Performance Benchmarks</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="models/esm2-nv.html#license">License</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="models/geneformer.html">Geneformer</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="models/geneformer.html#model-overview">Model Overview</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="models/geneformer.html#description">Description:</a></li>
+<li class="toctree-l3"><a class="reference internal" href="models/geneformer.html#references">References:</a></li>
+<li class="toctree-l3"><a class="reference internal" href="models/geneformer.html#model-architecture">Model Architecture:</a></li>
+<li class="toctree-l3"><a class="reference internal" href="models/geneformer.html#input">Input:</a></li>
+<li class="toctree-l3"><a class="reference internal" href="models/geneformer.html#output">Output:</a></li>
+<li class="toctree-l3"><a class="reference internal" href="models/geneformer.html#software-integration">Software Integration:</a></li>
+<li class="toctree-l3"><a class="reference internal" href="models/geneformer.html#model-version-s">Model Version(s):</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="models/geneformer.html#training-evaluation">Training &amp; Evaluation:</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="models/geneformer.html#training-dataset">Training Dataset:</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="models/geneformer.html#evaluation-dataset">Evaluation Dataset:</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="models/geneformer.html#inference">Inference:</a></li>
+<li class="toctree-l3"><a class="reference internal" href="models/geneformer.html#ethical-considerations">Ethical Considerations:</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="models/geneformer.html#training-diagnostics">Training diagnostics</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="models/geneformer.html#geneformer-10m-240530">geneformer-10M-240530</a></li>
+<li class="toctree-l3"><a class="reference internal" href="models/geneformer.html#geneformer-106m-240530">geneformer-106M-240530</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="models/geneformer.html#benchmarking">Benchmarking</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="models/geneformer.html#accuracy-benchmarks">Accuracy Benchmarks</a></li>
+<li class="toctree-l3"><a class="reference internal" href="models/geneformer.html#performance-benchmarks">Performance Benchmarks</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="models/megamolbart.html">MegaMolBART</a></li>
+<li class="toctree-l1"><a class="reference internal" href="models/megamolbart.html#model-overview">Model Overview</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="models/megamolbart.html#description">Description:</a></li>
+<li class="toctree-l2"><a class="reference internal" href="models/megamolbart.html#references">References:</a></li>
+<li class="toctree-l2"><a class="reference internal" href="models/megamolbart.html#model-architecture">Model Architecture:</a></li>
+<li class="toctree-l2"><a class="reference internal" href="models/megamolbart.html#input">Input:</a></li>
+<li class="toctree-l2"><a class="reference internal" href="models/megamolbart.html#output">Output:</a></li>
+<li class="toctree-l2"><a class="reference internal" href="models/megamolbart.html#software-integration">Software Integration:</a></li>
+<li class="toctree-l2"><a class="reference internal" href="models/megamolbart.html#model-version-s">Model Version(s):</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="models/megamolbart.html#training-evaluation">Training &amp; Evaluation:</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="models/megamolbart.html#training-dataset">Training Dataset:</a></li>
+<li class="toctree-l2"><a class="reference internal" href="models/megamolbart.html#evaluation-dataset">Evaluation Dataset:</a></li>
+<li class="toctree-l2"><a class="reference internal" href="models/megamolbart.html#inference">Inference:</a></li>
+<li class="toctree-l2"><a class="reference internal" href="models/megamolbart.html#ethical-considerations">Ethical Considerations:</a></li>
+<li class="toctree-l2"><a class="reference internal" href="models/megamolbart.html#license">License:</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="models/molmim.html">MolMIM</a></li>
+<li class="toctree-l1"><a class="reference internal" href="models/molmim.html#model-overview">Model Overview</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="models/molmim.html#description">Description:</a></li>
+<li class="toctree-l2"><a class="reference internal" href="models/molmim.html#references">References:</a></li>
+<li class="toctree-l2"><a class="reference internal" href="models/molmim.html#license">License:</a></li>
+<li class="toctree-l2"><a class="reference internal" href="models/molmim.html#model-architecture">Model Architecture:</a></li>
+<li class="toctree-l2"><a class="reference internal" href="models/molmim.html#output">Output:</a></li>
+<li class="toctree-l2"><a class="reference internal" href="models/molmim.html#software-integration">Software Integration:</a></li>
+<li class="toctree-l2"><a class="reference internal" href="models/molmim.html#model-version-s">Model Version(s):</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="models/molmim.html#training-evaluation">Training &amp; Evaluation:</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="models/molmim.html#training-dataset">Training Dataset:</a></li>
+<li class="toctree-l2"><a class="reference internal" href="models/molmim.html#evaluation-dataset">Evaluation Dataset:</a></li>
+<li class="toctree-l2"><a class="reference internal" href="models/molmim.html#inference">Inference:</a></li>
+<li class="toctree-l2"><a class="reference internal" href="models/molmim.html#ethical-considerations">Ethical Considerations:</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="models/molmim.html#accuracy-benchmarks">Accuracy Benchmarks</a></li>
+<li class="toctree-l3"><a class="reference internal" href="models/molmim.html#training-performance-benchmarks">Training Performance Benchmarks</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="models/openfold.html">OpenFold</a></li>
+<li class="toctree-l1"><a class="reference internal" href="models/openfold.html#model-overview">Model Overview</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="models/openfold.html#user-guide">User guide</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="models/openfold.html#inference">Inference</a></li>
+<li class="toctree-l3"><a class="reference internal" href="models/openfold.html#training">Training</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="models/openfold.html#description">Description:</a></li>
+<li class="toctree-l2"><a class="reference internal" href="models/openfold.html#references">References:</a></li>
+<li class="toctree-l2"><a class="reference internal" href="models/openfold.html#model-architecture">Model Architecture:</a></li>
+<li class="toctree-l2"><a class="reference internal" href="models/openfold.html#input">Input:</a></li>
+<li class="toctree-l2"><a class="reference internal" href="models/openfold.html#output">Output:</a></li>
+<li class="toctree-l2"><a class="reference internal" href="models/openfold.html#software-integration">Software Integration:</a></li>
+<li class="toctree-l2"><a class="reference internal" href="models/openfold.html#model-version-s">Model Version(s):</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="models/openfold.html#training-evaluation">Training &amp; Evaluation:</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="models/openfold.html#training-dataset">Training Dataset:</a></li>
+<li class="toctree-l2"><a class="reference internal" href="models/openfold.html#evaluation-dataset">Evaluation Dataset:</a></li>
+<li class="toctree-l2"><a class="reference internal" href="models/openfold.html#id1">Inference:</a></li>
+<li class="toctree-l2"><a class="reference internal" href="models/openfold.html#accuracy-benchmarks">Accuracy Benchmarks</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="models/openfold.html#cluster-specs">Cluster specs</a></li>
+<li class="toctree-l3"><a class="reference internal" href="models/openfold.html#parameter-settings">Parameter settings</a></li>
+<li class="toctree-l3"><a class="reference internal" href="models/openfold.html#initial-training">Initial Training</a></li>
+<li class="toctree-l3"><a class="reference internal" href="models/openfold.html#fine-tuning">Fine tuning</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="models/openfold.html#performance-benchmarks">Performance Benchmarks</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="models/openfold.html#id2">Initial Training</a></li>
+<li class="toctree-l3"><a class="reference internal" href="models/openfold.html#id3">Fine-tuning</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="models/openfold.html#ethical-considerations">Ethical Considerations:</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="models/prott5nv.html">Prott5nv</a></li>
+<li class="toctree-l1"><a class="reference internal" href="models/prott5nv.html#model-overview">Model Overview</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="models/prott5nv.html#description">Description:</a></li>
+<li class="toctree-l2"><a class="reference internal" href="models/prott5nv.html#references">References:</a></li>
+<li class="toctree-l2"><a class="reference internal" href="models/prott5nv.html#model-architecture">Model Architecture:</a></li>
+<li class="toctree-l2"><a class="reference internal" href="models/prott5nv.html#input">Input:</a></li>
+<li class="toctree-l2"><a class="reference internal" href="models/prott5nv.html#output">Output:</a></li>
+<li class="toctree-l2"><a class="reference internal" href="models/prott5nv.html#software-integration">Software Integration:</a></li>
+<li class="toctree-l2"><a class="reference internal" href="models/prott5nv.html#model-version-s">Model Version(s):</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="models/prott5nv.html#training-evaluation">Training &amp; Evaluation:</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="models/prott5nv.html#training-dataset">Training Dataset:</a></li>
+<li class="toctree-l2"><a class="reference internal" href="models/prott5nv.html#evaluation-dataset">Evaluation Dataset:</a></li>
+<li class="toctree-l2"><a class="reference internal" href="models/prott5nv.html#inference">Inference:</a></li>
+<li class="toctree-l2"><a class="reference internal" href="models/prott5nv.html#ethical-considerations">Ethical Considerations:</a></li>
+<li class="toctree-l2"><a class="reference internal" href="models/prott5nv.html#license">License</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="models/model-benchmarks.html">Model Benchmarks</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="models/model-benchmarks.html#protein-sequence-representation">Protein Sequence Representation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="models/model-benchmarks.html#smiles-representation">SMILES Representation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="models/model-benchmarks.html#smiles-generation">SMILES Generation</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="toctree-wrapper compound">
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">DATASETS</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="datasets/uniprot.html">UniProt Dataset</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="datasets/uniprot.html#esm-2nv-v">ESM-2nv v</a></li>
+<li class="toctree-l2"><a class="reference internal" href="datasets/uniprot.html#esm-1nv">ESM-1nv</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="datasets/CELLxGENE.html">CELLxGENE</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="datasets/CELLxGENE.html#description">Description</a></li>
+<li class="toctree-l2"><a class="reference internal" href="datasets/CELLxGENE.html#dataset-attributes-of-version-2023-12-15">Dataset attributes of version 2023-12-15</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="datasets/CELLxGENE.html#distributions-of-donor-covariates">Distributions of donor covariates</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="datasets/CELLxGENE.html#references">References</a></li>
+<li class="toctree-l2"><a class="reference internal" href="datasets/CELLxGENE.html#data-license">Data License</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="datasets/zinc15.html">ZINC-15 Dataset</a></li>
+<li class="toctree-l1"><a class="reference internal" href="datasets/pdb.html">The Protein Data Bank (PDB)</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="datasets/pdb.html#posebusters-benchmark-buttenschoen2023posebusters">PoseBusters Benchmark <span class="xref cite cite-p">buttenschoen2023posebusters</span></a></li>
+<li class="toctree-l2"><a class="reference internal" href="datasets/pdb.html#the-docking-benchmark-5-5-db5-5-vreven2015updates">The Docking Benchmark 5.5 (DB5.5) <span class="xref cite cite-p">vreven2015updates</span></a></li>
+<li class="toctree-l2"><a class="reference internal" href="datasets/pdb.html#database-of-interacting-protein-structures-dips-townshend2019end">Database of Interacting Protein Structures (DIPS) <span class="xref cite cite-p">townshend2019end</span></a></li>
+<li class="toctree-l2"><a class="reference internal" href="datasets/pdb.html#continuous-automated-model-evaluation-cameo-robin2023automated">Continuous Automated Model EvaluatiOn (CAMEO) <span class="xref cite cite-p">robin2023automated</span></a></li>
+<li class="toctree-l2"><a class="reference internal" href="datasets/pdb.html#derivative-datasets-in-openfold-training-ahdritz2022-11-20-517210">Derivative datasets in OpenFold training <span class="xref cite cite-p">Ahdritz2022.11.20.517210</span></a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="datasets/GRCh38.p13.html">Human Reference Genome Version GRCh38.p13</a></li>
+<li class="toctree-l1"><a class="reference internal" href="datasets/openproteinset.html">OpenProteinSet</a></li>
+<li class="toctree-l1"><a class="reference internal" href="datasets/moleculenet-physchem.html">MoleculeNet Physical Chemistry Datasets - Lipophilicity, FreeSolv, ESOL</a></li>
+</ul>
+</div>
+<div class="toctree-wrapper compound">
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">TUTORIALS</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="preprocessing-bcp-training-diffdock.html">DiffDock: Preparing Workspace and Data for Pre-training</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="preprocessing-bcp-training-diffdock.html#setup">Setup</a></li>
+<li class="toctree-l2"><a class="reference internal" href="preprocessing-bcp-training-diffdock.html#step-1-create-a-workspace">Step 1: Create a Workspace</a></li>
+<li class="toctree-l2"><a class="reference internal" href="preprocessing-bcp-training-diffdock.html#step-2-create-a-local-data-directory">Step 2: Create a Local Data Directory</a></li>
+<li class="toctree-l2"><a class="reference internal" href="preprocessing-bcp-training-diffdock.html#step-3-mount-the-ngc-workspace-to-your-local-directory">Step 3: Mount the NGC Workspace To Your Local Directory</a></li>
+<li class="toctree-l2"><a class="reference internal" href="preprocessing-bcp-training-diffdock.html#step-4-prepare-raw-protein-and-ligand-structure-data">Step 4: Prepare Raw Protein and Ligand Structure Data</a></li>
+<li class="toctree-l2"><a class="reference internal" href="preprocessing-bcp-training-diffdock.html#step-5-run-pre-processing-of-train-data-for-score-model">Step 5: Run Pre-processing of Train Data for Score Model</a></li>
+<li class="toctree-l2"><a class="reference internal" href="preprocessing-bcp-training-diffdock.html#step-6-verify-that-the-data-pre-processing-is-successful-in-step-5">Step 6 : Verify that the data pre-processing is successful in Step 5</a></li>
+<li class="toctree-l2"><a class="reference internal" href="preprocessing-bcp-training-diffdock.html#step-7-run-pre-processing-of-train-data-for-confidence-model">Step 7: Run Pre-processing of Train Data for Confidence Model</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="notebooks/esm2nv-mutant-design.html">Zero-Shot Protein Design Using ESM-2nv</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="notebooks/esm2nv-mutant-design.html#demo-objectives">Demo Objectives</a></li>
+<li class="toctree-l2"><a class="reference internal" href="notebooks/esm2nv-mutant-design.html#background">Background</a></li>
+<li class="toctree-l2"><a class="reference internal" href="notebooks/esm2nv-mutant-design.html#setup">Setup</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="notebooks/esm2nv-mutant-design.html#import-required-libraries">Import Required Libraries</a></li>
+<li class="toctree-l3"><a class="reference internal" href="notebooks/esm2nv-mutant-design.html#home-directory">Home Directory</a></li>
+<li class="toctree-l3"><a class="reference internal" href="notebooks/esm2nv-mutant-design.html#download-model-checkpoints">Download Model Checkpoints</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="notebooks/esm2nv-mutant-design.html#esm-2nv-inference">ESM-2nv Inference</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="notebooks/esm2nv-mutant-design.html#load-configurations">Load Configurations</a></li>
+<li class="toctree-l3"><a class="reference internal" href="notebooks/esm2nv-mutant-design.html#esm-2nv-inference-functions">ESM-2nv Inference Functions</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="notebooks/esm2nv-mutant-design.html#obtaining-model-outputs-logits-and-probabilities">Obtaining Model Outputs (Logits and Probabilities)</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="notebooks/esm2nv-mutant-design.html#language-model-head">Language Model Head</a></li>
+<li class="toctree-l3"><a class="reference internal" href="notebooks/esm2nv-mutant-design.html#tokenizer">Tokenizer</a></li>
+<li class="toctree-l3"><a class="reference internal" href="notebooks/esm2nv-mutant-design.html#extract-logits-and-probabilities">Extract Logits and Probabilities</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="notebooks/esm2nv-mutant-design.html#mutant-design-through-esm-2nv">Mutant Design through ESM-2nv</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="notebooks/esm2nv-mutant-design.html#sequential-masking">Sequential Masking</a></li>
+<li class="toctree-l3"><a class="reference internal" href="notebooks/esm2nv-mutant-design.html#extraction-of-probabilities">Extraction of Probabilities</a></li>
+<li class="toctree-l3"><a class="reference internal" href="notebooks/esm2nv-mutant-design.html#amino-acid-heatmap">Amino Acid Heatmap</a></li>
+<li class="toctree-l3"><a class="reference internal" href="notebooks/esm2nv-mutant-design.html#mutant-discovery">Mutant Discovery</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="notebooks/MMB_GenerativeAI_Inference_with_examples.html">BioNeMo - MegaMolBART Inferencing for Generative Chemistry</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="notebooks/MMB_GenerativeAI_Inference_with_examples.html#setting-up-megamolbart">Setting up MegaMolBART</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="notebooks/MMB_GenerativeAI_Inference_with_examples.html#prerequisites">Prerequisites:</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="notebooks/MMB_GenerativeAI_Inference_with_examples.html#id1">Setting up MegaMolBART</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="notebooks/MMB_GenerativeAI_Inference_with_examples.html#id2">Prerequisites:</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="notebooks/MMB_GenerativeAI_Inference_with_examples.html#overview">Overview</a></li>
+<li class="toctree-l2"><a class="reference internal" href="notebooks/MMB_GenerativeAI_Inference_with_examples.html#bionemo-megamolbart-inference-functions">BioNeMo-MegaMolBART Inference Functions:</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="notebooks/MMB_GenerativeAI_Inference_with_examples.html#setup-the-connection-to-the-inference-wrapper-and-providing-example-compounds">Setup the connection to the inference wrapper and providing example compounds</a></li>
+<li class="toctree-l3"><a class="reference internal" href="notebooks/MMB_GenerativeAI_Inference_with_examples.html#going-from-smiles-to-hidden-state">Going from SMILES to hidden state</a></li>
+<li class="toctree-l3"><a class="reference internal" href="notebooks/MMB_GenerativeAI_Inference_with_examples.html#smiles-to-embedding">SMILES to Embedding</a></li>
+<li class="toctree-l3"><a class="reference internal" href="notebooks/MMB_GenerativeAI_Inference_with_examples.html#hidden-state-to-smiles">Hidden state to SMILES</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="notebooks/MMB_GenerativeAI_Inference_with_examples.html#molecule-generation-chemical-space-exploration">Molecule Generation / Chemical Space Exploration</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="notebooks/MMB_GenerativeAI_Inference_with_examples.html#first-let-s-define-chem-sample-the-generation-function">First, let’s define <code class="docutils literal notranslate"><span class="pre">chem_sample</span></code> — the generation function</a></li>
+<li class="toctree-l3"><a class="reference internal" href="notebooks/MMB_GenerativeAI_Inference_with_examples.html#generating-analogous-small-molecules-and-visualizing-them">Generating analogous small molecules and visualizing them</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="notebooks/MMB_GenerativeAI_Inference_with_examples.html#downstream-prediction-model-using-learned-embeddings-from-pre-trained-model">Downstream Prediction Model using Learned Embeddings from Pre-trained Model</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="notebooks/MMB_GenerativeAI_Inference_with_examples.html#example-compound-water-solubility-esol-prediction">Example: Compound Water Solubility (ESOL) Prediction</a></li>
+<li class="toctree-l3"><a class="reference internal" href="notebooks/MMB_GenerativeAI_Inference_with_examples.html#preprocessing-dataset-using-cudf">Preprocessing dataset using cuDF</a></li>
+<li class="toctree-l3"><a class="reference internal" href="notebooks/MMB_GenerativeAI_Inference_with_examples.html#generating-ml-models-using-cuml">Generating ML models using cuML</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="notebooks/MolMIM_GenerativeAI_local_inference_with_examples.html">MolMIM Inferencing for Generative Chemistry and Downstream Prediction</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="notebooks/MolMIM_GenerativeAI_local_inference_with_examples.html#demo-objectives">Demo Objectives</a></li>
+<li class="toctree-l2"><a class="reference internal" href="notebooks/MolMIM_GenerativeAI_local_inference_with_examples.html#setup">Setup</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="notebooks/MolMIM_GenerativeAI_local_inference_with_examples.html#import-required-libraries">Import Required Libraries</a></li>
+<li class="toctree-l3"><a class="reference internal" href="notebooks/MolMIM_GenerativeAI_local_inference_with_examples.html#home-directory">Home Directory</a></li>
+<li class="toctree-l3"><a class="reference internal" href="notebooks/MolMIM_GenerativeAI_local_inference_with_examples.html#download-model-checkpoints">Download Model Checkpoints</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="notebooks/MolMIM_GenerativeAI_local_inference_with_examples.html#molmim-inference-functions">MolMIM Inference Functions</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="notebooks/MolMIM_GenerativeAI_local_inference_with_examples.html#load-configurations">Load Configurations</a></li>
+<li class="toctree-l3"><a class="reference internal" href="notebooks/MolMIM_GenerativeAI_local_inference_with_examples.html#smiles-examples-with-rdkit">SMILES Examples with RDKit</a></li>
+<li class="toctree-l3"><a class="reference internal" href="notebooks/MolMIM_GenerativeAI_local_inference_with_examples.html#from-smiles-to-hidden-state">From SMILES to Hidden State</a></li>
+<li class="toctree-l3"><a class="reference internal" href="notebooks/MolMIM_GenerativeAI_local_inference_with_examples.html#from-smiles-to-embedding">From SMILES to Embedding</a></li>
+<li class="toctree-l3"><a class="reference internal" href="notebooks/MolMIM_GenerativeAI_local_inference_with_examples.html#hidden-state-to-smiles">Hidden State to SMILES</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="notebooks/MolMIM_GenerativeAI_local_inference_with_examples.html#molecular-generation-and-chemical-space-exploration">Molecular Generation and Chemical Space Exploration</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="notebooks/MolMIM_GenerativeAI_local_inference_with_examples.html#define-generation-function">Define Generation Function</a></li>
+<li class="toctree-l3"><a class="reference internal" href="notebooks/MolMIM_GenerativeAI_local_inference_with_examples.html#generate-and-visualize-analogous-small-molecules">Generate and Visualize Analogous Small Molecules</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="notebooks/MolMIM_GenerativeAI_local_inference_with_examples.html#downstream-prediction-model-using-learned-embeddings-from-molmim">Downstream Prediction Model Using Learned Embeddings from MolMIM</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="notebooks/MolMIM_GenerativeAI_local_inference_with_examples.html#data-loading-and-preprocessing">Data Loading and Preprocessing</a></li>
+<li class="toctree-l3"><a class="reference internal" href="notebooks/MolMIM_GenerativeAI_local_inference_with_examples.html#obtain-embeddings">Obtain Embeddings</a></li>
+<li class="toctree-l3"><a class="reference internal" href="notebooks/MolMIM_GenerativeAI_local_inference_with_examples.html#svr-model-predicting-esol-using-molmim-embeddings">SVR Model: Predicting ESOL Using MolMIM Embeddings</a></li>
+<li class="toctree-l3"><a class="reference internal" href="notebooks/MolMIM_GenerativeAI_local_inference_with_examples.html#results">Results</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="notebooks/ZINC15-data-preprocessing.html">ZINC Training Dataset Setup for small molecule language models</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="notebooks/ZINC15-data-preprocessing.html#preparation-of-a-drug-like-subset-of-the-zinc15-dataset">Preparation of a drug-like subset of the ZINC15 dataset</a></li>
+<li class="toctree-l2"><a class="reference internal" href="notebooks/ZINC15-data-preprocessing.html#download-the-data">1. Download the data</a></li>
+<li class="toctree-l2"><a class="reference internal" href="notebooks/ZINC15-data-preprocessing.html#process-the-data">2. Process the data</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="notebooks/ZINC15-data-preprocessing.html#smiles-validation-and-canonicalisation">2.1 SMILES validation and canonicalisation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="notebooks/ZINC15-data-preprocessing.html#filter-for-vocabulary-compliance">2.2 Filter for vocabulary compliance</a></li>
+<li class="toctree-l3"><a class="reference internal" href="notebooks/ZINC15-data-preprocessing.html#filter-out-undesirable-molecules">2.3 Filter out undesirable molecules</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="notebooks/ZINC15-data-preprocessing.html#split-dataset-to-create-training-validation-and-test-sets">3. Split dataset to create training, validation and test sets</a></li>
+<li class="toctree-l2"><a class="reference internal" href="notebooks/ZINC15-data-preprocessing.html#example-of-molmim-pretraining-using-the-prepared-data">4. Example of MolMIM pretraining using the prepared data</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="notebooks/bionemo-finetuning-overview.html">Finetune pre-trained models in BioNeMo</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="notebooks/bionemo-finetuning-overview.html#setup">Setup</a></li>
+<li class="toctree-l2"><a class="reference internal" href="notebooks/bionemo-finetuning-overview.html#finetune-mmb-model-in-bionemo">Finetune MMB model in BioNeMo</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="notebooks/bionemo-finetuning-overview.html#finetuning-configuration">Finetuning Configuration</a></li>
+<li class="toctree-l3"><a class="reference internal" href="notebooks/bionemo-finetuning-overview.html#loading-pretrained-model">Loading pretrained model</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="notebooks/cma_es_guided_molecular_optimization_molmim.html">MolMIM Property Guided Molecular Optimization Using CMA-ES</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="notebooks/cma_es_guided_molecular_optimization_molmim.html#demo-objectives">Demo Objectives</a></li>
+<li class="toctree-l2"><a class="reference internal" href="notebooks/cma_es_guided_molecular_optimization_molmim.html#setup">Setup</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="notebooks/cma_es_guided_molecular_optimization_molmim.html#import-and-install-all-required-packages">Import and install all required packages</a></li>
+<li class="toctree-l3"><a class="reference internal" href="notebooks/cma_es_guided_molecular_optimization_molmim.html#home-directory">Home Directory</a></li>
+<li class="toctree-l3"><a class="reference internal" href="notebooks/cma_es_guided_molecular_optimization_molmim.html#download-model-checkpoints">Download Model Checkpoints</a></li>
+<li class="toctree-l3"><a class="reference internal" href="notebooks/cma_es_guided_molecular_optimization_molmim.html#load-your-checkpoint-into-the-molmim-inference-wrapper">Load your checkpoint into the molmim inference wrapper</a></li>
+<li class="toctree-l3"><a class="reference internal" href="notebooks/cma_es_guided_molecular_optimization_molmim.html#setup-user-defined-molecule-scoring-function">Setup user-defined molecule scoring function</a></li>
+<li class="toctree-l3"><a class="reference internal" href="notebooks/cma_es_guided_molecular_optimization_molmim.html#define-starting-molecules">Define starting molecules</a></li>
+<li class="toctree-l3"><a class="reference internal" href="notebooks/cma_es_guided_molecular_optimization_molmim.html#setup-the-optimizer-and-wrap-the-inference-api-for-cma-es">Setup the optimizer and wrap the inference API for CMA-ES</a></li>
+<li class="toctree-l3"><a class="reference internal" href="notebooks/cma_es_guided_molecular_optimization_molmim.html#tune-cma-es">Tune CMA-ES</a></li>
+<li class="toctree-l3"><a class="reference internal" href="notebooks/cma_es_guided_molecular_optimization_molmim.html#run-a-larger-cma-es-optimization-with-discovered-parameters">Run a larger CMA-ES optimization with discovered parameters</a></li>
+<li class="toctree-l3"><a class="reference internal" href="notebooks/cma_es_guided_molecular_optimization_molmim.html#explore-results">Explore results</a></li>
+<li class="toctree-l3"><a class="reference internal" href="notebooks/cma_es_guided_molecular_optimization_molmim.html#how-well-did-our-optimization-perform">How well did our optimization perform?</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="notebooks/custom-dataset-class-fw.html">Adding the OAS Dataset: Modifying the Dataset Class</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="notebooks/custom-dataset-class-fw.html#setup-and-assumptions">Setup and Assumptions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="notebooks/custom-dataset-class-fw.html#configuring-the-csv-memory-mapped-dataset">Configuring the CSV Memory Mapped Dataset</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="notebooks/custom-dataset-class-fw.html#custom-yaml-config">Custom YAML Config</a></li>
+<li class="toctree-l3"><a class="reference internal" href="notebooks/custom-dataset-class-fw.html#testing">Testing</a></li>
+<li class="toctree-l3"><a class="reference internal" href="notebooks/custom-dataset-class-fw.html#results">Results</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="notebooks/custom-dataset-dataloader.html">Adding the OAS Dataset: Customizing Dataset Object and Dataloader Functions</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="notebooks/custom-dataset-dataloader.html#setup-and-assumptions">Setup and Assumptions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="notebooks/custom-dataset-dataloader.html#customizing-a-collate-function">Customizing a collate function</a></li>
+<li class="toctree-l2"><a class="reference internal" href="notebooks/custom-dataset-dataloader.html#injecting-a-custom-collate-object-into-an-existing-model">Injecting a custom collate object into an existing model.</a></li>
+<li class="toctree-l2"><a class="reference internal" href="notebooks/custom-dataset-dataloader.html#creating-the-dataset-object">Creating the Dataset object</a></li>
+<li class="toctree-l2"><a class="reference internal" href="notebooks/custom-dataset-dataloader.html#testing-our-new-collate-function">Testing our new collate function</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="notebooks/custom-dataset-dataloader.html#dataloader">DataLoader!</a></li>
+<li class="toctree-l1"><a class="reference internal" href="notebooks/custom-dataset-dataloader.html#conclusion-and-further-reading">Conclusion and further reading.</a></li>
+<li class="toctree-l1"><a class="reference internal" href="notebooks/custom-dataset-preprocessing-fw.html">Adding the OAS Dataset: Downloading and Preprocessing</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="notebooks/custom-dataset-preprocessing-fw.html#accessing-oas-dataset">Accessing OAS Dataset</a></li>
+<li class="toctree-l2"><a class="reference internal" href="notebooks/custom-dataset-preprocessing-fw.html#downloading-and-verifying-data">Downloading and Verifying Data</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="notebooks/custom-dataset-preprocessing-fw.html#data-preprocessing-class">Data Preprocessing Class</a></li>
+<li class="toctree-l3"><a class="reference internal" href="notebooks/custom-dataset-preprocessing-fw.html#custom-yaml-config">Custom YAML Config</a></li>
+<li class="toctree-l3"><a class="reference internal" href="notebooks/custom-dataset-preprocessing-fw.html#python-execution-script">Python Execution Script</a></li>
+<li class="toctree-l3"><a class="reference internal" href="notebooks/custom-dataset-preprocessing-fw.html#testing">Testing</a></li>
+<li class="toctree-l3"><a class="reference internal" href="notebooks/custom-dataset-preprocessing-fw.html#results">Results</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="notebooks/custom-dataset-preprocessing-fw.html#decompressing-oas-sequence-files">Decompressing OAS Sequence Files</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="notebooks/custom-dataset-preprocessing-fw.html#id1">Data Preprocessing Class</a></li>
+<li class="toctree-l3"><a class="reference internal" href="notebooks/custom-dataset-preprocessing-fw.html#id2">Python Execution Script</a></li>
+<li class="toctree-l3"><a class="reference internal" href="notebooks/custom-dataset-preprocessing-fw.html#id3">Testing</a></li>
+<li class="toctree-l3"><a class="reference internal" href="notebooks/custom-dataset-preprocessing-fw.html#id4">Results</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="notebooks/custom-dataset-preprocessing-fw.html#cleaning-and-splitting-oas-sequence-files">Cleaning and Splitting OAS Sequence Files</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="notebooks/custom-dataset-preprocessing-fw.html#id5">Data Preprocessing Class</a></li>
+<li class="toctree-l3"><a class="reference internal" href="notebooks/custom-dataset-preprocessing-fw.html#id6">Testing</a></li>
+<li class="toctree-l3"><a class="reference internal" href="notebooks/custom-dataset-preprocessing-fw.html#id7">Results</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="notebooks/custom-dataset-preprocessing-fw.html#optional-variation-process-the-light-chain-data">Optional Variation: Process the Light Chain Data</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="notebooks/encoder-finetuning-notebook-fw.html">Encoder Fine-tuning</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="notebooks/encoder-finetuning-notebook-fw.html#overview">Overview</a></li>
+<li class="toctree-l2"><a class="reference internal" href="notebooks/encoder-finetuning-notebook-fw.html#setup-and-assumptions">Setup and Assumptions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="notebooks/encoder-finetuning-notebook-fw.html#getting-started">Getting Started</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="notebooks/encoder-finetuning-notebook-fw.html#data-setup">Data Setup</a></li>
+<li class="toctree-l3"><a class="reference internal" href="notebooks/encoder-finetuning-notebook-fw.html#setup-downstream-task-model-class">Setup Downstream Task Model Class</a></li>
+<li class="toctree-l3"><a class="reference internal" href="notebooks/encoder-finetuning-notebook-fw.html#config-yaml">Config YAML</a></li>
+<li class="toctree-l3"><a class="reference internal" href="notebooks/encoder-finetuning-notebook-fw.html#training-script">Training Script</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="notebooks/model_training_diffdock.html">DiffDock Model Training using BioNeMo</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="notebooks/model_training_diffdock.html#overview-diffdock-model">Overview - DiffDock model</a></li>
+<li class="toctree-l2"><a class="reference internal" href="notebooks/model_training_diffdock.html#setup-and-assumptions">Setup and Assumptions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="notebooks/model_training_diffdock.html#requesting-compute-resources">Requesting compute resources</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="notebooks/model_training_diffdock.html#access-to-dgx-compute-resource-ngc-site-or-ngc-cli">Access to DGX compute resource NGC site or NGC CLI</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="notebooks/model_training_diffdock.html#data-preprocessing-for-score-model">Data Preprocessing for Score Model</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="notebooks/model_training_diffdock.html#downloading-and-pre-processing-the-example-dataset-for-score-model">Downloading and pre-processing the example dataset for score model</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="notebooks/model_training_diffdock.html#model-training-score-model">Model training: Score Model</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="notebooks/model_training_diffdock.html#example-dataset">Example dataset</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="notebooks/model_training_diffdock.html#output-and-results">Output and Results</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="notebooks/model_training_diffdock.html#train-a-small-score-model">Train a small score model</a></li>
+<li class="toctree-l3"><a class="reference internal" href="notebooks/model_training_diffdock.html#train-confidence-model">Train Confidence Model</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="notebooks/model_training_equidock.html">EquiDock Model Training using BioNeMo</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="notebooks/model_training_equidock.html#overview-equidock-model">Overview - EquiDock model</a></li>
+<li class="toctree-l2"><a class="reference internal" href="notebooks/model_training_equidock.html#setup-and-assumptions">Setup and Assumptions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="notebooks/model_training_equidock.html#requesting-compute-resources">Requesting compute resources</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="notebooks/model_training_equidock.html#access-to-dgx-compute-resource-ngc-site-or-ngc-cli">Access to DGX compute resource NGC site or NGC CLI</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="notebooks/model_training_equidock.html#data-preprocessing">Data Preprocessing</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="notebooks/model_training_equidock.html#downloading-and-pre-processing-the-dataset">Downloading and pre-processing the dataset</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="notebooks/model_training_equidock.html#model-training">Model training</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="notebooks/model_training_equidock.html#example-dataset">Example dataset</a></li>
+<li class="toctree-l3"><a class="reference internal" href="notebooks/model_training_equidock.html#single-node-or-multi-node-setup">Single-node or Multi-node setup</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="notebooks/model_training_equidock.html#output-and-results">Output and Results</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="notebooks/model_training_esm1nv.html">ESM1nv Model Training using BioNeMo</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="notebooks/model_training_esm1nv.html#overview-esm1nv-model">Overview - ESM1nv model</a></li>
+<li class="toctree-l2"><a class="reference internal" href="notebooks/model_training_esm1nv.html#setup-and-assumptions">Setup and Assumptions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="notebooks/model_training_esm1nv.html#requesting-compute-resources">Requesting compute resources</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="notebooks/model_training_esm1nv.html#access-to-dgx-compute-resource-ngc-site-or-ngc-cli">Access to DGX compute resource NGC site or NGC CLI</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="notebooks/model_training_esm1nv.html#data-preprocessing">Data Preprocessing</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="notebooks/model_training_esm1nv.html#downloading-and-pre-processing-the-dataset">Downloading and pre-processing the dataset</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="notebooks/model_training_esm1nv.html#model-training">Model training</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="notebooks/model_training_esm1nv.html#example-dataset">Example dataset</a></li>
+<li class="toctree-l3"><a class="reference internal" href="notebooks/model_training_esm1nv.html#single-node-or-multi-node-setup">Single-node or Multi-node setup</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="notebooks/model_training_esm1nv.html#output-and-results">Output and Results</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="notebooks/model_training_esm2nv.html">ESM-2nv: Data Preprocessing and Model Training Using BioNeMo</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="notebooks/model_training_esm2nv.html#demo-objectives">Demo Objectives</a></li>
+<li class="toctree-l2"><a class="reference internal" href="notebooks/model_training_esm2nv.html#overview-esm-2nv-model">Overview - ESM-2nv Model</a></li>
+<li class="toctree-l2"><a class="reference internal" href="notebooks/model_training_esm2nv.html#setup">Setup</a></li>
+<li class="toctree-l2"><a class="reference internal" href="notebooks/model_training_esm2nv.html#import-and-install-all-required-packages">Import and install all required packages</a></li>
+<li class="toctree-l2"><a class="reference internal" href="notebooks/model_training_esm2nv.html#home-directory">Home Directory</a></li>
+<li class="toctree-l2"><a class="reference internal" href="notebooks/model_training_esm2nv.html#download-model-checkpoints">Download Model Checkpoints</a></li>
+<li class="toctree-l2"><a class="reference internal" href="notebooks/model_training_esm2nv.html#preprocess-data-for-esm-2nv">Preprocess Data for ESM-2nv</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="notebooks/model_training_esm2nv.html#command-line-and-yaml-configuration-for-pretrain-py">Command Line and YAML Configuration for <code class="docutils literal notranslate"><span class="pre">pretrain.py</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="notebooks/model_training_esm2nv.html#pretrain-from-scratch">Pretrain from Scratch</a></li>
+<li class="toctree-l2"><a class="reference internal" href="notebooks/model_training_esm2nv.html#continue-training-from-an-existing-checkpoint">Continue Training from an Existing Checkpoint</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="notebooks/model_training_mmb.html">MegaMolBART Model Training using BioNeMo</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="notebooks/model_training_mmb.html#overview-megamolbart-model">Overview - MegaMolBART model</a></li>
+<li class="toctree-l2"><a class="reference internal" href="notebooks/model_training_mmb.html#setup-and-assumptions">Setup and Assumptions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="notebooks/model_training_mmb.html#requesting-compute-resources">Requesting compute resources</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="notebooks/model_training_mmb.html#access-to-dgx-compute-resource-ngc-site-or-ngc-cli">Access to DGX compute resource NGC site or NGC CLI</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="notebooks/model_training_mmb.html#data-preprocessing">Data Preprocessing</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="notebooks/model_training_mmb.html#downloading-and-pre-processing-the-dataset">Downloading and pre-processing the dataset</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="notebooks/model_training_mmb.html#model-training">Model training</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="notebooks/model_training_mmb.html#example-dataset">Example dataset</a></li>
+<li class="toctree-l3"><a class="reference internal" href="notebooks/model_training_mmb.html#single-node-or-multi-node-setup">Single-node or Multi-node setup</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="notebooks/model_training_mmb.html#output-and-results">Output and Results</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="notebooks/model_training_molmim.html">Train MolMIM from scratch on your own data using the BioNeMo Framework</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="notebooks/model_training_molmim.html#demo-objectives">Demo objectives:</a></li>
+<li class="toctree-l2"><a class="reference internal" href="notebooks/model_training_molmim.html#overview-molmim-model">Overview - MolMIM model</a></li>
+<li class="toctree-l2"><a class="reference internal" href="notebooks/model_training_molmim.html#setup-and-assumptions">Setup and Assumptions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="notebooks/model_training_molmim.html#dataset-preparation">1. Dataset preparation</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="notebooks/model_training_molmim.html#download-the-dataset">Download the dataset</a></li>
+<li class="toctree-l3"><a class="reference internal" href="notebooks/model_training_molmim.html#filter-for-vocabulary-compliance">Filter for vocabulary compliance</a></li>
+<li class="toctree-l3"><a class="reference internal" href="notebooks/model_training_molmim.html#split-dataset-to-create-training-validation-and-test-sets">Split dataset to create training, validation and test sets</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="notebooks/model_training_molmim.html#pretrain-molmim-from-scratch">2. Pretrain MolMIM from scratch</a></li>
+<li class="toctree-l2"><a class="reference internal" href="notebooks/model_training_molmim.html#continue-training-on-an-existing-model-checkpoint">3. Continue training on an existing model checkpoint</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="notebooks/physchem-notebook-fw.html">Finetuning LLM in BioNeMo for a Downstream Task</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="notebooks/physchem-notebook-fw.html#setup">Setup</a></li>
+<li class="toctree-l2"><a class="reference internal" href="notebooks/physchem-notebook-fw.html#example-train-model-for-compound-water-solubility-esol-prediction-using-mmb-pretrained-model">Example: Train Model for Compound Water Solubility (ESOL) Prediction using MMB Pretrained Model</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="notebooks/physchem-notebook-fw.html#results-and-logging">Results and Logging</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="notebooks/protein-esm2nv-clustering.html">Generating Embeddings for Protein Clustering</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="notebooks/protein-esm2nv-clustering.html#setup">Setup</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="notebooks/protein-esm2nv-clustering.html#launch-a-docker-container">Launch a Docker container</a></li>
+<li class="toctree-l3"><a class="reference internal" href="notebooks/protein-esm2nv-clustering.html#prepare-data">Prepare data</a></li>
+<li class="toctree-l3"><a class="reference internal" href="notebooks/protein-esm2nv-clustering.html#download-pre-trained-models">Download pre-trained Models</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="notebooks/protein-esm2nv-clustering.html#run-inference-on-protein-sequence-data">Run inference on protein sequence data</a></li>
+<li class="toctree-l2"><a class="reference internal" href="notebooks/protein-esm2nv-clustering.html#protein-sequence-clustering-example">Protein sequence clustering example</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="notebooks/protein-esm2nv-clustering.html#esm-2nv-limits">ESM-2nv limits</a></li>
+<li class="toctree-l3"><a class="reference internal" href="notebooks/protein-esm2nv-clustering.html#data-cleaning">Data Cleaning</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="notebooks/protein-esm2nv-clustering.html#conclusion">Conclusion</a></li>
+<li class="toctree-l1"><a class="reference internal" href="notebooks/retrosynthesis-notebook.html">Training LLM for a Custom Downstram Task: Retrosynthesis Prediction using MegaMolBART</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="notebooks/retrosynthesis-notebook.html#overview">Overview</a></li>
+<li class="toctree-l2"><a class="reference internal" href="notebooks/retrosynthesis-notebook.html#setup-and-assumptions">Setup and Assumptions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="notebooks/retrosynthesis-notebook.html#dataset">Dataset</a></li>
+<li class="toctree-l2"><a class="reference internal" href="notebooks/retrosynthesis-notebook.html#training">Training</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="notebooks/retrosynthesis-notebook.html#processing-the-dataset">Processing the dataset</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="notebooks/retrosynthesis-notebook.html#inference">Inference</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="notebooks/esm2_FLIP_finetuning.html">Fine-Tune ESM-2nv on FLIP Data for Sequence-Level Classification, Regression, Token-Level Classification, and with LoRA Adapters</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="notebooks/esm2_FLIP_finetuning.html#demo-objectives">Demo Objectives</a></li>
+<li class="toctree-l2"><a class="reference internal" href="notebooks/esm2_FLIP_finetuning.html#setup">Setup</a></li>
+<li class="toctree-l2"><a class="reference internal" href="notebooks/esm2_FLIP_finetuning.html#import-and-install-all-required-packages">Import and Install All Required Packages</a></li>
+<li class="toctree-l2"><a class="reference internal" href="notebooks/esm2_FLIP_finetuning.html#home-directory">Home Directory</a></li>
+<li class="toctree-l2"><a class="reference internal" href="notebooks/esm2_FLIP_finetuning.html#download-model-checkpoints">Download Model Checkpoints</a></li>
+<li class="toctree-l2"><a class="reference internal" href="notebooks/esm2_FLIP_finetuning.html#download-the-flip-data-and-preprocess-it">Download the FLIP Data and Preprocess It</a></li>
+<li class="toctree-l2"><a class="reference internal" href="notebooks/esm2_FLIP_finetuning.html#fine-tuning">Fine-tuning</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="notebooks/esm2_FLIP_finetuning.html#method-1-standard-fine-tuning-for-sequence-level-classification-tasks">Method 1: Standard Fine-Tuning for Sequence Level Classification Tasks</a></li>
+<li class="toctree-l3"><a class="reference internal" href="notebooks/esm2_FLIP_finetuning.html#method-2-standard-fine-tuning-for-sequence-level-regression-tasks">Method 2: Standard Fine-Tuning for Sequence-Level Regression Tasks</a></li>
+<li class="toctree-l3"><a class="reference internal" href="notebooks/esm2_FLIP_finetuning.html#method-3-standard-finetune-for-token-level-classification-tasks">Method 3: Standard finetune for token level classification tasks</a></li>
+<li class="toctree-l3"><a class="reference internal" href="notebooks/esm2_FLIP_finetuning.html#method-4-lora-fine-tuning-for-token-level-classification-task">Method 4: LoRA Fine-Tuning for Token-Level Classification Task</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="notebooks/esm2_oas_inferencing.html">Performing inference on OAS sequences with ESM-2nv</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="notebooks/esm2_oas_inferencing.html#demo-objectives">Demo Objectives:</a></li>
+<li class="toctree-l2"><a class="reference internal" href="notebooks/esm2_oas_inferencing.html#setup">Setup</a></li>
+<li class="toctree-l2"><a class="reference internal" href="notebooks/esm2_oas_inferencing.html#import-and-install-all-required-packages">Import and install all required packages</a></li>
+<li class="toctree-l2"><a class="reference internal" href="notebooks/esm2_oas_inferencing.html#home-directory">Home Directory</a></li>
+<li class="toctree-l2"><a class="reference internal" href="notebooks/esm2_oas_inferencing.html#download-model-checkpoints">Download Model Checkpoints</a></li>
+<li class="toctree-l2"><a class="reference internal" href="notebooks/esm2_oas_inferencing.html#dataset-preparation">Dataset preparation</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="notebooks/esm2_oas_inferencing.html#create-a-bionemo-compatible-data-format-for-inference">Create a BioNeMo-Compatible Data Format for Inference</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="notebooks/esm2_oas_inferencing.html#perform-inference-using-the-existing-esm-model">Perform Inference Using the Existing ESM Model</a></li>
+<li class="toctree-l2"><a class="reference internal" href="notebooks/esm2_oas_inferencing.html#call-to-action">Call to Action</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="notebooks/esm2_paratope_finetuning.html">Pretrain from Scratch, Continue Training from an Existing Checkpoint, and Fine-tune ESM-2nv on Custom Data</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="notebooks/esm2_paratope_finetuning.html#demo-objectives">Demo Objectives</a></li>
+<li class="toctree-l2"><a class="reference internal" href="notebooks/esm2_paratope_finetuning.html#setup">Setup</a></li>
+<li class="toctree-l2"><a class="reference internal" href="notebooks/esm2_paratope_finetuning.html#import-and-install-all-required-packages">Import and install all required packages</a></li>
+<li class="toctree-l2"><a class="reference internal" href="notebooks/esm2_paratope_finetuning.html#home-directory">Home Directory</a></li>
+<li class="toctree-l2"><a class="reference internal" href="notebooks/esm2_paratope_finetuning.html#data-download-and-preprocessing">Data Download and Preprocessing</a></li>
+<li class="toctree-l2"><a class="reference internal" href="notebooks/esm2_paratope_finetuning.html#download-model-checkpoints">Download Model Checkpoints</a></li>
+<li class="toctree-l2"><a class="reference internal" href="notebooks/esm2_paratope_finetuning.html#preprocessing-and-pretraining-from-scratch">Preprocessing and Pretraining from Scratch</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="notebooks/esm2_paratope_finetuning.html#pretrain-from-scratch">Pretrain from scratch</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="notebooks/esm2_paratope_finetuning.html#continue-pretraining-add-a-downstream-head-perform-full-parameter-fine-tuning-for-esm-2nv-on-antibody-sequences">Continue Pretraining, Add a Downstream Head, Perform Full Parameter Fine-Tuning for ESM-2nv on Antibody Sequences</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="notebooks/esm2_paratope_finetuning.html#continue-training-from-a-model-checkpoint">1. Continue training from a model checkpoint</a></li>
+<li class="toctree-l3"><a class="reference internal" href="notebooks/esm2_paratope_finetuning.html#downstream-head-fine-tuning">2. Downstream Head Fine-Tuning</a></li>
+<li class="toctree-l3"><a class="reference internal" href="notebooks/esm2_paratope_finetuning.html#full-parameter-fine-tuning">3. Full Parameter Fine-Tuning</a></li>
+<li class="toctree-l3"><a class="reference internal" href="notebooks/esm2_paratope_finetuning.html#low-rank-adaptation-lora-fine-tuning">4. Low-Rank Adaptation (LoRA) fine-tuning</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="notebooks/dnabert_inference.html">Generating and visualizing embeddings with DNABert</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="notebooks/dnabert_inference.html#demo-objectives">Demo Objectives</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="notebooks/dnabert_inference.html#relevance">Relevance:</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="notebooks/dnabert_inference.html#setup">1. Setup</a></li>
+<li class="toctree-l2"><a class="reference internal" href="notebooks/dnabert_inference.html#import-and-install-all-required-packages">Import and install all required packages</a></li>
+<li class="toctree-l2"><a class="reference internal" href="notebooks/dnabert_inference.html#home-directory">Home Directory</a></li>
+<li class="toctree-l2"><a class="reference internal" href="notebooks/dnabert_inference.html#download-model-checkpoints">Download Model Checkpoints</a></li>
+<li class="toctree-l2"><a class="reference internal" href="notebooks/dnabert_inference.html#data-preparation">2. Data Preparation</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="notebooks/dnabert_inference.html#download-the-mycobacterium-tuberculosis-data-from-ncbi">Download the Mycobacterium tuberculosis data from NCBI</a></li>
+<li class="toctree-l3"><a class="reference internal" href="notebooks/dnabert_inference.html#checking-the-number-of-sequences-in-the-fna-file">Checking the number of sequences in the .fna file</a></li>
+<li class="toctree-l3"><a class="reference internal" href="notebooks/dnabert_inference.html#converting-fasta-file-to-expected-csv-format">Converting fasta file to expected CSV format</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="notebooks/dnabert_inference.html#generating-and-visualizing-embeddings">3. Generating and Visualizing Embeddings</a></li>
+<li class="toctree-l2"><a class="reference internal" href="notebooks/dnabert_inference.html#visualizing-embeddings">Visualizing Embeddings</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="notebooks/dnabert_pretrain_finetune.html">Pretrain, Fine-tune, and Perform Inference with DNABERT for Splice Site Prediction</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="notebooks/dnabert_pretrain_finetune.html#demo-objectives">Demo Objectives</a></li>
+<li class="toctree-l2"><a class="reference internal" href="notebooks/dnabert_pretrain_finetune.html#setup">Setup</a></li>
+<li class="toctree-l2"><a class="reference internal" href="notebooks/dnabert_pretrain_finetune.html#import-and-install-all-required-packages">Import and install all required packages</a></li>
+<li class="toctree-l2"><a class="reference internal" href="notebooks/dnabert_pretrain_finetune.html#home-directory">Home Directory</a></li>
+<li class="toctree-l2"><a class="reference internal" href="notebooks/dnabert_pretrain_finetune.html#download-model-checkpoints">Download Model Checkpoints</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="notebooks/dnabert_pretrain_finetune.html#a-small-note-about-config-files-and-model-options">A Small Note About Config Files and Model Options</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="notebooks/dnabert_pretrain_finetune.html#preprocessing-data">1. Preprocessing data</a></li>
+<li class="toctree-l2"><a class="reference internal" href="notebooks/dnabert_pretrain_finetune.html#pretrain-dnabert">2. Pretrain DNABert</a></li>
+<li class="toctree-l2"><a class="reference internal" href="notebooks/dnabert_pretrain_finetune.html#further-pre-training-from-a-checkpoint">Further pre-training from a checkpoint</a></li>
+<li class="toctree-l2"><a class="reference internal" href="notebooks/dnabert_pretrain_finetune.html#fine-tuning-dnabert-splice-site-prediction-task">3. Fine-tuning DNABert: Splice site prediction task</a></li>
+<li class="toctree-l2"><a class="reference internal" href="notebooks/dnabert_pretrain_finetune.html#splice-site-prediction-task">Splice-site prediction task</a></li>
+<li class="toctree-l2"><a class="reference internal" href="notebooks/dnabert_pretrain_finetune.html#data-format-for-splice-site-prediction-task">Data Format for Splice Site Prediction Task</a></li>
+<li class="toctree-l2"><a class="reference internal" href="notebooks/dnabert_pretrain_finetune.html#preprocessors-overview">Preprocessors Overview</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="notebooks/dnabert_pretrain_finetune.html#running-splice-site-prediction-task">Running splice site prediction task</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="toctree-wrapper compound">
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">APPENDIX</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="faq-fw.html">Frequently Asked Questions (FAQ)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="bibliography-fw.html">Bibliography</a></li>
+<li class="toctree-l1"><a class="reference internal" href="releasenotes-fw.html">Release Notes</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="releasenotes-fw.html#bionemo-framework-v1-9">BioNeMo Framework v1.9</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="releasenotes-fw.html#new-features">New Features</a></li>
+<li class="toctree-l3"><a class="reference internal" href="releasenotes-fw.html#bug-fixes-and-improvements">Bug fixes and Improvements</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="releasenotes-fw.html#bionemo-framework-v1-8">BioNeMo Framework v1.8</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="releasenotes-fw.html#id1">New Features</a></li>
+<li class="toctree-l3"><a class="reference internal" href="releasenotes-fw.html#id2">Bug fixes and Improvements</a></li>
+<li class="toctree-l3"><a class="reference internal" href="releasenotes-fw.html#known-issues">Known Issues</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="releasenotes-fw.html#bionemo-framework-v1-7">BioNeMo Framework v1.7</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="releasenotes-fw.html#new-models">New Models</a></li>
+<li class="toctree-l3"><a class="reference internal" href="releasenotes-fw.html#id3">New Features</a></li>
+<li class="toctree-l3"><a class="reference internal" href="releasenotes-fw.html#id4">Known Issues</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="releasenotes-fw.html#bionemo-framework-v1-6">BioNeMo Framework v1.6</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="releasenotes-fw.html#id5">New Features</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="releasenotes-fw.html#bionemo-framework-v1-5">BioNeMo Framework v1.5</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="releasenotes-fw.html#id6">New Models</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="releasenotes-fw.html#bionemo-framework-v1-4">BioNeMo Framework v1.4</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="releasenotes-fw.html#id7">New Models</a></li>
+<li class="toctree-l3"><a class="reference internal" href="releasenotes-fw.html#id8">New Features</a></li>
+<li class="toctree-l3"><a class="reference internal" href="releasenotes-fw.html#id9">Bug fixes and Improvements</a></li>
+<li class="toctree-l3"><a class="reference internal" href="releasenotes-fw.html#id10">Known Issues</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="releasenotes-fw.html#bionemo-framework-v1-3">BioNeMo Framework v1.3</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="releasenotes-fw.html#id11">New Models</a></li>
+<li class="toctree-l3"><a class="reference internal" href="releasenotes-fw.html#id12">New Features</a></li>
+<li class="toctree-l3"><a class="reference internal" href="releasenotes-fw.html#id13">Bug fixes and Improvements</a></li>
+<li class="toctree-l3"><a class="reference internal" href="releasenotes-fw.html#id14">Known Issues</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="releasenotes-fw.html#bionemo-framework-v1-2">BioNeMo Framework v1.2</a></li>
+<li class="toctree-l2"><a class="reference internal" href="releasenotes-fw.html#id15">New Models</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="releasenotes-fw.html#id16">New Features</a></li>
+<li class="toctree-l3"><a class="reference internal" href="releasenotes-fw.html#id17">Bug fixes and Improvements</a></li>
+<li class="toctree-l3"><a class="reference internal" href="releasenotes-fw.html#id18">Known Issues</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="releasenotes-fw.html#bionemo-framework-v1-1">BioNeMo Framework v1.1</a></li>
+<li class="toctree-l2"><a class="reference internal" href="releasenotes-fw.html#id19">New Models</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="releasenotes-fw.html#id20">New Features</a></li>
+<li class="toctree-l3"><a class="reference internal" href="releasenotes-fw.html#id21">Bug fixes and Improvements</a></li>
+<li class="toctree-l3"><a class="reference internal" href="releasenotes-fw.html#security-notice">Security Notice</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="releasenotes-fw.html#bionemo-framework-v1-0">BioNeMo Framework v1.0</a></li>
+<li class="toctree-l2"><a class="reference internal" href="releasenotes-fw.html#id22">New Models</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="releasenotes-fw.html#id23">New Features</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="releasenotes-fw.html#bionemo-framework-v0-4-0">BioNeMo Framework v0.4.0</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="releasenotes-fw.html#id24">New Models</a></li>
+<li class="toctree-l3"><a class="reference internal" href="releasenotes-fw.html#id25">New Features</a></li>
+<li class="toctree-l3"><a class="reference internal" href="releasenotes-fw.html#id26">Known Issues</a></li>
+<li class="toctree-l3"><a class="reference internal" href="releasenotes-fw.html#new-apis">New APIs</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</div>
+</div>
+
+<div class="section">
+   
+</div>
+
+              </div>
+              
+            </main>
+            <footer class="footer-article noprint">
+                
+    <!-- Previous / next buttons -->
+<div class='prev-next-area'>
+    <a class='right-next' id="next-link" href="index.html" title="next page">
+    <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">What is BioNeMo?</p>
+    </div>
+    <i class="fas fa-angle-right"></i>
+    </a>
+</div>
+            </footer>
+        </div>
+    </div>
+    <div class="footer-content row">
+        <footer class="col footer"><p>
+  
+    By NVIDIA<br/>
+  
+      &copy; Copyright 2023-2024 NVIDIA CORPORATION &amp; AFFILIATES. All rights reserved..<br/>
+    Last updated on Nov 20, 2024.<br/>
+</p>
+        </footer>
+    </div>
+    
+</div>
+
+
+      </div>
+    </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="_static/scripts/pydata-sphinx-theme.js?digest=1999514e3f237ded88cf"></script>
+
+
+  </body>
+</html>

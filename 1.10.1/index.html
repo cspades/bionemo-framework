@@ -1,0 +1,764 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>What is BioNeMo? &#8212; NVIDIA BioNeMo Framework</title>
+    
+  <!-- Loaded before other Sphinx assets -->
+  <link href="_static/styles/theme.css?digest=1999514e3f237ded88cf" rel="stylesheet">
+<link href="_static/styles/pydata-sphinx-theme.css?digest=1999514e3f237ded88cf" rel="stylesheet">
+
+    
+  <link rel="stylesheet"
+    href="_static/vendor/fontawesome/5.13.0/css/all.min.css">
+  <link rel="preload" as="font" type="font/woff2" crossorigin
+    href="_static/vendor/fontawesome/5.13.0/webfonts/fa-solid-900.woff2">
+  <link rel="preload" as="font" type="font/woff2" crossorigin
+    href="_static/vendor/fontawesome/5.13.0/webfonts/fa-brands-400.woff2">
+
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
+    <link rel="stylesheet" href="_static/styles/sphinx-book-theme.css?digest=62ba249389abaaa9ffc34bf36a076bdc1d65ee18" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="_static/mystnb.4510f1fc1dee50b3e5859aac5469c37c29e427902b24a333a5f9fcb2f0b3ac41.css" />
+    <link rel="stylesheet" type="text/css" href="_static/copybutton.css" />
+    <link rel="stylesheet" type="text/css" href="_static/tabs.css" />
+    <link rel="stylesheet" type="text/css" href="_static/custom.css" />
+    <link rel="stylesheet" type="text/css" href="_static/design-style.1e8bd061cd6da7fc9cf755528e8ffc24.min.css" />
+    
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="_static/scripts/pydata-sphinx-theme.js?digest=1999514e3f237ded88cf">
+
+    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+    <script src="_static/jquery.js"></script>
+    <script src="_static/underscore.js"></script>
+    <script src="_static/doctools.js"></script>
+    <script src="_static/clipboard.min.js"></script>
+    <script src="_static/copybutton.js"></script>
+    <script src="https://js.hcaptcha.com/1/api.js"></script>
+    <script src="//assets.adobedtm.com/5d4962a43b79/c1061d2c5e7b/launch-191c2462b890.min.js"></script>
+    <script src="_static/scripts/sphinx-book-theme.js?digest=f31d14ad54b65d19161ba51d4ffff3a77ae00456"></script>
+    <script src="_static/design-tabs.js"></script>
+    <link rel="canonical" href="https://docs.nvidia.com/bionemo-framework/0.4.0/index.html" />
+    <link rel="shortcut icon" href="_static/nvidia-logo-vert-rgb-blk-for-screen.png"/>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Hardware and Software Prerequisites" href="pre-reqs.html" />
+    <link rel="prev" title="Contents" href="contents.html" /> 
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="docsearch:language" content="None">
+    
+
+    <!-- Google Analytics -->
+      
+<style type="text/css">
+  ul.ablog-archive {
+    list-style: none;
+    overflow: auto;
+    margin-left: 0px;
+  }
+  ul.ablog-archive li {
+    float: left;
+    margin-right: 5px;
+    font-size: 80%;
+  }
+  ul.postlist a {
+    font-style: italic;
+  }
+  ul.postlist-style-disc {
+    list-style-type: disc;
+  }
+  ul.postlist-style-none {
+    list-style-type: none;
+  }
+  ul.postlist-style-circle {
+    list-style-type: circle;
+  }
+</style>
+
+  </head>
+  <body data-spy="scroll" data-target="#bd-toc-nav" data-offset="60">
+<!-- Checkboxes to toggle the left sidebar -->
+<input type="checkbox" class="sidebar-toggle" name="__navigation" id="__navigation" aria-label="Toggle navigation sidebar">
+<label class="overlay overlay-navbar" for="__navigation">
+    <div class="visually-hidden">Toggle navigation sidebar</div>
+</label>
+<!-- Checkboxes to toggle the in-page toc -->
+<input type="checkbox" class="sidebar-toggle" name="__page-toc" id="__page-toc" aria-label="Toggle in-page Table of Contents">
+<label class="overlay overlay-pagetoc" for="__page-toc">
+    <div class="visually-hidden">Toggle in-page Table of Contents</div>
+</label>
+<!-- Headers at the top -->
+<div class="announcement header-item noprint"></div>
+<div class="header header-item noprint"></div>
+
+    
+    <div class="container-fluid" id="banner"></div>
+
+    
+
+    <div class="container-xl">
+      <div class="row">
+          
+<!-- Sidebar -->
+<div class="bd-sidebar noprint" id="site-navigation">
+    <div class="bd-sidebar__content">
+        <div class="bd-sidebar__top"><div class="navbar-brand-box">
+    <a class="navbar-brand text-wrap" href="#">
+      
+        <!-- `logo` is deprecated in Sphinx 4.0, so remove this when we stop supporting 3 -->
+        
+      
+      
+      <img src="_static/nvidia-logo-horiz-rgb-blk-for-screen.png" class="logo" alt="logo">
+      
+      
+      <h1 class="site-logo" id="site-title">NVIDIA BioNeMo Framework</h1>
+      
+    </a>
+</div><form class="bd-search d-flex align-items-center" action="search.html" method="get">
+  <i class="icon fas fa-search"></i>
+  <input type="search" class="form-control" name="q" id="search-input" placeholder="Search the docs ..." aria-label="Search the docs ..." autocomplete="off" >
+</form><nav class="bd-links" id="bd-docs-nav" aria-label="Main">
+    <div class="bd-toc-item active">
+        <p aria-level="2" class="caption" role="heading">
+ <span class="caption-text">
+  GETTING STARTED
+ </span>
+</p>
+<ul class="current nav bd-sidenav">
+ <li class="toctree-l1 current active">
+  <a class="current reference internal" href="#">
+   What is BioNeMo?
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="pre-reqs.html">
+   Hardware and Software Prerequisites
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="access-startup.html">
+   Access and Startup
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="initialization-guide.html">
+   Initialization Guide
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="tutorial-list.html">
+   BioNeMo Framework Tutorials
+  </a>
+ </li>
+</ul>
+<p aria-level="2" class="caption" role="heading">
+ <span class="caption-text">
+  BioNeMo CORE
+ </span>
+</p>
+<ul class="nav bd-sidenav">
+ <li class="toctree-l1">
+  <a class="reference internal" href="bionemo-fw-for-model-training-fw.html">
+   Fundamentals
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="data-module-fw.html">
+   Data Module
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="dwnstr-task-validation.html">
+   Validation with a Downstream Task
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="inference-triton-fw.html">
+   Inference with Nvidia Triton Server
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="deep-dive-esm1-pytriton-inference.html">
+   Example of PyTriton Inference
+  </a>
+ </li>
+</ul>
+<p aria-level="2" class="caption" role="heading">
+ <span class="caption-text">
+  BEST PRACTICES
+ </span>
+</p>
+<ul class="nav bd-sidenav">
+ <li class="toctree-l1">
+  <a class="reference internal" href="hyperparameters-fw.html">
+   Hyperparameter Usage and Tuning
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="parallelism-fw.html">
+   Training Parallelism
+  </a>
+ </li>
+</ul>
+<p aria-level="2" class="caption" role="heading">
+ <span class="caption-text">
+  MODELS
+ </span>
+</p>
+<ul class="nav bd-sidenav">
+ <li class="toctree-l1">
+  <a class="reference internal" href="models/diffdock.html">
+   DiffDock
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="models/dnabert.html">
+   DNABERT
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="models/dsmbind.html">
+   DSMBind
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="models/equidock.html">
+   EquiDock
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="models/esm1-nv.html">
+   ESM-1nv
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="models/esm2-nv.html">
+   ESM-2nv
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="models/geneformer.html">
+   Geneformer
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="models/megamolbart.html">
+   MegaMolBART
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="models/molmim.html">
+   MolMIM
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="models/openfold.html">
+   OpenFold
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="models/prott5nv.html">
+   Prott5nv
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="models/model-benchmarks.html">
+   Model Benchmarks
+  </a>
+ </li>
+</ul>
+<p aria-level="2" class="caption" role="heading">
+ <span class="caption-text">
+  DATASETS
+ </span>
+</p>
+<ul class="nav bd-sidenav">
+ <li class="toctree-l1">
+  <a class="reference internal" href="datasets/uniprot.html">
+   UniProt Dataset
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="datasets/CELLxGENE.html">
+   CELLxGENE
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="datasets/zinc15.html">
+   ZINC-15 Dataset
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="datasets/pdb.html">
+   The Protein Data Bank (PDB)
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="datasets/GRCh38.p13.html">
+   Human Reference Genome Version GRCh38.p13
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="datasets/openproteinset.html">
+   OpenProteinSet
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="datasets/moleculenet-physchem.html">
+   MoleculeNet Physical Chemistry Datasets - Lipophilicity, FreeSolv, ESOL
+  </a>
+ </li>
+</ul>
+<p aria-level="2" class="caption" role="heading">
+ <span class="caption-text">
+  TUTORIALS
+ </span>
+</p>
+<ul class="nav bd-sidenav">
+ <li class="toctree-l1">
+  <a class="reference internal" href="preprocessing-bcp-training-diffdock.html">
+   DiffDock: Preparing Workspace and Data for Pre-training
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="notebooks/esm2nv-mutant-design.html">
+   Zero-Shot Protein Design Using ESM-2nv
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="notebooks/MMB_GenerativeAI_Inference_with_examples.html">
+   BioNeMo - MegaMolBART Inferencing for Generative Chemistry
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="notebooks/MolMIM_GenerativeAI_local_inference_with_examples.html">
+   MolMIM Inferencing for Generative Chemistry and Downstream Prediction
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="notebooks/ZINC15-data-preprocessing.html">
+   ZINC Training Dataset Setup for small molecule language models
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="notebooks/bionemo-finetuning-overview.html">
+   Finetune pre-trained models in BioNeMo
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="notebooks/cma_es_guided_molecular_optimization_molmim.html">
+   MolMIM Property Guided Molecular Optimization Using CMA-ES
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="notebooks/custom-dataset-class-fw.html">
+   Adding the OAS Dataset: Modifying the Dataset Class
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="notebooks/custom-dataset-dataloader.html">
+   Adding the OAS Dataset: Customizing Dataset Object and Dataloader Functions
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="notebooks/custom-dataset-preprocessing-fw.html">
+   Adding the OAS Dataset: Downloading and Preprocessing
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="notebooks/encoder-finetuning-notebook-fw.html">
+   Encoder Fine-tuning
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="notebooks/model_training_diffdock.html">
+   DiffDock Model Training using BioNeMo
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="notebooks/model_training_equidock.html">
+   EquiDock Model Training using BioNeMo
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="notebooks/model_training_esm1nv.html">
+   ESM1nv Model Training using BioNeMo
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="notebooks/model_training_esm2nv.html">
+   ESM-2nv: Data Preprocessing and Model Training Using BioNeMo
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="notebooks/model_training_mmb.html">
+   MegaMolBART Model Training using BioNeMo
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="notebooks/model_training_molmim.html">
+   Train MolMIM from scratch on your own data using the BioNeMo Framework
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="notebooks/physchem-notebook-fw.html">
+   Finetuning LLM in BioNeMo for a Downstream Task
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="notebooks/protein-esm2nv-clustering.html">
+   Generating Embeddings for Protein Clustering
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="notebooks/retrosynthesis-notebook.html">
+   Training LLM for a Custom Downstram Task: Retrosynthesis Prediction using MegaMolBART
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="notebooks/esm2_FLIP_finetuning.html">
+   Fine-Tune ESM-2nv on FLIP Data for Sequence-Level Classification, Regression, Token-Level Classification, and with LoRA Adapters
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="notebooks/esm2_oas_inferencing.html">
+   Performing inference on OAS sequences with ESM-2nv
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="notebooks/esm2_paratope_finetuning.html">
+   Pretrain from Scratch, Continue Training from an Existing Checkpoint, and Fine-tune ESM-2nv on Custom Data
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="notebooks/dnabert_inference.html">
+   Generating and visualizing embeddings with DNABert
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="notebooks/dnabert_pretrain_finetune.html">
+   Pretrain, Fine-tune, and Perform Inference with DNABERT for Splice Site Prediction
+  </a>
+ </li>
+</ul>
+<p aria-level="2" class="caption" role="heading">
+ <span class="caption-text">
+  APPENDIX
+ </span>
+</p>
+<ul class="nav bd-sidenav">
+ <li class="toctree-l1">
+  <a class="reference internal" href="faq-fw.html">
+   Frequently Asked Questions (FAQ)
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="bibliography-fw.html">
+   Bibliography
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="releasenotes-fw.html">
+   Release Notes
+  </a>
+ </li>
+</ul>
+
+    </div>
+</nav></div>
+        <div class="bd-sidebar__bottom">
+             <!-- To handle the deprecated key -->
+            
+        </div>
+    </div>
+    <div id="rtd-footer-container"></div>
+</div>
+
+
+          
+
+
+          
+<!-- A tiny helper pixel to detect if we've scrolled -->
+<div class="sbt-scroll-pixel-helper"></div>
+<!-- Main content -->
+<div class="col py-0 content-container">
+    
+    <div class="header-article row sticky-top noprint">
+        
+
+
+
+<div class="col py-1 d-flex header-article-main">
+    <div class="header-article__left">
+        
+        <label for="__navigation"
+  class="headerbtn"
+  data-toggle="tooltip"
+data-placement="right"
+title="Toggle navigation"
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fas fa-bars"></i>
+  </span>
+
+</label>
+
+        
+    </div>
+    <div class="header-article__right">
+<button onclick="toggleFullScreen()"
+  class="headerbtn"
+  data-toggle="tooltip"
+data-placement="bottom"
+title="Fullscreen mode"
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fas fa-expand"></i>
+  </span>
+
+</button>
+<label for="__page-toc"
+  class="headerbtn headerbtn-page-toc"
+  
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fas fa-list"></i>
+  </span>
+
+</label>
+
+    </div>
+</div>
+
+<!-- Table of contents -->
+<div class="col-md-3 bd-toc show noprint">
+    <div class="tocsection onthispage pt-5 pb-3">
+        <i class="fas fa-list"></i> Contents
+    </div>
+    <nav id="bd-toc-nav" aria-label="Page">
+        <ul class="visible nav section-nav flex-column">
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#bionemo-customer-success-stories">
+   BioNeMo Customer Success Stories
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#bionemo-framework-fundamentals">
+   BioNeMo Framework: Fundamentals
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#bionemo-framework-available-models">
+   BioNeMo Framework: Available Models
+  </a>
+ </li>
+</ul>
+
+    </nav>
+</div>
+    </div>
+    <div class="article row">
+        <div class="col pl-md-3 pl-lg-5 content-container">
+            <!-- Table of contents that is only displayed when printing the page -->
+            <div id="jb-print-docs-body" class="onlyprint">
+                <h1>What is BioNeMo?</h1>
+                <!-- Table of contents -->
+                <div id="print-main-content">
+                    <div id="jb-print-toc">
+                        
+                        <div>
+                            <h2> Contents </h2>
+                        </div>
+                        <nav aria-label="Page">
+                            <ul class="visible nav section-nav flex-column">
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#bionemo-customer-success-stories">
+   BioNeMo Customer Success Stories
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#bionemo-framework-fundamentals">
+   BioNeMo Framework: Fundamentals
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#bionemo-framework-available-models">
+   BioNeMo Framework: Available Models
+  </a>
+ </li>
+</ul>
+
+                        </nav>
+                    </div>
+                </div>
+            </div>
+            <main id="main-content" role="main">
+                
+              <div>
+                 <div class="tex2jax_ignore mathjax_ignore section" id="what-is-bionemo">
+<h1>What is BioNeMo?<a class="headerlink" href="#what-is-bionemo" title="Permalink to this headline">#</a></h1>
+<p>Generative AI and large language models (LLMs) are achieving incredible breakthroughs in chemistry and biology, such as enabling 3D protein structure prediction, property prediction, and even the generation of novel protein sequences and molecules. This progress has facilitated developments in the pharmaceutical industry, such as antibody design, small-molecule drug design, and newer approaches like RNA aptamer and peptide-based therapeutics. As each of these pieces comes into play, their respective models may need additional fine-tuning or optimization to thoroughly explore or understand the biomolecular space, leading to the need for centralized infrastructure for model development and deployment.</p>
+<p><strong>BioNeMo Framework</strong> is a free to use collection of programming tools and packages offering access to optimized, pre-trained biomolecular models and workflows, along with versatile functionalities for building and customizing models, including training and fine-tuning. Capabilities span various workloads and therapeutic modalities, such as molecular generation and representation learning, protein structure prediction and representation learning, protein-ligand and protein-protein docking, and DNA/RNA/single-cell embedding.</p>
+<p><strong>BioNeMo NIMs</strong> are easy-to-use enterprise-ready inference microservices with built-in API endpoints. NIMs are engineered for scalable, self-hosted or cloud-hosted deployment of optimized, production-grade biomolecular foundation models on any cloud or data center. Check out the growing list of BioNeMo NIMs <a class="reference external" href="https://build.nvidia.com/explore/biology">here</a>.</p>
+<p>When selecting between the BioNeMo Framework and BioNeMo NIMs, the specific requirements of your project should guide your decision. The BioNeMo Framework is suitable for scenarios that necessitate model training, fine-tuning, or customization, as it provides a comprehensive suite of tools and packages for building and tailoring models. However, this framework requires a more complex setup procedure and familiarity with the code base. In contrast, BioNeMo NIMs are optimized for inference-only workflows, offering easy-to-use, enterprise-ready inference microservices with built-in API endpoints that are quick to deploy and utilize. Additionally, NIMs may be optimized for specific hardware, potentially resulting in accelerated inference times and increased throughput. As a general guideline, the BioNeMo Framework is recommended for use cases that necessitate custom model development or require a high degree of control over the modeling process. Conversely, BioNeMo NIMs are the preferred choice when only inference against an existing model is required.</p>
+<p><img alt="" src="_images/bionemo_overview_2.png" /></p>
+<div class="section" id="bionemo-customer-success-stories">
+<h2>BioNeMo Customer Success Stories<a class="headerlink" href="#bionemo-customer-success-stories" title="Permalink to this headline">#</a></h2>
+<p><a class="reference external" href="https://www.nvidia.com/en-us/case-studies/amgen-biologics-discovery-and-development/">Enhancing Biologics Discovery and Development With Generative AI</a> - Amgen is utilizing NVIDIA’s BioNeMo service and DGX Cloud to train large language models (LLMs) on proprietary protein sequence data, enabling the prediction of protein properties and the design of biologics with enhanced properties. By leveraging BioNeMo’s turnkey solution, Amgen was able to rapidly train and fine-tune protein LLMs, achieving faster training and up to 100X faster post-training analysis compared to open-source options. This partnership accelerates the drug discovery process by enabling the generation of hypotheses about biologic effects, properties, and side effects, and facilitates the development of more effective and targeted treatments.</p>
+<p><a class="reference external" href="https://blogs.nvidia.com/blog/generative-ai-proteins-evozyne/">NVIDIA, Evozyne Create Generative AI Model for Proteins</a> - Evozyne is using a pretrained AI model included in BioNeMo to create proteins with potential applications in healthcare and clean energy. The researchers also used BioNeMo to train their own model, ProT-VAE, which combines a transformer model with a variational autoencoder, allowing them to generate millions of protein sequences in just a few seconds and explore new proteins with useful functions.</p>
+<p><a class="reference external" href="https://developer.nvidia.com/blog/accelerating-drug-discovery-at-receptor-ai-with-nvidia-bionemo-cloud-apis/">Accelerating Drug Discovery at Receptor.AI with NVIDIA BioNeMo Cloud APIs</a> - Receptor.AI integrated NVIDIA’s BioNeMo with their computer-assisted drug discovery (CADD) platform, achieving significant performance improvements and cost savings by shifting tasks like virtual screening and ligand pose prediction from CPU-based processing to accelerated computing on NVIDIA’s platform. The integration enabled Receptor.AI to identify hit compounds with higher predicted affinity to the target protein FADS1, with a 49% reduction in costs per instance-hour. The collaboration will further develop AI-based drug discovery platforms for biotech and pharmaceutical companies, leveraging NVIDIA’s hardware and software accelerations.</p>
+<p><a class="reference external" href="https://blogs.nvidia.com/blog/bionemo-ai-drug-discovery-foundation-models-microservices/">NVIDIA BioNeMo Expands Computer-Aided Drug Discovery With New Foundation Models</a> - Companies are leveraging BioNeMo to accelerate molecular simulations and utilize large language models for drug discovery applications. These advancements include integrating BioNeMo with existing platforms, such as Cadence’s Orion, to speed up molecular simulation, and developing pipelines for therapeutic assets using AI-accelerated workflows, as with Insilico Medicine. Additionally, companies like Iambic and Recursion are contributing predictive models, such as NeuralPLexer and Phenom-Beta, to BioNeMo to better understand protein structure changes and cell function in response to drug molecules.</p>
+<p><a class="reference external" href="https://investors.cognizant.com/news-and-events/news/news-details/2024/Cognizant-to-apply-generative-AI-to-enhance-drug-discovery-for-pharmaceutical-clients-with-NVIDIA-BioNeMo/default.aspx">Cognizant to apply generative AI to enhance drug discovery for pharmaceutical clients with NVIDIA BioNeMo</a> - Cognizant is utilizing NVIDIA’s BioNeMo platform to leverage generative AI technology in drug discovery, enabling researchers to rapidly analyze vast datasets, predict interactions between drug compounds, and create new development pathways. This collaboration aims to provide clients with a suite of model-making services, including pretrained models and APIs, to accelerate drug discovery with reduced manual intervention and infrastructure maintenance. The goal is to improve productivity, reduce costs, and increase the speed of bringing life-saving treatments to market.</p>
+<p><a class="reference external" href="https://www.cadence.com/en_US/home/company/newsroom/press-releases/pr/2024/cadence-and-nvidia-unveil-groundbreaking-generative-ai-and.html">Cadence and NVIDIA Unveil Groundbreaking Generative AI and Accelerated Compute-Driven Innovations</a> - Cadence’s Orion molecular design platform will be integrated with NVIDIA’s generative AI tool, BioNeMo, to accelerate therapeutic design capabilities and shorten time to trusted results in drug discovery. The combined platform will enable pharmaceutical companies to quickly and reliably generate and assess design hypotheses across various therapeutic modalities, including biologics, peptides, and small molecules, using on-demand GPU access. BioNeMo models will provide structure prediction, small molecule generation, and molecular property prediction, which can be further profiled and iteratively enhanced and designed with Orion tools.</p>
+<p>Find more customer stories on NVIDIA’s <a class="reference external" href="https://www.nvidia.com/en-us/case-studies/?industries=Healthcare%20%26%20Life%20Sciences&amp;page=1">Customer Stories</a> and <a class="reference external" href="https://developer.nvidia.com/blog/search-posts/?q=bionemo">Technical Blog</a> pages.</p>
+</div>
+<div class="section" id="bionemo-framework-fundamentals">
+<h2>BioNeMo Framework: Fundamentals<a class="headerlink" href="#bionemo-framework-fundamentals" title="Permalink to this headline">#</a></h2>
+<p>BioNeMo Framework provides versatile functionalities for developing and training large-scale biology-based models. BioNeMo allows users to build and train biomolecular models by providing access to pre-trained models and common model components for accelerating drug discovery workflows. Built for supercomputing scale, the framework allows developers to easily configure and train distributed multi-node jobs with minimal code.</p>
+<p><img alt="" src="_images/bionemo_overview_1.png" /></p>
+<p>BioNeMo is built on <a class="reference external" href="https://docs.nvidia.com/deeplearning/nemo/user-guide/docs/en/stable/starthere/intro.html">NeMo</a>, a scalable and cloud-native generative AI framework for researchers to create, customize, and deploy large language models (LLMs). NeMo provides a robust environment for working with large learning models, including <a class="reference external" href="https://docs.nvidia.com/deeplearning/nemo/user-guide/docs/en/stable/nlp/megatron.html">NVIDIA Megatron</a> models. The BioNeMo Framework provides enhancements to PyTorch Lighting, such as hyperparameter configurability with YAML files and checkpoint management. Users can conveniently and quickly train models using these features, test them for desired tasks, and integrate them alongside existing applications.</p>
+<p>Some of the key features of BioNeMo Framework are:</p>
+<ul class="simple">
+<li><p>Development and training of large transformer models using NVIDIA’s Megatron framework.</p></li>
+<li><p>Easy to configure multi-GPU, multi-node training with data parallelism, model parallelism, and mixed precision.</p></li>
+<li><p>Model training recipes that can be readily implemented on DGX compute infrastructure.</p></li>
+<li><p>Logging with Tensorboard and Weights and Biases to monitor the model training process.</p></li>
+</ul>
+</div>
+<div class="section" id="bionemo-framework-available-models">
+<h2>BioNeMo Framework: Available Models<a class="headerlink" href="#bionemo-framework-available-models" title="Permalink to this headline">#</a></h2>
+<p>State-of-the-art models are being continually integrated into the BioNeMo Framework. The available catalog consists of: 1) Models developed by NVIDIA, 2) Models contributed by NVIDIA’s ecosystem partners, and 3) Community models further enhanced by NVIDIA to take advantage of GPU acceleration. The BioNeMo Framework currently offers the following pre-trained models:</p>
+<table class="colwidths-auto table">
+<thead>
+<tr class="row-odd"><th class="head"><p><strong>Model</strong></p></th>
+<th class="head"><p><strong>Modality</strong></p></th>
+<th class="head"><p><strong>Uses</strong></p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><a class="reference internal" href="models/megamolbart.html"><span class="doc std std-doc">MegaMolBART</span></a></p></td>
+<td><p>Small Molecule</p></td>
+<td><p>Representation Learning + Molecule Generation</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="models/molmim.html"><span class="doc std std-doc">MolMIM</span></a></p></td>
+<td><p>Small Molecule</p></td>
+<td><p>Representation Learning + Molecule Generation</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="models/esm1-nv.html"><span class="doc std std-doc">ESM-1nv</span></a></p></td>
+<td><p>Protein</p></td>
+<td><p>Representation Learning</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="models/esm2-nv.html"><span class="doc std std-doc">ESM-2nv 650M</span></a></p></td>
+<td><p>Protein</p></td>
+<td><p>Representation Learning</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="models/esm2-nv.html"><span class="doc std std-doc">ESM-2nv 3B</span></a></p></td>
+<td><p>Protein</p></td>
+<td><p>Representation Learning</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="models/equidock.html"><span class="doc std std-doc">EquiDock DIPS Model</span></a></p></td>
+<td><p>Protein</p></td>
+<td><p>Protein-Protein Complex Formation</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="models/equidock.html"><span class="doc std std-doc">EquiDock DB5 Model</span></a></p></td>
+<td><p>Protein</p></td>
+<td><p>Protein-Protein Complex Formation</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="models/openfold.html"><span class="doc std std-doc">OpenFold</span></a></p></td>
+<td><p>Protein</p></td>
+<td><p>Protein Structure Prediction</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="models/prott5nv.html"><span class="doc std std-doc">ProtT5nv</span></a></p></td>
+<td><p>Protein</p></td>
+<td><p>Representation Learning</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="models/diffdock.html"><span class="doc std std-doc">DiffDock Confidence Model</span></a></p></td>
+<td><p>Protein + Molecule</p></td>
+<td><p>Generation of Ligand Poses</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="models/diffdock.html"><span class="doc std std-doc">DiffDock Score Model</span></a></p></td>
+<td><p>Protein + Molecule</p></td>
+<td><p>Generation of Ligand Poses</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="models/dnabert.html"><span class="doc std std-doc">DNABERT</span></a></p></td>
+<td><p>DNA</p></td>
+<td><p>Representation Learning</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="models/geneformer.html"><span class="doc std std-doc">Geneformer</span></a></p></td>
+<td><p>Single Cell</p></td>
+<td><p>Representation Learning</p></td>
+</tr>
+</tbody>
+</table>
+<p>When building your workflow, take the following steps to choose the right model:</p>
+<ol class="arabic simple">
+<li><p>Consider the model size and assess your compute availability, as larger models demand significant computational resources.</p></li>
+<li><p>Examine your data type, as different models are designed for specific data types such as DNA, RNA, protein, small molecule, or mixed data.</p></li>
+<li><p>Define the target outcome of your workflow, whether it’s generation, property prediction, or other tasks.</p></li>
+</ol>
+<p>Use the detailed information in each Model Card, which provides insights into the training data, compute requirements, capabilities, and optimizations of each model. By reviewing these Model Cards carefully, you can select a model that aligns with your workflow, ultimately maximizing the effectiveness and efficiency of your research.</p>
+</div>
+</div>
+
+<div class="section">
+   
+</div>
+
+              </div>
+              
+            </main>
+            <footer class="footer-article noprint">
+                
+    <!-- Previous / next buttons -->
+<div class='prev-next-area'>
+    <a class='left-prev' id="prev-link" href="contents.html" title="previous page">
+        <i class="fas fa-angle-left"></i>
+        <div class="prev-next-info">
+            <p class="prev-next-subtitle">previous</p>
+            <p class="prev-next-title">Contents</p>
+        </div>
+    </a>
+    <a class='right-next' id="next-link" href="pre-reqs.html" title="next page">
+    <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">Hardware and Software Prerequisites</p>
+    </div>
+    <i class="fas fa-angle-right"></i>
+    </a>
+</div>
+            </footer>
+        </div>
+    </div>
+    <div class="footer-content row">
+        <footer class="col footer"><p>
+  
+    By NVIDIA<br/>
+  
+      &copy; Copyright 2023-2024 NVIDIA CORPORATION &amp; AFFILIATES. All rights reserved..<br/>
+    Last updated on Nov 20, 2024.<br/>
+</p>
+        </footer>
+    </div>
+    
+</div>
+
+
+      </div>
+    </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="_static/scripts/pydata-sphinx-theme.js?digest=1999514e3f237ded88cf"></script>
+
+
+  </body>
+</html>

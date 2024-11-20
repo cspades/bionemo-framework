@@ -1,0 +1,1458 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Fine-Tune ESM-2nv on FLIP Data for Sequence-Level Classification, Regression, Token-Level Classification, and with LoRA Adapters &#8212; NVIDIA BioNeMo Framework</title>
+    
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../_static/styles/theme.css?digest=1999514e3f237ded88cf" rel="stylesheet">
+<link href="../_static/styles/pydata-sphinx-theme.css?digest=1999514e3f237ded88cf" rel="stylesheet">
+
+    
+  <link rel="stylesheet"
+    href="../_static/vendor/fontawesome/5.13.0/css/all.min.css">
+  <link rel="preload" as="font" type="font/woff2" crossorigin
+    href="../_static/vendor/fontawesome/5.13.0/webfonts/fa-solid-900.woff2">
+  <link rel="preload" as="font" type="font/woff2" crossorigin
+    href="../_static/vendor/fontawesome/5.13.0/webfonts/fa-brands-400.woff2">
+
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
+    <link rel="stylesheet" href="../_static/styles/sphinx-book-theme.css?digest=62ba249389abaaa9ffc34bf36a076bdc1d65ee18" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="../_static/mystnb.4510f1fc1dee50b3e5859aac5469c37c29e427902b24a333a5f9fcb2f0b3ac41.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/copybutton.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/tabs.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/custom.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/design-style.1e8bd061cd6da7fc9cf755528e8ffc24.min.css" />
+    
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=1999514e3f237ded88cf">
+
+    <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+    <script src="../_static/jquery.js"></script>
+    <script src="../_static/underscore.js"></script>
+    <script src="../_static/doctools.js"></script>
+    <script src="../_static/clipboard.min.js"></script>
+    <script src="../_static/copybutton.js"></script>
+    <script src="https://js.hcaptcha.com/1/api.js"></script>
+    <script src="//assets.adobedtm.com/5d4962a43b79/c1061d2c5e7b/launch-191c2462b890.min.js"></script>
+    <script src="../_static/scripts/sphinx-book-theme.js?digest=f31d14ad54b65d19161ba51d4ffff3a77ae00456"></script>
+    <script src="../_static/design-tabs.js"></script>
+    <link rel="canonical" href="https://docs.nvidia.com/bionemo-framework/0.4.0/notebooks/esm2_FLIP_finetuning.html" />
+    <link rel="shortcut icon" href="../_static/nvidia-logo-vert-rgb-blk-for-screen.png"/>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Performing inference on OAS sequences with ESM-2nv" href="esm2_oas_inferencing.html" />
+    <link rel="prev" title="Training LLM for a Custom Downstram Task: Retrosynthesis Prediction using MegaMolBART" href="retrosynthesis-notebook.html" /> 
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="docsearch:language" content="None">
+    
+
+    <!-- Google Analytics -->
+      
+<style type="text/css">
+  ul.ablog-archive {
+    list-style: none;
+    overflow: auto;
+    margin-left: 0px;
+  }
+  ul.ablog-archive li {
+    float: left;
+    margin-right: 5px;
+    font-size: 80%;
+  }
+  ul.postlist a {
+    font-style: italic;
+  }
+  ul.postlist-style-disc {
+    list-style-type: disc;
+  }
+  ul.postlist-style-none {
+    list-style-type: none;
+  }
+  ul.postlist-style-circle {
+    list-style-type: circle;
+  }
+</style>
+
+  </head>
+  <body data-spy="scroll" data-target="#bd-toc-nav" data-offset="60">
+<!-- Checkboxes to toggle the left sidebar -->
+<input type="checkbox" class="sidebar-toggle" name="__navigation" id="__navigation" aria-label="Toggle navigation sidebar">
+<label class="overlay overlay-navbar" for="__navigation">
+    <div class="visually-hidden">Toggle navigation sidebar</div>
+</label>
+<!-- Checkboxes to toggle the in-page toc -->
+<input type="checkbox" class="sidebar-toggle" name="__page-toc" id="__page-toc" aria-label="Toggle in-page Table of Contents">
+<label class="overlay overlay-pagetoc" for="__page-toc">
+    <div class="visually-hidden">Toggle in-page Table of Contents</div>
+</label>
+<!-- Headers at the top -->
+<div class="announcement header-item noprint"></div>
+<div class="header header-item noprint"></div>
+
+    
+    <div class="container-fluid" id="banner"></div>
+
+    
+
+    <div class="container-xl">
+      <div class="row">
+          
+<!-- Sidebar -->
+<div class="bd-sidebar noprint" id="site-navigation">
+    <div class="bd-sidebar__content">
+        <div class="bd-sidebar__top"><div class="navbar-brand-box">
+    <a class="navbar-brand text-wrap" href="../index.html">
+      
+        <!-- `logo` is deprecated in Sphinx 4.0, so remove this when we stop supporting 3 -->
+        
+      
+      
+      <img src="../_static/nvidia-logo-horiz-rgb-blk-for-screen.png" class="logo" alt="logo">
+      
+      
+      <h1 class="site-logo" id="site-title">NVIDIA BioNeMo Framework</h1>
+      
+    </a>
+</div><form class="bd-search d-flex align-items-center" action="../search.html" method="get">
+  <i class="icon fas fa-search"></i>
+  <input type="search" class="form-control" name="q" id="search-input" placeholder="Search the docs ..." aria-label="Search the docs ..." autocomplete="off" >
+</form><nav class="bd-links" id="bd-docs-nav" aria-label="Main">
+    <div class="bd-toc-item active">
+        <p aria-level="2" class="caption" role="heading">
+ <span class="caption-text">
+  GETTING STARTED
+ </span>
+</p>
+<ul class="nav bd-sidenav">
+ <li class="toctree-l1">
+  <a class="reference internal" href="../index.html">
+   What is BioNeMo?
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../pre-reqs.html">
+   Hardware and Software Prerequisites
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../access-startup.html">
+   Access and Startup
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../initialization-guide.html">
+   Initialization Guide
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../tutorial-list.html">
+   BioNeMo Framework Tutorials
+  </a>
+ </li>
+</ul>
+<p aria-level="2" class="caption" role="heading">
+ <span class="caption-text">
+  BioNeMo CORE
+ </span>
+</p>
+<ul class="nav bd-sidenav">
+ <li class="toctree-l1">
+  <a class="reference internal" href="../bionemo-fw-for-model-training-fw.html">
+   Fundamentals
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../data-module-fw.html">
+   Data Module
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../dwnstr-task-validation.html">
+   Validation with a Downstream Task
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../inference-triton-fw.html">
+   Inference with Nvidia Triton Server
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../deep-dive-esm1-pytriton-inference.html">
+   Example of PyTriton Inference
+  </a>
+ </li>
+</ul>
+<p aria-level="2" class="caption" role="heading">
+ <span class="caption-text">
+  BEST PRACTICES
+ </span>
+</p>
+<ul class="nav bd-sidenav">
+ <li class="toctree-l1">
+  <a class="reference internal" href="../hyperparameters-fw.html">
+   Hyperparameter Usage and Tuning
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../parallelism-fw.html">
+   Training Parallelism
+  </a>
+ </li>
+</ul>
+<p aria-level="2" class="caption" role="heading">
+ <span class="caption-text">
+  MODELS
+ </span>
+</p>
+<ul class="nav bd-sidenav">
+ <li class="toctree-l1">
+  <a class="reference internal" href="../models/diffdock.html">
+   DiffDock
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../models/dnabert.html">
+   DNABERT
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../models/dsmbind.html">
+   DSMBind
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../models/equidock.html">
+   EquiDock
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../models/esm1-nv.html">
+   ESM-1nv
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../models/esm2-nv.html">
+   ESM-2nv
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../models/geneformer.html">
+   Geneformer
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../models/megamolbart.html">
+   MegaMolBART
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../models/molmim.html">
+   MolMIM
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../models/openfold.html">
+   OpenFold
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../models/prott5nv.html">
+   Prott5nv
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../models/model-benchmarks.html">
+   Model Benchmarks
+  </a>
+ </li>
+</ul>
+<p aria-level="2" class="caption" role="heading">
+ <span class="caption-text">
+  DATASETS
+ </span>
+</p>
+<ul class="nav bd-sidenav">
+ <li class="toctree-l1">
+  <a class="reference internal" href="../datasets/uniprot.html">
+   UniProt Dataset
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../datasets/CELLxGENE.html">
+   CELLxGENE
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../datasets/zinc15.html">
+   ZINC-15 Dataset
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../datasets/pdb.html">
+   The Protein Data Bank (PDB)
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../datasets/GRCh38.p13.html">
+   Human Reference Genome Version GRCh38.p13
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../datasets/openproteinset.html">
+   OpenProteinSet
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../datasets/moleculenet-physchem.html">
+   MoleculeNet Physical Chemistry Datasets - Lipophilicity, FreeSolv, ESOL
+  </a>
+ </li>
+</ul>
+<p aria-level="2" class="caption" role="heading">
+ <span class="caption-text">
+  TUTORIALS
+ </span>
+</p>
+<ul class="current nav bd-sidenav">
+ <li class="toctree-l1">
+  <a class="reference internal" href="../preprocessing-bcp-training-diffdock.html">
+   DiffDock: Preparing Workspace and Data for Pre-training
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="esm2nv-mutant-design.html">
+   Zero-Shot Protein Design Using ESM-2nv
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="MMB_GenerativeAI_Inference_with_examples.html">
+   BioNeMo - MegaMolBART Inferencing for Generative Chemistry
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="MolMIM_GenerativeAI_local_inference_with_examples.html">
+   MolMIM Inferencing for Generative Chemistry and Downstream Prediction
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="ZINC15-data-preprocessing.html">
+   ZINC Training Dataset Setup for small molecule language models
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="bionemo-finetuning-overview.html">
+   Finetune pre-trained models in BioNeMo
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="cma_es_guided_molecular_optimization_molmim.html">
+   MolMIM Property Guided Molecular Optimization Using CMA-ES
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="custom-dataset-class-fw.html">
+   Adding the OAS Dataset: Modifying the Dataset Class
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="custom-dataset-dataloader.html">
+   Adding the OAS Dataset: Customizing Dataset Object and Dataloader Functions
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="custom-dataset-preprocessing-fw.html">
+   Adding the OAS Dataset: Downloading and Preprocessing
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="encoder-finetuning-notebook-fw.html">
+   Encoder Fine-tuning
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="model_training_diffdock.html">
+   DiffDock Model Training using BioNeMo
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="model_training_equidock.html">
+   EquiDock Model Training using BioNeMo
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="model_training_esm1nv.html">
+   ESM1nv Model Training using BioNeMo
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="model_training_esm2nv.html">
+   ESM-2nv: Data Preprocessing and Model Training Using BioNeMo
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="model_training_mmb.html">
+   MegaMolBART Model Training using BioNeMo
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="model_training_molmim.html">
+   Train MolMIM from scratch on your own data using the BioNeMo Framework
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="physchem-notebook-fw.html">
+   Finetuning LLM in BioNeMo for a Downstream Task
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="protein-esm2nv-clustering.html">
+   Generating Embeddings for Protein Clustering
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="retrosynthesis-notebook.html">
+   Training LLM for a Custom Downstram Task: Retrosynthesis Prediction using MegaMolBART
+  </a>
+ </li>
+ <li class="toctree-l1 current active">
+  <a class="current reference internal" href="#">
+   Fine-Tune ESM-2nv on FLIP Data for Sequence-Level Classification, Regression, Token-Level Classification, and with LoRA Adapters
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="esm2_oas_inferencing.html">
+   Performing inference on OAS sequences with ESM-2nv
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="esm2_paratope_finetuning.html">
+   Pretrain from Scratch, Continue Training from an Existing Checkpoint, and Fine-tune ESM-2nv on Custom Data
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="dnabert_inference.html">
+   Generating and visualizing embeddings with DNABert
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="dnabert_pretrain_finetune.html">
+   Pretrain, Fine-tune, and Perform Inference with DNABERT for Splice Site Prediction
+  </a>
+ </li>
+</ul>
+<p aria-level="2" class="caption" role="heading">
+ <span class="caption-text">
+  APPENDIX
+ </span>
+</p>
+<ul class="nav bd-sidenav">
+ <li class="toctree-l1">
+  <a class="reference internal" href="../faq-fw.html">
+   Frequently Asked Questions (FAQ)
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../bibliography-fw.html">
+   Bibliography
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../releasenotes-fw.html">
+   Release Notes
+  </a>
+ </li>
+</ul>
+
+    </div>
+</nav></div>
+        <div class="bd-sidebar__bottom">
+             <!-- To handle the deprecated key -->
+            
+        </div>
+    </div>
+    <div id="rtd-footer-container"></div>
+</div>
+
+
+          
+
+
+          
+<!-- A tiny helper pixel to detect if we've scrolled -->
+<div class="sbt-scroll-pixel-helper"></div>
+<!-- Main content -->
+<div class="col py-0 content-container">
+    
+    <div class="header-article row sticky-top noprint">
+        
+
+
+
+<div class="col py-1 d-flex header-article-main">
+    <div class="header-article__left">
+        
+        <label for="__navigation"
+  class="headerbtn"
+  data-toggle="tooltip"
+data-placement="right"
+title="Toggle navigation"
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fas fa-bars"></i>
+  </span>
+
+</label>
+
+        
+    </div>
+    <div class="header-article__right">
+<button onclick="toggleFullScreen()"
+  class="headerbtn"
+  data-toggle="tooltip"
+data-placement="bottom"
+title="Fullscreen mode"
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fas fa-expand"></i>
+  </span>
+
+</button>
+<label for="__page-toc"
+  class="headerbtn headerbtn-page-toc"
+  
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fas fa-list"></i>
+  </span>
+
+</label>
+
+    </div>
+</div>
+
+<!-- Table of contents -->
+<div class="col-md-3 bd-toc show noprint">
+    <div class="tocsection onthispage pt-5 pb-3">
+        <i class="fas fa-list"></i> Contents
+    </div>
+    <nav id="bd-toc-nav" aria-label="Page">
+        <ul class="visible nav section-nav flex-column">
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#demo-objectives">
+   Demo Objectives
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#setup">
+   Setup
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#import-and-install-all-required-packages">
+   Import and Install All Required Packages
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#home-directory">
+   Home Directory
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#download-model-checkpoints">
+   Download Model Checkpoints
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#download-the-flip-data-and-preprocess-it">
+   Download the FLIP Data and Preprocess It
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#fine-tuning">
+   Fine-tuning
+  </a>
+  <ul class="visible nav section-nav flex-column">
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#method-1-standard-fine-tuning-for-sequence-level-classification-tasks">
+     Method 1: Standard Fine-Tuning for Sequence Level Classification Tasks
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#method-2-standard-fine-tuning-for-sequence-level-regression-tasks">
+     Method 2: Standard Fine-Tuning for Sequence-Level Regression Tasks
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#method-3-standard-finetune-for-token-level-classification-tasks">
+     Method 3: Standard finetune for token level classification tasks
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#method-4-lora-fine-tuning-for-token-level-classification-task">
+     Method 4: LoRA Fine-Tuning for Token-Level Classification Task
+    </a>
+   </li>
+  </ul>
+ </li>
+</ul>
+
+    </nav>
+</div>
+    </div>
+    <div class="article row">
+        <div class="col pl-md-3 pl-lg-5 content-container">
+            <!-- Table of contents that is only displayed when printing the page -->
+            <div id="jb-print-docs-body" class="onlyprint">
+                <h1>Fine-Tune ESM-2nv on FLIP Data for Sequence-Level Classification, Regression, Token-Level Classification, and with LoRA Adapters</h1>
+                <!-- Table of contents -->
+                <div id="print-main-content">
+                    <div id="jb-print-toc">
+                        
+                        <div>
+                            <h2> Contents </h2>
+                        </div>
+                        <nav aria-label="Page">
+                            <ul class="visible nav section-nav flex-column">
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#demo-objectives">
+   Demo Objectives
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#setup">
+   Setup
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#import-and-install-all-required-packages">
+   Import and Install All Required Packages
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#home-directory">
+   Home Directory
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#download-model-checkpoints">
+   Download Model Checkpoints
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#download-the-flip-data-and-preprocess-it">
+   Download the FLIP Data and Preprocess It
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#fine-tuning">
+   Fine-tuning
+  </a>
+  <ul class="visible nav section-nav flex-column">
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#method-1-standard-fine-tuning-for-sequence-level-classification-tasks">
+     Method 1: Standard Fine-Tuning for Sequence Level Classification Tasks
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#method-2-standard-fine-tuning-for-sequence-level-regression-tasks">
+     Method 2: Standard Fine-Tuning for Sequence-Level Regression Tasks
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#method-3-standard-finetune-for-token-level-classification-tasks">
+     Method 3: Standard finetune for token level classification tasks
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#method-4-lora-fine-tuning-for-token-level-classification-task">
+     Method 4: LoRA Fine-Tuning for Token-Level Classification Task
+    </a>
+   </li>
+  </ul>
+ </li>
+</ul>
+
+                        </nav>
+                    </div>
+                </div>
+            </div>
+            <main id="main-content" role="main">
+                
+              <div>
+                 <div class="tex2jax_ignore mathjax_ignore section" id="fine-tune-esm-2nv-on-flip-data-for-sequence-level-classification-regression-token-level-classification-and-with-lora-adapters">
+<h1>Fine-Tune ESM-2nv on FLIP Data for Sequence-Level Classification, Regression, Token-Level Classification, and with LoRA Adapters<a class="headerlink" href="#fine-tune-esm-2nv-on-flip-data-for-sequence-level-classification-regression-token-level-classification-and-with-lora-adapters" title="Permalink to this headline">#</a></h1>
+<div class="alert alert-block alert-info">
+  <b>NOTE:</b> This notebook has been tested on both an A1000 GPU and an A100, and is compatible with BioNeMo Framework versions 1.6, 1.7, and 1.8. The expected runtime is approximately 2 hours on the A1000 and 10 minutes on the A100. Both tests were performed for the esm2nv-650M model.
+</div>
+<div class="section" id="demo-objectives">
+<h2>Demo Objectives<a class="headerlink" href="#demo-objectives" title="Permalink to this headline">#</a></h2>
+<p><strong>Downstream Head Fine-Tuning</strong></p>
+<ul class="simple">
+<li><p><strong>Objective:</strong> Utilize fine-tuned ESM-2nv models for predicting antibody function with an additional prediction head.</p></li>
+<li><p><strong>Steps:</strong> Collect the data using the existing scripts in BioNeMo for preprocessing,
+and use the existing downstream prediction head training scripts in BioNeMo for sequence-level classification, sequence-level regression, token-level classification, and with LoRA adapters.</p></li>
+</ul>
+<p>For these purposes, we will use the Fitness Landscape Inference for Proteins (FLIP) evaluation dataset. The FLIP datasets are used to evaluate the performance of protein language models on five specific downstream tasks related to proteins. These tasks include secondary structure prediction, conservation analysis, subcellular localization, meltome analysis, and GB1 activity measurement.</p>
+</div>
+<div class="section" id="setup">
+<h2>Setup<a class="headerlink" href="#setup" title="Permalink to this headline">#</a></h2>
+<p>Ensure that you have read through the <a class="reference internal" href="../index.html"><span class="doc std std-doc">Getting Started</span></a> section, can run the BioNeMo Framework Docker container, and have configured the NGC Command Line Interface (CLI) within the container. It is assumed that this notebook is being executed from within the container.</p>
+<div class="alert alert-block alert-info"> <b>NOTE:</b> Some of the cells below generate long text output. We're using <pre>%%capture --no-display --no-stderr cell_output</pre> to suppress this output. Comment or delete this line in the cells below to restore full output.</div>
+<p><strong>You can use this notebook for both ESM-2nv and ESM-1nv (except for LoRA) by making minor code changes</strong>.</p>
+</div>
+<div class="section" id="import-and-install-all-required-packages">
+<h2>Import and Install All Required Packages<a class="headerlink" href="#import-and-install-all-required-packages" title="Permalink to this headline">#</a></h2>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+<span class="kn">import</span> <span class="nn">warnings</span>
+<span class="kn">from</span> <span class="nn">bionemo.data</span> <span class="kn">import</span> <span class="n">FLIPPreprocess</span>
+
+<span class="n">warnings</span><span class="o">.</span><span class="n">filterwarnings</span><span class="p">(</span><span class="s1">&#39;ignore&#39;</span><span class="p">)</span>
+<span class="n">warnings</span><span class="o">.</span><span class="n">simplefilter</span><span class="p">(</span><span class="s1">&#39;ignore&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+<div class="section" id="home-directory">
+<h2>Home Directory<a class="headerlink" href="#home-directory" title="Permalink to this headline">#</a></h2>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">bionemo_home</span> <span class="o">=</span> <span class="s1">&#39;/workspace/bionemo&#39;</span>
+<span class="n">bionemo_home</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s1">&#39;BIONEMO_HOME&#39;</span><span class="p">]</span>
+<span class="n">os</span><span class="o">.</span><span class="n">chdir</span><span class="p">(</span><span class="n">bionemo_home</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+<div class="section" id="download-model-checkpoints">
+<h2>Download Model Checkpoints<a class="headerlink" href="#download-model-checkpoints" title="Permalink to this headline">#</a></h2>
+<p>The following code will download the pretrained model <code class="docutils literal notranslate"><span class="pre">esmn2nv_650M_converted.nemo</span></code> from the NGC registry.</p>
+<p>In BioNeMo FW, there are numerous ESM models available, including ESM-1nv, ESM-2nv 8M with randomly initialized weights, ESM-2nv fine-tuned to secondary structure downstream prediction tasks with LoRA, ESM-2nv 650M, and ESM-2nv 3B. We also have a configuration file for training ESM-2nv 15B available at <code class="docutils literal notranslate"><span class="pre">examples/protein/esm2nv/conf/pretrain_esm2_15B.yaml</span></code> if needed.</p>
+<p>For demo purposes, we have chosen to showcase the ESM-2nv 650M model. For more details on the <a class="reference external" href="https://docs.nvidia.com/bionemo-framework/latest/models/esm1-nv.html">ESM-1nv</a> or <a class="reference external" href="https://docs.nvidia.com/bionemo-framework/latest/models/esm2-nv.html">ESM-2nv</a>, consult the corresponding model cards. To find the model names and checkpoint names please see the <code class="docutils literal notranslate"><span class="pre">artifacts_paths.yaml</span></code> file.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Define the NGC CLI API KEY and ORG for the model download</span>
+<span class="c1"># If these variables are not already set in the container, uncomment below</span>
+<span class="c1"># to define and set with your API KEY and ORG</span>
+<span class="c1">#api_key = &lt;your_api_key&gt;</span>
+<span class="c1">#ngc_cli_org = &lt;ngc_cli_org&gt;</span>
+<span class="c1"># Update the environment variable</span>
+<span class="c1">#os.environ[&#39;NGC_CLI_API_KEY&#39;] = api_key</span>
+<span class="c1">#os.environ[&#39;NGC_CLI_ORG&#39;] = ngc_cli_org</span>
+
+<span class="c1"># Set variables and paths for model and checkpoint</span>
+<span class="n">model_name</span> <span class="o">=</span> <span class="s2">&quot;esm2nv&quot;</span> <span class="c1"># change to esm1 for ESM1</span>
+<span class="n">model_version</span> <span class="o">=</span> <span class="s2">&quot;esm2nv_650m&quot;</span> <span class="c1"># change to esm1nv for ESM1</span>
+<span class="n">actual_checkpoint_name</span> <span class="o">=</span> <span class="s2">&quot;esm2nv_650M_converted.nemo&quot;</span> <span class="c1">#  change to esm1nv.nemo for ESM1</span>
+<span class="n">model_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">bionemo_home</span><span class="p">,</span> <span class="s1">&#39;models&#39;</span><span class="p">)</span>
+<span class="n">checkpoint_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">model_path</span><span class="p">,</span> <span class="n">actual_checkpoint_name</span><span class="p">)</span>
+<span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s1">&#39;MODEL_PATH&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">model_path</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>%%capture --no-display --no-stderr cell_output
+if not os.path.exists(checkpoint_path):
+    !cd /workspace/bionemo &amp;&amp; \
+    python download_artifacts.py --model_dir models --models {model_version}
+else:
+    print(f&quot;Model {model_version} already exists at {model_path}.&quot;)
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+<div class="section" id="download-the-flip-data-and-preprocess-it">
+<h2>Download the FLIP Data and Preprocess It<a class="headerlink" href="#download-the-flip-data-and-preprocess-it" title="Permalink to this headline">#</a></h2>
+<p>The code below uses the FLIP preprocessing method to download and preprocess the <a class="reference external" href="http://data.bioembeddings.com/public/FLIP/">public FLIP data</a> into a BioNeMo-compatible format. It will create a folder <code class="docutils literal notranslate"><span class="pre">data/FLIP</span></code> with subdirectories containing the data.</p>
+<p>In this demo, we are going to predict various properties of protein sequences:</p>
+<ol class="arabic simple">
+<li><p>The protein’s subcellular localization (<code class="docutils literal notranslate"><span class="pre">scl</span></code>).</p></li>
+<li><p>The melting temperature of a protein (<code class="docutils literal notranslate"><span class="pre">meltome</span></code>).</p></li>
+<li><p>The secondary structure of an amino acid (<code class="docutils literal notranslate"><span class="pre">secondary_structure</span></code>).</p></li>
+</ol>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">preprocessor</span> <span class="o">=</span> <span class="n">FLIPPreprocess</span><span class="p">()</span>
+<span class="k">for</span> <span class="n">task</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;scl&quot;</span><span class="p">,</span> <span class="s2">&quot;meltome&quot;</span><span class="p">,</span> <span class="s2">&quot;secondary_structure&quot;</span><span class="p">]:</span>
+    <span class="n">task_dir</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">bionemo_home</span><span class="si">}</span><span class="s1">/data/FLIP/</span><span class="si">{</span><span class="n">task</span><span class="si">}</span><span class="s1">&#39;</span>
+    <span class="n">preprocessor</span><span class="o">.</span><span class="n">prepare_dataset</span><span class="p">(</span><span class="n">task_name</span><span class="o">=</span><span class="n">task</span><span class="p">,</span> <span class="n">output_dir</span><span class="o">=</span><span class="n">task_dir</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>[NeMo I 2024-08-28 13:27:30 flip_preprocess:114] mixed_soft.fasta downloaded successfully!
+[NeMo I 2024-08-28 13:27:30 flip_preprocess:237] FLIP data download complete.
+[NeMo I 2024-08-28 13:27:30 flip_preprocess:239] Processing FLIP dataset.
+[NeMo I 2024-08-28 13:27:30 flip_preprocess:245] Writing processed dataset files to /workspace/bionemo/data/FLIP/scl...
+[NeMo I 2024-08-28 13:27:30 flip_preprocess:159] Saving train split...
+[NeMo I 2024-08-28 13:27:30 flip_preprocess:159] Saving val split...
+[NeMo I 2024-08-28 13:27:30 flip_preprocess:159] Saving test split...
+[NeMo I 2024-08-28 13:27:30 flip_preprocess:257] FLIP dataset preprocessing completed
+[NeMo I 2024-08-28 13:27:32 flip_preprocess:114] mixed_split.fasta downloaded successfully!
+[NeMo I 2024-08-28 13:27:32 flip_preprocess:237] FLIP data download complete.
+[NeMo I 2024-08-28 13:27:32 flip_preprocess:239] Processing FLIP dataset.
+[NeMo I 2024-08-28 13:27:32 flip_preprocess:245] Writing processed dataset files to /workspace/bionemo/data/FLIP/meltome...
+[NeMo I 2024-08-28 13:27:33 flip_preprocess:159] Saving train split...
+[NeMo I 2024-08-28 13:27:33 flip_preprocess:159] Saving val split...
+[NeMo I 2024-08-28 13:27:33 flip_preprocess:159] Saving test split...
+[NeMo I 2024-08-28 13:27:33 flip_preprocess:257] FLIP dataset preprocessing completed
+[NeMo I 2024-08-28 13:27:34 flip_preprocess:114] sequences.fasta downloaded successfully!
+[NeMo I 2024-08-28 13:27:35 flip_preprocess:114] sampled.fasta downloaded successfully!
+[NeMo I 2024-08-28 13:27:36 flip_preprocess:114] resolved.fasta downloaded successfully!
+[NeMo I 2024-08-28 13:27:36 flip_preprocess:237] FLIP data download complete.
+[NeMo I 2024-08-28 13:27:36 flip_preprocess:239] Processing FLIP dataset.
+[NeMo I 2024-08-28 13:27:36 flip_preprocess:245] Writing processed dataset files to /workspace/bionemo/data/FLIP/secondary_structure...
+[NeMo I 2024-08-28 13:27:36 flip_preprocess:159] Saving train split...
+[NeMo I 2024-08-28 13:27:36 flip_preprocess:159] Saving val split...
+[NeMo I 2024-08-28 13:27:36 flip_preprocess:159] Saving test split...
+[NeMo I 2024-08-28 13:27:36 flip_preprocess:257] FLIP dataset preprocessing completed
+</pre></div>
+</div>
+</div>
+</div>
+<p>For demo purposes, we will subsample the datasets to enable faster execution of the notebook.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">subsample_data</span><span class="p">(</span><span class="n">path</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">subsample_type</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">column</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">subset_fraction</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.05</span><span class="p">,</span> <span class="n">random_seed</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Subsamples the dataset based on the specified subsample type.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># Load the data</span>
+    <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
+
+    <span class="c1"># Function to sample a subset of the data by class</span>
+    <span class="k">def</span> <span class="nf">sample_by_class</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">fraction</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">df</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="n">column</span><span class="p">,</span> <span class="n">group_keys</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="o">.</span><span class="n">sample</span><span class="p">(</span><span class="n">frac</span><span class="o">=</span><span class="n">fraction</span><span class="p">,</span> <span class="n">random_state</span><span class="o">=</span><span class="n">random_seed</span><span class="p">))</span>
+    
+    <span class="c1"># Function to sample a subset of the data by continuous variable</span>
+    <span class="k">def</span> <span class="nf">sample_by_continuous</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">fraction</span><span class="p">):</span>
+        <span class="n">stratify_bins</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">qcut</span><span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="n">column</span><span class="p">],</span> <span class="n">q</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">duplicates</span><span class="o">=</span><span class="s1">&#39;drop&#39;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">df</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="n">stratify_bins</span><span class="p">,</span> <span class="n">group_keys</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="o">.</span><span class="n">sample</span><span class="p">(</span><span class="n">frac</span><span class="o">=</span><span class="n">fraction</span><span class="p">,</span> <span class="n">random_state</span><span class="o">=</span><span class="n">random_seed</span><span class="p">))</span>
+    
+    <span class="c1"># Perform the appropriate subsampling based on the specified type</span>
+    <span class="k">if</span> <span class="n">subsample_type</span> <span class="o">==</span> <span class="s1">&#39;class&#39;</span><span class="p">:</span>
+        <span class="n">subset</span> <span class="o">=</span> <span class="n">sample_by_class</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">subset_fraction</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="n">subsample_type</span> <span class="o">==</span> <span class="s1">&#39;continuous&#39;</span><span class="p">:</span>
+        <span class="n">subset</span> <span class="o">=</span> <span class="n">sample_by_continuous</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">subset_fraction</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="n">subsample_type</span> <span class="o">==</span> <span class="s1">&#39;random&#39;</span><span class="p">:</span>
+        <span class="n">subset</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">sample</span><span class="p">(</span><span class="n">frac</span><span class="o">=</span><span class="n">subset_fraction</span><span class="p">,</span> <span class="n">random_state</span><span class="o">=</span><span class="n">random_seed</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Invalid subsample_type. Choose from &#39;class&#39;, &#39;continuous&#39;, or &#39;random&#39;.&quot;</span><span class="p">)</span>
+
+    <span class="c1"># Save the subset to the original CSV file</span>
+    <span class="n">subset</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+    
+    <span class="c1"># Print statement to confirm subsampling</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;File has been subsampled and saved: </span><span class="si">{</span><span class="n">path</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+<span class="c1"># Example usage</span>
+<span class="k">for</span> <span class="n">data_set</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;train&quot;</span><span class="p">,</span> <span class="s2">&quot;val&quot;</span><span class="p">,</span> <span class="s2">&quot;test&quot;</span><span class="p">]:</span>
+    <span class="n">subsample_data</span><span class="p">(</span><span class="n">path</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;data/FLIP/scl/</span><span class="si">{</span><span class="n">data_set</span><span class="si">}</span><span class="s2">/x000.csv&quot;</span><span class="p">,</span> <span class="n">subsample_type</span><span class="o">=</span><span class="s1">&#39;class&#39;</span><span class="p">,</span> <span class="n">column</span><span class="o">=</span><span class="s1">&#39;scl_label&#39;</span><span class="p">,</span> <span class="n">random_seed</span><span class="o">=</span><span class="mi">42</span><span class="p">)</span>
+    <span class="n">subsample_data</span><span class="p">(</span><span class="n">path</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;data/FLIP/meltome/</span><span class="si">{</span><span class="n">data_set</span><span class="si">}</span><span class="s2">/x000.csv&quot;</span><span class="p">,</span> <span class="n">subsample_type</span><span class="o">=</span><span class="s1">&#39;continuous&#39;</span><span class="p">,</span> <span class="n">column</span><span class="o">=</span><span class="s1">&#39;target&#39;</span><span class="p">,</span> <span class="n">random_seed</span><span class="o">=</span><span class="mi">42</span><span class="p">)</span>
+    <span class="n">subsample_data</span><span class="p">(</span><span class="n">path</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;data/FLIP/secondary_structure/</span><span class="si">{</span><span class="n">data_set</span><span class="si">}</span><span class="s2">/x000.csv&quot;</span><span class="p">,</span> <span class="n">subsample_type</span><span class="o">=</span><span class="s1">&#39;random&#39;</span><span class="p">,</span> <span class="n">random_seed</span><span class="o">=</span><span class="mi">42</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>File has been subsampled and saved: data/FLIP/scl/train/x000.csv
+File has been subsampled and saved: data/FLIP/meltome/train/x000.csv
+File has been subsampled and saved: data/FLIP/secondary_structure/train/x000.csv
+File has been subsampled and saved: data/FLIP/scl/val/x000.csv
+File has been subsampled and saved: data/FLIP/meltome/val/x000.csv
+File has been subsampled and saved: data/FLIP/secondary_structure/val/x000.csv
+File has been subsampled and saved: data/FLIP/scl/test/x000.csv
+File has been subsampled and saved: data/FLIP/meltome/test/x000.csv
+File has been subsampled and saved: data/FLIP/secondary_structure/test/x000.csv
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+<div class="section" id="fine-tuning">
+<h2>Fine-tuning<a class="headerlink" href="#fine-tuning" title="Permalink to this headline">#</a></h2>
+<p>The BioNeMo framework supports easy fine-tuning on downstream tasks by loading the pretrained model, which can be frozen or unfrozen, and adding a task-specific head. BioNeMo also provides example config files for downstream task fine-tuning of ESM-2nv and ESM-1nv on some FLIP tasks.</p>
+<p>A pretrained ESM model can be provided using a path to a NeMo model (via <code class="docutils literal notranslate"><span class="pre">restore_encoder_path</span></code>). This is done through:</p>
+<ul class="simple">
+<li><p>Adding <code class="docutils literal notranslate"><span class="pre">model.restore_encoder_path:</span></code> To the config yaml.</p></li>
+<li><p>Passing <code class="docutils literal notranslate"><span class="pre">model.restore_encoder_path:</span></code> As a command-line argument into your script.</p></li>
+</ul>
+<div class="section" id="method-1-standard-fine-tuning-for-sequence-level-classification-tasks">
+<h3>Method 1: Standard Fine-Tuning for Sequence Level Classification Tasks<a class="headerlink" href="#method-1-standard-fine-tuning-for-sequence-level-classification-tasks" title="Permalink to this headline">#</a></h3>
+<p>In this example, we will predict the 10 subcellular localization sites of proteins as described in the FLIP dataset. Under the <code class="docutils literal notranslate"><span class="pre">data/FLIP/scl</span></code> folder, you will see the correct expected structure for BioNeMo:</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>data/path/
+<span class="w">    </span>train/
+<span class="w">        </span>x000.csv
+<span class="w">    </span>val/
+<span class="w">        </span>x000.csv
+<span class="w">    </span>test/
+<span class="w">        </span>x000.csv
+</pre></div>
+</div>
+<p>By inspecting the file, you will see three columns:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">id</span></code>: The sequence ID.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">sequence</span></code>: The protein sequence.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">target</span></code>: The corresponding class of the sequence.</p></li>
+</ul>
+<p>The CSV files should be named exactly as <code class="docutils literal notranslate"><span class="pre">x000.csv</span></code>. You can provide a list of such files by specifying it as a list in the config file. For instance, if you have 50 csv files, you can specify this by setting <code class="docutils literal notranslate"><span class="pre">x[000..049]</span></code> to take files named <code class="docutils literal notranslate"><span class="pre">x000.csv</span></code> up to a file named <code class="docutils literal notranslate"><span class="pre">x0049.csv</span></code>.</p>
+<p>To run this downstream task, we have included an example <code class="docutils literal notranslate"><span class="pre">downstream_flip_scl</span></code> configuration file. For your own custom downstream tasks, you can create your own YAML file or override existing ones using HYDRA by specifying the following fields:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">restore_from_path</span></code>: Set to the path of the pretrained model checkpoint <code class="docutils literal notranslate"><span class="pre">.nemo</span></code> file.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">trainer.devices</span></code>, <code class="docutils literal notranslate"><span class="pre">trainer.num_nodes</span></code>: Set it to the number of GPU and nodes, respectively.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">trainer.max_epochs</span></code>: Set to the number of epochs you want to train.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">trainer.val_check_interval</span></code>: Set to the number of steps to run validation.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">model.micro_batch_size</span></code>: Set to the micro batch size for training.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">data.task_name</span></code>: Can be anything.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">data.task_type</span></code>: The current options are <code class="docutils literal notranslate"><span class="pre">token-level-classification</span></code>, <code class="docutils literal notranslate"><span class="pre">classification</span></code> (sequence level), and <code class="docutils literal notranslate"><span class="pre">regression</span></code> (sequence level).</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">preprocessed_data_path</span></code>: Set to the path of the parent folder of <code class="docutils literal notranslate"><span class="pre">dataset_path</span></code>. See - <code class="docutils literal notranslate"><span class="pre">dataset_path</span></code> for how this env is used.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">dataset_path</span></code>: Set to the folder that contains <code class="docutils literal notranslate"><span class="pre">train</span></code>/<code class="docutils literal notranslate"><span class="pre">val</span></code>/<code class="docutils literal notranslate"><span class="pre">test</span></code> folders.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">dataset.train</span></code>, <code class="docutils literal notranslate"><span class="pre">dataset.val</span></code>, <code class="docutils literal notranslate"><span class="pre">dataset.test</span></code>: Set to the CSV name or ranges.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">sequence_column</span></code>: Set to the name of the column containing the sequence, e.g. <code class="docutils literal notranslate"><span class="pre">sequence</span></code> in this example.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">target_column</span></code>: Set to the name of the column containing the target, e.g. <code class="docutils literal notranslate"><span class="pre">scl_label</span></code> in this example.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">target_size</span></code>: Number of classes in each label for classification.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">num_classes</span></code>: Set to <code class="docutils literal notranslate"><span class="pre">target_size</span></code>.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">encoder_frozen</span></code>: Used to set the encoder trainable or frozen, True by default.</p></li>
+</ul>
+<p>This task will use the <code class="docutils literal notranslate"><span class="pre">CrossEntropyLoss</span></code> and add an <code class="docutils literal notranslate"><span class="pre">MLPmodel</span></code> task head with <code class="docutils literal notranslate"><span class="pre">ReLU</span></code> as activation function, <code class="docutils literal notranslate"><span class="pre">LayerNorm</span></code>, and <code class="docutils literal notranslate"><span class="pre">Dropout</span></code> set at <code class="docutils literal notranslate"><span class="pre">0.25</span></code> as specified in the  <code class="docutils literal notranslate"><span class="pre">../model/core/mlp_model.py</span></code> file.</p>
+<p>For the purpose of this demo example, we will shorten the time required for training by setting the following parameters: <code class="docutils literal notranslate"><span class="pre">++trainer.max_steps=1</span></code>, <code class="docutils literal notranslate"><span class="pre">++val_check_interval=1</span></code>, <code class="docutils literal notranslate"><span class="pre">++limit_val_batches</span></code> and <code class="docutils literal notranslate"><span class="pre">++limit_test_batches</span></code>, reducing the number of batches for validation and testing to 1. Users can update these parameters by editing the <code class="docutils literal notranslate"><span class="pre">.yaml</span></code> config file or by overriding config arguments at runtime using Hydra, as shown in the example below.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">configuration_folder</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">bionemo_home</span><span class="p">,</span> <span class="sa">f</span><span class="s1">&#39;examples/protein/</span><span class="si">{</span><span class="n">model_name</span><span class="si">}</span><span class="s1">/conf&#39;</span><span class="p">)</span>
+<span class="n">scl_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">bionemo_home</span><span class="si">}</span><span class="s1">/data/FLIP/scl/train/x000.csv&#39;</span><span class="p">)</span>
+<span class="n">scl_df</span><span class="o">.</span><span class="n">head</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_html"><div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>id</th>
+      <th>sequence</th>
+      <th>scl_label</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>Sequence867</td>
+      <td>MQGSKGVENPAFVPSSPDTPRRASASPSQVEVSAVASRNQNGGSQP...</td>
+      <td>Cell_membrane</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>Sequence439</td>
+      <td>MNVSHASVHPVEDPPAAATEVENPPRVRMDDMEGMPGTLLGLALRF...</td>
+      <td>Cell_membrane</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>Sequence342</td>
+      <td>MKMASSLAFLLLNFHVSLFLVQLLTPCSAQFSVLGPSGPILAMVGE...</td>
+      <td>Cell_membrane</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>Sequence735</td>
+      <td>MENPPNETEAKQIQTNEGKKTKGGIITMPFIIANEAFEKVASYGLL...</td>
+      <td>Cell_membrane</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>Sequence784</td>
+      <td>MKSFNTEGHNHSTAESGDAYTVSDPTKNVDEDGREKRTGTWLTASA...</td>
+      <td>Cell_membrane</td>
+    </tr>
+  </tbody>
+</table>
+</div></div></div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>%%capture --no-display --no-stderr cell_output
+!cd {bionemo_home} &amp;&amp; python examples/protein/downstream/downstream_flip.py \
+    --config-path={configuration_folder} \
+    --config-name=downstream_flip_scl \
+    name={model_name}-finetuned-scl \
+    ++trainer.devices=1 \
+    ++trainer.max_epochs=1 \
+    ++trainer.val_check_interval=1 \
+    ++trainer.limit_test_batches=1 \
+    ++trainer.limit_val_batches=1 \
+    ++model.micro_batch_size=1 \
+    ++trainer.max_steps=1 \
+    ++exp_manager.create_wandb_logger=false
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+<div class="section" id="method-2-standard-fine-tuning-for-sequence-level-regression-tasks">
+<h3>Method 2: Standard Fine-Tuning for Sequence-Level Regression Tasks<a class="headerlink" href="#method-2-standard-fine-tuning-for-sequence-level-regression-tasks" title="Permalink to this headline">#</a></h3>
+<p>In this example, we will predict the melting temperature of proteins as described in the FLIP dataset.</p>
+<p>As before, we need our files to be in the correct format with the appropriate naming. Thanks to the preprocessing steps we carried out at the beginning of this notebook, the data is already in the right format. Again, we have a custom <code class="docutils literal notranslate"><span class="pre">downstream_flip_meltome.yaml</span></code> configuration file with all the correct settings.</p>
+<p>Inside it, you should pay attention to:</p>
+<ul class="simple">
+<li><p><strong><code class="docutils literal notranslate"><span class="pre">loss_func</span></code></strong>: This time it is <code class="docutils literal notranslate"><span class="pre">MSELoss</span></code>.</p></li>
+<li><p><strong><code class="docutils literal notranslate"><span class="pre">task_name</span></code></strong>: <code class="docutils literal notranslate"><span class="pre">meltome</span></code>.</p></li>
+<li><p><strong><code class="docutils literal notranslate"><span class="pre">sequence_column</span></code></strong>: The name of the column where the protein sequence is located.</p></li>
+<li><p><strong><code class="docutils literal notranslate"><span class="pre">target_column</span></code></strong>: This is the target column in our file, which is called <code class="docutils literal notranslate"><span class="pre">target</span></code>.</p></li>
+<li><p><strong><code class="docutils literal notranslate"><span class="pre">target_sizes</span></code></strong>: This is the number of classes in each label; in this case, it will be 1, as it is a regression task.</p></li>
+</ul>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">meltome_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">bionemo_home</span><span class="si">}</span><span class="s1">/data/FLIP/meltome/train/x000.csv&#39;</span><span class="p">)</span>
+<span class="n">meltome_df</span><span class="o">.</span><span class="n">head</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_html"><div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>id</th>
+      <th>sequence</th>
+      <th>target</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>Sequence10771</td>
+      <td>MSWPTLTVRLQQKVIRYLDYESRCNLRICSKDDKDSVDSVKFNPKT...</td>
+      <td>35.898600</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>Sequence3319</td>
+      <td>MRLVKQEYVLDGLDCSNCARKIENGVKGIKGINGCAVNFAASTLTV...</td>
+      <td>38.732746</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>Sequence3630</td>
+      <td>MSSFDRRIEAACKFDDERYYKQYHRYFDVLAQVHSVVETINGAQML...</td>
+      <td>39.144778</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>Sequence8135</td>
+      <td>MDAEDGFDPTLLKKKKKKKTTFDLDAALGLEDDTKKEDPQDEASAE...</td>
+      <td>40.476706</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>Sequence3437</td>
+      <td>MSYYNKRNQEPLPKEDVSTWECTKEDCNGWTRKNFASSDTPLCPLC...</td>
+      <td>36.754142</td>
+    </tr>
+  </tbody>
+</table>
+</div></div></div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">meltome_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">bionemo_home</span><span class="si">}</span><span class="s1">/data/FLIP/meltome/train/x000.csv&#39;</span><span class="p">)</span>
+<span class="n">meltome_df</span><span class="o">.</span><span class="n">head</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_html"><div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>id</th>
+      <th>sequence</th>
+      <th>target</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>Sequence10771</td>
+      <td>MSWPTLTVRLQQKVIRYLDYESRCNLRICSKDDKDSVDSVKFNPKT...</td>
+      <td>35.898600</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>Sequence3319</td>
+      <td>MRLVKQEYVLDGLDCSNCARKIENGVKGIKGINGCAVNFAASTLTV...</td>
+      <td>38.732746</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>Sequence3630</td>
+      <td>MSSFDRRIEAACKFDDERYYKQYHRYFDVLAQVHSVVETINGAQML...</td>
+      <td>39.144778</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>Sequence8135</td>
+      <td>MDAEDGFDPTLLKKKKKKKTTFDLDAALGLEDDTKKEDPQDEASAE...</td>
+      <td>40.476706</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>Sequence3437</td>
+      <td>MSYYNKRNQEPLPKEDVSTWECTKEDCNGWTRKNFASSDTPLCPLC...</td>
+      <td>36.754142</td>
+    </tr>
+  </tbody>
+</table>
+</div></div></div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>%%capture --no-display --no-stderr cell_output
+!cd {bionemo_home} &amp;&amp; python examples/protein/downstream/downstream_flip.py \
+    --config-path={configuration_folder} \
+    --config-name=downstream_flip_meltome \
+    name={model_name}-finetuned-meltome \
+    ++trainer.devices=1 \
+    ++trainer.max_epochs=1 \
+    ++trainer.val_check_interval=1 \
+    ++model.micro_batch_size=1 \
+    ++trainer.max_steps=1 \
+    ++exp_manager.create_wandb_logger=false
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+<div class="section" id="method-3-standard-finetune-for-token-level-classification-tasks">
+<h3>Method 3: Standard finetune for token level classification tasks<a class="headerlink" href="#method-3-standard-finetune-for-token-level-classification-tasks" title="Permalink to this headline">#</a></h3>
+<p>In this example, we will predict three structure states of proteins, as described in the FLIP dataset. For each amino acid in the sequence, the model predicts whether it is found in a helix, sheet, or coil structure.</p>
+<ul class="simple">
+<li><p>For the target column (e.g. <code class="docutils literal notranslate"><span class="pre">3state</span></code>), use a sequence of the same length as the protein sequence. Each character in the sequence represents a class (e.g. <code class="docutils literal notranslate"><span class="pre">C</span></code> for coil, <code class="docutils literal notranslate"><span class="pre">H</span></code> for helix, <code class="docutils literal notranslate"><span class="pre">E</span></code> for sheet)</p></li>
+<li><p>You can also apply a mask column. For example, the <code class="docutils literal notranslate"><span class="pre">resolved</span></code> column uses a sequence of 1 and 0s that is the same length of the protein sequence. 1 = experimentally resolved, 0 = not resolved.</p></li>
+<li><p>The loss will only be calculated for the resolved positions as this is specified under the <code class="docutils literal notranslate"><span class="pre">mask_column</span></code>.</p></li>
+<li><p>The <code class="docutils literal notranslate"><span class="pre">loss_fn</span></code> no longer needs to be set as it is pre-built in the <code class="docutils literal notranslate"><span class="pre">/model/protein/downstream/protein_model_finetuning.py</span></code> under <code class="docutils literal notranslate"><span class="pre">build_loss_fn</span></code>. The <code class="docutils literal notranslate"><span class="pre">PerTokenMaskedCrossEntropyLoss</span></code> in this function is further defined in <code class="docutils literal notranslate"><span class="pre">/model/core/cnn.py</span></code></p></li>
+</ul>
+<p>You can have multiple target columns in the same dataset by setting them as a list under the <code class="docutils literal notranslate"><span class="pre">target_column</span></code>, for instance for this task you can have:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">target_column</span></code>: [“3state”, “8state”]</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">target_size</span></code>: [3, 8]</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">mask_column</span></code>: [“resolved”, “resolved”]</p></li>
+</ul>
+<p>In doing so, the loss will be calculated for both columns.</p>
+<p>You can remove tha masking by setting <code class="docutils literal notranslate"><span class="pre">mask_column</span></code>: [null]</p>
+<p>In this instance, as we are doing a token level classification task, we will be attaching a <code class="docutils literal notranslate"><span class="pre">ConvNet</span></code> head based on <code class="docutils literal notranslate"><span class="pre">../bionemo/model/core/cnn.py</span></code> which uses the <code class="docutils literal notranslate"><span class="pre">PerTokenMaskedCrossEntropyLoss</span></code> class as loss function with <code class="docutils literal notranslate"><span class="pre">ReLU</span></code> as activation function.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">secondary_structure_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">bionemo_home</span><span class="si">}</span><span class="s1">/data/FLIP/secondary_structure/train/x000.csv&#39;</span><span class="p">)</span>
+<span class="n">secondary_structure_df</span><span class="o">.</span><span class="n">head</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_html"><div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>id</th>
+      <th>sequence</th>
+      <th>3state</th>
+      <th>resolved</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>5kar-A</td>
+      <td>DRHHHHHHKLQLGRFWHISDLHLDPNYTVSKDPLQVCPSAGSQPVL...</td>
+      <td>CCCCCCCCCCCCEEEEEECCCCECCCCCCCCCCCCCCHHHCCCCCC...</td>
+      <td>0000000000011111111111111111111111111111111111...</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>1j2j-B</td>
+      <td>NVIFEDEEKSKMLARLLKSSHPEDLRAANKLIKEMVQEDQKRMEK</td>
+      <td>CCCCCCHHHHHHHHHHHCCCCHHHHHHHHHHHHHHHHHHHCCCCC</td>
+      <td>001111111111111111111111111111111111111111100</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>5x6s-B</td>
+      <td>SGSLQQVTDFGDNPTNVGMYIYVPNNLASNPGIVVAIHYCTGTGPG...</td>
+      <td>CCEEEEECCCCCCCCCCEEEEEECCCCCCCCCEEEEECCCCCCHHH...</td>
+      <td>0111111111111111111111111111111111111111111111...</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>5jrc-C</td>
+      <td>MGSSHHHHHHSSGLVPRGSHMASMTGGQQMGRGSMLPNLDNLKEEY...</td>
+      <td>CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCHHHHHHHH...</td>
+      <td>0000000000000000000000000000000001111111111111...</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>2rjo-A</td>
+      <td>MSLGQTTLACSFRSLTNPYYTAFNKGAQSFAKSVGLPYVPLTTEGS...</td>
+      <td>CCCCCCEEEEEECCCCCHHHHHHHHHHHHHHHHHCCCEEEEECCCC...</td>
+      <td>0011111111111111111111111111111111111111111111...</td>
+    </tr>
+  </tbody>
+</table>
+</div></div></div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">secondary_structure_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">bionemo_home</span><span class="si">}</span><span class="s1">/data/FLIP/secondary_structure/train/x000.csv&#39;</span><span class="p">)</span>
+<span class="n">secondary_structure_df</span><span class="o">.</span><span class="n">head</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_html"><div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>id</th>
+      <th>sequence</th>
+      <th>3state</th>
+      <th>resolved</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>5kar-A</td>
+      <td>DRHHHHHHKLQLGRFWHISDLHLDPNYTVSKDPLQVCPSAGSQPVL...</td>
+      <td>CCCCCCCCCCCCEEEEEECCCCECCCCCCCCCCCCCCHHHCCCCCC...</td>
+      <td>0000000000011111111111111111111111111111111111...</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>1j2j-B</td>
+      <td>NVIFEDEEKSKMLARLLKSSHPEDLRAANKLIKEMVQEDQKRMEK</td>
+      <td>CCCCCCHHHHHHHHHHHCCCCHHHHHHHHHHHHHHHHHHHCCCCC</td>
+      <td>001111111111111111111111111111111111111111100</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>5x6s-B</td>
+      <td>SGSLQQVTDFGDNPTNVGMYIYVPNNLASNPGIVVAIHYCTGTGPG...</td>
+      <td>CCEEEEECCCCCCCCCCEEEEEECCCCCCCCCEEEEECCCCCCHHH...</td>
+      <td>0111111111111111111111111111111111111111111111...</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>5jrc-C</td>
+      <td>MGSSHHHHHHSSGLVPRGSHMASMTGGQQMGRGSMLPNLDNLKEEY...</td>
+      <td>CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCHHHHHHHH...</td>
+      <td>0000000000000000000000000000000001111111111111...</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>2rjo-A</td>
+      <td>MSLGQTTLACSFRSLTNPYYTAFNKGAQSFAKSVGLPYVPLTTEGS...</td>
+      <td>CCCCCCEEEEEECCCCCHHHHHHHHHHHHHHHHHCCCEEEEECCCC...</td>
+      <td>0011111111111111111111111111111111111111111111...</td>
+    </tr>
+  </tbody>
+</table>
+</div></div></div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>%%capture --no-display --no-stderr cell_output
+!cd {bionemo_home} &amp;&amp; python examples/protein/downstream/downstream_flip.py \
+    --config-path={configuration_folder} \
+    --config-name=downstream_flip_sec_str \
+    name={model_name}-finetuned-sec-str \
+    ++trainer.devices=1 \
+    ++trainer.max_epochs=1 \
+    ++trainer.val_check_interval=1 \
+    ++model.micro_batch_size=1 \
+    ++trainer.max_steps=1 \
+    ++exp_manager.create_wandb_logger=false
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+<div class="section" id="method-4-lora-fine-tuning-for-token-level-classification-task">
+<h3>Method 4: LoRA Fine-Tuning for Token-Level Classification Task<a class="headerlink" href="#method-4-lora-fine-tuning-for-token-level-classification-task" title="Permalink to this headline">#</a></h3>
+<p>In this example, we will replicate the fine-tuning using the 3-state structure of proteins with LoRA adapters.</p>
+<p><strong>Low-Rank Adaptation (LoRA)</strong> is a parameter-efficient strategy designed to adapt large pretrained language models to downstream tasks while avoiding challenges associated with full fine-tuning. Unlike traditional fine-tuning approaches that adjust all parameters within a pretrained model, LoRA maintains the core weights of the pretrained model as frozen. Instead, it introduces trainable rank decomposition matrices, known as LoRA adapters, into each layer of the Transformer architecture. These adapters are smaller matrices that approximate the original weight matrices, thereby reducing the number of trainable parameters.</p>
+<p>In the context of antibody sequences, where data availability may be limited, LoRA offers several advantages. By focusing on adapting these smaller adapter matrices rather than the entire model, LoRA makes fine-tuning more efficient and less susceptible to overfitting. This is particularly beneficial for tasks requiring adaptation to specific protein sequences, where preserving the learned features of the pretrained ESM-2nv model is crucial.</p>
+<p>By integrating LoRA into BioNeMo’s fine-tuning pipeline for ESM-2nv models, you can leverage the robustness of pretrained models while tailoring them to the unique characteristics of antibody sequences. This extension not only enhances model performance but also ensures adaptability and efficiency in handling specialized protein sequence data.</p>
+<p><em><strong>Key Adjustments in the YAML File</strong></em>:</p>
+<ul class="simple">
+<li><p><strong><code class="docutils literal notranslate"><span class="pre">model.peft.enabled=True</span></code></strong>: Enables the PEFT (Parameter-Efficient Fine-Tuning) technique, specifically using LoRA (<code class="docutils literal notranslate"><span class="pre">lora</span></code>).</p></li>
+<li><p><strong><code class="docutils literal notranslate"><span class="pre">model.peft.peft_scheme=&quot;lora&quot;</span></code></strong>: Specifies that LoRA is used as the adaptation method.</p></li>
+<li><p><strong><code class="docutils literal notranslate"><span class="pre">++model.peft.lora_tuning.adapter_dim=32</span></code></strong>: Sets the dimensionality of the adapter layers used in LoRA.</p></li>
+<li><p><strong><code class="docutils literal notranslate"><span class="pre">++model.peft.lora_tuning.adapter_dropout=0.0</span></code></strong>: Specifies the dropout rate for the adapter layers in LoRA.</p></li>
+<li><p><strong><code class="docutils literal notranslate"><span class="pre">++model.peft.lora_tuning.column_init_method=&quot;xavier&quot;</span></code></strong>: Defines the initialization method for the column weights of the adapter layers in LoRA.</p></li>
+<li><p><strong><code class="docutils literal notranslate"><span class="pre">++model.peft.lora_tuning.row_init_method=&quot;zero&quot;</span></code></strong>: Specifies the initialization method for the row weights of the adapter layers in LoRA.</p></li>
+<li><p><strong><code class="docutils literal notranslate"><span class="pre">++model.peft.lora_tuning.layer_selection=null</span></code></strong>: Determines which layers to apply LoRA adapters to. If <code class="docutils literal notranslate"><span class="pre">null</span></code>, adapters are applied to all layers.</p></li>
+<li><p><strong><code class="docutils literal notranslate"><span class="pre">++model.peft.lora_tuning.weight_tying=False</span></code></strong>: Specifies whether weight tying is used in LoRA.</p></li>
+<li><p><strong><code class="docutils literal notranslate"><span class="pre">++model.peft.lora_tuning.position_embedding_strategy=null</span></code></strong>: Used only when <code class="docutils literal notranslate"><span class="pre">weight_tying</span></code> is <code class="docutils literal notranslate"><span class="pre">True</span></code>. Specifies the strategy for position embeddings in LoRA.</p></li>
+</ul>
+<div class="alert alert-block alert-info"> <b>NOTE:</b> LoRA is currently not supported for ESM-1nv.</div>
+<p>Following <span class="xref myst">these instructions</span> and reimplementing the <code class="docutils literal notranslate"><span class="pre">ESM2nvLoRAModel</span></code> class in the <code class="docutils literal notranslate"><span class="pre">bionemo/model/protein/esm1nv/esm1nv_model.py</span></code> script for ESM-1, you can perform LoRA.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>%%capture --no-display --no-stderr cell_output
+! cd /workspace/bionemo &amp;&amp; python examples/protein/downstream/downstream_flip.py \
+    --config-path={configuration_folder} \
+    --config-name=downstream_sec_str_LORA \
+     name={model_name}-finetuned-sec-str_LORA \
+    ++trainer.devices=1 \
+    ++trainer.max_epochs=1 \
+    ++trainer.val_check_interval=1 \
+    ++model.micro_batch_size=1 \
+    ++trainer.max_steps=1 \
+    ++exp_manager.create_wandb_logger=false \
+    ++exp_manager.resume_if_exists=false
+</pre></div>
+</div>
+</div>
+</div>
+<p>In this demo, we have learned how to use the existing preprocessing script for the FLIP dataset, perform fine-tuning for different downstream tasks, and apply LoRA adaptors on the FLIP data. In <a class="reference internal" href="esm2_paratope_finetuning.html"><span class="doc std std-doc">this other notebook</span></a>, you will see how to bring your own data for fine-tuning purposes.</p>
+</div>
+</div>
+</div>
+
+<div class="section">
+   
+</div>
+
+              </div>
+              
+            </main>
+            <footer class="footer-article noprint">
+                
+    <!-- Previous / next buttons -->
+<div class='prev-next-area'>
+    <a class='left-prev' id="prev-link" href="retrosynthesis-notebook.html" title="previous page">
+        <i class="fas fa-angle-left"></i>
+        <div class="prev-next-info">
+            <p class="prev-next-subtitle">previous</p>
+            <p class="prev-next-title">Training LLM for a Custom Downstram Task: Retrosynthesis Prediction using MegaMolBART</p>
+        </div>
+    </a>
+    <a class='right-next' id="next-link" href="esm2_oas_inferencing.html" title="next page">
+    <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">Performing inference on OAS sequences with ESM-2nv</p>
+    </div>
+    <i class="fas fa-angle-right"></i>
+    </a>
+</div>
+            </footer>
+        </div>
+    </div>
+    <div class="footer-content row">
+        <footer class="col footer"><p>
+  
+    By NVIDIA<br/>
+  
+      &copy; Copyright 2023-2024 NVIDIA CORPORATION &amp; AFFILIATES. All rights reserved..<br/>
+    Last updated on Nov 20, 2024.<br/>
+</p>
+        </footer>
+    </div>
+    
+</div>
+
+
+      </div>
+    </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="../_static/scripts/pydata-sphinx-theme.js?digest=1999514e3f237ded88cf"></script>
+
+
+  </body>
+</html>

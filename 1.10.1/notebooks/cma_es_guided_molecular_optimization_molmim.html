@@ -1,0 +1,1259 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>MolMIM Property Guided Molecular Optimization Using CMA-ES &#8212; NVIDIA BioNeMo Framework</title>
+    
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../_static/styles/theme.css?digest=1999514e3f237ded88cf" rel="stylesheet">
+<link href="../_static/styles/pydata-sphinx-theme.css?digest=1999514e3f237ded88cf" rel="stylesheet">
+
+    
+  <link rel="stylesheet"
+    href="../_static/vendor/fontawesome/5.13.0/css/all.min.css">
+  <link rel="preload" as="font" type="font/woff2" crossorigin
+    href="../_static/vendor/fontawesome/5.13.0/webfonts/fa-solid-900.woff2">
+  <link rel="preload" as="font" type="font/woff2" crossorigin
+    href="../_static/vendor/fontawesome/5.13.0/webfonts/fa-brands-400.woff2">
+
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
+    <link rel="stylesheet" href="../_static/styles/sphinx-book-theme.css?digest=62ba249389abaaa9ffc34bf36a076bdc1d65ee18" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="../_static/mystnb.4510f1fc1dee50b3e5859aac5469c37c29e427902b24a333a5f9fcb2f0b3ac41.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/copybutton.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/tabs.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/custom.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/design-style.1e8bd061cd6da7fc9cf755528e8ffc24.min.css" />
+    
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=1999514e3f237ded88cf">
+
+    <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+    <script src="../_static/jquery.js"></script>
+    <script src="../_static/underscore.js"></script>
+    <script src="../_static/doctools.js"></script>
+    <script src="../_static/clipboard.min.js"></script>
+    <script src="../_static/copybutton.js"></script>
+    <script src="https://js.hcaptcha.com/1/api.js"></script>
+    <script src="//assets.adobedtm.com/5d4962a43b79/c1061d2c5e7b/launch-191c2462b890.min.js"></script>
+    <script src="../_static/scripts/sphinx-book-theme.js?digest=f31d14ad54b65d19161ba51d4ffff3a77ae00456"></script>
+    <script src="../_static/design-tabs.js"></script>
+    <script>window.MathJax = {"options": {"processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+    <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <link rel="canonical" href="https://docs.nvidia.com/bionemo-framework/0.4.0/notebooks/cma_es_guided_molecular_optimization_molmim.html" />
+    <link rel="shortcut icon" href="../_static/nvidia-logo-vert-rgb-blk-for-screen.png"/>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Adding the OAS Dataset: Modifying the Dataset Class" href="custom-dataset-class-fw.html" />
+    <link rel="prev" title="Finetune pre-trained models in BioNeMo" href="bionemo-finetuning-overview.html" /> 
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="docsearch:language" content="None">
+    
+
+    <!-- Google Analytics -->
+      
+<style type="text/css">
+  ul.ablog-archive {
+    list-style: none;
+    overflow: auto;
+    margin-left: 0px;
+  }
+  ul.ablog-archive li {
+    float: left;
+    margin-right: 5px;
+    font-size: 80%;
+  }
+  ul.postlist a {
+    font-style: italic;
+  }
+  ul.postlist-style-disc {
+    list-style-type: disc;
+  }
+  ul.postlist-style-none {
+    list-style-type: none;
+  }
+  ul.postlist-style-circle {
+    list-style-type: circle;
+  }
+</style>
+
+  </head>
+  <body data-spy="scroll" data-target="#bd-toc-nav" data-offset="60">
+<!-- Checkboxes to toggle the left sidebar -->
+<input type="checkbox" class="sidebar-toggle" name="__navigation" id="__navigation" aria-label="Toggle navigation sidebar">
+<label class="overlay overlay-navbar" for="__navigation">
+    <div class="visually-hidden">Toggle navigation sidebar</div>
+</label>
+<!-- Checkboxes to toggle the in-page toc -->
+<input type="checkbox" class="sidebar-toggle" name="__page-toc" id="__page-toc" aria-label="Toggle in-page Table of Contents">
+<label class="overlay overlay-pagetoc" for="__page-toc">
+    <div class="visually-hidden">Toggle in-page Table of Contents</div>
+</label>
+<!-- Headers at the top -->
+<div class="announcement header-item noprint"></div>
+<div class="header header-item noprint"></div>
+
+    
+    <div class="container-fluid" id="banner"></div>
+
+    
+
+    <div class="container-xl">
+      <div class="row">
+          
+<!-- Sidebar -->
+<div class="bd-sidebar noprint" id="site-navigation">
+    <div class="bd-sidebar__content">
+        <div class="bd-sidebar__top"><div class="navbar-brand-box">
+    <a class="navbar-brand text-wrap" href="../index.html">
+      
+        <!-- `logo` is deprecated in Sphinx 4.0, so remove this when we stop supporting 3 -->
+        
+      
+      
+      <img src="../_static/nvidia-logo-horiz-rgb-blk-for-screen.png" class="logo" alt="logo">
+      
+      
+      <h1 class="site-logo" id="site-title">NVIDIA BioNeMo Framework</h1>
+      
+    </a>
+</div><form class="bd-search d-flex align-items-center" action="../search.html" method="get">
+  <i class="icon fas fa-search"></i>
+  <input type="search" class="form-control" name="q" id="search-input" placeholder="Search the docs ..." aria-label="Search the docs ..." autocomplete="off" >
+</form><nav class="bd-links" id="bd-docs-nav" aria-label="Main">
+    <div class="bd-toc-item active">
+        <p aria-level="2" class="caption" role="heading">
+ <span class="caption-text">
+  GETTING STARTED
+ </span>
+</p>
+<ul class="nav bd-sidenav">
+ <li class="toctree-l1">
+  <a class="reference internal" href="../index.html">
+   What is BioNeMo?
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../pre-reqs.html">
+   Hardware and Software Prerequisites
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../access-startup.html">
+   Access and Startup
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../initialization-guide.html">
+   Initialization Guide
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../tutorial-list.html">
+   BioNeMo Framework Tutorials
+  </a>
+ </li>
+</ul>
+<p aria-level="2" class="caption" role="heading">
+ <span class="caption-text">
+  BioNeMo CORE
+ </span>
+</p>
+<ul class="nav bd-sidenav">
+ <li class="toctree-l1">
+  <a class="reference internal" href="../bionemo-fw-for-model-training-fw.html">
+   Fundamentals
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../data-module-fw.html">
+   Data Module
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../dwnstr-task-validation.html">
+   Validation with a Downstream Task
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../inference-triton-fw.html">
+   Inference with Nvidia Triton Server
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../deep-dive-esm1-pytriton-inference.html">
+   Example of PyTriton Inference
+  </a>
+ </li>
+</ul>
+<p aria-level="2" class="caption" role="heading">
+ <span class="caption-text">
+  BEST PRACTICES
+ </span>
+</p>
+<ul class="nav bd-sidenav">
+ <li class="toctree-l1">
+  <a class="reference internal" href="../hyperparameters-fw.html">
+   Hyperparameter Usage and Tuning
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../parallelism-fw.html">
+   Training Parallelism
+  </a>
+ </li>
+</ul>
+<p aria-level="2" class="caption" role="heading">
+ <span class="caption-text">
+  MODELS
+ </span>
+</p>
+<ul class="nav bd-sidenav">
+ <li class="toctree-l1">
+  <a class="reference internal" href="../models/diffdock.html">
+   DiffDock
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../models/dnabert.html">
+   DNABERT
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../models/dsmbind.html">
+   DSMBind
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../models/equidock.html">
+   EquiDock
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../models/esm1-nv.html">
+   ESM-1nv
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../models/esm2-nv.html">
+   ESM-2nv
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../models/geneformer.html">
+   Geneformer
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../models/megamolbart.html">
+   MegaMolBART
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../models/molmim.html">
+   MolMIM
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../models/openfold.html">
+   OpenFold
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../models/prott5nv.html">
+   Prott5nv
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../models/model-benchmarks.html">
+   Model Benchmarks
+  </a>
+ </li>
+</ul>
+<p aria-level="2" class="caption" role="heading">
+ <span class="caption-text">
+  DATASETS
+ </span>
+</p>
+<ul class="nav bd-sidenav">
+ <li class="toctree-l1">
+  <a class="reference internal" href="../datasets/uniprot.html">
+   UniProt Dataset
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../datasets/CELLxGENE.html">
+   CELLxGENE
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../datasets/zinc15.html">
+   ZINC-15 Dataset
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../datasets/pdb.html">
+   The Protein Data Bank (PDB)
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../datasets/GRCh38.p13.html">
+   Human Reference Genome Version GRCh38.p13
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../datasets/openproteinset.html">
+   OpenProteinSet
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../datasets/moleculenet-physchem.html">
+   MoleculeNet Physical Chemistry Datasets - Lipophilicity, FreeSolv, ESOL
+  </a>
+ </li>
+</ul>
+<p aria-level="2" class="caption" role="heading">
+ <span class="caption-text">
+  TUTORIALS
+ </span>
+</p>
+<ul class="current nav bd-sidenav">
+ <li class="toctree-l1">
+  <a class="reference internal" href="../preprocessing-bcp-training-diffdock.html">
+   DiffDock: Preparing Workspace and Data for Pre-training
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="esm2nv-mutant-design.html">
+   Zero-Shot Protein Design Using ESM-2nv
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="MMB_GenerativeAI_Inference_with_examples.html">
+   BioNeMo - MegaMolBART Inferencing for Generative Chemistry
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="MolMIM_GenerativeAI_local_inference_with_examples.html">
+   MolMIM Inferencing for Generative Chemistry and Downstream Prediction
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="ZINC15-data-preprocessing.html">
+   ZINC Training Dataset Setup for small molecule language models
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="bionemo-finetuning-overview.html">
+   Finetune pre-trained models in BioNeMo
+  </a>
+ </li>
+ <li class="toctree-l1 current active">
+  <a class="current reference internal" href="#">
+   MolMIM Property Guided Molecular Optimization Using CMA-ES
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="custom-dataset-class-fw.html">
+   Adding the OAS Dataset: Modifying the Dataset Class
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="custom-dataset-dataloader.html">
+   Adding the OAS Dataset: Customizing Dataset Object and Dataloader Functions
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="custom-dataset-preprocessing-fw.html">
+   Adding the OAS Dataset: Downloading and Preprocessing
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="encoder-finetuning-notebook-fw.html">
+   Encoder Fine-tuning
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="model_training_diffdock.html">
+   DiffDock Model Training using BioNeMo
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="model_training_equidock.html">
+   EquiDock Model Training using BioNeMo
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="model_training_esm1nv.html">
+   ESM1nv Model Training using BioNeMo
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="model_training_esm2nv.html">
+   ESM-2nv: Data Preprocessing and Model Training Using BioNeMo
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="model_training_mmb.html">
+   MegaMolBART Model Training using BioNeMo
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="model_training_molmim.html">
+   Train MolMIM from scratch on your own data using the BioNeMo Framework
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="physchem-notebook-fw.html">
+   Finetuning LLM in BioNeMo for a Downstream Task
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="protein-esm2nv-clustering.html">
+   Generating Embeddings for Protein Clustering
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="retrosynthesis-notebook.html">
+   Training LLM for a Custom Downstram Task: Retrosynthesis Prediction using MegaMolBART
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="esm2_FLIP_finetuning.html">
+   Fine-Tune ESM-2nv on FLIP Data for Sequence-Level Classification, Regression, Token-Level Classification, and with LoRA Adapters
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="esm2_oas_inferencing.html">
+   Performing inference on OAS sequences with ESM-2nv
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="esm2_paratope_finetuning.html">
+   Pretrain from Scratch, Continue Training from an Existing Checkpoint, and Fine-tune ESM-2nv on Custom Data
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="dnabert_inference.html">
+   Generating and visualizing embeddings with DNABert
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="dnabert_pretrain_finetune.html">
+   Pretrain, Fine-tune, and Perform Inference with DNABERT for Splice Site Prediction
+  </a>
+ </li>
+</ul>
+<p aria-level="2" class="caption" role="heading">
+ <span class="caption-text">
+  APPENDIX
+ </span>
+</p>
+<ul class="nav bd-sidenav">
+ <li class="toctree-l1">
+  <a class="reference internal" href="../faq-fw.html">
+   Frequently Asked Questions (FAQ)
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../bibliography-fw.html">
+   Bibliography
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../releasenotes-fw.html">
+   Release Notes
+  </a>
+ </li>
+</ul>
+
+    </div>
+</nav></div>
+        <div class="bd-sidebar__bottom">
+             <!-- To handle the deprecated key -->
+            
+        </div>
+    </div>
+    <div id="rtd-footer-container"></div>
+</div>
+
+
+          
+
+
+          
+<!-- A tiny helper pixel to detect if we've scrolled -->
+<div class="sbt-scroll-pixel-helper"></div>
+<!-- Main content -->
+<div class="col py-0 content-container">
+    
+    <div class="header-article row sticky-top noprint">
+        
+
+
+
+<div class="col py-1 d-flex header-article-main">
+    <div class="header-article__left">
+        
+        <label for="__navigation"
+  class="headerbtn"
+  data-toggle="tooltip"
+data-placement="right"
+title="Toggle navigation"
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fas fa-bars"></i>
+  </span>
+
+</label>
+
+        
+    </div>
+    <div class="header-article__right">
+<button onclick="toggleFullScreen()"
+  class="headerbtn"
+  data-toggle="tooltip"
+data-placement="bottom"
+title="Fullscreen mode"
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fas fa-expand"></i>
+  </span>
+
+</button>
+<label for="__page-toc"
+  class="headerbtn headerbtn-page-toc"
+  
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fas fa-list"></i>
+  </span>
+
+</label>
+
+    </div>
+</div>
+
+<!-- Table of contents -->
+<div class="col-md-3 bd-toc show noprint">
+    <div class="tocsection onthispage pt-5 pb-3">
+        <i class="fas fa-list"></i> Contents
+    </div>
+    <nav id="bd-toc-nav" aria-label="Page">
+        <ul class="visible nav section-nav flex-column">
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#demo-objectives">
+   Demo Objectives
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#setup">
+   Setup
+  </a>
+  <ul class="visible nav section-nav flex-column">
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#import-and-install-all-required-packages">
+     Import and install all required packages
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#home-directory">
+     Home Directory
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#download-model-checkpoints">
+     Download Model Checkpoints
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#load-your-checkpoint-into-the-molmim-inference-wrapper">
+     Load your checkpoint into the molmim inference wrapper
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#setup-user-defined-molecule-scoring-function">
+     Setup user-defined molecule scoring function
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#define-starting-molecules">
+     Define starting molecules
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#setup-the-optimizer-and-wrap-the-inference-api-for-cma-es">
+     Setup the optimizer and wrap the inference API for CMA-ES
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#tune-cma-es">
+     Tune CMA-ES
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#run-a-larger-cma-es-optimization-with-discovered-parameters">
+     Run a larger CMA-ES optimization with discovered parameters
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#explore-results">
+     Explore results
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#how-well-did-our-optimization-perform">
+     How well did our optimization perform?
+    </a>
+   </li>
+  </ul>
+ </li>
+</ul>
+
+    </nav>
+</div>
+    </div>
+    <div class="article row">
+        <div class="col pl-md-3 pl-lg-5 content-container">
+            <!-- Table of contents that is only displayed when printing the page -->
+            <div id="jb-print-docs-body" class="onlyprint">
+                <h1>MolMIM Property Guided Molecular Optimization Using CMA-ES</h1>
+                <!-- Table of contents -->
+                <div id="print-main-content">
+                    <div id="jb-print-toc">
+                        
+                        <div>
+                            <h2> Contents </h2>
+                        </div>
+                        <nav aria-label="Page">
+                            <ul class="visible nav section-nav flex-column">
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#demo-objectives">
+   Demo Objectives
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#setup">
+   Setup
+  </a>
+  <ul class="visible nav section-nav flex-column">
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#import-and-install-all-required-packages">
+     Import and install all required packages
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#home-directory">
+     Home Directory
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#download-model-checkpoints">
+     Download Model Checkpoints
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#load-your-checkpoint-into-the-molmim-inference-wrapper">
+     Load your checkpoint into the molmim inference wrapper
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#setup-user-defined-molecule-scoring-function">
+     Setup user-defined molecule scoring function
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#define-starting-molecules">
+     Define starting molecules
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#setup-the-optimizer-and-wrap-the-inference-api-for-cma-es">
+     Setup the optimizer and wrap the inference API for CMA-ES
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#tune-cma-es">
+     Tune CMA-ES
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#run-a-larger-cma-es-optimization-with-discovered-parameters">
+     Run a larger CMA-ES optimization with discovered parameters
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#explore-results">
+     Explore results
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#how-well-did-our-optimization-perform">
+     How well did our optimization perform?
+    </a>
+   </li>
+  </ul>
+ </li>
+</ul>
+
+                        </nav>
+                    </div>
+                </div>
+            </div>
+            <main id="main-content" role="main">
+                
+              <div>
+                 <div class="tex2jax_ignore mathjax_ignore section" id="molmim-property-guided-molecular-optimization-using-cma-es">
+<h1>MolMIM Property Guided Molecular Optimization Using CMA-ES<a class="headerlink" href="#molmim-property-guided-molecular-optimization-using-cma-es" title="Permalink to this headline">#</a></h1>
+<div class="alert alert-block alert-info"> <b>NOTE</b> This notebook was tested on a single RTX8000 GPU using BioNeMo Framework v1.7 with an expected runtime of approximately 1h.</div>
+<div class="section" id="demo-objectives">
+<h2>Demo Objectives<a class="headerlink" href="#demo-objectives" title="Permalink to this headline">#</a></h2>
+<p>Here we demonstrate how to load a <a class="reference external" href="https://arxiv.org/abs/2208.09016">MolMIM</a> checkpoint from the BioNeMo Framework and use it to optimize some molecules of interest with a custom user-defined scoring function. We use <a class="reference external" href="https://en.wikipedia.org/wiki/CMA-ES">CMA-ES</a> to traverse the latent space of our MolMIM model and select novel, related molecules expected to improve performance as measured by the scoring function. To sample these molecules, we must complete the following steps:</p>
+<ol class="arabic simple">
+<li><p>Load the desired MolMIM checkpoint.</p></li>
+<li><p>Encode the starting molecules into MolMIM’s latent space.</p></li>
+<li><p>Run CMA-ES, which will iteratively perform the following:</p>
+<ol class="arabic simple">
+<li><p>Decode latent representations into SMILES strings.</p></li>
+<li><p>Apply the user defined scoring function to these SMILES strings to generate SMILES/scores pairings.</p></li>
+<li><p>Ask the CMA-ES algorithm for a new set of latent space representations from which to sample.</p></li>
+</ol>
+</li>
+</ol>
+<p>Note: this notebook is derived from <a class="reference external" href="https://github.com/NVIDIA/BioNeMo/blob/main/examples/service/notebooks/cma_custom_oracles.ipynb">a previous tutorial made for the BioNeMo Service version of MolMIM</a>.</p>
+</div>
+<div class="section" id="setup">
+<h2>Setup<a class="headerlink" href="#setup" title="Permalink to this headline">#</a></h2>
+<p>Ensure that you have read through the Getting Started section, can run the BioNeMo Framework docker container, and have configured the NGC Command Line Interface (CLI) within the container. It is assumed that this notebook is being executed from within the container.</p>
+<div class="alert alert-block alert-info"> <b>NOTE</b> Some of the cells below generate long text output.  We're using <pre>%%capture --no-display --no-stderr cell_output</pre> to suppress this output.  Comment or delete this line in the cells below to restore full output.</div>
+<div class="section" id="import-and-install-all-required-packages">
+<h3>Import and install all required packages<a class="headerlink" href="#import-and-install-all-required-packages" title="Permalink to this headline">#</a></h3>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>%%capture --no-display --no-stderr cell_output
+!pip install optuna
+!pip install statsmodels
+
+from bionemo.utils.hydra import load_model_config
+import os
+from bionemo.model.molecule.molmim.infer import MolMIMInference
+from typing import List, Optional
+import numpy as np
+from guided_molecule_gen.oracles import qed, tanimoto_similarity
+from rdkit import Chem
+from rdkit.Chem import Draw
+from rdkit.Chem.QED import qed as rdkit_qed
+from bionemo.model.core.controlled_generation import ControlledGenerationPerceiverEncoderInferenceWrapper
+from guided_molecule_gen.optimizer import MoleculeGenerationOptimizer
+import optuna
+import statsmodels.api as sm
+import pandas as pd
+import matplotlib.pyplot as plt
+from tqdm import trange
+import logging
+logging.basicConfig(level = logging.INFO)
+logging.getLogger(&quot;nemo_logger&quot;).setLevel(logging.ERROR)
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+<div class="section" id="home-directory">
+<h3>Home Directory<a class="headerlink" href="#home-directory" title="Permalink to this headline">#</a></h3>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">bionemo_home</span> <span class="o">=</span> <span class="s2">&quot;/workspace/bionemo&quot;</span>
+<span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s1">&#39;BIONEMO_HOME&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">bionemo_home</span>
+<span class="n">os</span><span class="o">.</span><span class="n">chdir</span><span class="p">(</span><span class="n">bionemo_home</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+<div class="section" id="download-model-checkpoints">
+<h3>Download Model Checkpoints<a class="headerlink" href="#download-model-checkpoints" title="Permalink to this headline">#</a></h3>
+<p>In the commands below, provide your own NGC API Key and NGC Org.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Define the NGC CLI API KEY and ORG for the model download</span>
+<span class="c1"># If these variables are not already set in the container, uncomment below</span>
+<span class="c1"># to define and set with your API KEY and ORG</span>
+<span class="c1">#api_key = &lt;your_api_key&gt;</span>
+<span class="c1">#ngc_cli_org = &lt;ngc_cli_org&gt;</span>
+<span class="c1"># Update the environment variable</span>
+<span class="c1">#os.environ[&#39;NGC_CLI_API_KEY&#39;] = api_key</span>
+<span class="c1">#os.environ[&#39;NGC_CLI_ORG&#39;] = ngc_cli_org</span>
+
+<span class="c1"># Set variables and paths for model and checkpoint</span>
+<span class="n">model_name</span> <span class="o">=</span> <span class="s2">&quot;molmim_70m_24_3&quot;</span>
+<span class="n">actual_checkpoint_name</span> <span class="o">=</span> <span class="s2">&quot;molmim_70m_24_3.nemo&quot;</span>
+<span class="n">model_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">bionemo_home</span><span class="p">,</span> <span class="s1">&#39;models&#39;</span><span class="p">)</span>
+<span class="n">checkpoint_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">model_path</span><span class="p">,</span> <span class="n">actual_checkpoint_name</span><span class="p">)</span>
+<span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s1">&#39;MODEL_PATH&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">model_path</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>%%capture --no-display --no-stderr cell_output
+if not os.path.exists(checkpoint_path):
+    !cd /workspace/bionemo &amp;&amp; \
+    python download_artifacts.py --model_dir models --models {model_name}
+else:
+    print(f&quot;Model {model_name} already exists at {model_path}.&quot;)
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+<div class="section" id="load-your-checkpoint-into-the-molmim-inference-wrapper">
+<h3>Load your checkpoint into the molmim inference wrapper<a class="headerlink" href="#load-your-checkpoint-into-the-molmim-inference-wrapper" title="Permalink to this headline">#</a></h3>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="o">%%capture</span> --no-display --no-stderr cell_output
+<span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s1">&#39;BIONEMO_HOME&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">bionemo_home</span>
+<span class="n">cfg</span> <span class="o">=</span> <span class="n">load_model_config</span><span class="p">(</span><span class="n">config_name</span><span class="o">=</span><span class="s2">&quot;molmim_infer.yaml&quot;</span><span class="p">,</span> <span class="n">config_path</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">bionemo_home</span><span class="si">}</span><span class="s2">/examples/tests/conf/&quot;</span><span class="p">)</span> <span class="c1"># reasonable starting config for molmim inference</span>
+<span class="c1"># This is the field of the config that we need to set to our desired checkpoint path.</span>
+<span class="n">cfg</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">downstream_task</span><span class="o">.</span><span class="n">restore_from_path</span> <span class="o">=</span> <span class="n">checkpoint_path</span>
+<span class="n">model</span> <span class="o">=</span> <span class="n">MolMIMInference</span><span class="p">(</span><span class="n">cfg</span><span class="p">,</span> <span class="n">interactive</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>GPU available: True (cuda), used: True
+TPU available: False, using: 0 TPU cores
+IPU available: False, using: 0 IPUs
+HPU available: False, using: 0 HPUs
+24-08-06 21:08:36 - PID:1051 - rank:(0, 0, 0, 0) - microbatches.py:39 - INFO - setting number of micro-batches to constant 1
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+<div class="section" id="setup-user-defined-molecule-scoring-function">
+<h3>Setup user-defined molecule scoring function<a class="headerlink" href="#setup-user-defined-molecule-scoring-function" title="Permalink to this headline">#</a></h3>
+<p>This is the section where you as a user can pull in your own scoring functions that you want to optimize. For this example, we will be optimizing a combination of Tanimoto similarity to the input molecule and Quantitative Estimate of Druglikeness (QED) following the example from the initial <a class="reference external" href="https://arxiv.org/abs/2208.09016">MolMIM publication</a>:</p>
+<div class="math notranslate nohighlight">
+\[
+  score = min(QED / 0.9, 1) + min(Tanimoto / 0.4, 1)
+\]</div>
+<p>In this case, we will allow the model to optimize up to a maximum QED of 0.9 and Tanimoto similarity of 0.4. Once these maxima are achieved, we perform no further optimization.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">score_mixing_function</span><span class="p">(</span><span class="n">qeds</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">similarities</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Calculate a combined score for QED and Tanimoto similarity. This function aims to maximize the Quantitative Estimate of Drug-likeness (QED) and Tanimoto similarity scores up to thresholds of 0.9 and 0.4, respectively.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">clip</span><span class="p">(</span><span class="n">qeds</span> <span class="o">/</span> <span class="mf">0.9</span><span class="p">,</span> <span class="n">a_min</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">a_max</span><span class="o">=</span><span class="mf">1.0</span><span class="p">)</span> <span class="o">+</span> <span class="n">np</span><span class="o">.</span><span class="n">clip</span><span class="p">(</span><span class="n">similarities</span> <span class="o">/</span> <span class="mf">0.4</span><span class="p">,</span> <span class="n">a_min</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">a_max</span><span class="o">=</span><span class="mf">1.0</span><span class="p">)</span>
+
+<span class="k">def</span> <span class="nf">try_canon</span><span class="p">(</span><span class="n">smiles</span><span class="p">:</span><span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Attempt to canonicalize a SMILES string. This function tries to convert a SMILES string to its canonical form. If the conversion fails, it returns None.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">Chem</span><span class="o">.</span><span class="n">MolToSmiles</span><span class="p">(</span><span class="n">Chem</span><span class="o">.</span><span class="n">MolFromSmiles</span><span class="p">(</span><span class="n">smiles</span><span class="p">),</span> <span class="n">canonical</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="k">except</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">None</span>
+
+<span class="k">def</span> <span class="nf">canonicalize</span><span class="p">(</span><span class="n">smiles</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Canonicalize a list of SMILES strings. This function converts each SMILES string in the input list to its canonical form.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="p">[</span><span class="n">try_canon</span><span class="p">(</span><span class="n">s</span><span class="p">)</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">smiles</span><span class="p">]</span>
+
+<span class="k">def</span> <span class="nf">scoring_function</span><span class="p">(</span><span class="n">smiles</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="n">reference</span><span class="p">:</span><span class="nb">str</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Takes a list of SMILES strings and returns an array of scores.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        smiles (List[str]): Smiles strings to generate a score for (one each)</span>
+<span class="sd">        reference (str): Reference molecule (SMILES string) is also used for this scoring function.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        np.ndarray: Array of scores, one for each input SMILES string.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1">#csmiles = canonicalize(smiles)</span>
+    <span class="n">scores</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">=</span> <span class="n">score_mixing_function</span><span class="p">(</span><span class="n">qed</span><span class="p">(</span><span class="n">smiles</span><span class="p">),</span> <span class="n">tanimoto_similarity</span><span class="p">(</span><span class="n">smiles</span><span class="p">,</span> <span class="n">reference</span><span class="p">))</span>
+    <span class="k">return</span> <span class="o">-</span><span class="mi">1</span> <span class="o">*</span> <span class="n">scores</span>
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+<div class="section" id="define-starting-molecules">
+<h3>Define starting molecules<a class="headerlink" href="#define-starting-molecules" title="Permalink to this headline">#</a></h3>
+<p>In this section, we will define the starting molecules for the optimization process. As a set of examples, we will use imatinib, erlotinib, and gifitinib. We ensure that the SMILES strings representing these molecules are canonicalized using RDKit. MolMIM was trained on a corpus of RDKit-cononicalized SMILES strings, so any inputs and outputs should be RDKit-canonicalized as well to achieve peak performance.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">starting_smiles</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="s2">&quot;CC1=C(C=C(C=C1)NC(=O)C2=CC=C(C=C2)CN3CCN(CC3)C)NC4=NC=CC(=N4)C5=CN=CC=C5&quot;</span><span class="p">,</span> <span class="c1"># imatinib</span>
+    <span class="s2">&quot;COCCOC1=C(C=C2C(=C1)C(=NC=N2)NC3=CC=CC(=C3)C#C)OCCOC&quot;</span><span class="p">,</span> <span class="c1"># erlotinib</span>
+    <span class="s2">&quot;C1COCCN1CCCOc2c(OC)cc3ncnc(c3c2)Nc4cc(Cl)c(F)cc4&quot;</span><span class="p">,</span> <span class="c1"># gifitinib</span>
+<span class="p">]</span>
+
+<span class="c1"># Canonicalize all SMILES strings and print the structure of imatinib</span>
+<span class="n">molecules</span> <span class="o">=</span> <span class="p">[</span><span class="n">Chem</span><span class="o">.</span><span class="n">MolFromSmiles</span><span class="p">(</span><span class="n">s</span><span class="p">)</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">starting_smiles</span><span class="p">]</span>
+<span class="n">starting_qed</span> <span class="o">=</span> <span class="p">[</span><span class="n">rdkit_qed</span><span class="p">(</span><span class="n">m</span><span class="p">)</span> <span class="k">for</span> <span class="n">m</span> <span class="ow">in</span> <span class="n">molecules</span><span class="p">]</span>
+<span class="n">canonicalized_smiles</span> <span class="o">=</span> <span class="p">[</span><span class="n">Chem</span><span class="o">.</span><span class="n">MolToSmiles</span><span class="p">(</span><span class="n">m</span><span class="p">,</span> <span class="n">canonical</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span> <span class="k">for</span> <span class="n">m</span> <span class="ow">in</span> <span class="n">molecules</span><span class="p">]</span>
+<span class="n">Draw</span><span class="o">.</span><span class="n">MolsToGridImage</span><span class="p">(</span><span class="n">molecules</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<img alt="../_images/e852a082c00c860480151ce9423a0295289dd8b3c4cb2c45de29a00b817a0946.png" src="../_images/e852a082c00c860480151ce9423a0295289dd8b3c4cb2c45de29a00b817a0946.png" />
+</div>
+</div>
+</div>
+<div class="section" id="setup-the-optimizer-and-wrap-the-inference-api-for-cma-es">
+<h3>Setup the optimizer and wrap the inference API for CMA-ES<a class="headerlink" href="#setup-the-optimizer-and-wrap-the-inference-api-for-cma-es" title="Permalink to this headline">#</a></h3>
+<p>The CMA-ES library expects certain formats for input/output of the inference model to function properly. We provide a wrapper for this and show how to setup optimization below.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">controlled_gen_kwargs</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">&quot;sampling_method&quot;</span><span class="p">:</span> <span class="s2">&quot;beam-search&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;sampling_kwarg_overrides&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;beam_size&quot;</span><span class="p">:</span> <span class="mi">3</span><span class="p">,</span> <span class="s2">&quot;keep_only_best_tokens&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span> <span class="s2">&quot;return_scores&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">},</span>
+<span class="p">}</span>
+
+<span class="n">model_wrapped</span> <span class="o">=</span> <span class="n">ControlledGenerationPerceiverEncoderInferenceWrapper</span><span class="p">(</span>
+    <span class="n">model</span><span class="p">,</span> <span class="n">enforce_perceiver</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">hidden_steps</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="o">**</span><span class="n">controlled_gen_kwargs</span>
+<span class="p">)</span>  <span class="c1"># just flatten the position for this.</span>
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+<div class="section" id="tune-cma-es">
+<h3>Tune CMA-ES<a class="headerlink" href="#tune-cma-es" title="Permalink to this headline">#</a></h3>
+<p>Different models will have different optimal settings for CMA-ES. Here, we perform a grid search over possible values of <code class="docutils literal notranslate"><span class="pre">sigma</span></code>, then perform more steps of optimization with the best. We will use the <a class="reference external" href="https://optuna.org/">Optuna library</a> to perform this optimization over the <code class="docutils literal notranslate"><span class="pre">sigma</span></code> hyperparameter. This process is referred to as hyperparatemer optimization or HPO.</p>
+<div class="alert alert-block alert-info"> <b>NOTE</b>
+This grid search may take some time depending on system and GPU capabilities.  We are running a relatively small search with <pre>    n_trials=10</pre> in the call <pre>    study.optimize(objective, n_trials=10)</pre>
+<p>If time and compute resources allow, increasing the number of trials should improve results.</p>
+</div><div class="cell tag_hide-output docutils container">
+<div class="cell_input above-output-prompt docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="o">%%capture</span> --no-display --no-stderr cell_output
+<span class="o">%%</span><span class="n">time</span>
+<span class="k">def</span> <span class="nf">objective</span><span class="p">(</span><span class="n">trial</span><span class="p">,</span> <span class="n">n_steps</span><span class="p">:</span><span class="nb">int</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Objective function for hyperparameter optimization using Optuna. This function optimizes the `sigma` parameter for the `MoleculeGenerationOptimizer` to maximize the final score of generated molecules.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">sigma</span> <span class="o">=</span> <span class="n">trial</span><span class="o">.</span><span class="n">suggest_float</span><span class="p">(</span><span class="s1">&#39;sigma&#39;</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+    <span class="n">optimizer</span> <span class="o">=</span> <span class="n">MoleculeGenerationOptimizer</span><span class="p">(</span>
+        <span class="n">model_wrapped</span><span class="p">,</span>
+        <span class="n">scoring_function</span><span class="p">,</span>
+        <span class="n">canonicalized_smiles</span><span class="p">,</span>
+        <span class="n">popsize</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span>  <span class="c1"># larger values will be slower but more thorough</span>
+        <span class="n">optimizer_args</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;sigma&quot;</span><span class="p">:</span> <span class="n">sigma</span><span class="p">},</span>
+    <span class="p">)</span>
+    <span class="n">optimizer</span><span class="o">.</span><span class="n">optimize</span><span class="p">(</span><span class="n">n_steps</span><span class="p">)</span>
+    <span class="n">final_smiles</span> <span class="o">=</span> <span class="n">optimizer</span><span class="o">.</span><span class="n">generated_smis</span>
+    <span class="n">final_score</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">([</span><span class="n">np</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">scoring_function</span><span class="p">(</span><span class="n">smis_population</span><span class="p">,</span> <span class="n">reference_smis</span><span class="p">))</span> <span class="k">for</span> <span class="n">smis_population</span><span class="p">,</span><span class="n">reference_smis</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">final_smiles</span><span class="p">,</span> <span class="n">canonicalized_smiles</span><span class="p">)])</span>
+    <span class="k">return</span> <span class="n">final_score</span>
+
+<span class="n">study</span> <span class="o">=</span> <span class="n">optuna</span><span class="o">.</span><span class="n">create_study</span><span class="p">()</span>
+<span class="n">study</span><span class="o">.</span><span class="n">optimize</span><span class="p">(</span><span class="n">objective</span><span class="p">,</span> <span class="n">n_trials</span><span class="o">=</span><span class="mi">10</span><span class="p">);</span>
+</pre></div>
+</div>
+</div>
+<details class="hide below-input">
+<summary aria-label="Toggle hidden content">
+<span class="collapsed">Show code cell output</span>
+<span class="expanded">Hide code cell output</span>
+</summary>
+<div class="cell_output docutils container">
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>[I 2024-08-06 21:08:41,741] A new study created in memory with name: no-name-e2642617-c6bc-4c5a-813e-a6cae2d4baa4
+[I 2024-08-06 21:09:11,937] Trial 0 finished with value: -1.7908240508539937 and parameters: {&#39;sigma&#39;: 1.1436448372973909}. Best is trial 0 with value: -1.7908240508539937.
+[I 2024-08-06 21:09:41,187] Trial 1 finished with value: -1.7217557525583158 and parameters: {&#39;sigma&#39;: 1.136744045254513}. Best is trial 0 with value: -1.7908240508539937.
+[I 2024-08-06 21:10:10,489] Trial 2 finished with value: -1.8005730720088875 and parameters: {&#39;sigma&#39;: 1.0661960913392319}. Best is trial 2 with value: -1.8005730720088875.
+[I 2024-08-06 21:10:39,759] Trial 3 finished with value: -1.77196442822935 and parameters: {&#39;sigma&#39;: 0.8399371318462481}. Best is trial 2 with value: -1.8005730720088875.
+[I 2024-08-06 21:11:08,869] Trial 4 finished with value: -1.3730382455389722 and parameters: {&#39;sigma&#39;: 1.8505535722293203}. Best is trial 2 with value: -1.8005730720088875.
+[I 2024-08-06 21:11:38,234] Trial 5 finished with value: -1.8893974470995538 and parameters: {&#39;sigma&#39;: 0.44103950412533544}. Best is trial 5 with value: -1.8893974470995538.
+[I 2024-08-06 21:12:07,547] Trial 6 finished with value: -1.4923293117815952 and parameters: {&#39;sigma&#39;: 1.4666426261862033}. Best is trial 5 with value: -1.8893974470995538.
+[I 2024-08-06 21:12:36,897] Trial 7 finished with value: -1.605032977878628 and parameters: {&#39;sigma&#39;: 1.4400461196623222}. Best is trial 5 with value: -1.8893974470995538.
+[I 2024-08-06 21:13:06,261] Trial 8 finished with value: -1.6315798594104234 and parameters: {&#39;sigma&#39;: 1.2787018277205051}. Best is trial 5 with value: -1.8893974470995538.
+[I 2024-08-06 21:13:35,604] Trial 9 finished with value: -1.6057519797572717 and parameters: {&#39;sigma&#39;: 1.529506633694828}. Best is trial 5 with value: -1.8893974470995538.
+</pre></div>
+</div>
+</div>
+</details>
+</div>
+<p>Now, we can examine the best performing value for <code class="docutils literal notranslate"><span class="pre">sigma</span></code> found by Optuna during HPO.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">study</span><span class="o">.</span><span class="n">best_params</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>{&#39;sigma&#39;: 0.44103950412533544}
+</pre></div>
+</div>
+</div>
+</div>
+<p>Though the above value is the optimium returned over our HPO process, we will consider the range of valid values and pick a minimum that is more likely to be robust. Since the HPO process is stochastic, high-performing and low-performing values may be in close proximity. We would like to identify a good range of <code class="docutils literal notranslate"><span class="pre">sigma</span></code> values, over which the optimizer generally performs well.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">completed_trials</span> <span class="o">=</span> <span class="p">[</span><span class="n">trial</span> <span class="k">for</span> <span class="n">trial</span> <span class="ow">in</span> <span class="n">study</span><span class="o">.</span><span class="n">trials</span> <span class="k">if</span> <span class="n">trial</span><span class="o">.</span><span class="n">state</span> <span class="o">==</span> <span class="n">optuna</span><span class="o">.</span><span class="n">trial</span><span class="o">.</span><span class="n">TrialState</span><span class="o">.</span><span class="n">COMPLETE</span><span class="p">]</span>
+<span class="n">trials_data</span> <span class="o">=</span> <span class="p">[{</span><span class="s2">&quot;sigma&quot;</span><span class="p">:</span> <span class="n">trial</span><span class="o">.</span><span class="n">params</span><span class="p">[</span><span class="s2">&quot;sigma&quot;</span><span class="p">],</span> <span class="s2">&quot;loss&quot;</span><span class="p">:</span> <span class="n">trial</span><span class="o">.</span><span class="n">value</span><span class="p">,</span> <span class="s2">&quot;trial_id&quot;</span><span class="p">:</span> <span class="n">tid</span><span class="p">}</span> <span class="k">for</span> <span class="n">tid</span><span class="p">,</span><span class="n">trial</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">completed_trials</span><span class="p">)]</span>
+<span class="n">data</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">trials_data</span><span class="p">)</span>
+<span class="n">data</span>
+<span class="c1"># Now create a bootstrap confidence interval around the a LOWESS fit</span>
+
+
+<span class="k">def</span> <span class="nf">lowess_with_confidence_bounds</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">eval_x</span><span class="p">,</span> <span class="n">N</span><span class="o">=</span><span class="mi">200</span><span class="p">,</span> <span class="n">conf_interval</span><span class="o">=</span><span class="mf">0.95</span><span class="p">,</span> <span class="n">lowess_kw</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Perform Lowess regression and determine a confidence interval by bootstrap resampling</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># Lowess smoothing</span>
+    <span class="c1">#  x is called (exog), y is called (endog)</span>
+    <span class="n">smoothed</span> <span class="o">=</span> <span class="n">sm</span><span class="o">.</span><span class="n">nonparametric</span><span class="o">.</span><span class="n">lowess</span><span class="p">(</span><span class="n">exog</span><span class="o">=</span><span class="n">x</span><span class="p">,</span> <span class="n">endog</span><span class="o">=</span><span class="n">y</span><span class="p">,</span> <span class="n">xvals</span><span class="o">=</span><span class="n">eval_x</span><span class="p">,</span> <span class="o">**</span><span class="n">lowess_kw</span><span class="p">)</span>
+
+    <span class="c1"># Perform bootstrap resamplings of the data</span>
+    <span class="c1"># and  evaluate the smoothing at a fixed set of points</span>
+    <span class="n">smoothed_values</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">((</span><span class="n">N</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">eval_x</span><span class="p">)))</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">N</span><span class="p">):</span>
+        <span class="n">sample</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">choice</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">x</span><span class="p">),</span> <span class="nb">len</span><span class="p">(</span><span class="n">x</span><span class="p">),</span> <span class="n">replace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="n">sampled_x</span> <span class="o">=</span> <span class="n">x</span><span class="p">[</span><span class="n">sample</span><span class="p">]</span>
+        <span class="n">sampled_y</span> <span class="o">=</span> <span class="n">y</span><span class="p">[</span><span class="n">sample</span><span class="p">]</span>
+
+        <span class="n">smoothed_values</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">sm</span><span class="o">.</span><span class="n">nonparametric</span><span class="o">.</span><span class="n">lowess</span><span class="p">(</span>
+            <span class="n">exog</span><span class="o">=</span><span class="n">sampled_x</span><span class="p">,</span> <span class="n">endog</span><span class="o">=</span><span class="n">sampled_y</span><span class="p">,</span> <span class="n">xvals</span><span class="o">=</span><span class="n">eval_x</span><span class="p">,</span> <span class="o">**</span><span class="n">lowess_kw</span>
+        <span class="p">)</span>
+
+    <span class="c1"># Get the confidence interval</span>
+    <span class="n">sorted_values</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sort</span><span class="p">(</span><span class="n">smoothed_values</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+    <span class="n">bound</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">N</span> <span class="o">*</span> <span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="n">conf_interval</span><span class="p">)</span> <span class="o">/</span> <span class="mi">2</span><span class="p">)</span>
+    <span class="n">bottom</span> <span class="o">=</span> <span class="n">sorted_values</span><span class="p">[</span><span class="n">bound</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]</span>
+    <span class="n">top</span> <span class="o">=</span> <span class="n">sorted_values</span><span class="p">[</span><span class="o">-</span><span class="n">bound</span><span class="p">]</span>
+
+    <span class="k">return</span> <span class="n">smoothed</span><span class="p">,</span> <span class="n">bottom</span><span class="p">,</span> <span class="n">top</span>
+
+
+<span class="c1"># Compute the 95% confidence interval</span>
+<span class="n">eval_x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">200</span><span class="p">)</span>
+<span class="n">smoothed</span><span class="p">,</span> <span class="n">bottom</span><span class="p">,</span> <span class="n">top</span> <span class="o">=</span> <span class="n">lowess_with_confidence_bounds</span><span class="p">(</span>
+    <span class="n">data</span><span class="o">.</span><span class="n">sigma</span><span class="p">,</span> <span class="n">data</span><span class="o">.</span><span class="n">loss</span><span class="p">,</span> <span class="n">eval_x</span><span class="p">,</span> <span class="n">lowess_kw</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;frac&quot;</span><span class="p">:</span> <span class="mf">.8</span><span class="p">}</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">plt</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="n">data</span><span class="p">[</span><span class="s2">&quot;sigma&quot;</span><span class="p">],</span> <span class="n">y</span><span class="o">=</span><span class="n">data</span><span class="p">[</span><span class="s2">&quot;loss&quot;</span><span class="p">],</span> <span class="n">label</span><span class="o">=</span><span class="s2">&quot;observed_points&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">eval_x</span><span class="p">,</span> <span class="n">smoothed</span><span class="p">,</span> <span class="n">c</span><span class="o">=</span><span class="s2">&quot;k&quot;</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">&quot;lowess smoothed&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">fill_between</span><span class="p">(</span><span class="n">eval_x</span><span class="p">,</span> <span class="n">bottom</span><span class="p">,</span> <span class="n">top</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s2">&quot;b&quot;</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">&quot;lowess 95% CI&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">legend</span><span class="p">()</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="s2">&quot;Loss vs sigma from HPO for MolMIM model&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">autoscale</span><span class="p">(</span><span class="n">enable</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="s2">&quot;x&quot;</span><span class="p">,</span> <span class="n">tight</span><span class="o">=</span><span class="kc">True</span><span class="p">);</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<img alt="../_images/c3e9c787b959a98f101b56787c481ca821f43c540654b716705a52c54e72788f.png" src="../_images/c3e9c787b959a98f101b56787c481ca821f43c540654b716705a52c54e72788f.png" />
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">smoothed_best_sigma</span> <span class="o">=</span> <span class="n">eval_x</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">argmin</span><span class="p">(</span><span class="n">top</span><span class="p">)]</span>  <span class="c1"># Use the upper bound of the confidence interval</span>
+<span class="n">smooth_best</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;sigma&quot;</span><span class="p">:</span> <span class="n">smoothed_best_sigma</span><span class="p">}</span>
+<span class="n">smooth_best</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>{&#39;sigma&#39;: 1.3366834170854272}
+</pre></div>
+</div>
+</div>
+</div>
+<p>We now compare the smoothed top choice with the best nominal choice.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">smooth_best</span><span class="p">,</span> <span class="n">study</span><span class="o">.</span><span class="n">best_params</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>({&#39;sigma&#39;: 1.3366834170854272}, {&#39;sigma&#39;: 0.44103950412533544})
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+<div class="section" id="run-a-larger-cma-es-optimization-with-discovered-parameters">
+<h3>Run a larger CMA-ES optimization with discovered parameters<a class="headerlink" href="#run-a-larger-cma-es-optimization-with-discovered-parameters" title="Permalink to this headline">#</a></h3>
+<p>Given the value of <code class="docutils literal notranslate"><span class="pre">sigma</span></code> we found to work well in our HPO above, we will increase the population size and steps and do a final larger optimizaiton run.</p>
+<div class="cell tag_hide-output docutils container">
+<div class="cell_input above-output-prompt docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="o">%%capture</span> --no-display --no-stderr cell_output
+<span class="o">%%</span><span class="n">time</span>
+<span class="n">optimizer</span> <span class="o">=</span> <span class="n">MoleculeGenerationOptimizer</span><span class="p">(</span>
+        <span class="n">model_wrapped</span><span class="p">,</span>
+        <span class="n">scoring_function</span><span class="p">,</span>
+        <span class="n">canonicalized_smiles</span><span class="p">,</span>
+        <span class="n">popsize</span><span class="o">=</span><span class="mi">50</span><span class="p">,</span>  <span class="c1"># larger values will be slower but more thorough</span>
+        <span class="n">optimizer_args</span><span class="o">=</span><span class="n">smooth_best</span><span class="p">,</span>  <span class="c1"># Vals from HPO</span>
+    <span class="p">)</span>
+<span class="c1"># Starting state for idx 0</span>
+<span class="n">qed_scores</span> <span class="o">=</span> <span class="p">[</span><span class="n">qed</span><span class="p">(</span><span class="n">canonicalized_smiles</span><span class="p">)]</span>
+<span class="n">tanimoto_scores</span> <span class="o">=</span> <span class="p">[[</span><span class="n">tanimoto_similarity</span><span class="p">([</span><span class="n">canonicalized_smiles</span><span class="p">[</span><span class="n">idx</span><span class="p">]],</span> <span class="n">canonicalized_smiles</span><span class="p">[</span><span class="n">idx</span><span class="p">])[</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">idx</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">canonicalized_smiles</span><span class="p">))]]</span>
+<span class="n">best_molecules</span> <span class="o">=</span> <span class="p">[</span><span class="n">canonicalized_smiles</span><span class="p">]</span>
+<span class="n">fraction_bad_samples</span> <span class="o">=</span> <span class="p">[[</span><span class="mi">0</span><span class="p">]</span><span class="o">*</span><span class="nb">len</span><span class="p">(</span><span class="n">canonicalized_smiles</span><span class="p">)]</span>
+<span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">trange</span><span class="p">(</span><span class="mi">30</span><span class="p">):</span>
+    <span class="n">optimizer</span><span class="o">.</span><span class="n">step</span><span class="p">();</span>
+    <span class="n">final_smiles</span> <span class="o">=</span> <span class="n">optimizer</span><span class="o">.</span><span class="n">generated_smis</span>
+    <span class="c1"># Population of molecules is returned, but we only want the best one.</span>
+    <span class="n">_qed_scores</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">_tanimoto_scores</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">_best_molecules</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">_fraction_bad</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">smis_population</span><span class="p">,</span><span class="n">reference_smis</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">final_smiles</span><span class="p">,</span> <span class="n">canonicalized_smiles</span><span class="p">):</span>
+        <span class="n">idx</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">argmin</span><span class="p">(</span><span class="n">scoring_function</span><span class="p">(</span><span class="n">smis_population</span><span class="p">,</span> <span class="n">reference_smis</span><span class="p">))</span>
+        <span class="n">_fraction_bad</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">qed</span><span class="p">(</span><span class="n">smis_population</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">))</span>
+        <span class="n">_best_molecules</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">smis_population</span><span class="p">[</span><span class="n">idx</span><span class="p">])</span>
+        <span class="n">_qed_scores</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">qed</span><span class="p">([</span><span class="n">smis_population</span><span class="p">[</span><span class="n">idx</span><span class="p">]])[</span><span class="mi">0</span><span class="p">])</span>
+        <span class="n">_tanimoto_scores</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">tanimoto_similarity</span><span class="p">([</span><span class="n">smis_population</span><span class="p">[</span><span class="n">idx</span><span class="p">]],</span> <span class="n">reference_smis</span><span class="p">)[</span><span class="mi">0</span><span class="p">])</span>
+    <span class="n">qed_scores</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">_qed_scores</span><span class="p">)</span>
+    <span class="n">tanimoto_scores</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">_tanimoto_scores</span><span class="p">)</span>
+    <span class="n">best_molecules</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">_best_molecules</span><span class="p">)</span>
+    <span class="n">fraction_bad_samples</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">_fraction_bad</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<details class="hide below-input">
+<summary aria-label="Toggle hidden content">
+<span class="collapsed">Show code cell output</span>
+<span class="expanded">Hide code cell output</span>
+</summary>
+<div class="cell_output docutils container">
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>100%|███████████████████████████████████████████████████████████████| 30/30 [04:18&lt;00:00,  8.62s/it]
+</pre></div>
+</div>
+</div>
+</details>
+</div>
+</div>
+<div class="section" id="explore-results">
+<h3>Explore results<a class="headerlink" href="#explore-results" title="Permalink to this headline">#</a></h3>
+<p>Below, we create a plot disaplaying how the components of our target (QED and Tanimoto similarity) changed over each iteration. By our target definition, any value above 0.4 for Tanimoto similarity would be optimal so we expect noise around that value. Similarly, for QED any value above 0.9 would be optimal so we expect noise around that value if any molecule surpasses that threshold.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">molecule</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">([</span><span class="s2">&quot;imatinib&quot;</span><span class="p">,</span> <span class="s2">&quot;erlotinib&quot;</span><span class="p">,</span> <span class="s2">&quot;gifitinib&quot;</span><span class="p">]):</span>
+    <span class="n">line</span><span class="p">,</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">qed_scores</span><span class="p">)),</span> <span class="p">[</span><span class="n">q</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="k">for</span> <span class="n">q</span> <span class="ow">in</span> <span class="n">qed_scores</span><span class="p">],</span> <span class="n">label</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">molecule</span><span class="si">}</span><span class="s2"> QED&quot;</span><span class="p">)</span>
+    <span class="n">color</span> <span class="o">=</span> <span class="n">line</span><span class="o">.</span><span class="n">get_color</span><span class="p">()</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">tanimoto_scores</span><span class="p">)),</span> <span class="p">[</span><span class="n">t</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">tanimoto_scores</span><span class="p">],</span> <span class="n">label</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">molecule</span><span class="si">}</span><span class="s2"> Tanimoto&quot;</span><span class="p">,</span> <span class="n">linestyle</span><span class="o">=</span><span class="s2">&quot;--&quot;</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="n">color</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">axhline</span><span class="p">(</span><span class="n">y</span><span class="o">=</span><span class="mf">0.9</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;r&#39;</span><span class="p">,</span> <span class="n">linestyle</span><span class="o">=</span><span class="s1">&#39;-&#39;</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">&quot;QED target&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">axhline</span><span class="p">(</span><span class="n">y</span><span class="o">=</span><span class="mf">0.4</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;r&#39;</span><span class="p">,</span> <span class="n">linestyle</span><span class="o">=</span><span class="s1">&#39;--&#39;</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">&quot;Tanimoto target&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span><span class="n">loc</span><span class="o">=</span><span class="s1">&#39;center left&#39;</span><span class="p">,</span> <span class="n">bbox_to_anchor</span><span class="o">=</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">))</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s2">&quot;Iteration&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s2">&quot;QED or Tanimoto similarity&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="s2">&quot;Targets over time for MolMIM model&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Text(0.5, 1.0, &#39;Targets over time for MolMIM model&#39;)
+</pre></div>
+</div>
+<img alt="../_images/8f993d43afbec253e1717edcf5c200e4d68c05899101c94ef9f78bbf45116ec1.png" src="../_images/8f993d43afbec253e1717edcf5c200e4d68c05899101c94ef9f78bbf45116ec1.png" />
+</div>
+</div>
+</div>
+<div class="section" id="how-well-did-our-optimization-perform">
+<h3>How well did our optimization perform?<a class="headerlink" href="#how-well-did-our-optimization-perform" title="Permalink to this headline">#</a></h3>
+<p>To examine the performance of out optimization, we can quantify the number of invalid samples that were generated. An “invalid” SMILES is defined as a SMILES string that does not represent a chemically-valid underlying molecule.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">fraction_bad_samples</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>0.0040860215053763445
+</pre></div>
+</div>
+</div>
+</div>
+<p>We can finally quantify the improvement in QED over the baseline value and the fraction of our optimized molecules that maintained the desired Tanimoto similarity threshold above 0.4.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">qed_improvements</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="n">tanimoto_above_04</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">starting_qed</span><span class="p">)):</span>
+    <span class="n">tanimoto_above_04</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">tanimoto_scores</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">][</span><span class="n">i</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="mf">0.4</span><span class="p">)</span>
+    <span class="n">qed_improvements</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">qed_scores</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">][</span><span class="n">i</span><span class="p">]</span> <span class="o">-</span> <span class="n">starting_qed</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
+<span class="p">{</span><span class="s2">&quot;mean_qed_improvement&quot;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">qed_improvements</span><span class="p">),</span> <span class="s2">&quot;tanimoto_above_04&quot;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">tanimoto_above_04</span><span class="p">)}</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>{&#39;mean_qed_improvement&#39;: 0.45881201826825063,
+ &#39;tanimoto_above_04&#39;: 0.6666666666666666}
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+
+<div class="section">
+   
+</div>
+
+              </div>
+              
+            </main>
+            <footer class="footer-article noprint">
+                
+    <!-- Previous / next buttons -->
+<div class='prev-next-area'>
+    <a class='left-prev' id="prev-link" href="bionemo-finetuning-overview.html" title="previous page">
+        <i class="fas fa-angle-left"></i>
+        <div class="prev-next-info">
+            <p class="prev-next-subtitle">previous</p>
+            <p class="prev-next-title">Finetune pre-trained models in BioNeMo</p>
+        </div>
+    </a>
+    <a class='right-next' id="next-link" href="custom-dataset-class-fw.html" title="next page">
+    <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">Adding the OAS Dataset: Modifying the Dataset Class</p>
+    </div>
+    <i class="fas fa-angle-right"></i>
+    </a>
+</div>
+            </footer>
+        </div>
+    </div>
+    <div class="footer-content row">
+        <footer class="col footer"><p>
+  
+    By NVIDIA<br/>
+  
+      &copy; Copyright 2023-2024 NVIDIA CORPORATION &amp; AFFILIATES. All rights reserved..<br/>
+    Last updated on Nov 20, 2024.<br/>
+</p>
+        </footer>
+    </div>
+    
+</div>
+
+
+      </div>
+    </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="../_static/scripts/pydata-sphinx-theme.js?digest=1999514e3f237ded88cf"></script>
+
+
+  </body>
+</html>

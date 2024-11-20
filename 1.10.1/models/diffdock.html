@@ -1,0 +1,1042 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>DiffDock &#8212; NVIDIA BioNeMo Framework</title>
+    
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../_static/styles/theme.css?digest=1999514e3f237ded88cf" rel="stylesheet">
+<link href="../_static/styles/pydata-sphinx-theme.css?digest=1999514e3f237ded88cf" rel="stylesheet">
+
+    
+  <link rel="stylesheet"
+    href="../_static/vendor/fontawesome/5.13.0/css/all.min.css">
+  <link rel="preload" as="font" type="font/woff2" crossorigin
+    href="../_static/vendor/fontawesome/5.13.0/webfonts/fa-solid-900.woff2">
+  <link rel="preload" as="font" type="font/woff2" crossorigin
+    href="../_static/vendor/fontawesome/5.13.0/webfonts/fa-brands-400.woff2">
+
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
+    <link rel="stylesheet" href="../_static/styles/sphinx-book-theme.css?digest=62ba249389abaaa9ffc34bf36a076bdc1d65ee18" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="../_static/mystnb.4510f1fc1dee50b3e5859aac5469c37c29e427902b24a333a5f9fcb2f0b3ac41.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/copybutton.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/tabs.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/custom.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/design-style.1e8bd061cd6da7fc9cf755528e8ffc24.min.css" />
+    
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=1999514e3f237ded88cf">
+
+    <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+    <script src="../_static/jquery.js"></script>
+    <script src="../_static/underscore.js"></script>
+    <script src="../_static/doctools.js"></script>
+    <script src="../_static/clipboard.min.js"></script>
+    <script src="../_static/copybutton.js"></script>
+    <script src="https://js.hcaptcha.com/1/api.js"></script>
+    <script src="//assets.adobedtm.com/5d4962a43b79/c1061d2c5e7b/launch-191c2462b890.min.js"></script>
+    <script src="../_static/scripts/sphinx-book-theme.js?digest=f31d14ad54b65d19161ba51d4ffff3a77ae00456"></script>
+    <script src="../_static/design-tabs.js"></script>
+    <link rel="canonical" href="https://docs.nvidia.com/bionemo-framework/0.4.0/models/diffdock.html" />
+    <link rel="shortcut icon" href="../_static/nvidia-logo-vert-rgb-blk-for-screen.png"/>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="DNABERT" href="dnabert.html" />
+    <link rel="prev" title="Training Parallelism" href="../parallelism-fw.html" /> 
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="docsearch:language" content="None">
+    
+
+    <!-- Google Analytics -->
+      
+<style type="text/css">
+  ul.ablog-archive {
+    list-style: none;
+    overflow: auto;
+    margin-left: 0px;
+  }
+  ul.ablog-archive li {
+    float: left;
+    margin-right: 5px;
+    font-size: 80%;
+  }
+  ul.postlist a {
+    font-style: italic;
+  }
+  ul.postlist-style-disc {
+    list-style-type: disc;
+  }
+  ul.postlist-style-none {
+    list-style-type: none;
+  }
+  ul.postlist-style-circle {
+    list-style-type: circle;
+  }
+</style>
+
+  </head>
+  <body data-spy="scroll" data-target="#bd-toc-nav" data-offset="60">
+<!-- Checkboxes to toggle the left sidebar -->
+<input type="checkbox" class="sidebar-toggle" name="__navigation" id="__navigation" aria-label="Toggle navigation sidebar">
+<label class="overlay overlay-navbar" for="__navigation">
+    <div class="visually-hidden">Toggle navigation sidebar</div>
+</label>
+<!-- Checkboxes to toggle the in-page toc -->
+<input type="checkbox" class="sidebar-toggle" name="__page-toc" id="__page-toc" aria-label="Toggle in-page Table of Contents">
+<label class="overlay overlay-pagetoc" for="__page-toc">
+    <div class="visually-hidden">Toggle in-page Table of Contents</div>
+</label>
+<!-- Headers at the top -->
+<div class="announcement header-item noprint"></div>
+<div class="header header-item noprint"></div>
+
+    
+    <div class="container-fluid" id="banner"></div>
+
+    
+
+    <div class="container-xl">
+      <div class="row">
+          
+<!-- Sidebar -->
+<div class="bd-sidebar noprint" id="site-navigation">
+    <div class="bd-sidebar__content">
+        <div class="bd-sidebar__top"><div class="navbar-brand-box">
+    <a class="navbar-brand text-wrap" href="../index.html">
+      
+        <!-- `logo` is deprecated in Sphinx 4.0, so remove this when we stop supporting 3 -->
+        
+      
+      
+      <img src="../_static/nvidia-logo-horiz-rgb-blk-for-screen.png" class="logo" alt="logo">
+      
+      
+      <h1 class="site-logo" id="site-title">NVIDIA BioNeMo Framework</h1>
+      
+    </a>
+</div><form class="bd-search d-flex align-items-center" action="../search.html" method="get">
+  <i class="icon fas fa-search"></i>
+  <input type="search" class="form-control" name="q" id="search-input" placeholder="Search the docs ..." aria-label="Search the docs ..." autocomplete="off" >
+</form><nav class="bd-links" id="bd-docs-nav" aria-label="Main">
+    <div class="bd-toc-item active">
+        <p aria-level="2" class="caption" role="heading">
+ <span class="caption-text">
+  GETTING STARTED
+ </span>
+</p>
+<ul class="nav bd-sidenav">
+ <li class="toctree-l1">
+  <a class="reference internal" href="../index.html">
+   What is BioNeMo?
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../pre-reqs.html">
+   Hardware and Software Prerequisites
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../access-startup.html">
+   Access and Startup
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../initialization-guide.html">
+   Initialization Guide
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../tutorial-list.html">
+   BioNeMo Framework Tutorials
+  </a>
+ </li>
+</ul>
+<p aria-level="2" class="caption" role="heading">
+ <span class="caption-text">
+  BioNeMo CORE
+ </span>
+</p>
+<ul class="nav bd-sidenav">
+ <li class="toctree-l1">
+  <a class="reference internal" href="../bionemo-fw-for-model-training-fw.html">
+   Fundamentals
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../data-module-fw.html">
+   Data Module
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../dwnstr-task-validation.html">
+   Validation with a Downstream Task
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../inference-triton-fw.html">
+   Inference with Nvidia Triton Server
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../deep-dive-esm1-pytriton-inference.html">
+   Example of PyTriton Inference
+  </a>
+ </li>
+</ul>
+<p aria-level="2" class="caption" role="heading">
+ <span class="caption-text">
+  BEST PRACTICES
+ </span>
+</p>
+<ul class="nav bd-sidenav">
+ <li class="toctree-l1">
+  <a class="reference internal" href="../hyperparameters-fw.html">
+   Hyperparameter Usage and Tuning
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../parallelism-fw.html">
+   Training Parallelism
+  </a>
+ </li>
+</ul>
+<p aria-level="2" class="caption" role="heading">
+ <span class="caption-text">
+  MODELS
+ </span>
+</p>
+<ul class="current nav bd-sidenav">
+ <li class="toctree-l1 current active">
+  <a class="current reference internal" href="#">
+   DiffDock
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="dnabert.html">
+   DNABERT
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="dsmbind.html">
+   DSMBind
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="equidock.html">
+   EquiDock
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="esm1-nv.html">
+   ESM-1nv
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="esm2-nv.html">
+   ESM-2nv
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="geneformer.html">
+   Geneformer
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="megamolbart.html">
+   MegaMolBART
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="molmim.html">
+   MolMIM
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="openfold.html">
+   OpenFold
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="prott5nv.html">
+   Prott5nv
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="model-benchmarks.html">
+   Model Benchmarks
+  </a>
+ </li>
+</ul>
+<p aria-level="2" class="caption" role="heading">
+ <span class="caption-text">
+  DATASETS
+ </span>
+</p>
+<ul class="nav bd-sidenav">
+ <li class="toctree-l1">
+  <a class="reference internal" href="../datasets/uniprot.html">
+   UniProt Dataset
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../datasets/CELLxGENE.html">
+   CELLxGENE
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../datasets/zinc15.html">
+   ZINC-15 Dataset
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../datasets/pdb.html">
+   The Protein Data Bank (PDB)
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../datasets/GRCh38.p13.html">
+   Human Reference Genome Version GRCh38.p13
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../datasets/openproteinset.html">
+   OpenProteinSet
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../datasets/moleculenet-physchem.html">
+   MoleculeNet Physical Chemistry Datasets - Lipophilicity, FreeSolv, ESOL
+  </a>
+ </li>
+</ul>
+<p aria-level="2" class="caption" role="heading">
+ <span class="caption-text">
+  TUTORIALS
+ </span>
+</p>
+<ul class="nav bd-sidenav">
+ <li class="toctree-l1">
+  <a class="reference internal" href="../preprocessing-bcp-training-diffdock.html">
+   DiffDock: Preparing Workspace and Data for Pre-training
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../notebooks/esm2nv-mutant-design.html">
+   Zero-Shot Protein Design Using ESM-2nv
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../notebooks/MMB_GenerativeAI_Inference_with_examples.html">
+   BioNeMo - MegaMolBART Inferencing for Generative Chemistry
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../notebooks/MolMIM_GenerativeAI_local_inference_with_examples.html">
+   MolMIM Inferencing for Generative Chemistry and Downstream Prediction
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../notebooks/ZINC15-data-preprocessing.html">
+   ZINC Training Dataset Setup for small molecule language models
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../notebooks/bionemo-finetuning-overview.html">
+   Finetune pre-trained models in BioNeMo
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../notebooks/cma_es_guided_molecular_optimization_molmim.html">
+   MolMIM Property Guided Molecular Optimization Using CMA-ES
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../notebooks/custom-dataset-class-fw.html">
+   Adding the OAS Dataset: Modifying the Dataset Class
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../notebooks/custom-dataset-dataloader.html">
+   Adding the OAS Dataset: Customizing Dataset Object and Dataloader Functions
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../notebooks/custom-dataset-preprocessing-fw.html">
+   Adding the OAS Dataset: Downloading and Preprocessing
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../notebooks/encoder-finetuning-notebook-fw.html">
+   Encoder Fine-tuning
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../notebooks/model_training_diffdock.html">
+   DiffDock Model Training using BioNeMo
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../notebooks/model_training_equidock.html">
+   EquiDock Model Training using BioNeMo
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../notebooks/model_training_esm1nv.html">
+   ESM1nv Model Training using BioNeMo
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../notebooks/model_training_esm2nv.html">
+   ESM-2nv: Data Preprocessing and Model Training Using BioNeMo
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../notebooks/model_training_mmb.html">
+   MegaMolBART Model Training using BioNeMo
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../notebooks/model_training_molmim.html">
+   Train MolMIM from scratch on your own data using the BioNeMo Framework
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../notebooks/physchem-notebook-fw.html">
+   Finetuning LLM in BioNeMo for a Downstream Task
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../notebooks/protein-esm2nv-clustering.html">
+   Generating Embeddings for Protein Clustering
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../notebooks/retrosynthesis-notebook.html">
+   Training LLM for a Custom Downstram Task: Retrosynthesis Prediction using MegaMolBART
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../notebooks/esm2_FLIP_finetuning.html">
+   Fine-Tune ESM-2nv on FLIP Data for Sequence-Level Classification, Regression, Token-Level Classification, and with LoRA Adapters
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../notebooks/esm2_oas_inferencing.html">
+   Performing inference on OAS sequences with ESM-2nv
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../notebooks/esm2_paratope_finetuning.html">
+   Pretrain from Scratch, Continue Training from an Existing Checkpoint, and Fine-tune ESM-2nv on Custom Data
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../notebooks/dnabert_inference.html">
+   Generating and visualizing embeddings with DNABert
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../notebooks/dnabert_pretrain_finetune.html">
+   Pretrain, Fine-tune, and Perform Inference with DNABERT for Splice Site Prediction
+  </a>
+ </li>
+</ul>
+<p aria-level="2" class="caption" role="heading">
+ <span class="caption-text">
+  APPENDIX
+ </span>
+</p>
+<ul class="nav bd-sidenav">
+ <li class="toctree-l1">
+  <a class="reference internal" href="../faq-fw.html">
+   Frequently Asked Questions (FAQ)
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../bibliography-fw.html">
+   Bibliography
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="../releasenotes-fw.html">
+   Release Notes
+  </a>
+ </li>
+</ul>
+
+    </div>
+</nav></div>
+        <div class="bd-sidebar__bottom">
+             <!-- To handle the deprecated key -->
+            
+        </div>
+    </div>
+    <div id="rtd-footer-container"></div>
+</div>
+
+
+          
+
+
+          
+<!-- A tiny helper pixel to detect if we've scrolled -->
+<div class="sbt-scroll-pixel-helper"></div>
+<!-- Main content -->
+<div class="col py-0 content-container">
+    
+    <div class="header-article row sticky-top noprint">
+        
+
+
+
+<div class="col py-1 d-flex header-article-main">
+    <div class="header-article__left">
+        
+        <label for="__navigation"
+  class="headerbtn"
+  data-toggle="tooltip"
+data-placement="right"
+title="Toggle navigation"
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fas fa-bars"></i>
+  </span>
+
+</label>
+
+        
+    </div>
+    <div class="header-article__right">
+<button onclick="toggleFullScreen()"
+  class="headerbtn"
+  data-toggle="tooltip"
+data-placement="bottom"
+title="Fullscreen mode"
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fas fa-expand"></i>
+  </span>
+
+</button>
+<label for="__page-toc"
+  class="headerbtn headerbtn-page-toc"
+  
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fas fa-list"></i>
+  </span>
+
+</label>
+
+    </div>
+</div>
+
+<!-- Table of contents -->
+<div class="col-md-3 bd-toc show noprint">
+    <div class="tocsection onthispage pt-5 pb-3">
+        <i class="fas fa-list"></i> Contents
+    </div>
+    <nav id="bd-toc-nav" aria-label="Page">
+        <ul class="visible nav section-nav flex-column">
+ <li class="toc-h1 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#">
+   DiffDock
+  </a>
+ </li>
+ <li class="toc-h1 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#model-overview">
+   Model Overview
+  </a>
+  <ul class="visible nav section-nav flex-column">
+   <li class="toc-h2 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#description">
+     Description:
+    </a>
+   </li>
+   <li class="toc-h2 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#third-party-community-consideration">
+     Third-Party Community Consideration
+    </a>
+   </li>
+   <li class="toc-h2 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#references">
+     References:
+    </a>
+   </li>
+   <li class="toc-h2 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#model-architecture">
+     Model Architecture:
+    </a>
+   </li>
+   <li class="toc-h2 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#input">
+     Input:
+    </a>
+   </li>
+   <li class="toc-h2 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#output">
+     Output:
+    </a>
+   </li>
+   <li class="toc-h2 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#software-integration">
+     Software Integration:
+    </a>
+   </li>
+   <li class="toc-h2 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#model-version-s">
+     Model Version(s):
+    </a>
+   </li>
+   <li class="toc-h2 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#change-log">
+     Change Log:
+    </a>
+   </li>
+  </ul>
+ </li>
+ <li class="toc-h1 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#evaluation">
+   Evaluation:
+  </a>
+  <ul class="visible nav section-nav flex-column">
+   <li class="toc-h2 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#evaluation-dataset">
+     Evaluation Dataset:
+    </a>
+   </li>
+   <li class="toc-h2 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#inference">
+     Inference:
+    </a>
+   </li>
+   <li class="toc-h2 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#benchmarks">
+     Benchmarks
+    </a>
+    <ul class="visible nav section-nav flex-column">
+     <li class="toc-h3 nav-item toc-entry">
+      <a class="reference internal nav-link" href="#accuracy-benchmarks">
+       Accuracy Benchmarks
+      </a>
+     </li>
+     <li class="toc-h3 nav-item toc-entry">
+      <a class="reference internal nav-link" href="#training-performance-benchmarks">
+       Training Performance Benchmarks
+      </a>
+     </li>
+    </ul>
+   </li>
+   <li class="toc-h2 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#limitations">
+     Limitations
+    </a>
+   </li>
+   <li class="toc-h2 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#license">
+     License
+    </a>
+   </li>
+  </ul>
+ </li>
+</ul>
+
+    </nav>
+</div>
+    </div>
+    <div class="article row">
+        <div class="col pl-md-3 pl-lg-5 content-container">
+            <!-- Table of contents that is only displayed when printing the page -->
+            <div id="jb-print-docs-body" class="onlyprint">
+                <h1>DiffDock</h1>
+                <!-- Table of contents -->
+                <div id="print-main-content">
+                    <div id="jb-print-toc">
+                        
+                        <div>
+                            <h2> Contents </h2>
+                        </div>
+                        <nav aria-label="Page">
+                            <ul class="visible nav section-nav flex-column">
+ <li class="toc-h1 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#">
+   DiffDock
+  </a>
+ </li>
+ <li class="toc-h1 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#model-overview">
+   Model Overview
+  </a>
+  <ul class="visible nav section-nav flex-column">
+   <li class="toc-h2 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#description">
+     Description:
+    </a>
+   </li>
+   <li class="toc-h2 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#third-party-community-consideration">
+     Third-Party Community Consideration
+    </a>
+   </li>
+   <li class="toc-h2 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#references">
+     References:
+    </a>
+   </li>
+   <li class="toc-h2 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#model-architecture">
+     Model Architecture:
+    </a>
+   </li>
+   <li class="toc-h2 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#input">
+     Input:
+    </a>
+   </li>
+   <li class="toc-h2 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#output">
+     Output:
+    </a>
+   </li>
+   <li class="toc-h2 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#software-integration">
+     Software Integration:
+    </a>
+   </li>
+   <li class="toc-h2 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#model-version-s">
+     Model Version(s):
+    </a>
+   </li>
+   <li class="toc-h2 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#change-log">
+     Change Log:
+    </a>
+   </li>
+  </ul>
+ </li>
+ <li class="toc-h1 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#evaluation">
+   Evaluation:
+  </a>
+  <ul class="visible nav section-nav flex-column">
+   <li class="toc-h2 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#evaluation-dataset">
+     Evaluation Dataset:
+    </a>
+   </li>
+   <li class="toc-h2 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#inference">
+     Inference:
+    </a>
+   </li>
+   <li class="toc-h2 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#benchmarks">
+     Benchmarks
+    </a>
+    <ul class="visible nav section-nav flex-column">
+     <li class="toc-h3 nav-item toc-entry">
+      <a class="reference internal nav-link" href="#accuracy-benchmarks">
+       Accuracy Benchmarks
+      </a>
+     </li>
+     <li class="toc-h3 nav-item toc-entry">
+      <a class="reference internal nav-link" href="#training-performance-benchmarks">
+       Training Performance Benchmarks
+      </a>
+     </li>
+    </ul>
+   </li>
+   <li class="toc-h2 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#limitations">
+     Limitations
+    </a>
+   </li>
+   <li class="toc-h2 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#license">
+     License
+    </a>
+   </li>
+  </ul>
+ </li>
+</ul>
+
+                        </nav>
+                    </div>
+                </div>
+            </div>
+            <main id="main-content" role="main">
+                
+              <div>
+                 <div class="tex2jax_ignore mathjax_ignore section" id="diffdock">
+<h1>DiffDock<a class="headerlink" href="#diffdock" title="Permalink to this headline">#</a></h1>
+</div>
+<div class="tex2jax_ignore mathjax_ignore section" id="model-overview">
+<h1>Model Overview<a class="headerlink" href="#model-overview" title="Permalink to this headline">#</a></h1>
+<div class="section" id="description">
+<h2>Description:<a class="headerlink" href="#description" title="Permalink to this headline">#</a></h2>
+<p>DiffDock is a diffusion generative model for drug discovery in molecular blind docking [1]. DiffDock consists of two models: the Score and Confidence models. <br></p>
+<p>The Score model is a 3-dimensional equivariant graph neural network that has three layers: embedding, interaction layer with 6 graph convolution layers, and output layer. In total, the Score model has 20M parameters. The Score model is used to generate a series of potential poses for protein-ligand binding by running the reverse diffusion process. The Confidence model has a similar architecture as the Score model but with 5 graph convolution layers in the interaction layer. In total, the Confidence model has 5M parameters. The Confidence model is used to rank the generated ligand poses from the Score model. These models are ready for commercial use.  <br></p>
+</div>
+<div class="section" id="third-party-community-consideration">
+<h2>Third-Party Community Consideration<a class="headerlink" href="#third-party-community-consideration" title="Permalink to this headline">#</a></h2>
+<p>This donor model was not owned or developed by NVIDIA. This model has been developed and built to a third-party’s requirements for this application and use case; see <a class="reference external" href="https://github.com/gcorso/DiffDock/tree/main">link to Non-NVIDIA Model Card</a>.</p>
+</div>
+<div class="section" id="references">
+<h2>References:<a class="headerlink" href="#references" title="Permalink to this headline">#</a></h2>
+<p>[Provide list of reference(s), link(s) to the publication/paper/article, associated works, and lineage where relevant.]  <br>
+[1] Corso, Gabriele, Hannes Stärk, Bowen Jing, Regina Barzilay, and Tommi Jaakkola. “Diffdock: Diffusion steps, twists, and turns for molecular docking.” arXiv preprint arXiv:2210.01776 (2022).</p>
+</div>
+<div class="section" id="model-architecture">
+<h2>Model Architecture:<a class="headerlink" href="#model-architecture" title="Permalink to this headline">#</a></h2>
+<p><strong>Architecture Type:</strong> Score-Based Diffusion Model (SBDM)  <br>
+<strong>Network Architecture:</strong>  Graph Convolution Neural Network (GCNN) <br></p>
+</div>
+<div class="section" id="input">
+<h2>Input:<a class="headerlink" href="#input" title="Permalink to this headline">#</a></h2>
+<p><strong>Input Type(s):</strong>  Text (PDB, SDF, MOL2, SMILES) <br>
+<strong>Input Format(s):</strong> Protein Data Bank (PDB) Structure files for proteins, Structural Data Files (SDF), Tripos molecule structure format (MOL2) Structure files and Simplified molecular-input line-entry system (SMILES) strings for ligands <br>
+<strong>Other Properties Related to Input:</strong> Pre-Processing Needed <br></p>
+</div>
+<div class="section" id="output">
+<h2>Output:<a class="headerlink" href="#output" title="Permalink to this headline">#</a></h2>
+<p><strong>Output Type(s):</strong> Text (Ligand Molecules, Confidence Score) <br>
+<strong>Output Format:</strong> Structural Data Files (SDF) <br>
+<strong>Output Parameters:</strong> Confidence Score and the rank based on this score<br></p>
+</div>
+<div class="section" id="software-integration">
+<h2>Software Integration:<a class="headerlink" href="#software-integration" title="Permalink to this headline">#</a></h2>
+<p><strong>Runtime Engine(s):</strong></p>
+<ul class="simple">
+<li><p>NeMo, BioNeMo <br></p></li>
+</ul>
+<p><strong>Supported Hardware Microarchitecture Compatibility:</strong> <br></p>
+<ul class="simple">
+<li><p>[Ampere] <br></p></li>
+<li><p>[Hopper] <br></p></li>
+</ul>
+<p><strong>[Preferred/Supported] Operating System(s):</strong> <br></p>
+<ul class="simple">
+<li><p>[Linux] <br></p></li>
+<li><p>[Windows] <br></p></li>
+</ul>
+</div>
+<div class="section" id="model-version-s">
+<h2>Model Version(s):<a class="headerlink" href="#model-version-s" title="Permalink to this headline">#</a></h2>
+<p>diffdock_score.nemo, version: 1.5
+diffdock_confidence.nemo, version: 1.5</p>
+<p><strong>NOTE</strong>: previous version of checkpoint files, i.e., version 1.1, can be converted to the current version by running the scripts:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>python ${BIONEMO_HOME}/examples/molecule/diffdock/scripts/convert_nemo_chkpt_cugraph-equiv.py previous_checkpoint.nemo new_checkpoint.nemo --swap_mlp_weight_blocks
+</pre></div>
+</div>
+<p>where <code class="docutils literal notranslate"><span class="pre">previous_checkpoint.nemo</span></code> is the previous checkpoint version 1.1 and
+the script outputs the new checkpoint for version 1.5 to
+<code class="docutils literal notranslate"><span class="pre">new_checkpoint.nemo</span></code> as specified in the command line.</p>
+</div>
+<div class="section" id="change-log">
+<h2>Change Log:<a class="headerlink" href="#change-log" title="Permalink to this headline">#</a></h2>
+<ul class="simple">
+<li><p>version 1.5: A new version of tensor product convolution layer is implemented using the cugraph-equivariant package, which results in 1.2x speed up in training performance. Because of this new implementation, the checkpoint file should be reformatted. We provide a new checkpoint file for this release and a script that can convert the checkpoint file in the old format to the new format (see section <a class="reference internal" href="#model-version-s"><span class="std std-doc">Model Version(s)</span></a> for details).</p></li>
+</ul>
+</div>
+</div>
+<div class="tex2jax_ignore mathjax_ignore section" id="evaluation">
+<h1>Evaluation:<a class="headerlink" href="#evaluation" title="Permalink to this headline">#</a></h1>
+<div class="section" id="evaluation-dataset">
+<h2>Evaluation Dataset:<a class="headerlink" href="#evaluation-dataset" title="Permalink to this headline">#</a></h2>
+<p><strong>Link:</strong> <a class="reference external" href="https://zenodo.org/records/8278563">PoseBusters benchmark (PDB) set</a>)  <br>
+<strong>Data Collection Method by dataset</strong> <br></p>
+<ul class="simple">
+<li><p>[Human] <br></p></li>
+</ul>
+<p><strong>Labeling Method by dataset</strong> <br></p>
+<ul class="simple">
+<li><p>[Hybrid: Human &amp; Automated] <br></p></li>
+</ul>
+<p><strong>Properties:</strong> 428 protein-ligand complexes manually curated using the PDB database <br></p>
+</div>
+<div class="section" id="inference">
+<h2>Inference:<a class="headerlink" href="#inference" title="Permalink to this headline">#</a></h2>
+<p><strong>Engine:</strong> NeMo <br>
+<strong>Test Hardware:</strong> <br></p>
+<ul class="simple">
+<li><p>Ampere <br></p></li>
+</ul>
+</div>
+<div class="section" id="benchmarks">
+<h2>Benchmarks<a class="headerlink" href="#benchmarks" title="Permalink to this headline">#</a></h2>
+<p>The pretrained DiffDock checkpoints for score and confidence models are available for download: <code class="docutils literal notranslate"><span class="pre">diffdock_score.nemo</span></code> and <code class="docutils literal notranslate"><span class="pre">diffdock_confidence.nemo</span></code>. These have been converted to the NeMo format from publicly available checkpoints. This section provides accuracy benchmarks for these models, as well as information on expected training speed performance. Currently, models trained from randomly initialized weights within the BioNeMo framework are not provided. The production of these models is ongoing work.</p>
+<div class="section" id="accuracy-benchmarks">
+<h3>Accuracy Benchmarks<a class="headerlink" href="#accuracy-benchmarks" title="Permalink to this headline">#</a></h3>
+<p>The accuracy of DiffDock was measured over the 428 protein complexes from the PoseBusters benchmark <span id="id1">[<a class="reference internal" href="../bibliography-fw.html#id6" title="Martin Buttenschoen, Garrett M. Morris, and Charlotte M. Deane. Posebusters: ai-based docking methods fail to generate physically valid poses or generalise to novel sequences. 2023. arXiv:2308.05777.">Buttenschoen <em>et al.</em>, 2023</a>]</span> available in <a class="reference external" href="https://zenodo.org/records/8278563">zenodo</a>. The metrics was computed from 20 independent runs with the <a class="reference external" href="https://github.com/gcorso/DiffDock/commit/bc6b5151457ea5304ee69779d92de0fded599a2c">DiffDock GitHub</a> and the DiffDock in this BioNeMo Framework. Due to the inherent stochasticity of DiffDock during the molecular docking generation, the metrics are not expected to be identical. The values in parentheses are standard deviations from 20 runs.</p>
+<table class="colwidths-auto table">
+<thead>
+<tr class="row-odd"><th class="head"><p>Dataset</p></th>
+<th class="head"><p>Number of Poses Sampled</p></th>
+<th class="head"><p>Metric</p></th>
+<th class="head"><p>BioNeMo</p></th>
+<th class="head"><p>GitHub</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>PoseBusters</p></td>
+<td><p>10</p></td>
+<td><p>Percentage of Top-1 RMSD&lt;2 Å (%) ↑</p></td>
+<td><p>34.4 (1.4)</p></td>
+<td><p>32.3 (1.0)</p></td>
+</tr>
+<tr class="row-odd"><td><p>PoseBusters</p></td>
+<td><p>10</p></td>
+<td><p>Median of Top-1 RMSD (Å) ↓</p></td>
+<td><p>3.36 (0.14)</p></td>
+<td><p>3.61 (0.15)</p></td>
+</tr>
+<tr class="row-even"><td><p>PoseBusters</p></td>
+<td><p>10</p></td>
+<td><p>Percentage of Top-5 RMSD&lt;2 Å (%) ↑</p></td>
+<td><p>41.9 (0.9)</p></td>
+<td><p>39.9 (0.8)</p></td>
+</tr>
+<tr class="row-odd"><td><p>PoseBusters</p></td>
+<td><p>10</p></td>
+<td><p>Median of Top-5 RMSD (Å) ↓</p></td>
+<td><p>2.52 (0.07)</p></td>
+<td><p>2.68 (0.08)</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="training-performance-benchmarks">
+<h3>Training Performance Benchmarks<a class="headerlink" href="#training-performance-benchmarks" title="Permalink to this headline">#</a></h3>
+<p>Training speed was tested on DGX-A100 systems GPUs with 80GB of memory. Three iterations of performance improvement were made by NVIDIA engineers: 1) DiffDock integrated into BioNeMo FW featuring the size-aware batch sampling enhancement 2) NVIDIA Acceleration of Tensor Product operation in DiffDock 3) Integrated with cugraph-equivariant for fast tensor product graph convolution. <a class="reference external" href="https://github.com/gcorso/DiffDock/tree/bc6b5151457ea5304ee69779d92de0fded599a2c">The public As-Received version of DiffDock</a> used a dataset with a similar size, while it was trained using 4 A6000 GPUs and converged after 850 epochs for 18 days. As detailed performance metrics are not available, therefore it is not shown in the table below.</p>
+<table class="colwidths-auto table">
+<thead>
+<tr class="row-odd"><th class="head"><p>Time</p></th>
+<th class="text-center head"><p>Label</p></th>
+<th class="head"><p>Speed [it/s]</p></th>
+<th class="head"><p>Epochs to Converge</p></th>
+<th class="head"><p>Epochs/GPU Hour</p></th>
+<th class="head"><p>GPU Hours</p></th>
+<th class="head"><p>Dataset</p></th>
+<th class="head"><p>Batch size</p></th>
+<th class="text-center head"><p>Number of A100 GPUs</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>2023-09</p></td>
+<td class="text-center"><p>Size Aware Batch Sampling (first version in BioNeMo FW)</p></td>
+<td><p>0.41</p></td>
+<td><p>400</p></td>
+<td><p>1.1296244</p></td>
+<td><p>354.1</p></td>
+<td><p>NV-PDBData</p></td>
+<td><p>96</p></td>
+<td class="text-center"><p>8</p></td>
+</tr>
+<tr class="row-odd"><td><p>2023-11</p></td>
+<td class="text-center"><p>Fast Tensor Product Kernel Integration</p></td>
+<td><p>1.09</p></td>
+<td><p>400</p></td>
+<td><p>2.965159377</p></td>
+<td><p>134.9</p></td>
+<td><p>NV-PDBData</p></td>
+<td><p>96</p></td>
+<td class="text-center"><p>8</p></td>
+</tr>
+<tr class="row-even"><td><p>2024-04</p></td>
+<td class="text-center"><p>Cugraph-equivariant Integration</p></td>
+<td><p>1.32</p></td>
+<td><p>400</p></td>
+<td><p>3.613369467</p></td>
+<td><p>110.7</p></td>
+<td><p>NV-PDBData</p></td>
+<td><p>96</p></td>
+<td class="text-center"><p>8</p></td>
+</tr>
+<tr class="row-odd"><td><p>2024-06</p></td>
+<td class="text-center"><p>Training with webdataset</p></td>
+<td><p>1.57</p></td>
+<td><p>400</p></td>
+<td><p>4.293949006</p></td>
+<td><p>93.2</p></td>
+<td><p>NV-PDBData</p></td>
+<td><p>96</p></td>
+<td class="text-center"><p>8</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<div class="section" id="limitations">
+<h2>Limitations<a class="headerlink" href="#limitations" title="Permalink to this headline">#</a></h2>
+<p>DiffDock is currently restricted to static snapshot understanding of single ligand and protein interactions. For more involved systems included multi-ligands in a single protein pocket, multiple protein pockets without a ligand blocker, DiffDock inference may perform poorly due to the unaware implications of ligand-ligand interactions in solvent.</p>
+<p>DiffDock is also restricted to rigid protein-ligand docking. For the systems have structural or conformation changes during docking, DiffDock inference may generate not ideal results.</p>
+<p>Because ESM2 is used as a featurizer, some non-standard amino acids are ignored in the data preprocessing.</p>
+</div>
+<div class="section" id="license">
+<h2>License<a class="headerlink" href="#license" title="Permalink to this headline">#</a></h2>
+<p>DiffDock is provided under the Apache License.</p>
+</div>
+</div>
+
+<div class="section">
+   
+</div>
+
+              </div>
+              
+            </main>
+            <footer class="footer-article noprint">
+                
+    <!-- Previous / next buttons -->
+<div class='prev-next-area'>
+    <a class='left-prev' id="prev-link" href="../parallelism-fw.html" title="previous page">
+        <i class="fas fa-angle-left"></i>
+        <div class="prev-next-info">
+            <p class="prev-next-subtitle">previous</p>
+            <p class="prev-next-title">Training Parallelism</p>
+        </div>
+    </a>
+    <a class='right-next' id="next-link" href="dnabert.html" title="next page">
+    <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">DNABERT</p>
+    </div>
+    <i class="fas fa-angle-right"></i>
+    </a>
+</div>
+            </footer>
+        </div>
+    </div>
+    <div class="footer-content row">
+        <footer class="col footer"><p>
+  
+    By NVIDIA<br/>
+  
+      &copy; Copyright 2023-2024 NVIDIA CORPORATION &amp; AFFILIATES. All rights reserved..<br/>
+    Last updated on Nov 20, 2024.<br/>
+</p>
+        </footer>
+    </div>
+    
+</div>
+
+
+      </div>
+    </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="../_static/scripts/pydata-sphinx-theme.js?digest=1999514e3f237ded88cf"></script>
+
+
+  </body>
+</html>
