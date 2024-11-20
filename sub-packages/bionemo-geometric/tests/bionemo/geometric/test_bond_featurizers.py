@@ -19,28 +19,32 @@ from rdkit import Chem
 
 from bionemo.geometric.base_featurizer import one_hot_enc
 from bionemo.geometric.bond_featurizers import (
-    BondTypeFeaturizer,
     BondConjugationFeaturizer,
     BondStereochemistryFeaturizer,
+    BondTypeFeaturizer,
     RingFeaturizer,
-    )
+)
 
 
 @pytest.fixture(scope="module")
 def sample_mol2():
     return Chem.MolFromSmiles("C[C@H]1CN(c2ncnc3[nH]cc(-c4cccc(F)c4)c23)CCO1")  # CHEMBL3927167
 
+
 @pytest.fixture(scope="module")
 def sample_mol3():
     return Chem.MolFromSmiles("N#C[C@H]1CN(c2ncnc3[nH]cc(-c4cccc(F)c4)c23)CCO1")
+
 
 @pytest.fixture(scope="module")
 def stereoe_mol():
     return Chem.MolFromSmiles(r"F/C=C/F")
 
+
 @pytest.fixture(scope="module")
 def stereoz_mol():
     return Chem.MolFromSmiles(r"F/C=C\F")
+
 
 def test_bond_type_featurizer(sample_mol3):
     btf = BondTypeFeaturizer()
@@ -55,6 +59,7 @@ def test_bond_type_featurizer(sample_mol3):
     aromatic_feats = btf.get_features(sample_mol3.GetBondWithIdx(5))
     aromatic_feats_ref = one_hot_enc(1, 4)
     assert aromatic_feats == aromatic_feats_ref
+
 
 def test_bond_conjugation_featurizer(sample_mol2):
     bcf = BondConjugationFeaturizer()
