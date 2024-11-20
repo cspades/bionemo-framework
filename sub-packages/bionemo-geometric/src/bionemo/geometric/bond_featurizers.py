@@ -17,11 +17,70 @@
 from typing import List
 
 from rdkit import Chem
-
-from bionemo.geometric.base_featurizer import BaseFeaturizer
+from rdkit.Chem.rdchem import BondType, BondStereo
+from bionemo.geometric.base_featurizer import BaseFeaturizer, one_hot_enc
 
 
 ALL_BOND_FEATURIZERS = ["RingFeaturizer"]
+N_BOND_TYPES = 4 # currently only single, aromatic, double, and triple
+N_BOND_STEREO_TYPES = len(BondStereo.values)
+
+class BondTypeFeaturizer(BaseFeaturizer):
+    """Class for featurizing bond its bond type."""
+
+    def __init__(self) -> None:
+        """Initializes BondTypeFeaturizer class."""
+        pass
+
+    @property
+    def n_dim(self) -> int:
+        """Returns dimensionality of the computed features."""
+        return N_BOND_TYPES
+
+    def get_features(self, bond: Chem.Bond) -> List[bool]:
+        """Returns features of the bond."""
+        bond_type = bond.GetBondType()
+        return [
+            bond_type == BondType.SINGLE,
+            bond_type == BondType.AROMATIC,
+            bond_type == BondType.DOUBLE,
+            bond_type == BondType.TRIPLE,
+        ]
+
+
+class BondConjugationFeaturizer(BaseFeaturizer):
+    """Class for featurizing bond based on its conjugation."""
+
+    def __init__(self) -> None:
+        """Initializes BondConjugationFeaturizer class."""
+        pass
+
+    @property
+    def n_dim(self) -> int:
+        """Returns dimensionality of the computed features."""
+        return 1
+
+    def get_features(self, bond: Chem.Bond) -> List[bool]:
+        """Returns features of the bond."""
+        return [bond.GetIsConjugated()]
+
+
+class BondStereochemistryFeaturizer(BaseFeaturizer):
+    """Class for featurizing bond based on its stereochemistry ex. cis/trans."""
+
+    def __init__(self) -> None:
+        """Initializes BondStereochemistryFeaturizer class."""
+        pass
+
+    @property
+    def n_dim(self) -> int:
+        """Returns dimensionality of the computed features."""
+        return N_BOND_STEREO_TYPES
+
+    def get_features(self, bond: Chem.Bond) -> List[bool]:
+        """Returns features of the bond."""
+        return one_hot_enc(int(bond.GetStereo()), self.n_dim)
+        
 
 
 class RingFeaturizer(BaseFeaturizer):
