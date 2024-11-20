@@ -17,13 +17,15 @@
 from typing import List
 
 from rdkit import Chem
-from rdkit.Chem.rdchem import BondType, BondStereo
+from rdkit.Chem.rdchem import BondStereo, BondType
+
 from bionemo.geometric.base_featurizer import BaseFeaturizer, one_hot_enc
 
 
 ALL_BOND_FEATURIZERS = ["RingFeaturizer"]
-N_BOND_TYPES = 4 # currently only single, aromatic, double, and triple
+N_BOND_TYPES = 4  # currently only single, aromatic, double, and triple
 N_BOND_STEREO_TYPES = len(BondStereo.values)
+
 
 class BondTypeFeaturizer(BaseFeaturizer):
     """Class for featurizing bond its bond type."""
@@ -80,7 +82,6 @@ class BondStereochemistryFeaturizer(BaseFeaturizer):
     def get_features(self, bond: Chem.Bond) -> List[bool]:
         """Returns features of the bond."""
         return one_hot_enc(int(bond.GetStereo()), self.n_dim)
-        
 
 
 class RingFeaturizer(BaseFeaturizer):
