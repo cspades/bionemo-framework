@@ -101,7 +101,7 @@ class TotalDegreeFeaturizer(BaseFeaturizer):
         return 6
 
     def get_features(self, atom: Atom) -> List[bool]:
-        """Returns features of the atom."""
+        # """Returns features of the atom."""
         return one_hot_enc(atom.GetTotalDegree(), self.n_dim)
 
 
