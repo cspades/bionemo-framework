@@ -12,7 +12,7 @@ ARG NEMO_RUN_TAG=34259bd3e752fef94045a9a019e4aaf62bd11ce2
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 #FROM ${BASE_IMAGE} AS python_base
-FROM nvcr.io/nvidia/cuda:12.3.1-cudnn8-devel-ubuntu20.04 as python_base
+FROM nvcr.io/nvidia/cuda:12.3.1-devel-ubuntu20.04 as python_base
 ARG MAX_JOBS
 ENV MAX_JOBS=${MAX_JOBS}
 
