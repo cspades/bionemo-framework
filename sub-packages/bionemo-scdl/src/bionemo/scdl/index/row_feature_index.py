@@ -51,7 +51,6 @@ class RowFeatureIndex:
         self._num_genes_per_row: List[int] = []
         self._version = importlib.metadata.version("bionemo.scdl")
         self._labels: List[str] = []
-        self._feature_arr_lookup: List[dict] = []
 
     def version(self) -> str:
         """Returns a version number.
@@ -145,8 +144,9 @@ class RowFeatureIndex:
         Returns:
             The length of the features at the row
         """
-        feats, _ = self.lookup(row=row)
-        return len(feats[0])
+        mask = ~(self._cumulative_sum_index > row)
+        d_id = sum(mask) - 1
+        return self._num_genes_per_row[d_id]
 
     def column_dims(self) -> List[int]:
         """Return the number of columns in all rows.

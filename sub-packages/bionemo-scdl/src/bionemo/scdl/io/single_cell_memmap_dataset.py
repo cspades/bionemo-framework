@@ -355,7 +355,6 @@ class SingleCellMemMapDataset(SingleCellRowDataset):
         values = self.data[start:end]
         columns = self.col_index[start:end]
         ret = (values, columns)
-        ret = (np.array(values), np.array(columns))
         if return_features:
             return ret, self._feature_index.lookup(index, select_features=feature_vars)[0]
         else:
