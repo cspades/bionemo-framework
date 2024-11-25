@@ -17,7 +17,7 @@ from __future__ import annotations
 
 import importlib.metadata
 from pathlib import Path
-from typing import List, Optional, Sequence, Tuple
+from typing import Optional, Sequence, Tuple
 
 import numpy as np
 import pandas as pd
@@ -39,7 +39,10 @@ class RowFeatureIndex:
         correspondto a given row. For examples if the array is [-1, 200, 201],
         rows 0 to 199 correspond to _feature_arr[0] and 200 corresponds to
         _feature_arr[1]
-        _feature_arr: list of feature dictionaries
+        _feature_arr: list of feature dictionaries for each dataset
+        _num_genes_per_row: list that tracks the feature length (number of genes) for each dataset.
+        Extracting this information repeatedly from self._feature_arr would be cumbersome which is why we
+        add this attribute.
         _labels: list of labels
         _version: The version of the dataset
     """
@@ -47,10 +50,26 @@ class RowFeatureIndex:
     def __init__(self) -> None:
         """Instantiates the index."""
         self._cumulative_sum_index: np.array = np.array([-1])
-        self._feature_arr: List[dict] = []
-        self._num_genes_per_row: List[int] = []
+        self._feature_arr: list[dict[str, np.ndarray]] = []
+        self._num_genes_per_row: list[int] = []
         self._version = importlib.metadata.version("bionemo.scdl")
-        self._labels: List[str] = []
+        self._labels: list[str] = []
+
+    def _get_dataset_id(self, row) -> int:
+        """Gets the dataset id for a specified row index.
+
+        Args:
+            row (int): The index of the row.
+
+        Returns:
+            An int representing the dataset id the row belongs to.
+        """
+        # creates a mask for values where cumulative sum > row
+        mask = ~(self._cumulative_sum_index > row)
+        # Sum these to get the index of the first range > row
+        # Subtract one to get the range containing row.
+        d_id = sum(mask) - 1
+        return d_id
 
     def version(self) -> str:
         """Returns a version number.
@@ -63,7 +82,9 @@ class RowFeatureIndex:
         """The length is the number of rows or RowFeatureIndex length."""
         return len(self._feature_arr)
 
-    def append_features(self, n_obs: int, features: dict, num_genes: int, label: Optional[str] = None) -> None:
+    def append_features(
+        self, n_obs: int, features: dict[str, np.ndarray], num_genes: int, label: Optional[str] = None
+    ) -> None:
         """Updates the index with the given features.
 
         The dict is inserted into the feature array by adding a
@@ -84,7 +105,7 @@ class RowFeatureIndex:
         self._num_genes_per_row.append(num_genes)
         self._labels.append(label)
 
-    def lookup(self, row: int, select_features: Optional[List[str]] = None) -> Tuple[List[np.ndarray], str]:
+    def lookup(self, row: int, select_features: Optional[list[str]] = None) -> Tuple[list[np.ndarray], str]:
         """Find the features at a given row.
 
         It is assumed that the row is
@@ -94,9 +115,9 @@ class RowFeatureIndex:
         _feature_arr
         Args:
             row (int): The row in the feature index.
-            select_features (List[str]): a list of features to select
+            select_features (list[str]): a list of features to select
         Returns
-            List[np.ndarray]: list of np arrays with the feature values in that row of the specified features
+            list[np.ndarray]: list of np arrays with the feature values in that row of the specified features
             str: optional label for the row
         Raises:
             IndexError: An error occured due to input row being negative or it
@@ -112,12 +133,7 @@ class RowFeatureIndex:
             raise IndexError(
                 f"Row index {row} is larger than number of rows in FeatureIndex ({self._cumulative_sum_index[-1]})."
             )
-        # This line does the following:
-        # creates a mask for values where cumulative sum > row
-        mask = ~(self._cumulative_sum_index > row)
-        # Sum these to get the index of the first range > row
-        # Subtract one to get the range containing row.
-        d_id = sum(mask) - 1
+        d_id = self._get_dataset_id(row)
 
         # Retrieve the features for the identified value.
         features_dict = self._feature_arr[d_id]
@@ -144,11 +160,9 @@ class RowFeatureIndex:
         Returns:
             The length of the features at the row
         """
-        mask = ~(self._cumulative_sum_index > row)
-        d_id = sum(mask) - 1
-        return self._num_genes_per_row[d_id]
+        return self._num_genes_per_row[self._get_dataset_id(row)]
 
-    def column_dims(self) -> List[int]:
+    def column_dims(self) -> list[int]:
         """Return the number of columns in all rows.
 
         Args:
@@ -159,7 +173,7 @@ class RowFeatureIndex:
         """
         return self._num_genes_per_row
 
-    def number_of_values(self) -> List[int]:
+    def number_of_values(self) -> list[int]:
         """Get the total number of values in the array.
 
         For each row, the number of genes is counted.
@@ -174,9 +188,7 @@ class RowFeatureIndex:
             for i in range(1, len(self._cumulative_sum_index))
         ]
         vals = []
-        for i, n_rows in enumerate(rows):
-            num_genes = self._num_genes_per_row[i]
-            vals.append(n_rows * num_genes)
+        vals = [n_rows * self._num_genes_per_row[i] for i, n_rows in enumerate(rows)]
         return vals
 
     def number_of_rows(self) -> int:
@@ -249,10 +261,9 @@ class RowFeatureIndex:
         """
         new_row_feat_index = RowFeatureIndex()
         parquet_data_paths = sorted(Path(datapath).rglob("*.parquet"))
-        new_row_feat_index._feature_arr = [pq.read_table(csv_path) for csv_path in parquet_data_paths]
+        data_tables = [pq.read_table(csv_path) for csv_path in parquet_data_paths]
         new_row_feat_index._feature_arr = [
-            {column: table[column].to_numpy() for column in table.column_names}
-            for table in new_row_feat_index._feature_arr
+            {column: table[column].to_numpy() for column in table.column_names} for table in data_tables
         ]
         new_row_feat_index._num_genes_per_row = [
             len(feats[next(iter(feats.keys()))]) for feats in new_row_feat_index._feature_arr
