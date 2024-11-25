@@ -24,7 +24,7 @@ from typing import Dict, List, Sequence, Tuple
 
 from bionemo.scdl.api.single_cell_row_dataset import SingleCellRowDatasetCore
 from bionemo.scdl.index.row_feature_index import RowFeatureIndex
-from bionemo.scdl.io.single_cell_memmap_dataset import Mode, SingleCellMemMapDataset
+from bionemo.scdl.io.single_cell_memmap_dataset import SingleCellMemMapDataset
 from bionemo.scdl.util.async_worker_queue import AsyncWorkQueue
 
 
@@ -213,24 +213,19 @@ class SingleCellCollection(SingleCellRowDatasetCore):
         return self.number_of_rows(), self.number_of_variables()
 
     def flatten(
-        self,
-        output_path: str,
-        destroy_on_copy: bool = False,
+        self, output_path: str, destroy_on_copy: bool = False, extend_copy_size: int = 10 * 1_024 * 1_024
     ) -> None:
         """Flattens the collection into a single SingleCellMemMapDataset.
 
         Args:
             output_path: location to store new dataset
             destroy_on_copy: Whether to remove the current data_path
-        """
-        output = SingleCellMemMapDataset(
-            output_path,
-            num_elements=self.number_of_rows(),
-            num_rows=self.number_nonzero_values(),
-            mode=Mode.CREATE_APPEND,
-        )
+            extend_copy_size: how much to copy in memory at once
 
-        output.concat(list(self.fname_to_mmap.values()))
+        """
+        output = next(iter(self.fname_to_mmap.values()))
+        single_cell_list = list(self.fname_to_mmap.values())[1:]
+        output.concat(single_cell_list, extend_copy_size=extend_copy_size, output_path=output_path)
 
         # Hit save!
         output.save()
