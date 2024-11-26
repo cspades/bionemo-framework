@@ -427,6 +427,64 @@ def test_init_bucket_batch_sampler_with_invalid_base_batch_sampler_kwargs(sample
             base_batch_sampler_shared_kwargs={},
             base_batch_sampler_individual_kwargs={"batch_size": [2, 3, 5]},
         )
+        # base_batch_sampler_shared_kwargs and base_batch_sampler_individual_kwargs should be keyword argument dictionary
+        with pytest.raises(TypeError):
+            BucketBatchSampler(
+                sizes=sizes,
+                bucket_boundaries=bucket_boundaries,
+                base_batch_sampler_class=base_batch_sampler_class,
+                base_batch_sampler_shared_kwargs={1: False},  # type: ignore
+                base_batch_sampler_individual_kwargs=base_batch_sampler_individual_kwargs,
+            )
+
+
+def test_bucket_batch_sampler_with_invalid_sampler(sample_data):
+    (
+        sizes,
+        bucket_boundaries,
+        base_batch_sampler_class,
+        base_batch_sampler_shared_kwargs,
+        base_batch_sampler_individual_kwargs,
+    ) = sample_data
+    # sampler must be an instance of class inherited from torch.utils.data.Sampler
+    with pytest.raises(TypeError):
+        BucketBatchSampler(
+            sizes=sizes,
+            bucket_boundaries=bucket_boundaries,
+            base_batch_sampler_class=base_batch_sampler_class,
+            base_batch_sampler_shared_kwargs=base_batch_sampler_shared_kwargs,
+            base_batch_sampler_individual_kwargs=base_batch_sampler_individual_kwargs,
+            sampler=DataLoader,  # type: ignore
+        )
+
+
+def test_bucket_batch_sampler_with_invalid_num_batches(sample_data):
+    (
+        sizes,
+        bucket_boundaries,
+        base_batch_sampler_class,
+        base_batch_sampler_shared_kwargs,
+        base_batch_sampler_individual_kwargs,
+    ) = sample_data
+    # num_batches must be a positive integer.
+    with pytest.raises(ValueError):
+        BucketBatchSampler(
+            sizes=sizes,
+            bucket_boundaries=bucket_boundaries,
+            base_batch_sampler_class=base_batch_sampler_class,
+            base_batch_sampler_shared_kwargs=base_batch_sampler_shared_kwargs,
+            base_batch_sampler_individual_kwargs=base_batch_sampler_individual_kwargs,
+            num_batches=-1,
+        )
+    with pytest.raises(ValueError):
+        BucketBatchSampler(
+            sizes=sizes,
+            bucket_boundaries=bucket_boundaries,
+            base_batch_sampler_class=base_batch_sampler_class,
+            base_batch_sampler_shared_kwargs=base_batch_sampler_shared_kwargs,
+            base_batch_sampler_individual_kwargs=base_batch_sampler_individual_kwargs,
+            num_batches=2.0,  # type: ignore
+        )
 
 
 def test_bucket_batch_sampler_attributes(sample_data):
