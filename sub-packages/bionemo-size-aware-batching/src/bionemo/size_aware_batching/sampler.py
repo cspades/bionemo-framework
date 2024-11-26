@@ -491,10 +491,7 @@ class BucketBatchSampler(BatchSampler):
 
         self.base_batch_sampler_class = base_batch_sampler_class
         self.base_batch_sampler_shared_kwargs = base_batch_sampler_shared_kwargs
-        self.base_batch_sampler_individual_kwargs = [
-            {key: list(base_batch_sampler_individual_kwargs[key])[k] for key in base_batch_sampler_individual_kwargs}
-            for k in range(self.num_buckets)
-        ]
+        self.base_batch_sampler_individual_kwargs = base_batch_sampler_individual_kwargs
 
         self.bucket_sizes: torch.Tensor  # number of elements in each bucket
         self.bucket_element_indices: List[List[int]]  # List of elements' indices for each bucket
@@ -513,24 +510,32 @@ class BucketBatchSampler(BatchSampler):
         self.base_batch_samplers = self._init_base_batch_samplers()
 
         self.num_batches = num_batches
+
+    def setup_for_pytorch_lightning(self) -> BatchSampler:
+        """Add additional attributes necessary to be compatible with pytorch lightning distributed sampling.
+
+        Returns:
+            BatchSampler: this BatchSampler instance.
+        """
         setattr(self, "__pl_saved_args", ())
         setattr(
             self,
             "__pl_saved_kwargs",
             {
-                "sizes": sizes,
-                "bucket_boundaries": bucket_boundaries,
-                "base_batch_sampler_class": base_batch_sampler_class,
-                "base_batch_sampler_shared_kwargs": base_batch_sampler_shared_kwargs,
-                "base_batch_sampler_individual_kwargs": base_batch_sampler_individual_kwargs,
-                "shuffle": shuffle,
-                "generator": generator,
-                "sampler": sampler,
-                "num_batches": num_batches,
+                "sizes": self.sizes,
+                "bucket_boundaries": self.bucket_boundaries,
+                "base_batch_sampler_class": self.base_batch_sampler_class,
+                "base_batch_sampler_shared_kwargs": self.base_batch_sampler_shared_kwargs,
+                "base_batch_sampler_individual_kwargs": self.base_batch_sampler_individual_kwargs,
+                "shuffle": self.shuffle,
+                "generator": self.generator,
+                "sampler": self.sampler,
+                "num_batches": self.num_batches,
             },
         )
         setattr(self, "__pl_saved_default_kwargs", {})
         setattr(self, "__pl_saved_arg_names", ())
+        return self
 
     def _compute_bucket_element_indices(self, indices: Optional[List[int]] = None):
         if indices is None:
@@ -573,11 +578,15 @@ class BucketBatchSampler(BatchSampler):
         """
         base_batch_samplers = []
         for k in range(self.num_buckets):
+            individual_kwargs = {
+                key: list(self.base_batch_sampler_individual_kwargs[key])[k]
+                for key in self.base_batch_sampler_individual_kwargs
+            }
             base_batch_samplers.append(
                 self.base_batch_sampler_class(
                     self.bucket_element_indices[k],
                     **self.base_batch_sampler_shared_kwargs,
-                    **self.base_batch_sampler_individual_kwargs[k],
+                    **individual_kwargs,
                 )
             )
         return base_batch_samplers
