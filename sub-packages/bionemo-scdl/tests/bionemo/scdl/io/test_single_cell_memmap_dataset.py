@@ -121,6 +121,7 @@ def test_h5ad_no_file(tmp_path):
     with pytest.raises(FileNotFoundError, match=rf"Error: could not find h5ad path {tmp_path}/a"):
         ds.load_h5ad(anndata_path=tmp_path / "a")
 
+
 def test_SingleCellMemMapDataset_constructor(generate_dataset):
     assert generate_dataset.number_of_rows() == 8
     assert generate_dataset.number_of_variables() == [10]
