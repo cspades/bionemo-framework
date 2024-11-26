@@ -47,6 +47,7 @@ def infer_model(
     num_nodes: int = 1,
     num_dataset_workers: int = 0,
     config_class: Type[BioBertConfig] = GeneformerConfig,
+    bypass_tokenizer_vocab: bool = False,
 ) -> None:
     """Inference function (requires DDP and only training data that fits in memory)."""
     # This is just used to get the tokenizer :(
@@ -112,6 +113,7 @@ def infer_model(
         persistent_workers=num_dataset_workers > 0,
         pin_memory=False,
         num_workers=num_dataset_workers,
+        bypass_tokenizer_vocab=bypass_tokenizer_vocab,
     )
     geneformer_config = config_class(
         seq_length=seq_length,
@@ -158,6 +160,7 @@ def geneformer_infer_entrypoint():
         num_nodes=args.num_nodes,
         num_dataset_workers=args.num_dataset_workers,
         config_class=args.config_class,
+        bypass_tokenizer_vocab=args.bypass_tokenizer_vocab,
     )
 
 
@@ -231,6 +234,14 @@ def get_parser():
         required=False,
         default=32,
         help="Micro-batch size. Global batch size is inferred from this.",
+    )
+
+    parser.add_argument(
+        "--bypass-tokenizer-vocab",
+        type=bool,
+        required=False,
+        default=False,
+        help="Bypass whether the SingleCellDataLoaderhrows an error when a gene ensemble id is not in the tokenizer vocab. Defaults to False (so the error is thrown by default).",
     )
 
     # TODO consider whether nemo.run or some other method can simplify this config class lookup.
