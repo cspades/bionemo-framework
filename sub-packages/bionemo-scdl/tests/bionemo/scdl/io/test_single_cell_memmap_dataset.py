@@ -121,44 +121,6 @@ def test_h5ad_no_file(tmp_path):
     with pytest.raises(FileNotFoundError, match=rf"Error: could not find h5ad path {tmp_path}/a"):
         ds.load_h5ad(anndata_path=tmp_path / "a")
 
-
-"""
-def test_swap_mmap_array_result_has_proper_length(tmp_path, create_and_fill_mmap_arrays):
-    x_arr, y_arr = create_and_fill_mmap_arrays
-    x_path = tmp_path / "x.npy"
-    y_path = tmp_path / "y.npy"
-
-    _swap_mmap_array(x_arr, x_path, y_arr, y_path)
-
-    x_now_y = np.memmap(y_path, dtype="uint32", shape=(len(first_array_values),), mode="r+")
-    y_now_x = np.memmap(x_path, dtype="uint32", shape=(len(second_array_values),), mode="r+")
-
-    assert len(x_now_y) == len(first_array_values)
-    assert np.array_equal(x_now_y, np.array(first_array_values))
-    assert len(y_now_x) == len(second_array_values)
-    assert np.array_equal(y_now_x, np.array(second_array_values))
-
-
-def test_swap_mmap_no_file(tmp_path, create_and_fill_mmap_arrays):
-    x_arr, y_arr = create_and_fill_mmap_arrays
-    with pytest.raises(FileNotFoundError, match=rf"The destination file {tmp_path}/z.npy does not exist"):
-        _swap_mmap_array(x_arr, tmp_path / "x.npy", y_arr, tmp_path / "z.npy")
-
-
-def test_swap_mmap_with_delete_source(tmp_path, create_and_fill_mmap_arrays):
-    x_arr, y_arr = create_and_fill_mmap_arrays
-    x_path = tmp_path / "x.npy"
-    y_path = tmp_path / "y.npy"
-    _swap_mmap_array(x_arr, x_path, y_arr, y_path, destroy_src=True)
-
-    assert not os.path.exists(x_path)
-    x_now_y = np.memmap(y_path, dtype="uint32", shape=(len(first_array_values),), mode="r+")
-    assert len(x_now_y) == len(first_array_values)
-    assert np.array_equal(x_now_y, np.array(first_array_values))
-
-"""
-
-
 def test_SingleCellMemMapDataset_constructor(generate_dataset):
     assert generate_dataset.number_of_rows() == 8
     assert generate_dataset.number_of_variables() == [10]
@@ -236,22 +198,7 @@ def test_concat_SingleCellMemMapDatasets_multi(tmp_path, compare_fn, test_direct
     dt.concat(dx)
     assert dt.number_of_rows() == exp_n_obs
     dns = SingleCellMemMapDataset(tmp_path / "scdns", h5ad_path=test_directory / "adata_sample1.h5ad")
-
     dns.concat([ds, dx])
-    print("ROW")
-    print(dns.row_index)
-    print(dt.row_index)
-    print(dns.row_index.data == dt.row_index.data)
-    print("COL")
-    print(dns.col_index)
-    print(dt.col_index)
-    print(dns.col_index.data == dt.col_index.data)
-
-    print("Data")
-    print(dns.data)
-    print(dt.data)
-    print(dns.data.data == dt.data.data)
-
     compare_fn(dns, dt)
 
 
