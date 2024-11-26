@@ -21,7 +21,7 @@ def extend_files(
 ):
     """Concatenates the contents of `second` into `first` using memory-efficient operations.
 
-    Shrinks `second` incrementally after reading each chunk.
+    Shrinks `second` incrementally after reading each chunk. This is not multi-processing safe.
 
     Parameters:
     - first (str): Path to the first file (will be extended).

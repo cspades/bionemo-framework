@@ -217,6 +217,14 @@ class SingleCellCollection(SingleCellRowDatasetCore):
     ) -> None:
         """Flattens the collection into a single SingleCellMemMapDataset.
 
+        This is done by concatenating all of the SingleCellMemMapDatasets together. This can be used
+        to create a single dataset from h5ad files that are in a directory:
+                coll = SingleCellCollection(temp_dir)
+                coll.load_h5ad_multi(data_path)
+                coll.flatten(output_path, destroy_on_copy=True)
+        Then, there would be one SingleCellMemMapDataset dataset in output_path. read in with
+        SingleCellMemmpDataset(output_path).
+
         Args:
             output_path: location to store new dataset
             destroy_on_copy: Whether to remove the current data_path
@@ -224,9 +232,13 @@ class SingleCellCollection(SingleCellRowDatasetCore):
 
         """
         output = next(iter(self.fname_to_mmap.values()))
-        single_cell_list = list(self.fname_to_mmap.values())[1:]
-        output.concat(single_cell_list, extend_copy_size=extend_copy_size, output_path=output_path)
 
+        single_cell_list = list(self.fname_to_mmap.values())[1:]
+        if len(single_cell_list) > 0:
+            output.concat(single_cell_list, extend_copy_size=extend_copy_size, output_path=output_path)
+        else:
+            shutil.move(output.data_path, output_path)
+            output.data_path = output_path
         # Hit save!
         output.save()
 

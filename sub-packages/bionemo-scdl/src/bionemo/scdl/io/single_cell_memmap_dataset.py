@@ -683,10 +683,11 @@ class SingleCellMemMapDataset(SingleCellRowDataset):
         output_path: str | None = None,
         destroy_on_copy: bool = False,
     ) -> None:
-        """Concatenates another SingleCellMemMapDataset to the existing one.
+        """Concatenates one or a list of SingleCellMemMapDatasest to the existing one.
 
-        The data is stored in the same place as for the original data set. This
-        necessitates using _swap_memmap_array.
+        The data is stored in the same place as for the original data set or at output_path
+        if it is set. Then, at output_path or at self.data_path, there would be a saved
+        SingleCellMemmpDataset, which can be read in with SingleCellMemmpDataset(output_path).
 
         Args:
             other_dataset: A SingleCellMemMapDataset or a list of
@@ -746,7 +747,7 @@ class SingleCellMemMapDataset(SingleCellRowDataset):
                 f"{mmap.data_path}/{FileNames.ROWPTR.value}_copy",
                 buffer_size_b=extend_copy_size,
                 delete_file2_on_complete=True,
-                offset=8,
+                offset=np.dtype(self.dtypes[f"{FileNames.DATA.value}"]).itemsize,
             )
 
             extend_files(
