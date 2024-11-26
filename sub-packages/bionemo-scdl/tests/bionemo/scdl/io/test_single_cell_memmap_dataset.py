@@ -79,7 +79,6 @@ def compare_fn():
         assert dns.number_of_variables() == dt.number_of_variables()
         assert dns.number_of_rows() == dt.number_of_rows()
         for row_idx in range(len(dns)):
-            print("ROW_IDX", row_idx)
             assert (dns[row_idx][0] == dt[row_idx][0]).all()
             assert (dns[row_idx][1] == dt[row_idx][1]).all()
 
