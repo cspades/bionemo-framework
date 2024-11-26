@@ -17,7 +17,7 @@ import warnings
 from typing import Any, Callable, Dict, Iterable, Iterator, List, Optional, Sequence, Type, TypeVar, Union
 
 import torch
-from torch.utils.data import Sampler
+from torch.utils.data import BatchSampler, Sampler
 
 
 __all__: Sequence[str] = (
@@ -275,7 +275,7 @@ class SizeAwareBatchSampler(Sampler[List[int]]):
         )
 
 
-class BucketBatchSampler(Sampler[List[int]]):
+class BucketBatchSampler(BatchSampler):
     """A batch sampler to create batches with sizes of elements from each pre-defined bucket ranges.
 
     Elements of the dataset are first grouped into each bucket based on the bucket ranges and the sizes of elements.
@@ -371,6 +371,8 @@ class BucketBatchSampler(Sampler[List[int]]):
         base_batch_sampler_individual_kwargs: Optional[Dict[str, Iterable]] = None,
         shuffle: Optional[bool] = True,
         generator: Optional[torch.Generator] = None,
+        sampler: Optional[Sampler[List[int]]] = None,
+        num_batches: Optional[int] = None,
     ) -> None:
         """Initializes the BucketBatchSampler.
 
@@ -390,12 +392,14 @@ class BucketBatchSampler(Sampler[List[int]]):
                 Default to  {}.
             shuffle: A boolean indicating whether to shuffle the dataset and buckets. Defaults to True.
             generator: Generator used in sampling. Defaults to None.
+            sampler: Sampler to get element indices for this batch sampler, required for distributed sampling. Defaults to None.
+            num_batches: Number of mini-batches, required for distributed sampling. Defaults to None.
 
         Raises:
             ValueError: If `sizes` is not a 1D tensor of real numbers.
             ValueError: If `bucket_boundaries` is not a 1D tensor of real numbers.
             ValueError: If `base_batch_sampler_individual_kwargs` or `base_batch_sampler_individual_kwargs` is not a keyword argument dictionary.
-            ValueError: If the length of values in the dict of `base_batch_sampler_individual_kwargs` must be equal to len(bucket_boundaries) - 1.
+            ValueError: If the length of values in the dict of `base_batch_sampler_individual_kwargs` is not equal to len(bucket_boundaries) - 1.
             RuntimeError: If there is no elements with sizes inside the ranges specified by `bucket_boundaries`.
 
         """
@@ -486,12 +490,7 @@ class BucketBatchSampler(Sampler[List[int]]):
             )
 
         self.base_batch_sampler_class = base_batch_sampler_class
-        self.base_batch_sampler_shared_kwargs = (
-            {} if base_batch_sampler_shared_kwargs is None else base_batch_sampler_shared_kwargs
-        )
-        base_batch_sampler_individual_kwargs = (
-            {} if base_batch_sampler_individual_kwargs is None else base_batch_sampler_individual_kwargs
-        )
+        self.base_batch_sampler_shared_kwargs = base_batch_sampler_shared_kwargs
         self.base_batch_sampler_individual_kwargs = [
             {key: list(base_batch_sampler_individual_kwargs[key])[k] for key in base_batch_sampler_individual_kwargs}
             for k in range(self.num_buckets)
@@ -501,34 +500,68 @@ class BucketBatchSampler(Sampler[List[int]]):
         self.bucket_element_indices: List[List[int]]  # List of elements' indices for each bucket
 
         # bucket index for each element
-        element_bucket_indices = torch.bucketize(sizes, bucket_boundaries, right=True)
+        self.element_bucket_indices = torch.bucketize(sizes, self.bucket_boundaries, right=True)
+
+        self.sampler = sampler
+        self.bucket_element_indices = [[] for _ in range(self.num_buckets)]
+
+        if self.sampler is None:
+            self._compute_bucket_element_indices()
+        else:
+            self._compute_bucket_element_indices(list(self.sampler))  # type: ignore
+
+        self.base_batch_samplers = self._init_base_batch_samplers()
+
+        self.num_batches = num_batches
+        setattr(self, "__pl_saved_args", ())
+        setattr(
+            self,
+            "__pl_saved_kwargs",
+            {
+                "sizes": sizes,
+                "bucket_boundaries": bucket_boundaries,
+                "base_batch_sampler_class": base_batch_sampler_class,
+                "base_batch_sampler_shared_kwargs": base_batch_sampler_shared_kwargs,
+                "base_batch_sampler_individual_kwargs": base_batch_sampler_individual_kwargs,
+                "shuffle": shuffle,
+                "generator": generator,
+                "sampler": sampler,
+                "num_batches": num_batches,
+            },
+        )
+        setattr(self, "__pl_saved_default_kwargs", {})
+        setattr(self, "__pl_saved_arg_names", ())
+
+    def _compute_bucket_element_indices(self, indices: Optional[List[int]] = None):
+        if indices is None:
+            element_bucket_indices = self.element_bucket_indices
+        else:
+            element_bucket_indices = self.element_bucket_indices[torch.tensor(indices)]
 
         # element indices reordered for each bucket
         reordered_element_indices = torch.argsort(element_bucket_indices, stable=True)
 
         # bucket sizes, including the buckets for < bucket_boundaries[0] and >= bucket_boundaries[-1]
-        bucket_sizes = torch.bincount(element_bucket_indices, minlength=len(bucket_boundaries) + 1)
+        bucket_sizes = torch.bincount(element_bucket_indices, minlength=len(self.bucket_boundaries) + 1)
 
         # bucket segments
         bucket_segments = torch.cumsum(bucket_sizes, dim=0)[:-1]
 
-        self.bucket_element_indices = []
         # exclude the buckets for < bucket_boundaries[0] and >= bucket_boundaries[-1]
         for bucket_idx in range(self.num_buckets):
-            self.bucket_element_indices.append(
-                reordered_element_indices[bucket_segments[bucket_idx] : bucket_segments[bucket_idx + 1]].tolist()
-            )
+            self.bucket_element_indices[bucket_idx][:] = reordered_element_indices[
+                bucket_segments[bucket_idx] : bucket_segments[bucket_idx + 1]
+            ].tolist()
+
         self.bucket_sizes = bucket_sizes[1 : (self.num_buckets + 1)]
 
         self.num_samples = torch.sum(self.bucket_sizes).item()
         if self.num_samples == 0:
             raise RuntimeError("The sizes of all elements in the dataset are outside the bucket ranges provided")
-        if self.num_samples < len(self.sizes):
+        if self.num_samples < len(element_bucket_indices):
             warnings.warn(
-                f"{len(self.sizes) - self.num_samples} elements are outside the buckets provided and will be skipped"
+                f"{len(element_bucket_indices) - self.num_samples} elements are outside the buckets provided and will be skipped"
             )
-
-        self.base_batch_samplers: List[Sampler] = self._init_base_batch_samplers()
 
     def _init_base_batch_samplers(self) -> list[Sampler[List[int]]]:
         """Initialize batch samplers for each bucket.
@@ -555,8 +588,9 @@ class BucketBatchSampler(Sampler[List[int]]):
         Returns:
             int: Number of batches
         """
-        num_batches = sum(len(sampler) for sampler in self.base_batch_samplers)  # type: ignore
-        return num_batches
+        if self.num_batches is None:
+            self.num_batches = sum(len(sampler) for sampler in self.base_batch_samplers)  # type: ignore
+        return self.num_batches
 
     def __iter__(self) -> Iterator[List[int]]:
         """Iterate over batches of indices.
@@ -566,29 +600,53 @@ class BucketBatchSampler(Sampler[List[int]]):
         Yields:
             List[int]: A batch of indices of elements with sizes from each bucket range.
         """
-        if self.shuffle:
+        if self.num_batches is None:
+            self.num_batches = len(self)
+
+        if self.sampler is not None:
+            indices = list(self.sampler)
+            self._compute_bucket_element_indices(list(self.sampler))  # type: ignore
+        elif self.shuffle:
             for indices in self.bucket_element_indices:
                 idx = torch.randperm(len(indices), generator=self.generator)
                 indices[:] = torch.tensor(indices)[idx].tolist()
 
-        base_batch_sampler_iters = [iter(batch_sampler) for batch_sampler in self.base_batch_samplers]
-        bucket_remaining_elements = self.bucket_sizes.clone()
-        total_remaining_elements = self.num_samples
+        num_yield_batches = 0
+        while num_yield_batches < self.num_batches:
+            base_batch_sampler_iters = [iter(batch_sampler) for batch_sampler in self.base_batch_samplers]
+            bucket_remaining_elements = self.bucket_sizes.clone()
+            total_remaining_elements = self.num_samples
 
-        while total_remaining_elements > 0:
-            if self.shuffle:
-                bucket_idx = torch.multinomial(
-                    bucket_remaining_elements / total_remaining_elements, 1, generator=self.generator
-                )
-            else:
-                bucket_idx = torch.argmax((bucket_remaining_elements > 0).to(int))  # type: ignore
+            while total_remaining_elements > 0 and num_yield_batches < self.num_batches:
+                if self.shuffle:
+                    bucket_idx = torch.multinomial(
+                        bucket_remaining_elements / total_remaining_elements, 1, generator=self.generator
+                    )
+                else:
+                    bucket_idx = torch.argmax((bucket_remaining_elements > 0).to(int))  # type: ignore
 
+                try:
+                    batch = next(base_batch_sampler_iters[bucket_idx])
+                    batch_size = min(len(batch), bucket_remaining_elements[bucket_idx].item())
+                    bucket_remaining_elements[bucket_idx] -= batch_size
+                    total_remaining_elements -= batch_size
+                    num_yield_batches += 1
+                    yield batch
+                except StopIteration:
+                    bucket_remaining_elements[bucket_idx] = 0
+                    total_remaining_elements = torch.sum(bucket_remaining_elements)
+                    continue
+
+    def set_epoch(self, epoch: int):
+        """Set the epoch for `self.sampler`.
+
+        Args:
+            epoch (int): Epoch number.
+        """
+        if self.sampler is not None:
             try:
-                batch = next(base_batch_sampler_iters[bucket_idx])
-                bucket_remaining_elements[bucket_idx] -= len(batch)
-                total_remaining_elements -= len(batch)
-                yield batch
-            except StopIteration:
-                bucket_remaining_elements[bucket_idx] = 0
-                total_remaining_elements = torch.sum(bucket_remaining_elements)
-                continue
+                self.sampler.set_epoch(epoch)  # type: ignore
+            except AttributeError:
+                raise RuntimeError(
+                    f"Trying to call set_epoch on {self.sampler.__class__} which does not have such method"
+                )

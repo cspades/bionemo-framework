@@ -528,6 +528,7 @@ def test_bucket_batch_sampler_with_size_aware_batch_sampler(sample_data):
         base_batch_sampler_shared_kwargs={"sizeof": cost_of_element},
         base_batch_sampler_individual_kwargs={"max_total_size": [10, 30, 50]},
         shuffle=False,
+        num_batches=11,
     )
     batch_lists_first_iter = list(iter(batch_sampler))
     ref_batch_lists = [
@@ -556,6 +557,7 @@ def test_bucket_batch_sampler_with_size_aware_batch_sampler(sample_data):
         base_batch_sampler_individual_kwargs={"max_total_size": [10, 30, 50]},
         shuffle=True,
         generator=torch.Generator(),
+        num_batches=20,
     )
     batch_lists_first_iter = list(iter(batch_sampler))
     assert set(functools.reduce(operator.iadd, batch_lists_first_iter, [])) == set(range(25))
