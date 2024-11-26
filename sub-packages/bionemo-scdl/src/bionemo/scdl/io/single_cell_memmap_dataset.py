@@ -747,7 +747,7 @@ class SingleCellMemMapDataset(SingleCellRowDataset):
                 f"{mmap.data_path}/{FileNames.ROWPTR.value}_copy",
                 buffer_size_b=extend_copy_size,
                 delete_file2_on_complete=True,
-                offset=np.dtype(self.dtypes[f"{FileNames.DATA.value}"]).itemsize,
+                offset=np.dtype(self.dtypes[f"{FileNames.ROWPTR.value}"]).itemsize,
             )
 
             extend_files(
