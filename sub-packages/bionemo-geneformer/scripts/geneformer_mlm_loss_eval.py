@@ -128,6 +128,7 @@ def main(
     seq_len_nv: int = 2048,
     seq_len_hf: int = 2048,
     seed: int = 513,
+    bypass_tokenizer_vocab: bool = False,
 ):
     """Inference function (requires DDP and only training data that fits in memory)."""
     # This is just used to get the tokenizer :(
@@ -185,6 +186,7 @@ def main(
             max_len=seq_len_nv,
             mask_prob=mask_prob,
             seed=seed,
+            bypass_tokenizer_vocab=bypass_tokenizer_vocab,
         )
         ds_hf_nvfilt = SingleCellDataset(
             dataset_path,
@@ -194,6 +196,7 @@ def main(
             mask_prob=mask_prob,
             eos_token=hf_tokenizer.token_to_id(hf_tokenizer.sep_token),  # Stored in the special token
             seed=seed,
+            bypass_tokenizer_vocab=bypass_tokenizer_vocab,
         )
         print(f"Loaded dataset of length (NV): {len(ds_nv)}, (HF): {len(ds_hf_nvfilt)}")
 
@@ -299,6 +302,13 @@ def entrypoint():
     )
     parser.add_argument("--hf-model-path", type=str, default="ctheodoris/Geneformer", help="HF model path")
     parser.add_argument("--dataset-path", type=Path, help="Path to dataset directory", required=True)
+    parser.add_argument(
+        "--bypass-tokenizer-vocab",
+        type=bool,
+        required=False,
+        default=True,  # Set this to False later, for when we want to throw a tokenizer error for this script
+        help="Bypass whether the SingleCellDataLoaderhrows an error when a gene ensemble id is not in the tokenizer vocab. Defaults to False (so the error is thrown by default).",
+    )
 
     args = parser.parse_args()
     main(
@@ -307,6 +317,7 @@ def entrypoint():
         args.dataset_path,
         args.hf_token_dictionary_path,
         args.hf_medians_dictionary_path,
+        args.bypass_tokenizer_vocab,
     )
 
 

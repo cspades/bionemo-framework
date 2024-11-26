@@ -5,3 +5,9 @@
   sha256: 7a4237537bf535dfa00301ce8cc7073e0a23d5bc8aa902ad65db9f51b57a6df9 # pragma: allowlist secret
   owner: Polina Binder <pbinder@nvidia.com>
   description: Sample test data for SCDL.
+
+- tag: sample_scdl_feature_ids
+  pbss: "s3://bionemo-ci/test-data/scdl_feat_ids_sample_updated.tar.gz"
+  sha256: 07a35a7b901919593c071edc6848c3d9a0f01cfe2bba6a74ff0e5302ea1247cf # pragma: allowlist secret
+  owner: Savitha Srinivasan <savithas@nvidia.com>
+  description: Sample test data for SCDL with feature IDs appended.
