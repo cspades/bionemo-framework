@@ -176,6 +176,32 @@ def test_concat_SingleCellMemMapDatasets_same(tmp_path, test_directory):
     assert dt.number_nonzero_values() == 2 * ds.number_nonzero_values()
 
 
+def test_concat_SingleCellMemMapDatasets_empty(tmp_path, test_directory):
+    ds = SingleCellMemMapDataset(tmp_path / "scy", h5ad_path=test_directory / "adata_sample0.h5ad")
+    exp_rows = np.array(ds.row_index)
+    exp_cols = np.array(ds.col_index)
+    exp_data = np.array(ds.data)
+
+    ds.concat([])
+    assert (np.array(ds.row_index) == exp_rows).all()
+    assert (np.array(ds.col_index) == exp_cols).all()
+    assert (np.array(ds.data) == exp_data).all()
+
+
+@pytest.mark.parametrize("extend_copy_size", [1, 10 * 1_024 * 1_024])
+def test_concat_SingleCellMemMapDatasets_underlying_memmaps(tmp_path, test_directory, extend_copy_size):
+    ds = SingleCellMemMapDataset(tmp_path / "scy", h5ad_path=test_directory / "adata_sample0.h5ad")
+    dt = SingleCellMemMapDataset(tmp_path / "sct", h5ad_path=test_directory / "adata_sample1.h5ad")
+    exp_rows = np.append(dt.row_index, ds.row_index[1:] + len(dt.col_index))
+    exp_cols = np.append(dt.col_index, ds.col_index)
+    exp_data = np.append(dt.data, ds.data)
+
+    dt.concat(ds, extend_copy_size)
+    assert (np.array(dt.row_index) == exp_rows).all()
+    assert (np.array(dt.col_index) == exp_cols).all()
+    assert (np.array(dt.data) == exp_data).all()
+
+
 def test_concat_SingleCellMemMapDatasets_diff(tmp_path, test_directory):
     ds = SingleCellMemMapDataset(tmp_path / "scy", h5ad_path=test_directory / "adata_sample0.h5ad")
     dt = SingleCellMemMapDataset(tmp_path / "sct", h5ad_path=test_directory / "adata_sample1.h5ad")

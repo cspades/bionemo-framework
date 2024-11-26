@@ -739,9 +739,13 @@ class SingleCellMemMapDataset(SingleCellRowDataset):
                 shape=mmap.row_index.shape,
             )
             destination_memmap[:] = mmap.row_index[:]
+
             destination_memmap += int(cumulative_elements)
 
             destination_memmap.flush()
+            if destroy_on_copy:
+                os.remove(f"{mmap.data_path}/{FileNames.ROWPTR.value}")
+
             extend_files(
                 f"{self.data_path}/{FileNames.ROWPTR.value}",
                 f"{mmap.data_path}/{FileNames.ROWPTR.value}_copy",
@@ -762,7 +766,6 @@ class SingleCellMemMapDataset(SingleCellRowDataset):
                 buffer_size_b=extend_copy_size,
                 delete_file2_on_complete=destroy_on_copy,
             )
-
             self._feature_index.concat(mmap._feature_index)
             # Update counters
             cumulative_elements += mmap.number_nonzero_values()
