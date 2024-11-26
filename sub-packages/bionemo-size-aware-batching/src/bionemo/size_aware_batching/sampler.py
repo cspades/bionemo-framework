@@ -17,7 +17,7 @@ import warnings
 from typing import Any, Callable, Dict, Iterable, Iterator, List, Optional, Sequence, Type, TypeVar, Union
 
 import torch
-from torch.utils.data import BatchSampler, Sampler
+from torch.utils.data import Sampler
 
 
 __all__: Sequence[str] = (
@@ -275,7 +275,7 @@ class SizeAwareBatchSampler(Sampler[List[int]]):
         )
 
 
-class BucketBatchSampler(BatchSampler):
+class BucketBatchSampler(Sampler[List[int]]):
     """A batch sampler to create batches with sizes of elements from each pre-defined bucket ranges.
 
     Elements of the dataset are first grouped into each bucket based on the bucket ranges and the sizes of elements.
@@ -499,6 +499,11 @@ class BucketBatchSampler(BatchSampler):
         # bucket index for each element
         self.element_bucket_indices = torch.bucketize(sizes, self.bucket_boundaries, right=True)
 
+        if sampler is not None and not isinstance(sampler, Sampler):  # type: ignore
+            raise TypeError(
+                f"sampler should be a sampler class inherited from torch.utils.data.Sampler, but got sampler={sampler}"
+            )
+
         self.sampler = sampler
         self.bucket_element_indices = [[] for _ in range(self.num_buckets)]
 
@@ -509,13 +514,19 @@ class BucketBatchSampler(BatchSampler):
 
         self.base_batch_samplers = self._init_base_batch_samplers()
 
+        if num_batches is not None and (not isinstance(num_batches, int) or num_batches <= 0):
+            raise ValueError(f"num_batches should be a positive integer, but got num_batches = {num_batches}")
+
         self.num_batches = num_batches
 
-    def setup_for_pytorch_lightning(self) -> BatchSampler:
+    def setup_for_pytorch_lightning(self) -> Sampler:
         """Add additional attributes necessary to be compatible with pytorch lightning distributed sampling.
 
+        When used for distributed sampling, Pytorch Lightning will use these attributes to re-init this batch sampler and
+        replace the sampler to torch.utils.data.DistributedSampler.
+
         Returns:
-            BatchSampler: this BatchSampler instance.
+            Sampler: this batch sampler instance.
         """
         setattr(self, "__pl_saved_args", ())
         setattr(
@@ -543,7 +554,7 @@ class BucketBatchSampler(BatchSampler):
             # element indices reordered for each bucket
             reordered_element_indices = torch.argsort(element_bucket_indices, stable=True)
         else:
-            indices = torch.tensor(indices)  # type: ignore
+            indices: torch.Tensor = torch.tensor(indices)  # type: ignore
             element_bucket_indices = self.element_bucket_indices[indices]
             # element indices reordered for each bucket
             reordered_element_indices = indices[torch.argsort(element_bucket_indices, stable=True)]
