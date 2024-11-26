@@ -76,7 +76,6 @@ class SingleCellRowDatasetCore(ABC):
         nonzero_values = self.number_nonzero_values()
         zero_values = total_values - nonzero_values
         sparsity_value = zero_values / total_values
-        print("VALS", total_values, nonzero_values, zero_values, sparsity_value)
         return sparsity_value
 
     @abstractmethod
