@@ -16,7 +16,9 @@
 import os
 
 
-def _extend(first: str, second: str, buffer_size_b: int = 10 * 1024 * 1024, delete_file2_on_complete: bool = False):
+def _extend(
+    first: str, second: str, buffer_size_b: int = 10 * 1024 * 1024, delete_file2_on_complete: bool = False, offset=0
+):
     """Concatenates the contents of `second` into `first` using memory-efficient operations.
 
     Shrinks `second` incrementally after reading each chunk.
@@ -33,11 +35,11 @@ def _extend(first: str, second: str, buffer_size_b: int = 10 * 1024 * 1024, dele
         size2 = os.path.getsize(second)
 
         # Resize file1 to the final size to accommodate both files
-        f1.seek(size1 + size2 - 1)
+        f1.seek(size1 + size2 - 1 - offset)
         f1.write(b"\0")  # Extend file1
 
         # Move data from file2 to file1 in chunks
-        read_position = 0  # Start reading from the beginning of file2
+        read_position = offset  # Start reading from the beginning of file2
         write_position = size1  # Start appending at the end of original data1
         f2.seek(read_position)
 

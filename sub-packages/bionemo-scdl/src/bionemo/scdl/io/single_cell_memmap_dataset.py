@@ -680,6 +680,7 @@ class SingleCellMemMapDataset(SingleCellRowDataset):
         other_dataset: Union[list["SingleCellMemMapDataset"], "SingleCellMemMapDataset"],
         extend_copy_size: int = 10 * 1_024 * 1_024,
         output_path: str | None = None,
+        destroy_on_copy: bool = False,
     ) -> None:
         """Concatenates another SingleCellMemMapDataset to the existing one.
 
@@ -691,6 +692,7 @@ class SingleCellMemMapDataset(SingleCellRowDataset):
             SingleCellMemMapDatasets
             extend_copy_size: how much to copy in memory at once
             output_path: location to store new dataset
+            destroy_on_copy: Whether to remove the current data_path
 
         Raises:
            ValueError if the other dataset(s) are not of the same version or
@@ -716,6 +718,7 @@ class SingleCellMemMapDataset(SingleCellRowDataset):
 
         # Set our mode:
         self.mode: Mode = Mode.READ_APPEND
+
         if output_path is not None:
             shutil.move(self.data_path, output_path)
             self.data_path = output_path
@@ -727,25 +730,35 @@ class SingleCellMemMapDataset(SingleCellRowDataset):
         cumulative_elements = self.number_nonzero_values()
         cumulative_rows = self.number_of_rows()
         for mmap in mmaps:
-            mmap.row_index = mmap.row_index + int(cumulative_elements)
-            mmap.row_index.flush()
+            destination_memmap = np.memmap(
+                f"{mmap.data_path}/{FileNames.ROWPTR.value}_copy",
+                dtype=self.dtypes[f"{FileNames.ROWPTR.value}"],
+                mode="w+",
+                shape=mmap.row_index.shape,
+            )
+            destination_memmap[:] = mmap.row_index[:]
+            destination_memmap += int(cumulative_elements)
+
+            destination_memmap.flush()
             _extend(
-                f"{self.data_path}/{FileNames.DATA.value}",
-                f"{mmap}/{FileNames.DATA.value}",
+                f"{self.data_path}/{FileNames.ROWPTR.value}",
+                f"{mmap.data_path}/{FileNames.ROWPTR.value}_copy",
                 buffer_size_b=extend_copy_size,
                 delete_file2_on_complete=True,
+                offset=8,
+            )
+
+            _extend(
+                f"{self.data_path}/{FileNames.DATA.value}",
+                f"{mmap.data_path}/{FileNames.DATA.value}",
+                buffer_size_b=extend_copy_size,
+                delete_file2_on_complete=destroy_on_copy,
             )
             _extend(
                 f"{self.data_path}/{FileNames.COLPTR.value}",
-                f"{mmap}/{FileNames.COLPTR.value}",
+                f"{mmap.data_path}/{FileNames.COLPTR.value}",
                 buffer_size_b=extend_copy_size,
-                delete_file2_on_complete=True,
-            )
-            _extend(
-                f"{self.data_path}/{FileNames.ROWPTR.value}",
-                f"{mmap}/{FileNames.ROWPTR.value}",
-                buffer_size_b=extend_copy_size,
-                delete_file2_on_complete=True,
+                delete_file2_on_complete=destroy_on_copy,
             )
 
             self._feature_index.concat(mmap._feature_index)
@@ -772,5 +785,4 @@ class SingleCellMemMapDataset(SingleCellRowDataset):
             shape=(cumulative_elements,),
             mode=Mode.READ_APPEND.value,
         )
-
         self.save()
