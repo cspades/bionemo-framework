@@ -535,11 +535,13 @@ class BucketBatchSampler(BatchSampler):
     def _compute_bucket_element_indices(self, indices: Optional[List[int]] = None):
         if indices is None:
             element_bucket_indices = self.element_bucket_indices
+            # element indices reordered for each bucket
+            reordered_element_indices = torch.argsort(element_bucket_indices, stable=True)
         else:
-            element_bucket_indices = self.element_bucket_indices[torch.tensor(indices)]
-
-        # element indices reordered for each bucket
-        reordered_element_indices = torch.argsort(element_bucket_indices, stable=True)
+            indices = torch.tensor(indices)  # type: ignore
+            element_bucket_indices = self.element_bucket_indices[indices]
+            # element indices reordered for each bucket
+            reordered_element_indices = indices[torch.argsort(element_bucket_indices, stable=True)]
 
         # bucket sizes, including the buckets for < bucket_boundaries[0] and >= bucket_boundaries[-1]
         bucket_sizes = torch.bincount(element_bucket_indices, minlength=len(self.bucket_boundaries) + 1)
