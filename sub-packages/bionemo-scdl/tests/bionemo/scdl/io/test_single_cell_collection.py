@@ -88,7 +88,6 @@ def test_sccollection_serialization(tmp_path, test_directory):
 
     for fn in ["col_ptr.npy", "data.npy", "features", "metadata.json", "row_ptr.npy", "version.json"]:
         assert os.path.exists(tmp_path / "flattened" / fn)
-    assert False
 
 
 def test_sc_concat_in_flatten_cellxval(tmp_path, create_cellx_val_data):

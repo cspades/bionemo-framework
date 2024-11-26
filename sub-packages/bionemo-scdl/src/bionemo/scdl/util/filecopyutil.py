@@ -16,7 +16,7 @@
 import os
 
 
-def _extend(
+def extend_files(
     first: str, second: str, buffer_size_b: int = 10 * 1024 * 1024, delete_file2_on_complete: bool = False, offset=0
 ):
     """Concatenates the contents of `second` into `first` using memory-efficient operations.

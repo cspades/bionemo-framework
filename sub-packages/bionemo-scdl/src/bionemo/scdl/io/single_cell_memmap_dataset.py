@@ -29,7 +29,7 @@ import torch
 
 from bionemo.scdl.api.single_cell_row_dataset import SingleCellRowDataset
 from bionemo.scdl.index.row_feature_index import RowFeatureIndex
-from bionemo.scdl.util.filecopyutil import _extend
+from bionemo.scdl.util.filecopyutil import extend_files
 
 
 class FileNames(str, Enum):
@@ -740,7 +740,7 @@ class SingleCellMemMapDataset(SingleCellRowDataset):
             destination_memmap += int(cumulative_elements)
 
             destination_memmap.flush()
-            _extend(
+            extend_files(
                 f"{self.data_path}/{FileNames.ROWPTR.value}",
                 f"{mmap.data_path}/{FileNames.ROWPTR.value}_copy",
                 buffer_size_b=extend_copy_size,
@@ -748,13 +748,13 @@ class SingleCellMemMapDataset(SingleCellRowDataset):
                 offset=8,
             )
 
-            _extend(
+            extend_files(
                 f"{self.data_path}/{FileNames.DATA.value}",
                 f"{mmap.data_path}/{FileNames.DATA.value}",
                 buffer_size_b=extend_copy_size,
                 delete_file2_on_complete=destroy_on_copy,
             )
-            _extend(
+            extend_files(
                 f"{self.data_path}/{FileNames.COLPTR.value}",
                 f"{mmap.data_path}/{FileNames.COLPTR.value}",
                 buffer_size_b=extend_copy_size,
