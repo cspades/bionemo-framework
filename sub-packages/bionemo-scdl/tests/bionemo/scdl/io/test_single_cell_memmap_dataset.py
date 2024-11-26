@@ -18,7 +18,7 @@ from typing import Tuple
 import numpy as np
 import pytest
 
-from bionemo.scdl.io.single_cell_memmap_dataset import SingleCellMemMapDataset  # , _swap_mmap_array
+from bionemo.scdl.io.single_cell_memmap_dataset import SingleCellMemMapDataset
 
 
 first_array_values = [1, 2, 3, 4, 5]
