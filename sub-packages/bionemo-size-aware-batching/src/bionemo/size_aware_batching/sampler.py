@@ -392,15 +392,17 @@ class BucketBatchSampler(Sampler[List[int]]):
                 Default to  {}.
             shuffle: A boolean indicating whether to shuffle the dataset and buckets. Defaults to True.
             generator: Generator used in sampling. Defaults to None.
-            sampler: Sampler to get element indices for this batch sampler, required for distributed sampling. Defaults to None.
-            num_batches: Number of mini-batches, required for distributed sampling. Defaults to None.
+            sampler: Sampler to get data sample indices for this batch sampler. When using data distributed parallel strategy for training models,
+                the user should provide here the torch.utils.data.distributed.DistributedSampler or the equivalent to partition the data sample
+                indices across devices. Defaults to None.
+            num_batches: Number of mini-batches, when using data distributed parallel strategy for training models, this argument value should
+                be consistent across training devices so that they get the same number of batches.. Defaults to None.
 
         Raises:
             ValueError: If `sizes` is not a 1D tensor of real numbers.
             ValueError: If `bucket_boundaries` is not a 1D tensor of real numbers.
             ValueError: If `base_batch_sampler_individual_kwargs` or `base_batch_sampler_individual_kwargs` is not a keyword argument dictionary.
             ValueError: If the length of values in the dict of `base_batch_sampler_individual_kwargs` is not equal to len(bucket_boundaries) - 1.
-            RuntimeError: If there is no elements with sizes inside the ranges specified by `bucket_boundaries`.
 
         """
         if not torch.is_tensor(sizes):
@@ -447,6 +449,13 @@ class BucketBatchSampler(Sampler[List[int]]):
         self.sizes = sizes
         self.bucket_boundaries = bucket_boundaries
         self.num_buckets = len(bucket_boundaries) - 1
+
+        num_outliers = (self.sizes < self.bucket_boundaries[0]).sum() + (
+            self.sizes >= self.bucket_boundaries[-1]
+        ).sum()
+        if num_outliers > 0:
+            warnings.warn(f"{num_outliers} elements are outside the buckets provided and will be skipped")
+
         self.shuffle = shuffle
         self.generator = generator
         if self.shuffle and self.generator is None:
@@ -501,7 +510,7 @@ class BucketBatchSampler(Sampler[List[int]]):
 
         if sampler is not None and not isinstance(sampler, Sampler):  # type: ignore
             raise TypeError(
-                f"sampler should be a sampler class inherited from torch.utils.data.Sampler, but got sampler={sampler}"
+                f"sampler should be a sampler class inherited from torch.utils.data.Sampler, but got sampler={type(sampler)}"
             )
 
         self.sampler = sampler
@@ -523,7 +532,8 @@ class BucketBatchSampler(Sampler[List[int]]):
         """Add additional attributes necessary to be compatible with pytorch lightning distributed sampling.
 
         When used for distributed sampling, Pytorch Lightning will use these attributes to re-init this batch sampler and
-        replace the sampler to torch.utils.data.DistributedSampler.
+        replace the sampler to torch.utils.data.DistributedSampler if the lightning trainer is instantiated with
+        use_distributed_sampler=True.
 
         Returns:
             Sampler: this batch sampler instance.
@@ -549,36 +559,43 @@ class BucketBatchSampler(Sampler[List[int]]):
         return self
 
     def _compute_bucket_element_indices(self, indices: Optional[List[int]] = None):
+        """Compute and update the bucket element indices with the given element indices.
+
+        Args:
+            indices: Data indices subset, will use all indices if None. Defaults to None.
+
+        Raises:
+            RuntimeError: If there is no elements from the given indices having sizes
+            inside the ranges specified by `self.bucket_boundaries`.
+        """
         if indices is None:
             element_bucket_indices = self.element_bucket_indices
             # element indices reordered for each bucket
             reordered_element_indices = torch.argsort(element_bucket_indices, stable=True)
         else:
-            indices: torch.Tensor = torch.tensor(indices)  # type: ignore
-            element_bucket_indices = self.element_bucket_indices[indices]
+            indices_subst: torch.Tensor = torch.tensor(indices)  # type: ignore
+            element_bucket_indices = self.element_bucket_indices[indices_subst]
             # element indices reordered for each bucket
-            reordered_element_indices = indices[torch.argsort(element_bucket_indices, stable=True)]
+            reordered_element_indices = indices_subst[torch.argsort(element_bucket_indices, stable=True)]
 
         # bucket sizes, including the buckets for < bucket_boundaries[0] and >= bucket_boundaries[-1]
         bucket_sizes = torch.bincount(element_bucket_indices, minlength=len(self.bucket_boundaries) + 1)
 
         # bucket segments
-        bucket_segments = torch.cumsum(bucket_sizes, dim=0)[:-1]
+        bucket_sizes_cumsum = torch.cumsum(bucket_sizes, dim=0)[:-1]
 
         # exclude the buckets for < bucket_boundaries[0] and >= bucket_boundaries[-1]
         for bucket_idx in range(self.num_buckets):
             self.bucket_element_indices[bucket_idx][:] = reordered_element_indices[
-                bucket_segments[bucket_idx] : bucket_segments[bucket_idx + 1]
+                bucket_sizes_cumsum[bucket_idx] : bucket_sizes_cumsum[bucket_idx + 1]
             ].tolist()
 
         self.bucket_sizes = bucket_sizes[1 : (self.num_buckets + 1)]
 
-        self.num_samples = torch.sum(self.bucket_sizes).item()
+        self.num_samples = len(indices) if indices is not None else len(self.sizes)
         if self.num_samples == 0:
-            raise RuntimeError("The sizes of all elements in the dataset are outside the bucket ranges provided")
-        if self.num_samples < len(element_bucket_indices):
-            warnings.warn(
-                f"{len(element_bucket_indices) - self.num_samples} elements are outside the buckets provided and will be skipped"
+            raise RuntimeError(
+                "The sizes of the elements with given indices in the dataset are outside the bucket ranges provided"
             )
 
     def _init_base_batch_samplers(self) -> list[Sampler[List[int]]]:
@@ -626,7 +643,6 @@ class BucketBatchSampler(Sampler[List[int]]):
             self.num_batches = len(self)
 
         if self.sampler is not None:
-            indices = list(self.sampler)
             self._compute_bucket_element_indices(list(self.sampler))  # type: ignore
         elif self.shuffle:
             for indices in self.bucket_element_indices:
