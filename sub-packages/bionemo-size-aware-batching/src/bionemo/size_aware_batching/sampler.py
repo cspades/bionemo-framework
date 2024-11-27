@@ -622,7 +622,7 @@ class BucketBatchSampler(Sampler[List[int]]):
     def __len__(self) -> int:
         """Get the number of batches.
 
-        Can only be called if the `base_batch_sampler_class` has __len__() implemented
+        Can only be called if the `base_batch_sampler_class` has __len__() implemented if num_batches is not provided.
 
         Returns:
             int: Number of batches
