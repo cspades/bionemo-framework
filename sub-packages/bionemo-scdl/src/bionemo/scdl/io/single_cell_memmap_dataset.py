@@ -720,9 +720,12 @@ class SingleCellMemMapDataset(SingleCellRowDataset):
 
         # Set our mode:
         self.mode: Mode = Mode.READ_APPEND
-
+        print(self.data_path, output_path)
         if output_path is not None:
-            shutil.move(self.data_path, output_path)
+            if destroy_on_copy:
+                shutil.move(self.data_path, output_path)
+            else:
+                shutil.copytree(self.data_path, output_path)
             self.data_path = output_path
 
         mmaps = []

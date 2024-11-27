@@ -235,7 +235,12 @@ class SingleCellCollection(SingleCellRowDatasetCore):
 
         single_cell_list = list(self.fname_to_mmap.values())[1:]
         if len(single_cell_list) > 0:
-            output.concat(single_cell_list, extend_copy_size=extend_copy_size, output_path=output_path)
+            output.concat(
+                single_cell_list,
+                extend_copy_size=extend_copy_size,
+                output_path=output_path,
+                destroy_on_copy=destroy_on_copy,
+            )
         else:
             shutil.move(output.data_path, output_path)
             output.data_path = output_path
