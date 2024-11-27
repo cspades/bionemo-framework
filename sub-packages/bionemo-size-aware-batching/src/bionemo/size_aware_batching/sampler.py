@@ -17,6 +17,7 @@ import warnings
 from typing import Any, Callable, Dict, Iterable, Iterator, List, Optional, Sequence, Type, TypeVar, Union
 
 import torch
+import torch.distributed as dist
 from torch.utils.data import Sampler
 
 
@@ -399,10 +400,17 @@ class BucketBatchSampler(Sampler[List[int]]):
                 be consistent across training devices so that they get the same number of batches.. Defaults to None.
 
         Raises:
-            ValueError: If `sizes` is not a 1D tensor of real numbers.
-            ValueError: If `bucket_boundaries` is not a 1D tensor of real numbers.
+            TypeError: If `sizes` is not torch tensor.
+            ValueError: If `sizes` is not a 1D array, or its entries are not real numbers.
+            TypeError: If `bucket_boundaries` is not torch tensor.
+            ValueError: If `bucket_boundaries` is not a 1D array, or its entries are not real numbers, or it has only 1 entry, or it has duplicate entries.
+            TypeError: If `shuffle` is not bool.
+            TypeError: If `generator` is not NoneType and not torch generator.
+            TypeError: If `base_batch_sampler_class` is not a subclass of `torch.utils.data.Sampler`
             ValueError: If `base_batch_sampler_individual_kwargs` or `base_batch_sampler_individual_kwargs` is not a keyword argument dictionary.
             ValueError: If the length of values in the dict of `base_batch_sampler_individual_kwargs` is not equal to len(bucket_boundaries) - 1.
+            TypeError: If `sampler` is not None and not an instance of `torch.utils.data.Sampler`.
+            ValueError: if `num_batches` is None but distributed sampling is enabled.
 
         """
         if not torch.is_tensor(sizes):
@@ -446,6 +454,9 @@ class BucketBatchSampler(Sampler[List[int]]):
         if not isinstance(shuffle, bool):
             raise TypeError(f"shuffle should be a boolean value, but got shuffle={shuffle}")
 
+        if generator is not None and not isinstance(generator, torch.Generator):
+            raise TypeError(f"generator must be a torch generator or None value, but got generator={type(generator)}")
+
         self.sizes = sizes
         self.bucket_boundaries = bucket_boundaries
         self.num_buckets = len(bucket_boundaries) - 1
@@ -458,6 +469,7 @@ class BucketBatchSampler(Sampler[List[int]]):
 
         self.shuffle = shuffle
         self.generator = generator
+
         if self.shuffle and self.generator is None:
             self.generator = torch.Generator().manual_seed(int(torch.empty((), dtype=torch.int64).random_().item()))
 
@@ -526,6 +538,9 @@ class BucketBatchSampler(Sampler[List[int]]):
         if num_batches is not None and (not isinstance(num_batches, int) or num_batches <= 0):
             raise ValueError(f"num_batches should be a positive integer, but got num_batches = {num_batches}")
 
+        if dist.is_initialized() and num_batches is None:
+            raise ValueError("num_batches is not set but distributed sampling is enabled")
+
         self.num_batches = num_batches
 
     def setup_for_pytorch_lightning(self) -> Sampler:
@@ -562,7 +577,7 @@ class BucketBatchSampler(Sampler[List[int]]):
         """Compute and update the bucket element indices with the given element indices.
 
         Args:
-            indices: Data indices subset, will use all indices if None. Defaults to None.
+            indices: Data indices subset, will use all indices if it is None. Defaults to None.
 
         Raises:
             RuntimeError: If there is no elements from the given indices having sizes
@@ -592,7 +607,7 @@ class BucketBatchSampler(Sampler[List[int]]):
 
         self.bucket_sizes = bucket_sizes[1 : (self.num_buckets + 1)]
 
-        self.num_samples = len(indices) if indices is not None else len(self.sizes)
+        self.num_samples = torch.sum(self.bucket_sizes).item()
         if self.num_samples == 0:
             raise RuntimeError(
                 "The sizes of the elements with given indices in the dataset are outside the bucket ranges provided"
