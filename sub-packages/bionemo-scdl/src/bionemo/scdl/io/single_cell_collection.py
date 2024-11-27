@@ -213,7 +213,10 @@ class SingleCellCollection(SingleCellRowDatasetCore):
         return self.number_of_rows(), self.number_of_variables()
 
     def flatten(
-        self, output_path: str, destroy_on_copy: bool = False, extend_copy_size: int = 10 * 1_024 * 1_024
+        self,
+        output_path: str,
+        destroy_on_copy: bool = False,
+        extend_copy_size: int = 10 * 1_024 * 1_024,
     ) -> None:
         """Flattens the collection into a single SingleCellMemMapDataset.
 
