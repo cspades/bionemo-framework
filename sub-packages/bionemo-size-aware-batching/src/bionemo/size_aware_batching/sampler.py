@@ -372,7 +372,7 @@ class BucketBatchSampler(Sampler[List[int]]):
         base_batch_sampler_individual_kwargs: Optional[Dict[str, Iterable]] = None,
         shuffle: Optional[bool] = True,
         generator: Optional[torch.Generator] = None,
-        sampler: Optional[Sampler[List[int]]] = None,
+        sampler: Optional[Union[Sampler[int], Iterable[int]]] = None,
         num_batches: Optional[int] = None,
     ) -> None:
         """Initializes the BucketBatchSampler.
@@ -409,7 +409,7 @@ class BucketBatchSampler(Sampler[List[int]]):
             TypeError: If `base_batch_sampler_class` is not a subclass of `torch.utils.data.Sampler`
             ValueError: If `base_batch_sampler_individual_kwargs` or `base_batch_sampler_individual_kwargs` is not a keyword argument dictionary.
             ValueError: If the length of values in the dict of `base_batch_sampler_individual_kwargs` is not equal to len(bucket_boundaries) - 1.
-            TypeError: If `sampler` is not None and not an instance of `torch.utils.data.Sampler`.
+            TypeError: If `sampler` is not None and not an instance of `torch.utils.data.Sampler` or is not iterable.
             ValueError: if `num_batches` is None but distributed sampling is enabled.
 
         """
@@ -520,9 +520,9 @@ class BucketBatchSampler(Sampler[List[int]]):
         # bucket index for each element
         self.element_bucket_indices = torch.bucketize(sizes, self.bucket_boundaries, right=True)
 
-        if sampler is not None and not isinstance(sampler, Sampler):  # type: ignore
+        if sampler is not None and not isinstance(sampler, (Sampler, Iterable)):  # type: ignore
             raise TypeError(
-                f"sampler should be a sampler class inherited from torch.utils.data.Sampler, but got sampler={type(sampler)}"
+                f"sampler should be an instance of torch.utils.data.Sampler or an iterable, but got sampler={type(sampler)}"
             )
 
         self.sampler = sampler
