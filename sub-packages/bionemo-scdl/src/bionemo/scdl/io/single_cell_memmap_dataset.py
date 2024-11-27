@@ -477,7 +477,10 @@ class SingleCellMemMapDataset(SingleCellRowDataset):
         # Store the row idx array
         self.row_index[0 : num_rows + 1] = count_data.indptr.astype(int)
 
-        return adata.var, num_rows
+        vars = adata.var
+        adata.file.close()
+
+        return vars, num_rows
 
     def paginated_load_h5ad(
         self,
@@ -541,7 +544,10 @@ class SingleCellMemMapDataset(SingleCellRowDataset):
             mode=mode,
             shape=(n_elements,),
         )
-        return adata.var, num_rows
+        vars = adata.var
+        adata.file.close()
+
+        return vars, num_rows
 
     def load_h5ad(
         self,
@@ -720,7 +726,6 @@ class SingleCellMemMapDataset(SingleCellRowDataset):
 
         # Set our mode:
         self.mode: Mode = Mode.READ_APPEND
-        print(self.data_path, output_path)
         if output_path is not None:
             if destroy_on_copy:
                 shutil.move(self.data_path, output_path)
