@@ -13,7 +13,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-
 import subprocess
 import sys
 import time
@@ -25,6 +24,7 @@ import anndata as ad
 import numpy as np
 import pandas as pd
 import torch
+from memory_profiler import profile
 from torch.utils.data import DataLoader, Dataset
 
 from bionemo.scdl.io.single_cell_memmap_dataset import SingleCellMemMapDataset
@@ -158,6 +158,7 @@ class AnnDataMetrics:
         """Instantiate class."""
         self.adatapath = adatapath
 
+    @profile
     def load(self):
         """Create from anndataset."""
         self.ad = ad.read_h5ad(self.adatapath)
@@ -170,6 +171,7 @@ class AnnDataMetrics:
         """Size of scdl on disk."""
         return get_disk_size(self.adatapath)
 
+    @profile
     def iterate_dl(self, batch_size=128, num_workers=8):
         """Iterate over the dataset."""
         dataloader = DataLoader(
@@ -275,7 +277,7 @@ if __name__ == "__main__":
     dicts = []
     path = Path("../../samples/")
     for fn in path.rglob("*"):
-        if get_disk_size(fn) > (1_024**2):
+        if get_disk_size(fn) > 10 * (1_024**2):
             continue
         print(fn, get_disk_size(fn))
         results_dict = {}
@@ -288,6 +290,7 @@ if __name__ == "__main__":
 
         results_dict["AnnData Time to iterate over Dataset 0 workers (s)"] = anndata_m.iterate_dl(num_workers=0)[1]
         results_dict["AnnData Time to iterate over Dataset 8 workers (s)"] = anndata_m.iterate_dl(num_workers=8)[1]
+        """
         results_dict["AnnData Time to iterate over Dataset Block Batches 0 workers (s)"] = (
             anndata_m.iterate_dl_backed_continuous(num_workers=0)[1]
         )
@@ -314,8 +317,9 @@ if __name__ == "__main__":
         results_dict["SCDL Time to iterate over Dataset 8 workers (s)"] = scdl_m.iterate_dl(num_workers=8)[1]
 
         results_dict["SCDL Dataset Size on Disk (MB)"] = scdl_m.size_disk_bytes()[0] / (1_024**2)
-
+        """
         dicts.append(results_dict)
         combined = {key: [d[key] for d in dicts] for key in dicts[0]}
         df = pd.DataFrame(combined)
-        df.to_csv("all_runtime.csv", index=False)
+        df.to_csv("rt.csv", index=False)
+        break
