@@ -1,5 +1,28 @@
 # Release Notes
 
+## BioNeMo Framework v2.1
+
+### New Features:
+
+* ESM2 Implementation
+  * Updated the ESM-2 Model Card with detailed performance benchmarks comparing BioNeMo2 training against vanilla pytorch.
+  * Added ESM-2 inference endpoint for evaluating pre-trained models
+* Size-Aware Batching
+  * Added SizeAwareBatchSampler, a pytorch data sampler that batches elements of varying sizes while ensuring that the total size of each batch does not exceed a specified maximum.
+  * Added BucketBatchSampler, another pytorch data sampler that groups elements of varying sizes based on predefined bucket ranges, and create batches with elements from each bucket to ensure that each batch has elements with homogeneous sizes.
+* CLI Support
+  * Added pydantic interface for pretraining jobs via parsing JSON configuration files that enables passing customized Model and DataModules classes.
+  * Implemented pydantic configuration for Geneformer and ESM2 pretraining and finetuning.
+  * Added 'recipes' for generating validated JSON files to be used with pydantic interface.
+  * Added installable scripts for 2/3 respectively, bionemo-esm2-recipe, bionemo-esm2-train, bionemo-geneformer-recipe, bionemo-geneformer-train.
+* Geneformer support in BioNeMo2:
+  * Tested pre-training scripts and fine-tuning example scripts that can be used as a starting point for users to create custom derivative models.
+  * Geneformer 10M and 106M checkpoints ported from BioNeMo v1 into BioNeMo v2 available and included in documentation.
+  * Added inference scripts
+* Documentation
+  * Cell type classification example notebook which covers the process of converting anndata into our internal format, and running inference on that data with a geneformer checkpoint, as well as making use of the inference results.
+  * Updated Getting Started guide, ESM-2 tutorials
+  * Added Frequently Asked Questions (FAQ) page
 
 ## BioNeMo Framework v2.0
 
@@ -76,11 +99,11 @@
 * **Beta** [Geneformer](https://www.nature.com/articles/s41586-023-06139-9) a foundation model for single-cell data that encodes each cell as represented by an ordered list of differentially expressed genes for that cell.
 
 ### New Features
-* **Beta** [Geneformer pretraining with custom datasets](notebooks/geneformer_cellxgene_tutorial.ipynb)
-* [Low-Rank Adaptation (LoRA) finetuning for ESM2](lora-finetuning-esm2.md)
+* **Beta** Geneformer pretraining with custom datasets
+* Low-Rank Adaptation (LoRA) finetuning for ESM2
 
 ### Bug fixes and Improvements
-* [OpenFold training improved benchmarks and validation of optimizations](models/openfold.md)
+* OpenFold training improved benchmarks and validation of optimizations
 
 ### Known Issues
 * BioNeMo Framework v24.04 container is vulnerable to [GHSA-whh8-fjgc-qp73](https://github.com/advisories/GHSA-whh8-fjgc-qp73) in onnx 1.14.0. Users are advised not to open untrusted onnx files with this image. Restrict your mount point to minimize directory traversal impact. A fix for this is scheduled in the 24.05 (May) release.
@@ -91,9 +114,9 @@
 
 ### New Features
 * [MolMIM](https://developer.nvidia.com/blog/new-models-molmim-and-diffdock-power-molecule-generation-and-molecular-docking-in-bionemo/) re-trained on more data is now available in the framework, and achieves [state of the art performance](models/molmim.md).
-* [MolMIM property guided tutorial notebook](notebooks/cma_es_guided_molecular_optimization_molmim.ipynb) covering property guided optimization using our new framework model.
-* [MolMIM training tutorial](notebooks/model_training_molmim.ipynb) available walking users through either training from scratch or from an existing checkpoint on your own data.
-* [MolMIM tutorial notebook covering molecular sampling and property prediction](notebooks/MolMIM_GenerativeAI_local_inference_with_examples.ipynb) is also now available.
+* MolMIM property guided tutorial notebook covering property guided optimization using our new framework model.
+* MolMIM training tutorial available walking users through either training from scratch or from an existing checkpoint on your own data.
+* MolMIM tutorial notebook covering molecular sampling and property prediction is also now available.
 * Numerous optimizations from [NVIDIA's entry to the MLPerf competition](https://developer.nvidia.com/blog/optimizing-openfold-training-for-drug-discovery/) have been added to OpenFold. Documentation and detailed benchmarks are works in progress and will be published in upcoming releases. This release contains the following performance optimizations:
     * Fused GEMMs in multi-head attention (MHA)
     * Non-blocking data pipeline
