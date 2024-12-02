@@ -284,7 +284,7 @@ def main(
         num_query_groups=num_query_groups,
         bias_activation_fusion=add_bias_linear and bias_activation_fusion,  # TODO bias_dropout_add_fusion v.s. bias_dropout_fusion
         bias_dropout_fusion=bias_dropout_fusion,
-        recompute_granularity=recompute_granularity,
+        recompute_granularity=None if recompute_granularity == "none" else recompute_granularity,
     )
 
     if scheduler_num_steps is None:
@@ -403,8 +403,8 @@ def train_esm2_entrypoint():
         layernorm_zero_centered_gamma=args.layernorm_zero_centered_gamma,
         num_query_groups=args.num_query_groups,
         extend_sequences=args.extend_sequences,
-        bias_activation_fusion=not args.bias_activation_fusion,
-        bias_dropout_fusion=not args.bias_dropout_fusion,
+        bias_activation_fusion=not args.no_bias_activation_fusion,
+        bias_dropout_fusion=not args.no_bias_dropout_fusion,
         recompute_granularity=args.recompute_granularity,
     )
 
@@ -753,7 +753,7 @@ def get_parser():
     parser.add_argument(
         "--recompute-granularity",
         type=str,
-        choices=[None, "full", "selective"],
+        choices=[None, "full", "selective", "none"],
         help="Choose granularity for activation recomputation. Default to None which means all activations are saved."
     )
     return parser
