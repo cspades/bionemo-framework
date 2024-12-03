@@ -19,6 +19,7 @@ import subprocess
 
 import anndata as ad
 import numpy as np
+import pandas as pd
 from scipy.sparse import csr_matrix
 
 
@@ -60,6 +61,13 @@ def generate_random_csr(n_rows, n_cols, sparsity, max_data=500):
 def _create_anndata(fn, n_rows, n_cols, sparsity):
     X = generate_random_csr(n_rows, n_cols, sparsity)
     adata = ad.AnnData(X=X)
+    adata.var = pd.DataFrame(
+        {
+            "gene_name": [f"gene_{i}" for i in range(n_cols)],  # Example variable names
+            "is_highly_variable": [False] * n_cols,  # Example metadata
+        },
+        index=[f"gene_{i}" for i in range(n_cols)],
+    )  # Ensure index matches column labels in X
 
     # Save the synthetic AnnData to a file
     adata.write(fn)

@@ -13,7 +13,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-
 import importlib.metadata
 import json
 import os
@@ -618,16 +617,9 @@ class SingleCellMemMapDataset(SingleCellRowDataset):
             features_df, num_rows = self.paginated_load_h5ad(anndata_path)
 
         features = {col: np.array(features_df[col].values) for col in features_df.columns}
-        if len(features.keys()) > 0:
-            self._feature_index.append_features(
-                n_obs=num_rows,
-                features=features,
-                num_genes=len(features[next(iter(features.keys()))]),
-                label=anndata_path,
-            )
-        else:
-            self._feature_index.append_features(n_obs=num_rows, features=features, num_genes=0, label=anndata_path)
-
+        self._feature_index.append_features(
+            n_obs=num_rows, features=features, num_genes=len(features[next(iter(features.keys()))]), label=anndata_path
+        )
         self.save()
 
     def save(self, output_path: Optional[str] = None) -> None:
