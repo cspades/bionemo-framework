@@ -265,8 +265,9 @@ class RowFeatureIndex:
         new_row_feat_index._feature_arr = [
             {column: table[column].to_numpy() for column in table.column_names} for table in data_tables
         ]
+
         new_row_feat_index._num_genes_per_row = [
-            len(feats[next(iter(feats.keys()))]) for feats in new_row_feat_index._feature_arr
+            len(feats[next(iter(feats.keys()))]) if len(feats) > 0 else 0 for feats in new_row_feat_index._feature_arr
         ]
 
         new_row_feat_index._cumulative_sum_index = np.load(Path(datapath) / "cumulative_sum_index.npy")
