@@ -38,7 +38,7 @@ def test_directory_feat_ids() -> Path:
     Returns:
         A Path object that is the directory with specified test data.
     """
-    return load("scdl/sample_scdl_feature_ids", source="pbss") / "scdl_data_with_feature_ids"
+    return load("scdl/sample_scdl_feature_ids") / "scdl_data_with_feature_ids"
 
 
 @pytest.fixture
@@ -48,4 +48,4 @@ def cellx_small_directory() -> Path:
     Returns:
         A Path object that is the directory with the specified test data.
     """
-    return load("single_cell/testdata-memmap-format", source="pbss") / "cellxgene_2023-12-15_small_mmap"
+    return load("single_cell/testdata-20241203") / "cellxgene_2023-12-15_small_processed_scdl"

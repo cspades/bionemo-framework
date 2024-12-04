@@ -47,12 +47,12 @@ def infer_model(
     num_nodes: int = 1,
     num_dataset_workers: int = 0,
     config_class: Type[BioBertConfig] = GeneformerConfig,
-    bypass_tokenizer_vocab: bool = False,
+    skip_unrecognized_vocab_in_dataset: bool = True,
 ) -> None:
     """Inference function (requires DDP and only training data that fits in memory)."""
     # This is just used to get the tokenizer :(
     train_data_path: Path = (
-        load("single_cell/testdata-20240506") / "cellxgene_2023-12-15_small" / "processed_data" / "train"
+        load("single_cell/testdata-20241203") / "cellxgene_2023-12-15_small_processed_scdl" / "train"
     )
 
     # Setup the strategy and trainer
@@ -113,7 +113,7 @@ def infer_model(
         persistent_workers=num_dataset_workers > 0,
         pin_memory=False,
         num_workers=num_dataset_workers,
-        bypass_tokenizer_vocab=bypass_tokenizer_vocab,
+        skip_unrecognized_vocab_in_dataset=skip_unrecognized_vocab_in_dataset,
     )
     geneformer_config = config_class(
         seq_length=seq_length,
@@ -160,14 +160,14 @@ def geneformer_infer_entrypoint():
         num_nodes=args.num_nodes,
         num_dataset_workers=args.num_dataset_workers,
         config_class=args.config_class,
-        bypass_tokenizer_vocab=args.bypass_tokenizer_vocab,
+        skip_unrecognized_vocab_in_dataset=args.skip_unrecognized_vocab_in_dataset,
     )
 
 
 def get_parser():
     """Return the cli parser for this tool."""
     parser = argparse.ArgumentParser(
-        description="Infer sc_memmap processed single cell data with Geneformer from a checkpiont."
+        description="Infer processed single cell data in SCDL memmap format with Geneformer from a checkpoint."
     )
     parser.add_argument(
         "--data-dir",
@@ -237,11 +237,9 @@ def get_parser():
     )
 
     parser.add_argument(
-        "--bypass-tokenizer-vocab",
-        type=bool,
-        required=False,
-        default=False,
-        help="Bypass whether the SingleCellDataLoaderhrows an error when a gene ensemble id is not in the tokenizer vocab. Defaults to False (so the error is thrown by default).",
+        "--skip-unrecognized-vocab-in-dataset",
+        action="store_false",
+        help="Set to False to verify whether all gene identifers are in the user supplied tokenizer vocab. Defaults to True which means that any gene identifier not in the user supplied tokenizer vocab will be excluded.",
     )
 
     # TODO consider whether nemo.run or some other method can simplify this config class lookup.

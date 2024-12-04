@@ -35,7 +35,7 @@ def data_path() -> Path:
     Returns:
         A Path object that is the directory with the specified test data.
     """
-    return load("single_cell/testdata-memmap-format", source="pbss") / "cellxgene_2023-12-15_small_mmap"
+    return load("single_cell/testdata-20241203") / "cellxgene_2023-12-15_small_processed_scdl"
 
 
 def test_bionemo2_rootdir(data_path):
@@ -69,7 +69,7 @@ def test_main_runs(tmpdir, data_path):
             experiment_name="test_experiment",
             resume_if_exists=False,
             create_tensorboard_logger=False,
-            bypass_tokenizer_vocab=True,
+            skip_unrecognized_vocab_in_dataset=True,
         )
 
     assert (result_dir / "test_experiment").exists(), "Could not find test experiment directory."
@@ -86,6 +86,38 @@ def test_main_runs(tmpdir, data_path):
     assert (
         result_dir / "test_experiment" / uq_rundir / "nemo_log_globalrank-0_localrank-0.txt"
     ).is_file(), "Could not find experiment log."
+
+
+def test_throws_tok_not_in_vocab_error(tmpdir, data_path):
+    result_dir = Path(tmpdir.mkdir("results"))
+    with pytest.raises(ValueError) as error_info:
+        with megatron_parallel_state_utils.distributed_model_parallel_state():
+            main(
+                data_dir=data_path,
+                num_nodes=1,
+                devices=1,
+                seq_length=128,
+                result_dir=result_dir,
+                wandb_project=None,
+                wandb_offline=True,
+                num_steps=55,
+                limit_val_batches=1,
+                val_check_interval=1,
+                num_dataset_workers=0,
+                biobert_spec_option=BiobertSpecOption.bert_layer_local_spec,
+                lr=1e-4,
+                micro_batch_size=2,
+                accumulate_grad_batches=2,
+                cosine_rampup_frac=0.01,
+                cosine_hold_frac=0.01,
+                precision="bf16-mixed",
+                experiment_name="test_experiment",
+                resume_if_exists=False,
+                create_tensorboard_logger=False,
+                skip_unrecognized_vocab_in_dataset=False,
+            )
+
+    assert "not in the tokenizer vocab." in str(error_info.value)
 
 
 def test_pretrain_cli(tmpdir, data_path):
@@ -105,12 +137,10 @@ def test_pretrain_cli(tmpdir, data_path):
     --limit-val-batches 2 \
     --micro-batch-size 2 \
     --accumulate-grad-batches 2 \
-    --bypass-tokenizer-vocab {True} \
     """.strip()
     env = dict(**os.environ)  # a local copy of the environment
     env["MASTER_PORT"] = str(open_port)
     cmd = shlex.split(cmd_str)
-    print("Command, ", cmd)
     result = subprocess.run(
         cmd,
         cwd=tmpdir,

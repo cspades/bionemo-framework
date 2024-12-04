@@ -24,16 +24,13 @@ from lightning.fabric.plugins.environments.lightning import find_free_network_po
 from bionemo.core.data.load import load
 
 
-# data_path: Path = load("single_cell/testdata-20240506", source="pbss") / "cellxgene_2023-12-15_small" / "processed_data"
-
-
 @pytest.fixture
 def data_path() -> Path:
     """Gets the path to the directory with with cellx small dataset in Single Cell Memmap format.
     Returns:
         A Path object that is the directory with the specified test data.
     """
-    return load("single_cell/testdata-memmap-format", source="pbss") / "cellxgene_2023-12-15_small_mmap"
+    return load("single_cell/testdata-20241203") / "cellxgene_2023-12-15_small_processed_scdl"
 
 
 def test_bionemo2_rootdir(data_path):

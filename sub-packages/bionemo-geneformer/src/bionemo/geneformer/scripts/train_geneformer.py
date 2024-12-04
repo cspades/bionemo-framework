@@ -93,7 +93,7 @@ def main(
     gc_interval: int = 0,
     aligned_megatron_ddp: bool = False,
     recompilation_check: bool = False,
-    bypass_tokenizer_vocab: bool = False,
+    skip_unrecognized_vocab_in_dataset: bool = True,
     # TODO add datamodule class, and ability to change data step to get full support for pretraining workflows
 ) -> None:
     """Train a Geneformer model on single cell data.
@@ -148,8 +148,7 @@ def main(
             good for clusters. This will likely slow down single node runs though.
         recompilation_check (bool): enable a recompilation check (only do on a small run) to verify that fused gpu
             kernels are not being regularly recompiled, which is very expensive, with a particular model/settings.
-        bypass_tokenizer_vocab (bool): Bypass whether the SingleCellDataLoaderhrows an error when a gene ensemble id is not in the tokenizer vocab.
-              Defaults to False (so the error is thrown by default)."
+        skip_unrecognized_vocab_in_dataset (bool): Set to False to verify whether all gene identifers are in the user supplied tokenizer vocab. Defaults to True which means that any gene identifier not in the user supplied tokenizer vocab will be excluded.
     """
     # Create the result directory if it does not exist.
     if wandb_tags is None:
@@ -274,7 +273,7 @@ def main(
         persistent_workers=num_dataset_workers > 0,
         pin_memory=False,
         num_workers=num_dataset_workers,
-        bypass_tokenizer_vocab=bypass_tokenizer_vocab,
+        skip_unrecognized_vocab_in_dataset=skip_unrecognized_vocab_in_dataset,
     )
     geneformer_config = config_class(
         # TODO let users set different num layers/model shapes here to support bigger/smaller architectures
@@ -421,11 +420,9 @@ def get_parser():
         help="Fraction of steps in which to ramp up the learning rate. Default is 0.01.",
     )
     parser.add_argument(
-        "--bypass-tokenizer-vocab",
-        type=bool,
-        required=False,
-        default=False,
-        help="Bypass whether the SingleCellDataLoaderhrows an error when a gene ensemble id is not in the tokenizer vocab. Defaults to False (so the error is thrown by default).",
+        "--skip-unrecognized-vocab-in-dataset",
+        action="store_false",
+        help="Set to False to verify whether all gene identifers are in the user supplied tokenizer vocab. Defaults to True which means that any gene identifier not in the user supplied tokenizer vocab will be excluded.",
     )
     parser.add_argument(
         "--cosine-hold-frac",
@@ -682,7 +679,7 @@ def entrypoint():
         gc_interval=args.gc_interval,
         aligned_megatron_ddp=args.aligned_megatron_ddp,
         recompilation_check=args.recompilation_check,
-        bypass_tokenizer_vocab=args.bypass_tokenizer_vocab,
+        skip_unrecognized_vocab_in_dataset=args.skip_unrecognized_vocab_in_dataset,
     )
 
 

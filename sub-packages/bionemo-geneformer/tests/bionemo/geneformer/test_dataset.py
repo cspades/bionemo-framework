@@ -44,19 +44,19 @@ def test_load_sc_datasets(tmp_path, test_directory_feat_ids):
     tokenizer = MagicMock()
     sc_memmap_dataset_path0 = tmp_path / "test_data_0"
     ds_0 = SingleCellMemMapDataset(
-        sc_memmap_dataset_path0, h5ad_path=test_directory_feat_ids / "modified_adata_sample0.h5ad"
+        sc_memmap_dataset_path0, h5ad_path=test_directory_feat_ids / "adata_sample0.h5ad"
     )  # create the memmap dataset format from h5ad for testing purposes
     dataset0 = SingleCellDataset(sc_memmap_dataset_path0, tokenizer)
     assert len(dataset0) == len(ds_0) == 8
     sc_memmap_dataset_path1 = tmp_path / "test_data_1"
     ds_1 = SingleCellMemMapDataset(
-        sc_memmap_dataset_path1, h5ad_path=test_directory_feat_ids / "modified_adata_sample1.h5ad"
+        sc_memmap_dataset_path1, h5ad_path=test_directory_feat_ids / "adata_sample1.h5ad"
     )  # create the memmap dataset format from h5ad for testing purposes
     dataset1 = SingleCellDataset(sc_memmap_dataset_path1, tokenizer)
     assert len(dataset1) == len(ds_1) == 6
     sc_memmap_dataset_path2 = tmp_path / "test_data_2"
     ds_2 = SingleCellMemMapDataset(
-        sc_memmap_dataset_path2, h5ad_path=test_directory_feat_ids / "modified_adata_sample2.h5ad"
+        sc_memmap_dataset_path2, h5ad_path=test_directory_feat_ids / "adata_sample2.h5ad"
     )  # create the memmap dataset format from h5ad for testing purposes
     dataset2 = SingleCellDataset(sc_memmap_dataset_path2, tokenizer)
     assert len(dataset2) == len(ds_2) == 100
@@ -66,7 +66,7 @@ def test_gene_not_in_tok_vocab(tmp_path, test_directory_feat_ids):
     sc_memmap_dataset_path0 = tmp_path / "test_data_0_sc_memmap"
     sc_h5ad_dataset_path0 = tmp_path / "test_data_0.h5ad"
 
-    adata = ad.read_h5ad(test_directory_feat_ids / "modified_adata_sample0.h5ad")
+    adata = ad.read_h5ad(test_directory_feat_ids / "adata_sample0.h5ad")
     synthetic_ids = [
         "ENSG00000243485",
         "ENSG00000186092",
@@ -95,16 +95,17 @@ def test_gene_not_in_tok_vocab(tmp_path, test_directory_feat_ids):
         case _:
             logging.error("Preprocessing failed.")
 
-    dataset0 = SingleCellDataset(sc_memmap_dataset_path0, tokenizer, median_dict=median_dict)  # type: ignore
+    dataset0 = SingleCellDataset(
+        sc_memmap_dataset_path0, tokenizer, median_dict=median_dict, skip_unrecognized_vocab_in_dataset=False
+    )  # type: ignore
     index = EpochIndex(epoch=0, idx=3)
     with pytest.raises(ValueError) as error_info:
         dataset0.__getitem__(index)
-    assert "not in tokenizer vocab." in str(error_info.value)
+    assert "not in the tokenizer vocab." in str(error_info.value)
     dataset0 = SingleCellDataset(
         sc_memmap_dataset_path0,
         tokenizer,
         median_dict=median_dict,
-        bypass_tokenizer_vocab=True,  # type: ignore
     )  # type: ignore
 
     item = dataset0.__getitem__(index)
@@ -114,7 +115,7 @@ def test_gene_not_in_tok_vocab(tmp_path, test_directory_feat_ids):
 def test_empty_gene_data_input(tmp_path, test_directory_feat_ids):
     sc_memmap_dataset_path0 = tmp_path / "test_data_0"
     SingleCellMemMapDataset(
-        sc_memmap_dataset_path0, h5ad_path=test_directory_feat_ids / "modified_adata_sample0.h5ad"
+        sc_memmap_dataset_path0, h5ad_path=test_directory_feat_ids / "adata_sample0.h5ad"
     )  # create the memmap dataset format from h5ad for testing purposes
     preprocessor = GeneformerPreprocess(
         download_directory=sc_memmap_dataset_path0,
@@ -155,7 +156,7 @@ def test_lookup_row(tmp_path, cellx_small_directory):
 def test_get_item_synthetic(tmp_path, test_directory_feat_ids):
     sc_memmap_dataset_path0 = tmp_path / "test_data_0"
     SingleCellMemMapDataset(
-        sc_memmap_dataset_path0, h5ad_path=test_directory_feat_ids / "modified_adata_sample0.h5ad"
+        sc_memmap_dataset_path0, h5ad_path=test_directory_feat_ids / "adata_sample0.h5ad"
     )  # create the memmap dataset format from h5ad for testing purposes
     preprocessor = GeneformerPreprocess(
         download_directory=sc_memmap_dataset_path0,
@@ -200,7 +201,6 @@ def test_GeneformerDataset_changes_with_epoch(tmp_path, cellx_small_directory):
         tmp_path / cellx_small_directory / "val",
         tokenizer,  # type: ignore
         median_dict=median_dict,  # type: ignore
-        bypass_tokenizer_vocab=True,
     )  # type: ignore
 
     index_0 = EpochIndex(epoch=0, idx=0)
@@ -228,7 +228,6 @@ def test_get_item_cellx(tmp_path, cellx_small_directory):
         mask_prob=0,
         mask_token_prob=0,
         random_token_prob=0,
-        bypass_tokenizer_vocab=True,
     )  # type: ignore
     index = EpochIndex(epoch=0, idx=2)
     item = ds.__getitem__(index)
