@@ -188,6 +188,7 @@ def main(
             overlap_grad_reduce=True,
             overlap_param_gather=True,
             average_in_collective=True,
+            use_distributed_optimizer=True,  # un-allocate remnant memory; should already be fixed in TE
         ),
         find_unused_parameters=True,
         gradient_as_bucket_view=True,
