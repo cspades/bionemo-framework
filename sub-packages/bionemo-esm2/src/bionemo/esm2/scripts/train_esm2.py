@@ -100,6 +100,7 @@ def main(
     bias_activation_fusion: bool = True,
     bias_dropout_fusion: bool = True,
     recompute_granularity: Optional[str] = None,
+    grad_reduce_in_fp32: bool = True,
 ) -> None:
     """Train an ESM2 model on UR data.
 
@@ -162,6 +163,7 @@ def main(
         bias_activation_fusion (bool): Use bias activation fusion
         bias_dropout_fusion (bool): Use bias dropout fusion
         recompute_granularity (str): Activation recomputation granularity
+        grad_reduce_in_fp32 (bool): Reduce gradient in fp32
     """
     # Create the result directory if it does not exist.
     result_dir.mkdir(parents=True, exist_ok=True)
@@ -180,9 +182,9 @@ def main(
         tensor_model_parallel_size=tensor_model_parallel_size,
         pipeline_model_parallel_size=pipeline_model_parallel_size,
         pipeline_dtype=get_autocast_dtype(precision),
-        ddp=DistributedDataParallelConfig(
+        ddp=DistributedDataParallelConfig(  # other hparams are False by default
             check_for_nan_in_grad=True,
-            grad_reduce_in_fp32=True,
+            grad_reduce_in_fp32=grad_reduce_in_fp32,
             overlap_grad_reduce=True,
             overlap_param_gather=True,
             average_in_collective=True,
@@ -243,7 +245,7 @@ def main(
             params_dtype=get_autocast_dtype(precision),
             pipeline_dtype=get_autocast_dtype(precision),
             autocast_enabled=False,
-            grad_reduce_in_fp32=True,
+            grad_reduce_in_fp32=grad_reduce_in_fp32,
         ),
     )
 
@@ -406,6 +408,7 @@ def train_esm2_entrypoint():
         bias_activation_fusion=not args.no_bias_activation_fusion,
         bias_dropout_fusion=not args.no_bias_dropout_fusion,
         recompute_granularity=args.recompute_granularity,
+        grad_reduce_in_fp32=not args.no_grad_reduce_in_fp32,
     )
 
 
@@ -755,6 +758,12 @@ def get_parser():
         type=str,
         choices=[None, "full", "selective", "none"],
         help="Choose granularity for activation recomputation. Default to None which means all activations are saved."
+    )
+    parser.add_argument(
+        "--no-grad-reduce-in-fp32",
+        action="store_true",
+        default=False,
+        help="Disable fp32 gradient reduction. Default is False."
     )
     return parser
 
