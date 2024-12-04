@@ -100,7 +100,11 @@ def main(
     bias_activation_fusion: bool = True,
     bias_dropout_fusion: bool = True,
     recompute_granularity: Optional[str] = None,
-    grad_reduce_in_fp32: bool = True,
+    grad_reduce_in_fp32: bool = False,
+    overlap_grad_reduce: bool = False,
+    overlap_param_gather: bool = False,
+    average_in_collective: bool = False,
+    use_distributed_optimizer: bool = False,
 ) -> None:
     """Train an ESM2 model on UR data.
 
@@ -185,10 +189,10 @@ def main(
         ddp=DistributedDataParallelConfig(  # other hparams are False by default
             check_for_nan_in_grad=True,
             grad_reduce_in_fp32=grad_reduce_in_fp32,
-            overlap_grad_reduce=True,
-            overlap_param_gather=True,
-            average_in_collective=True,
-            use_distributed_optimizer=True,  # un-allocate remnant memory; should already be fixed in TE
+            overlap_grad_reduce=overlap_grad_reduce,
+            overlap_param_gather=overlap_param_gather,
+            average_in_collective=average_in_collective,
+            use_distributed_optimizer=use_distributed_optimizer,  # un-allocate remnant memory; should already be fixed in TE
         ),
         find_unused_parameters=True,
         gradient_as_bucket_view=True,
@@ -409,7 +413,11 @@ def train_esm2_entrypoint():
         bias_activation_fusion=not args.no_bias_activation_fusion,
         bias_dropout_fusion=not args.no_bias_dropout_fusion,
         recompute_granularity=args.recompute_granularity,
-        grad_reduce_in_fp32=not args.no_grad_reduce_in_fp32,
+        grad_reduce_in_fp32=not args.grad_reduce_in_fp32,
+        overlap_grad_reduce=args.overlap_grad_reduce,
+        overlap_param_gather=args.overlap_param_gather,
+        average_in_collective=args.average_in_collective,
+        use_distributed_optimizer=args.use_distributed_optimizer,
     )
 
 
@@ -734,37 +742,61 @@ def get_parser():
         "--num-query-groups",
         type=int,
         required=False,
-        help="Enable num_query_groups in MegatronConfig. Default is None."
+        help="Enable num_query_groups in MegatronConfig. Default is None.",
     )
     parser.add_argument(
         "--extend-sequences",
         default=None,
         type=int,
-        help="Extend every input sequences by x times for perf profiling. Default is None."
+        help="Extend every input sequences by x times for perf profiling. Default is None.",
     )
     parser.add_argument(
         "--no-bias-activation-fusion",
         action="store_true",
         default=False,
-        help="Disable bias activation fusion. Default is False."
+        help="Disable bias activation fusion. Default is False.",
     )
     parser.add_argument(
         "--no-bias-dropout-fusion",
         action="store_true",
         default=False,
-        help="Disable bias dropout fusion. Default is False."
+        help="Disable bias dropout fusion. Default is False.",
     )
     parser.add_argument(
         "--recompute-granularity",
         type=str,
         choices=[None, "full", "selective", "none"],
-        help="Choose granularity for activation recomputation. Default to None which means all activations are saved."
+        help="Choose granularity for activation recomputation. Default to None which means all activations are saved.",
     )
     parser.add_argument(
-        "--no-grad-reduce-in-fp32",
+        "--grad-reduce-in-fp32",
         action="store_true",
         default=False,
-        help="Disable fp32 gradient reduction. Default is False."
+        help="Enable fp32 gradient reduction. Default is False.",
+    )
+    parser.add_argument(
+        "--overlap-grad-reduce",
+        action="store_true",
+        default=False,
+        help="Enable overlap_grad_reduce. Default is False.",
+    )
+    parser.add_argument(
+        "--overlap-param-gather",
+        action="store_true",
+        default=False,
+        help="Enable overlap_param_gather. Default is False.",
+    )
+    parser.add_argument(
+        "--average-in-collective",
+        action="store_true",
+        default=False,
+        help="Enable average_in_collective. Default is False.",
+    )
+    parser.add_argument(
+        "--use-distributed-optimizer",
+        action="store_true",
+        default=False,
+        help="Enable use_distributed_optimizer. Default is False.",
     )
     return parser
 
