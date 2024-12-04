@@ -71,6 +71,7 @@ def main(
     wandb_offline: bool = False,
     wandb_tags: Optional[List[str]] = None,
     wandb_group: Optional[str] = None,
+    wandb_job_type: Optional[str] = None,
     wandb_id: Optional[str] = None,
     wandb_anonymous: Optional[bool] = False,
     wandb_log_model: bool = False,
@@ -212,6 +213,7 @@ def main(
             entity=wandb_entity,
             tags=wandb_tags,
             group=wandb_group,
+            job_type=wandb_job_type,
             id=wandb_id,
             anonymous=wandb_anonymous,
             log_model=wandb_log_model,
@@ -370,6 +372,7 @@ def train_esm2_entrypoint():
         wandb_project=args.wandb_project,
         wandb_tags=args.wandb_tags,
         wandb_group=args.wandb_group,
+        wandb_job_type=args.wandb_job_type,
         wandb_id=args.wandb_id,
         wandb_anonymous=args.wandb_anonymous,
         wandb_log_model=args.wandb_log_model,
@@ -490,6 +493,7 @@ def get_parser():
     parser.add_argument(
         "--wandb-group", type=str, default=None, help="A unique string shared by all runs in a given group"
     )
+    parser.add_argument("--wandb-job-type", type=str, default=None, help="Wandb job type.")
     parser.add_argument(
         "--wandb-id", type=str, default=None, help="Sets the version, mainly used to resume a previous run"
     )

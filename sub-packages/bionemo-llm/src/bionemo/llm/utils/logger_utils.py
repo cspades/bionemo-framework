@@ -49,6 +49,7 @@ class WandbConfig(BaseModel):
     tags: List[str] | None  # Tags associated with this run.
     group: str | None  # A unique string shared by all runs in a given group
     offline: bool  # Run offline (data can be streamed later to wandb servers).
+    job_type: Optional[str]
     id: str | None  # Sets the version, mainly used to resume a previous run.
     anonymous: bool  # Enables or explicitly disables anonymous logging.
     log_model: bool  # Save checkpoints in wandb dir to upload on W&B servers.
