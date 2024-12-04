@@ -12,11 +12,11 @@ license = { file = "LICENSE" }
 dynamic = ["version"]
 dependencies = []
 
-[project.scripts]
-bionemo-evo2-train = ""
-bionemo-evo2-recipe = ""
-infer_evo2 = ""
-train_evo2 = ""
+# [project.scripts]
+# bionemo-evo2-train = ""
+# bionemo-evo2-recipe = ""
+# infer_evo2 = ""
+# train_evo2 = ""
 
 # Make sure that the tokenizer files are included along with the python files during installation.
 [tool.setuptools.package-data]

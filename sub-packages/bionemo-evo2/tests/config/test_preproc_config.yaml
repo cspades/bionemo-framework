@@ -1,0 +1,38 @@
+- datapaths: ["/workspace/bionemo2/sub-packages/bionemo-evo2/tests/data/mmseqs_results_rep_seq.fasta"]
+  output_dir: "/workspace/bionemo2/sub-packages/bionemo-evo2/tests/data"
+  output_prefix: promoters_ab_test
+  # Datasplit
+  train_split: 1.0  # because they do manual splits of first 1000 for validation, 2nd 1000 for test, and leftover for training
+  valid_split: 0.0
+  test_split: 0.0
+  # Evo Taxonomy
+  taxonomy_path: null
+  # Raw Preprocessing Transforms
+  gzip_data: false
+  embed_reverse_complement: true
+  random_reverse_complement: false
+  subsequence_length: null
+  include_sequence_id: false
+  transcribe: "back_transcribe"
+  force_uppercase: true
+  # Tokenizer
+  tokenizer_type: "Byte-Level"
+  vocab_file: null
+  vocab_size: null
+  merges_file: null
+  # Either a named pretrained tokenizer model, or a path to a SentencePiece tokenizer.
+  pretrained_tokenizer_model: null
+  special_tokens: null
+  fast_hf_tokenizer: true
+  append_eod: true
+  enforce_sample_length: null
+  ftfy: false
+  indexed_dataset_dtype: "uint8"
+  # Compute
+  workers: 1
+  preproc_concurrency: 10000
+  # Filters
+  drop_empty_sequences: true
+  nnn_filter: true
+  # RNG
+  seed: 42
