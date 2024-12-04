@@ -26,6 +26,9 @@ from bionemo.geneformer.data.singlecell.dataset import SingleCellDataset
 from bionemo.geneformer.data.singlecell.dataset_old import SingleCellDataset as OldSingleCellDataset
 from bionemo.geneformer.data.singlecell.preprocess import GeneformerPreprocess
 from bionemo.testing.data.load import load
+from torch.utils.data import DataLoader, Dataset
+from multiprocessing import Process
+from bionemo.llm.lightning import batch_collator
 
 
 def timeit(method):
@@ -37,7 +40,7 @@ def timeit(method):
         result = method(*args, **kwargs)
         end_time = time.time()
         run_time = end_time - start_time
-        print(f"Method {method.__name__} took {run_time:.4f} seconds")
+        #print(f"Method {method.__name__} took {run_time:.4f} seconds")
         return result, run_time
 
     return timed
@@ -124,6 +127,57 @@ class GeneformerDatasetMetrics:
             index = EpochIndex(idx=i, epoch=0)
             self.ds.__getitem__(index)
         return 0
+    
+    def iterate_train_dataloader(self, num_workers=64):
+        """Call get item on each item in training set."""
+        # print(self.length)
+        dataloader = DataLoader(NewWrapperDataset(self.ds), num_workers=num_workers, drop_last=False, shuffle=False, batch_size=256, collate_fn=batch_collator) 
+        for _ in dataloader: 
+            pass 
+        return 0
+
+class NewWrapperDataset(SingleCellDataset) : 
+    def __init__(self, ds: SingleCellDataset):
+        self.ds = ds
+
+    def __len__(self):
+        """Returns the total number of samples."""
+        return len(self.ds)
+
+    def __getitem__(self, idx):
+        """Returns a single sample from the dataset.
+
+        Args:
+            idx (int): The index of the sample to retrieve.
+
+        Returns:
+            tuple: A tuple containing the features (X) and, if available, the label (y).
+        """
+        # Extract data for the given index
+        index = EpochIndex(idx=idx, epoch=0)
+        return self.ds.__getitem__(index)
+
+class OldWrapperDataset(OldSingleCellDataset) : 
+    def __init__(self, ds: OldSingleCellDataset):
+        self.ds = ds
+
+    def __len__(self):
+        """Returns the total number of samples."""
+        return len(self.ds)
+
+    def __getitem__(self, idx):
+        """Returns a single sample from the dataset.
+
+        Args:
+            idx (int): The index of the sample to retrieve.
+
+        Returns:
+            tuple: A tuple containing the features (X) and, if available, the label (y).
+        """
+        # Extract data for the given index
+        index = EpochIndex(idx=idx, epoch=0)
+        return self.ds.__getitem__(index)
+
 
 
 @time_all_methods
@@ -194,6 +248,15 @@ class OldGeneformerDatasetMetrics:
             index = EpochIndex(idx=i, epoch=0)
             self.ds.__getitem__(index)
         return 0
+    
+    def iterate_train_dataloader(self,  num_workers=64):
+        """Call get item on each item in training set."""
+        # print(self.length)
+        dataloader = DataLoader(OldWrapperDataset(self.ds), num_workers=num_workers, drop_last=False, shuffle=False, batch_size=256, collate_fn=batch_collator) 
+        for _ in dataloader: 
+            pass 
+        return 0
+
 
 
 if __name__ == "__main__":
@@ -227,8 +290,11 @@ if __name__ == "__main__":
     results_dict["Geneformer Dataset Get Middle Item (s)"] = geneformer_metrics_new.get_middle_item()[1]
     results_dict["Geneformer Dataset Get Last Item (s)"] = geneformer_metrics_new.get_last_item()[1]
     results_dict["Geneformer Dataset Get Indices (s)"] = geneformer_metrics_new.stress_test_get_indices(num_indices)[1]
-    results_dict["Geneformer Dataset Get Items (s)"] = geneformer_metrics_new.stress_test_item()[1]
-    results_dict["Geneformer Dataset Get Items (s)"] = geneformer_metrics_new.iterate_train()[1]
+    # results_dict["Geneformer Dataset Get Items (s)"] = geneformer_metrics_new.stress_test_item()[1]
+    # results_dict["Geneformer Dataset Get Items (s)"] = geneformer_metrics_new.iterate_train()[1]
+    print ("ITERATE TRAIN DATA LOADER NEW: ")
+    for num_workers in  [0, 1, 2, 4, 16, 32]:
+        print("Numworkers: ", num_workers, geneformer_metrics_new.iterate_train_dataloader(num_workers=num_workers)[1])
 
     geneformer_metrics_old = OldGeneformerDatasetMetrics(
         data_dir=old_data_path,
@@ -244,7 +310,12 @@ if __name__ == "__main__":
     results_dict["Old Geneformer Dataset Get Indices (s)"] = geneformer_metrics_old.stress_test_get_indices(
         num_indices
     )[1]
-    results_dict["Old Geneformer Dataset Get Items (s)"] = geneformer_metrics_old.stress_test_item()[1]
-    results_dict["Geneformer Dataset Get Items (s)"] = geneformer_metrics_old.iterate_train()[1]
+    # results_dict["Old Geneformer Dataset Get Items (s)"] = geneformer_metrics_old.stress_test_item()[1]
+    # results_dict["Geneformer Dataset Get Items (s)"] = geneformer_metrics_old.iterate_train()[1]
+    # results_dict["Geneformer Dataset Get Items Dataloader (s)"] = geneformer_metrics_old.iterate_train_dataloader()[1]
+    
+    print ("ITERATE TRAIN DATA LOADER OLD: ")
+    for num_workers in  [0, 1, 2, 4, 16, 32]:
+        print("Numworkers: ", num_workers, geneformer_metrics_old.iterate_train_dataloader(num_workers=num_workers)[1])
     df = pd.DataFrame([results_dict])
     df.to_csv("full_runtime.csv")
