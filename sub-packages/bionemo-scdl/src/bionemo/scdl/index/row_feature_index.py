@@ -118,7 +118,7 @@ class RowFeatureIndex:
             self._num_genes_per_row.append(num_genes)
             # self._labels.append(str(label))
         if self.all_same:
-            self._feature_id = np.array([self._feature_arr[0]["feature_id"]]).astype(np.string_)
+            self._feature_id = np.array([self._feature_arr[0]["feature_id"]]).astype(np.str_)
             self._feature_arr = None
 
     def lookup(self, row: int, select_features: Optional[list[str]] = None) -> Tuple[list[np.ndarray]]:
@@ -287,10 +287,10 @@ class RowFeatureIndex:
         parquet_data_paths = sorted(Path(datapath).rglob("*.parquet"))
         data_tables = [pq.read_table(csv_path) for csv_path in parquet_data_paths]
         if new_row_feat_index.all_same:
-            new_row_feat_index._feature_id = data_tables[0]["feature_id"].to_numpy().astype(np.string_)
+            new_row_feat_index._feature_id = data_tables[0]["feature_id"].to_numpy().astype(np.str_)
         else:
             new_row_feat_index._feature_arr = [
-                {column: table[column].to_numpy().astype(np.string_) for column in table.column_names}
+                {column: table[column].to_numpy().astype(np.str_) for column in table.column_names}
                 for table in data_tables
             ]
         new_row_feat_index._num_genes_per_row = [
