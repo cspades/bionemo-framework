@@ -239,6 +239,7 @@ class SingleCellMemMapDataset(SingleCellRowDataset):
         mode: Mode = Mode.READ_APPEND,
         paginated_load_cutoff: int = 10_000,
         load_block_row_size: int = 1_000_000,
+        feature_list=None,
     ) -> None:
         """Instantiate the class.
 
@@ -251,6 +252,7 @@ class SingleCellMemMapDataset(SingleCellRowDataset):
             mode: Whether to read or write from the data_path.
             paginated_load_cutoff: MB size on disk at which to load the h5ad structure with paginated load.
             load_block_row_size: Number of rows to load into memory with paginated load
+            feature_list: features to use
         """
         self._version: str = importlib.metadata.version("bionemo.scdl")
         self.data_path: str = data_path
@@ -268,7 +270,7 @@ class SingleCellMemMapDataset(SingleCellRowDataset):
         # Stores the Feature Index, which tracks
         # the original AnnData features (e.g., gene names)
         # and allows us to store ragged arrays in our SCMMAP structure.
-        self._feature_index: RowFeatureIndex = RowFeatureIndex()
+        self._feature_index: RowFeatureIndex = RowFeatureIndex(feature_list)
 
         # Variables for int packing / reduced precision
         self.dtypes: Dict[FileNames, str] = {
@@ -356,7 +358,7 @@ class SingleCellMemMapDataset(SingleCellRowDataset):
         columns = self.col_index[start:end]
         ret = (values, columns)
         if return_features:
-            return ret, self._feature_index.lookup(index, select_features=feature_vars)[0]
+            return ret, self._feature_index.lookup(index, select_features=feature_vars)
         else:
             return ret, None
 

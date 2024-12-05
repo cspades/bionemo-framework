@@ -107,7 +107,7 @@ class SingleCellDataset(Dataset):
         self._seed = seed
         self.eos_token = eos_token
 
-        self.scdl = SingleCellMemMapDataset(str(data_path))
+        self.scdl = SingleCellMemMapDataset(str(data_path), feature_list=["feature_id"])
 
         # - median dict
         self.gene_medians = median_dict
