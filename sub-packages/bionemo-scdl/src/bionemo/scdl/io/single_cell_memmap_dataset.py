@@ -271,7 +271,7 @@ class SingleCellMemMapDataset(SingleCellRowDataset):
         # the original AnnData features (e.g., gene names)
         # and allows us to store ragged arrays in our SCMMAP structure.
         self.feature_list = feature_list
-        self._feature_index: np.array([])
+        self._feature_index = np.array([])
 
         # Variables for int packing / reduced precision
         self.dtypes: Dict[FileNames, str] = {
@@ -359,7 +359,7 @@ class SingleCellMemMapDataset(SingleCellRowDataset):
         columns = self.col_index[start:end]
         ret = (values, columns)
         if return_features:
-            return ret, self._feature_index.lookup(index, select_features=feature_vars)
+            return ret, self._feature_index
         else:
             return ret, None
 
@@ -455,7 +455,7 @@ class SingleCellMemMapDataset(SingleCellRowDataset):
             datapath = f"{self.data_path}/{FileNames.FEATURES.value}"
             parquet_data_paths = sorted(Path(datapath).rglob("*.parquet"))
             data_table = pq.read_table(parquet_data_paths[0])
-            self._feature_index = data_table["feature_id"].to_numpy().astype(np.str_)
+            self._feature_index = np.array([data_table["feature_id"].to_numpy()]).astype(np.str_)
 
         if os.path.exists(f"{self.data_path}/{FileNames.DTYPE.value}"):
             with open(f"{self.data_path}/{FileNames.DTYPE.value}") as dfi:
@@ -468,6 +468,7 @@ class SingleCellMemMapDataset(SingleCellRowDataset):
         self.row_index = self._load_mmap_file_if_exists(
             f"{self.data_path}/{FileNames.ROWPTR.value}", dtype=self.dtypes[f"{FileNames.ROWPTR.value}"]
         )
+        self.num_rows = len(self.row_index) - 1
         self.col_index = self._load_mmap_file_if_exists(
             f"{self.data_path}/{FileNames.COLPTR.value}", dtype=self.dtypes[f"{FileNames.COLPTR.value}"]
         )
@@ -684,12 +685,7 @@ class SingleCellMemMapDataset(SingleCellRowDataset):
             ValueError if the length of the number of rows in the feature
             index does not correspond to the number of stored rows.
         """
-        if len(self._feature_index) > 0 and self._feature_index.number_of_rows() != self.row_index.size - 1:
-            raise ValueError(
-                f"""The nuber of rows in the feature index {self._feature_index.number_of_rows()}
-                             does not correspond to the number of rows in the row_index {self.row_index.size - 1}"""
-            )
-        return self._feature_index.number_of_rows()
+        return self.num_rows
 
     def number_nonzero_values(self) -> int:
         """Number of non zero entries in the dataset."""
