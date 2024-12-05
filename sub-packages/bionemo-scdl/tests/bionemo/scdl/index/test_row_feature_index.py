@@ -184,15 +184,15 @@ def test_save_reload_row_feature_index_identical(
 ):
     create_first_RowFeatureIndex.concat(create_second_RowFeatureIndex)
     create_first_RowFeatureIndex.save(tmp_path / "features")
-    index_reload = RowFeatureIndex.load(tmp_path / "features")
-    assert len(create_first_RowFeatureIndex) == len(index_reload)
-    assert create_first_RowFeatureIndex.column_dims() == index_reload.column_dims()
-    assert create_first_RowFeatureIndex.number_of_rows() == index_reload.number_of_rows()
-    assert create_first_RowFeatureIndex.version() == index_reload.version()
+    create_second_RowFeatureIndex.load(tmp_path / "features")
+    assert len(create_first_RowFeatureIndex) == len(create_second_RowFeatureIndex)
+    assert create_first_RowFeatureIndex.column_dims() == create_second_RowFeatureIndex.column_dims()
+    assert create_first_RowFeatureIndex.number_of_rows() == create_second_RowFeatureIndex.number_of_rows()
+    assert create_first_RowFeatureIndex.version() == create_second_RowFeatureIndex.version()
 
-    assert create_first_RowFeatureIndex.number_of_values() == index_reload.number_of_values()
+    assert create_first_RowFeatureIndex.number_of_values() == create_second_RowFeatureIndex.number_of_values()
 
     for row in range(create_first_RowFeatureIndex.number_of_rows()):
         features_one = create_first_RowFeatureIndex.lookup(row=row, select_features=None)
-        features_reload = index_reload.lookup(row=row, select_features=None)
+        features_reload = create_second_RowFeatureIndex.lookup(row=row, select_features=None)
         assert np.all(np.array(features_one).astype(np.string_) == np.array(features_reload).astype(np.string_))

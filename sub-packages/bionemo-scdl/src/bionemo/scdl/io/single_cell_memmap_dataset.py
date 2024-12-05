@@ -25,11 +25,11 @@ from typing import Dict, List, Optional, Tuple, Union
 import anndata as ad
 import numpy as np
 import pandas as pd
+import pyarrow.parquet as pq
 import scipy
 import torch
 
 from bionemo.scdl.api.single_cell_row_dataset import SingleCellRowDataset
-from bionemo.scdl.index.row_feature_index import RowFeatureIndex
 
 
 class FileNames(str, Enum):
@@ -223,7 +223,7 @@ class SingleCellMemMapDataset(SingleCellRowDataset):
         row_index: A numpy array of row pointers
         col_index: A numpy array of column values
         metadata: Various metata about the dataset.
-        _feature_index: The corresponding RowFeatureIndex where features are
+        _feature_index: The corresponding array where features are
         stored
         dtypes: A dictionary containing the datatypes of the data, row_index,
         and col_index arrays.
@@ -271,7 +271,7 @@ class SingleCellMemMapDataset(SingleCellRowDataset):
         # the original AnnData features (e.g., gene names)
         # and allows us to store ragged arrays in our SCMMAP structure.
         self.feature_list = feature_list
-        self._feature_index: RowFeatureIndex = RowFeatureIndex(self.feature_list)
+        self._feature_index: np.array([])
 
         # Variables for int packing / reduced precision
         self.dtypes: Dict[FileNames, str] = {
@@ -413,8 +413,8 @@ class SingleCellMemMapDataset(SingleCellRowDataset):
                         break
             return 0.0 if impute_missing_zeros else None
 
-    def features(self) -> Optional[RowFeatureIndex]:
-        """Return the corresponding RowFeatureIndex."""
+    def features(self) -> Optional[np.array]:
+        """Return the corresponding features."""
         return self._feature_index
 
     def _load_mmap_file_if_exists(self, file_path, dtype):
@@ -452,9 +452,10 @@ class SingleCellMemMapDataset(SingleCellRowDataset):
             self.metadata = json.load(mfi)
 
         if os.path.exists(f"{self.data_path}/{FileNames.FEATURES.value}"):
-            self._feature_index = RowFeatureIndex.load(
-                f"{self.data_path}/{FileNames.FEATURES.value}", self.feature_list
-            )
+            datapath = f"{self.data_path}/{FileNames.FEATURES.value}"
+            parquet_data_paths = sorted(Path(datapath).rglob("*.parquet"))
+            data_table = pq.read_table(parquet_data_paths[0])
+            self._feature_index = data_table["feature_id"].to_numpy().astype(np.str_)
 
         if os.path.exists(f"{self.data_path}/{FileNames.DTYPE.value}"):
             with open(f"{self.data_path}/{FileNames.DTYPE.value}") as dfi:

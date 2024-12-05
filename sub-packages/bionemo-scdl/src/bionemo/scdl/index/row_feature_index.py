@@ -272,8 +272,7 @@ class RowFeatureIndex:
         # np.save(Path(datapath) / "labels.npy", self._labels)
         np.save(Path(datapath) / "version.npy", np.array(self._version))
 
-    @staticmethod
-    def load(datapath: str, feature_list=[]) -> RowFeatureIndex:
+    def load(self, datapath: str) -> RowFeatureIndex:
         """Loads the data from datapath.
 
         Args:
@@ -283,21 +282,17 @@ class RowFeatureIndex:
             An instance of RowFeatureIndex
 
         """
-        new_row_feat_index = RowFeatureIndex(feature_list)
         parquet_data_paths = sorted(Path(datapath).rglob("*.parquet"))
         data_tables = [pq.read_table(csv_path) for csv_path in parquet_data_paths]
-        if new_row_feat_index.all_same:
-            new_row_feat_index._feature_id = data_tables[0]["feature_id"].to_numpy().astype(np.str_)
+        if self.all_same:
+            self._feature_id = data_tables[0]["feature_id"].to_numpy().astype(np.str_)
         else:
-            new_row_feat_index._feature_arr = [
+            self._feature_arr = [
                 {column: table[column].to_numpy().astype(np.str_) for column in table.column_names}
                 for table in data_tables
             ]
-        new_row_feat_index._num_genes_per_row = [
-            len(feats[next(iter(feats.keys()))]) for feats in new_row_feat_index._feature_arr
-        ]
+        self._num_genes_per_row = [len(feats[next(iter(feats.keys()))]) for feats in self._feature_arr]
 
-        new_row_feat_index._cumulative_sum_index = np.load(Path(datapath) / "cumulative_sum_index.npy")
+        self._cumulative_sum_index = np.load(Path(datapath) / "cumulative_sum_index.npy")
         # new_row_feat_index._labels = np.load(Path(datapath) / "labels.npy", allow_pickle=False)
-        new_row_feat_index._version = np.load(Path(datapath) / "version.npy").item()
-        return new_row_feat_index
+        self._version = np.load(Path(datapath) / "version.npy").item()
