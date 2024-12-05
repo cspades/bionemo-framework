@@ -1,6 +1,6 @@
 [submodule "3rdparty/Megatron-LM"]
 	path = 3rdparty/Megatron-LM
-	url = https://github.com/NVIDIA/Megatron-LM.git
+	url = ssh://git@gitlab-master.nvidia.com:12051/ataghibakhsh/megatron-lm.git
 [submodule "3rdparty/NeMo"]
 	path = 3rdparty/NeMo
-	url = https://github.com/NVIDIA/NeMo.git
+	url = ssh://git@gitlab-master.nvidia.com:12051/ataghibakhsh/nemo-savanna.git
