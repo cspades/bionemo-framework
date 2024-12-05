@@ -140,6 +140,9 @@ class RowFeatureIndex:
             exceeding the larger row of the rows in the index. It is also raised
             if there are no entries in the index yet.
         """
+        if self.all_same:
+            return self._feature_ids
+
         if row < 0:
             raise IndexError(f"Row index {row} is not valid. It must be non-negative.")
         if len(self._cumulative_sum_index) < 2:
@@ -149,8 +152,6 @@ class RowFeatureIndex:
             raise IndexError(
                 f"Row index {row} is larger than number of rows in FeatureIndex ({self._cumulative_sum_index[-1]})."
             )
-        if self.all_same:
-            return self._feature_ids
         else:
             d_id = self._get_dataset_id(row)
 
