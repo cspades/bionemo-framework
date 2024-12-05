@@ -107,7 +107,7 @@ class SingleCellDataset(Dataset):
         self._seed = seed
         self.eos_token = eos_token
 
-        self.scdl = SingleCellMemMapDataset(str(data_path), feature_list=["feature_id"])
+        self.scdl = SingleCellMemMapDataset(str(data_path))  # , feature_list=["feature_id"])
 
         # - median dict
         self.gene_medians = median_dict
@@ -121,6 +121,7 @@ class SingleCellDataset(Dataset):
         """Performs a lookup and the required transformation for the model."""
         rng = np.random.default_rng([self._seed, index.epoch, index.idx])
         values, feature_ids = self.scdl.get_row(index.idx, return_features=True, feature_vars=["feature_id"])
+        print(feature_ids)
         assert (
             len(feature_ids) == 1
         )  # we expect feature_ids to be a list containing one np.array with the row's feature ids
@@ -129,6 +130,7 @@ class SingleCellDataset(Dataset):
             raise ValueError(
                 "SingleCellMemap data provided is invalid; the gene expression data parsed for the specified index is empty."
             )
+        print("FEATURE_IDS", feature_ids)
         return process_item(
             gene_data,
             col_idxs,

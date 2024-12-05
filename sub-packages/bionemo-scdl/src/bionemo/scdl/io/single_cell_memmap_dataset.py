@@ -270,7 +270,8 @@ class SingleCellMemMapDataset(SingleCellRowDataset):
         # Stores the Feature Index, which tracks
         # the original AnnData features (e.g., gene names)
         # and allows us to store ragged arrays in our SCMMAP structure.
-        self._feature_index: RowFeatureIndex = RowFeatureIndex(feature_list)
+        self.feature_list = feature_list
+        self._feature_index: RowFeatureIndex = RowFeatureIndex(self.feature_list)
 
         # Variables for int packing / reduced precision
         self.dtypes: Dict[FileNames, str] = {
@@ -451,7 +452,9 @@ class SingleCellMemMapDataset(SingleCellRowDataset):
             self.metadata = json.load(mfi)
 
         if os.path.exists(f"{self.data_path}/{FileNames.FEATURES.value}"):
-            self._feature_index = RowFeatureIndex.load(f"{self.data_path}/{FileNames.FEATURES.value}")
+            self._feature_index = RowFeatureIndex.load(
+                f"{self.data_path}/{FileNames.FEATURES.value}", self.feature_list
+            )
 
         if os.path.exists(f"{self.data_path}/{FileNames.DTYPE.value}"):
             with open(f"{self.data_path}/{FileNames.DTYPE.value}") as dfi:

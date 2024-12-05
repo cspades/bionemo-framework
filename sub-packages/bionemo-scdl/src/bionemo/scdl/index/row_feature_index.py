@@ -118,7 +118,7 @@ class RowFeatureIndex:
             self._num_genes_per_row.append(num_genes)
             # self._labels.append(str(label))
         if self.all_same:
-            self._feature_ids = np.array([self._feature_arr[0]["feature_ids"]]).astype(np.string_)
+            self._feature_id = np.array([self._feature_arr[0]["feature_id"]]).astype(np.string_)
             self._feature_arr = None
 
     def lookup(self, row: int, select_features: Optional[list[str]] = None) -> Tuple[list[np.ndarray]]:
@@ -141,7 +141,7 @@ class RowFeatureIndex:
             if there are no entries in the index yet.
         """
         if self.all_same:
-            return self._feature_ids
+            return [self._feature_id]
 
         if row < 0:
             raise IndexError(f"Row index {row} is not valid. It must be non-negative.")
@@ -273,21 +273,26 @@ class RowFeatureIndex:
         np.save(Path(datapath) / "version.npy", np.array(self._version))
 
     @staticmethod
-    def load(datapath: str) -> RowFeatureIndex:
+    def load(datapath: str, feature_list=[]) -> RowFeatureIndex:
         """Loads the data from datapath.
 
         Args:
             datapath: the path to load from
+            feature_list: relevant features
         Returns:
             An instance of RowFeatureIndex
+
         """
-        new_row_feat_index = RowFeatureIndex()
+        new_row_feat_index = RowFeatureIndex(feature_list)
         parquet_data_paths = sorted(Path(datapath).rglob("*.parquet"))
         data_tables = [pq.read_table(csv_path) for csv_path in parquet_data_paths]
-        new_row_feat_index._feature_arr = [
-            {column: table[column].to_numpy().astype(np.string_) for column in table.column_names}
-            for table in data_tables
-        ]
+        if new_row_feat_index.all_same:
+            new_row_feat_index._feature_id = data_tables[0]["feature_id"].to_numpy().astype(np.string_)
+        else:
+            new_row_feat_index._feature_arr = [
+                {column: table[column].to_numpy().astype(np.string_) for column in table.column_names}
+                for table in data_tables
+            ]
         new_row_feat_index._num_genes_per_row = [
             len(feats[next(iter(feats.keys()))]) for feats in new_row_feat_index._feature_arr
         ]
