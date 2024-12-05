@@ -306,7 +306,7 @@ def main(
             config=OptimizerConfig(
                 lr=lr,
                 optimizer="adam",
-                use_distributed_optimizer=True,
+                use_distributed_optimizer=use_distributed_optimizer,
                 weight_decay=0.01,
                 adam_beta1=0.9,
                 adam_beta2=0.98,
