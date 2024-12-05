@@ -87,7 +87,7 @@ class SingleCellDataset(Dataset):
         data_path: str | Path,
         tokenizer: Any,
         median_dict: Optional[dict] = None,
-        max_len: int = 1024,
+        max_len: int = 2048,
         mask_prob: float = 0.15,
         mask_token_prob: float = 0.8,
         random_token_prob: float = 0.1,
