@@ -16,8 +16,10 @@
 
 import argparse
 
+import nemo.lightning as nl
+import torch
 from megatron.core.inference.common_inference_params import CommonInferenceParams
-from nemo.collections.llm.inference import generate, setup_model_and_tokenizer
+from nemo.collections.llm import generate
 
 
 def parse_args():
@@ -45,6 +47,11 @@ def parse_args():
     ap.add_argument("--max-new-tokens", type=int, default=1024, help="Max new tokens during sampling")
     ap.add_argument("--repetition-penalty", type=float, default=1.0, help="Repetition penalty during sampling")
     ap.add_argument("--penalty-alpha", type=float, default=0.0, help="Penalty alpha during sampling")
+    # compute args:
+    ap.add_argument("--tensor-parallel-size", type=int, default=1, help="Tensor Parallel Size")
+    ap.add_argument("--pipeline-model-parallel-size", type=int, default=1, help="Pipeline Parallel Size")
+    ap.add_argument("--context-parallel-size", type=int, default=1, help="Context Parallel Size")
+    ap.add_argument("--sequence-parallel", action="store_true", help="Set to enable sequence parallel")
     # output args:
     ap.add_argument("--sequence-fasta", type=str, default="sequence.fasta", help="Sequence fasta file")
     ap.add_argument("--proteins-fasta", type=str, default="proteins.fasta", help="Proteins fasta file")
@@ -61,15 +68,43 @@ def main():
     # Parse args.
     args = parse_args()
 
-    # Load and wrap model for inferencing.
-    model, tokenizer = setup_model_and_tokenizer(args.ckpt_dir)
-
-    # Generate.
-    infer_params = CommonInferenceParams(
-        args.temperature, args.top_k, args.top_p, return_log_probs=False, num_tokens_to_generate=args.max_new_tokens
+    # Create PTL trainer.
+    trainer = nl.Trainer(
+        accelerator="gpu",
+        strategy=nl.MegatronStrategy(
+            tensor_model_parallel_size=args.tensor_parallel_size,
+            pipeline_model_parallel_size=args.pipeline_model_parallel_size,
+            context_parallel_size=args.context_parallel_size,
+            pipeline_dtype=torch.bfloat16,
+            sequence_parallel=args.sequence_parallel,
+            ckpt_load_optimizer=False,  # Needs to be false for a normal model checkpoint.
+            ckpt_save_optimizer=False,
+            ckpt_async_save=False,
+            save_ckpt_format="zarr",
+        ),
+        log_every_n_steps=1,
+        limit_val_batches=10,
+        num_sanity_val_steps=0,
+        plugins=nl.MegatronMixedPrecision(
+            precision="bf16-mixed",
+            params_dtype=torch.bfloat16,
+        ),
     )
+
     # transformers generate method has more options than NeMo/Megatron.
-    results = generate(model, tokenizer, args.prompt, random_seed=args.seed, inference_params=infer_params)
+    results = generate(
+        path=args.ckpt_dir,
+        prompts=[args.prompt],
+        trainer=trainer,
+        inference_params=CommonInferenceParams(
+            args.temperature,
+            args.top_k,
+            args.top_p,
+            return_log_probs=False,
+            num_tokens_to_generate=args.max_new_tokens,
+        ),
+        text_only=True,
+    )
     print(results)
 
 

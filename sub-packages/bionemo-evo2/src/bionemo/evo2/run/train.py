@@ -121,8 +121,8 @@ def main():
             context_parallel_size=args.context_parallel_size,
             pipeline_dtype=torch.bfloat16,
             sequence_parallel=args.sequence_parallel,
-            ckpt_load_optimizer=True,
-            ckpt_save_optimizer=True,
+            ckpt_load_optimizer=False,  # Checkpoint model state only.
+            ckpt_save_optimizer=False,
             ckpt_async_save=False,
             save_ckpt_format="zarr",
         ),
@@ -145,19 +145,22 @@ def main():
     )
 
     # Auto resume setup
+    from nemo.lightning.pytorch.strategies.utils import RestoreConfig
 
     resume = nl.AutoResume(
         resume_if_exists=True,
         resume_ignore_no_checkpoint=True,
         resume_past_end=True,
         resume_from_directory=args.ckpt_dir,
-        # restore_config=(
-        #     RestoreConfig(
-        #         path=args.ckpt_dir,
-        #         load_model_state = True,
-        #         load_optim_state = True,
-        #     ) if args.ckpt_dir else None
-        # ),
+        restore_config=(
+            RestoreConfig(
+                path=args.ckpt_dir,
+                load_model_state=True,
+                load_optim_state=False,  # Load model checkpoint, no optimizer state.
+            )
+            if args.ckpt_dir
+            else None
+        ),
     )
     resume.setup(trainer, model)
 
