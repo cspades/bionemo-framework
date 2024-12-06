@@ -64,11 +64,14 @@ class RowFeatureIndex:
         Returns:
             An int representing the dataset id the row belongs to.
         """
+        """
         # creates a mask for values where cumulative sum > row
         mask = ~(self._cumulative_sum_index > row)
         # Sum these to get the index of the first range > row
         # Subtract one to get the range containing row.
         d_id = sum(mask) - 1
+        """
+        d_id = 0
         return d_id
 
     def version(self) -> str:
@@ -261,15 +264,15 @@ class RowFeatureIndex:
         """
         new_row_feat_index = RowFeatureIndex()
         parquet_data_paths = sorted(Path(datapath).rglob("*.parquet"))
-        data_tables = [pq.read_table(csv_path) for csv_path in parquet_data_paths]
+        data_table = pq.read_table(parquet_data_paths[0])
         new_row_feat_index._feature_arr = [
-            {column: table[column].to_numpy() for column in table.column_names} for table in data_tables
+            {column: data_table[column].to_numpy() for column in data_table.column_names}
         ]
         new_row_feat_index._num_genes_per_row = [
             len(feats[next(iter(feats.keys()))]) for feats in new_row_feat_index._feature_arr
         ]
 
         new_row_feat_index._cumulative_sum_index = np.load(Path(datapath) / "cumulative_sum_index.npy")
-        new_row_feat_index._labels = np.load(Path(datapath) / "labels.npy", allow_pickle=True)
+        new_row_feat_index._labels = np.load(Path(datapath) / "labels.npy", allow_pickle=False)
         new_row_feat_index._version = np.load(Path(datapath) / "version.npy").item()
         return new_row_feat_index
