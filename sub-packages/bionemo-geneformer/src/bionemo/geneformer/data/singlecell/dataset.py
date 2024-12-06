@@ -108,14 +108,14 @@ class SingleCellDataset(Dataset):
         self.eos_token = eos_token
 
         self.scdl = SingleCellMemMapDataset(str(data_path))
-
+        self._num_samples_in_dataset = len(self.scdl)
         # - median dict
         self.gene_medians = median_dict
         self.tokenizer = tokenizer
         self.skip_unrecognized_vocab_in_dataset = skip_unrecognized_vocab_in_dataset
 
     def __len__(self):  # noqa: D105
-        return len(self.scdl)
+        return self._num_samples_in_dataset
 
     def __getitem__(self, index: EpochIndex) -> types.BertSample:
         """Performs a lookup and the required transformation for the model."""
