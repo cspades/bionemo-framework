@@ -28,6 +28,8 @@ dependencies = [
     # external
     'nemo_run',
     'torch==2.3.*',
+    # internal code
+    "infra-bionemo",
 ]
 
 [project.optional-dependencies]
@@ -37,6 +39,7 @@ build = ['flash-attn', 'pip']
 members = [
     "3rdparty/*",
     "sub-packages/bionemo-*/",
+    "internal/infra-bionemo/",
 ]
 
 [tool.uv.sources]
@@ -53,11 +56,13 @@ bionemo-fw = { workspace = true }
 bionemo-geneformer = { workspace = true }
 bionemo-geometric = { workspace = true }
 bionemo-llm = { workspace = true }
+bionemo-noodles = { workspace = true }
 bionemo-scdl = { workspace = true }
 bionemo-size-aware-batching = { workspace = true }
 bionemo-testing = { workspace = true }
 bionemo-webdatamodule = { workspace = true }
 # in internal/
+infra-bionemo = { workspace = true }
 
 [tool.uv]
 dev-dependencies = [
@@ -101,7 +106,7 @@ select = [
 
 [tool.ruff.lint.isort]
 lines-after-imports = 2
-known-first-party = ["bionemo"]
+known-first-party = ["bionemo", "infra_bionemo"]
 
 [tool.ruff.lint.pydocstyle]
 convention = "google"
@@ -111,7 +116,7 @@ norecursedirs = ["3rdparty"]
 addopts = ["--ignore=3rdparty"]
 
 [tool.pyright]
-include = ["./scripts/", "./sub-packages/"]
+include = ["./scripts/", "./sub-packages/", "./internal/"]
 exclude = ["*/tests/"]
 executionEnvironments = [
     { "root" = ".", pythonVersion = "3.10", extraPaths = [
@@ -126,10 +131,12 @@ executionEnvironments = [
         './sub-packages/bionemo-geneformer/src',
         './sub-packages/bionemo-geometric/src',
         './sub-packages/bionemo-llm/src',
+        './sub-packages/bionemo-noodles/src',
         './sub-packages/bionemo-scdl/src',
         './sub-packages/bionemo-size-aware-batching/src',
         './sub-packages/bionemo-testing/src',
         './sub-packages/bionemo-webdatamodule/src',
         # internal
+        './internal/infra-bionemo/src',
     ] },
 ]
