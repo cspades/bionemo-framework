@@ -18,16 +18,16 @@ import logging
 import random
 import time
 from functools import wraps
+from pathlib import Path
 
 import pandas as pd
 from torch.utils.data import DataLoader, Dataset
 
-from bionemo.core.data.multi_epoch_dataset import EpochIndex
+from bionemo.core.data.multi_epoch_dataset import EpochIndex, MultiEpochDatasetResampler
 from bionemo.geneformer.data.singlecell.dataset import SingleCellDataset
 from bionemo.geneformer.data.singlecell.dataset_old import SingleCellDataset as OldSingleCellDataset
 from bionemo.geneformer.data.singlecell.preprocess import GeneformerPreprocess
 from bionemo.llm.lightning import batch_collator
-from bionemo.testing.data.load import load
 
 
 def timeit(method):
@@ -127,13 +127,20 @@ class GeneformerDatasetMetrics:
     def iterate_train_dataloader(self, num_workers=64):
         """Call get item on each item in training set."""
         # print(self.length)
+        shuffled_dataset = MultiEpochDatasetResampler(
+            self.ds,
+            shuffle=True,
+            seed=42,
+        )
         dataloader = DataLoader(
-            NewWrapperDataset(self.ds),
+            shuffled_dataset,  # NewWrapperDataset(self.ds),
             num_workers=num_workers,
             drop_last=False,
             shuffle=False,
             batch_size=256,
             collate_fn=batch_collator,
+            pin_memory=True,
+            persistent_workers=True,
         )
         for _ in dataloader:
             pass
@@ -259,13 +266,21 @@ class OldGeneformerDatasetMetrics:
     def iterate_train_dataloader(self, num_workers=64):
         """Call get item on each item in training set."""
         # print(self.length)
+
+        shuffled_dataset = MultiEpochDatasetResampler(
+            self.ds,
+            shuffle=True,
+            seed=42,
+        )
         dataloader = DataLoader(
-            OldWrapperDataset(self.ds),
+            shuffled_dataset,  # OldWrapperDataset(self.ds),
             num_workers=num_workers,
             drop_last=False,
             shuffle=False,
             batch_size=256,
             collate_fn=batch_collator,
+            pin_memory=True,
+            persistent_workers=True,
         )
         for _ in dataloader:
             pass
@@ -274,8 +289,12 @@ class OldGeneformerDatasetMetrics:
 
 if __name__ == "__main__":
     results_dict = {}
-    memap_data_path = load("single_cell/testdata-20241203") / "cellxgene_2023-12-15_small_processed_scdl" / "train"
-    old_data_path = load("single_cell/testdata-20240506") / "cellxgene_2023-12-15_small" / "processed_data" / "train"
+    # memap_data_path = load("single_cell/testdata-20241203") / "cellxgene_2023-12-15_small_processed_scdl" / "train"
+    # old_data_path = load("single_cell/testdata-20240506") / "cellxgene_2023-12-15_small" / "processed_data" / "train"
+
+    old_data_path = Path("/workspace/bionemo2/sub-packages/data/merged_30GB_old_geneformer")
+    memap_data_path = Path("/workspace/bionemo2/sub-packages/data/test_30GB_merged_test_subset")
+
     # memap_data_path = Path("/workspace/bionemo2/sub-packages/data/revised_large_memmap_dataset")
     # old_data_path = Path("/workspace/bionemo2/sub-packages/data/revised_large_memmap_dataset")
     preprocessor = GeneformerPreprocess(
@@ -306,7 +325,7 @@ if __name__ == "__main__":
     # results_dict["Geneformer Dataset Get Items (s)"] = geneformer_metrics_new.stress_test_item()[1]
     # results_dict["Geneformer Dataset Get Items (s)"] = geneformer_metrics_new.iterate_train()[1]
     print("ITERATE TRAIN DATA LOADER NEW: ")
-    for num_workers in [0, 1, 2, 4, 16, 32]:
+    for num_workers in [16, 32, 64, 128]:
         print("Numworkers: ", num_workers, geneformer_metrics_new.iterate_train_dataloader(num_workers=num_workers)[1])
 
     geneformer_metrics_old = OldGeneformerDatasetMetrics(
@@ -328,7 +347,7 @@ if __name__ == "__main__":
     # results_dict["Geneformer Dataset Get Items Dataloader (s)"] = geneformer_metrics_old.iterate_train_dataloader()[1]
 
     print("ITERATE TRAIN DATA LOADER OLD: ")
-    for num_workers in [0, 1, 2, 4, 16, 32]:
+    for num_workers in [16, 32, 64, 128]:
         print("Numworkers: ", num_workers, geneformer_metrics_old.iterate_train_dataloader(num_workers=num_workers)[1])
     df = pd.DataFrame([results_dict])
     df.to_csv("full_runtime.csv")
