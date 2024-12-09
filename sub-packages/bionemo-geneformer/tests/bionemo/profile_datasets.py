@@ -18,14 +18,16 @@ import logging
 import random
 import time
 from functools import wraps
+from pathlib import Path
 
 import pandas as pd
+from torch.utils.data import DataLoader, Dataset
 
-from bionemo.core.data.multi_epoch_dataset import EpochIndex
+from bionemo.core.data.multi_epoch_dataset import EpochIndex, MultiEpochDatasetResampler
 from bionemo.geneformer.data.singlecell.dataset import SingleCellDataset
 from bionemo.geneformer.data.singlecell.dataset_old import SingleCellDataset as OldSingleCellDataset
 from bionemo.geneformer.data.singlecell.preprocess import GeneformerPreprocess
-from bionemo.testing.data.load import load
+from bionemo.llm.lightning import batch_collator
 
 
 def timeit(method):
@@ -69,9 +71,6 @@ class GeneformerDatasetMetrics:
             tokenizer=self.tokenizer,
             median_dict=self.median_dict,
             seed=42,
-            mask_prob=0,
-            mask_token_prob=0,
-            random_token_prob=0,
         )
 
     def get_length(self):
@@ -110,7 +109,7 @@ class GeneformerDatasetMetrics:
         _ = [random.randint(0, self.length - 1) for _ in range(num_indices)]
         for i in range(self.length):
             index = EpochIndex(idx=i, epoch=0)
-            vals, _ = self.ds.get_row(
+            vals, _ = self.ds.scdl.get_row(
                 index.idx, return_features=True, feature_vars=["feature_id"]
             )  # , feature_vars=["feature_id"])
             # print(" NEW Vals:, ", vals[0].dtype, type(vals[0]))
@@ -124,6 +123,84 @@ class GeneformerDatasetMetrics:
             index = EpochIndex(idx=i, epoch=0)
             self.ds.__getitem__(index)
         return 0
+
+    def iterate_train_dataloader(self, num_workers=64, num_indices=100_000):
+        """Call get item on each item in training set."""
+        # print(self.length)
+        shuffled_dataset = MultiEpochDatasetResampler(
+            self.ds,
+            shuffle=True,
+            seed=42,
+        )
+
+        dataloader = DataLoader(
+            shuffled_dataset,  # NewWrapperDataset(self.ds),
+            num_workers=num_workers,
+            drop_last=False,
+            shuffle=False,
+            batch_size=256,
+            collate_fn=batch_collator,
+            pin_memory=True,
+            persistent_workers=True,
+        )
+
+        for i, thing in enumerate(dataloader):
+            if i % 100 == 0:
+                print(i)
+            if i == num_indices:
+                break
+            pass
+        return 0
+
+
+class NewWrapperDataset(Dataset):
+    """Wrapper for Single Cell Dataset."""
+
+    def __init__(self, ds: SingleCellDataset):
+        """Initialize class."""
+        self.ds = ds
+
+    def __len__(self):
+        """Returns the total number of samples."""
+        return len(self.ds)
+
+    def __getitem__(self, idx):
+        """Returns a single sample from the dataset.
+
+        Args:
+            idx (int): The index of the sample to retrieve.
+
+        Returns:
+            tuple: A tuple containing the features (X) and, if available, the label (y).
+        """
+        # Extract data for the given index
+        index = EpochIndex(idx=idx, epoch=0)
+        return self.ds.__getitem__(index)
+
+
+class OldWrapperDataset(Dataset):
+    """Wrapper for Old Single Cell Dataset."""
+
+    def __init__(self, ds: OldSingleCellDataset):
+        """Initialize class."""
+        self.ds = ds
+
+    def __len__(self):
+        """Returns the total number of samples."""
+        return len(self.ds)
+
+    def __getitem__(self, idx):
+        """Returns a single sample from the dataset.
+
+        Args:
+            idx (int): The index of the sample to retrieve.
+
+        Returns:
+            tuple: A tuple containing the features (X) and, if available, the label (y).
+        """
+        # Extract data for the given index
+        index = EpochIndex(idx=idx, epoch=0)
+        return self.ds.__getitem__(index)
 
 
 @time_all_methods
@@ -143,9 +220,6 @@ class OldGeneformerDatasetMetrics:
             tokenizer=self.tokenizer,
             median_dict=self.median_dict,
             seed=42,
-            mask_prob=0,
-            mask_token_prob=0,
-            random_token_prob=0,
         )
 
     def get_length(self):
@@ -195,13 +269,45 @@ class OldGeneformerDatasetMetrics:
             self.ds.__getitem__(index)
         return 0
 
+    def iterate_train_dataloader(self, num_workers=64, num_indices=100_000):
+        """Call get item on each item in training set."""
+        # print(self.length)
+        shuffled_dataset = MultiEpochDatasetResampler(
+            self.ds,
+            shuffle=True,
+            seed=42,
+        )
+
+        dataloader = DataLoader(
+            shuffled_dataset,  # NewWrapperDataset(self.ds),
+            num_workers=num_workers,
+            drop_last=False,
+            shuffle=False,
+            batch_size=256,
+            collate_fn=batch_collator,
+            pin_memory=True,
+            persistent_workers=True,
+        )
+
+        for i, thing in enumerate(dataloader):
+            if i % 100 == 0:
+                print(i)
+            if i == num_indices:
+                break
+            pass
+        return 0
+
 
 if __name__ == "__main__":
     results_dict = {}
-    memap_data_path = load("single_cell/testdata-20241203") / "cellxgene_2023-12-15_small_processed_scdl" / "train"
-    old_data_path = load("single_cell/testdata-20240506") / "cellxgene_2023-12-15_small" / "processed_data" / "train"
-    # memap_data_path = Path("/workspace/bionemo2/sub-packages/data/revised_large_memmap_dataset")
-    # old_data_path = Path("/workspace/bionemo2/sub-packages/data/revised_large_memmap_dataset")
+    # memap_data_path = load("single_cell/testdata-20241203") / "cellxgene_2023-12-15_small_processed_scdl" / "train"
+    # old_data_path = load("single_cell/testdata-20240506") / "cellxgene_2023-12-15_small" / "processed_data" / "train"
+
+    # old_data_path = Path("/workspace/bionemo2/sub-packages/data/merged_30GB_old_geneformer")
+    # memap_data_path = Path("/workspace/bionemo2/sub-packages/data/test_30GB_merged_test_subset")
+
+    memap_data_path = Path("/workspace/bionemo2/sub-packages/data/train_new")
+    old_data_path = Path("/workspace/bionemo2/sub-packages/data/train_old")
     preprocessor = GeneformerPreprocess(
         download_directory=memap_data_path,
         medians_file_path=memap_data_path / "medians.json",
@@ -209,7 +315,7 @@ if __name__ == "__main__":
     )
     print(memap_data_path)
     print(old_data_path)
-    num_indices = 30_000
+    num_indices = 1000
     match preprocessor.preprocess():
         case {"tokenizer": tokenizer, "median_dict": median_dict}:
             logging.info("*************** Preprocessing Finished ************")
@@ -220,31 +326,39 @@ if __name__ == "__main__":
         tokenizer=tokenizer,
         median_dict=median_dict,  # type: ignore
     )  # type: ignore
+    print("STARTING")
     print("NEW STUFF")
     results_dict["Create Geneformer Dataset"] = geneformer_metrics_new.create_from_memmap()[1]  # type: ignore
-    results_dict["Geneformer Dataset Get Length (s)"] = geneformer_metrics_new.get_length()[1]
-    results_dict["Geneformer Dataset Get First Item (s)"] = geneformer_metrics_new.get_first_item()[1]
-    results_dict["Geneformer Dataset Get Middle Item (s)"] = geneformer_metrics_new.get_middle_item()[1]
-    results_dict["Geneformer Dataset Get Last Item (s)"] = geneformer_metrics_new.get_last_item()[1]
-    results_dict["Geneformer Dataset Get Indices (s)"] = geneformer_metrics_new.stress_test_get_indices(num_indices)[1]
-    results_dict["Geneformer Dataset Get Items (s)"] = geneformer_metrics_new.stress_test_item()[1]
-    results_dict["Geneformer Dataset Get Items (s)"] = geneformer_metrics_new.iterate_train()[1]
-
+    # results_dict["Geneformer Dataset Get Length (s)"] = geneformer_metrics_new.get_length()[1]
+    # results_dict["Geneformer Dataset Get First Item (s)"] = geneformer_metrics_new.get_first_item()[1]
+    # results_dict["Geneformer Dataset Get Middle Item (s)"] = geneformer_metrics_new.get_middle_item()[1]
+    # results_dict["Geneformer Dataset Get Last Item (s)"] = geneformer_metrics_new.get_last_item()[1]
+    # results_dict["Geneformer Dataset Get Indices (s)"] = geneformer_metrics_new.stress_test_get_indices(num_indices)[1]
+    # results_dict["Geneformer Dataset Get Items (s)"] = geneformer_metrics_new.stress_test_item()[1]
+    # results_dict["Geneformer Dataset Get Items (s)"] = geneformer_metrics_new.iterate_train()[1]
+    print("ITERATE TRAIN DATA LOADER NEW: ")
+    for num_workers in [16, 32, 64, 128]:
+        print(
+            "Numworkers: ",
+            num_workers,
+            geneformer_metrics_new.iterate_train_dataloader(num_workers=num_workers, num_indices=num_indices)[1],
+        )
+        break
     geneformer_metrics_old = OldGeneformerDatasetMetrics(
         data_dir=old_data_path,
         tokenizer=tokenizer,
         median_dict=median_dict,  # type: ignore
     )  # type: ignore
+
     print("OLD STUFF")
     results_dict["Old Create Geneformer Dataset"] = geneformer_metrics_old.create_from_memmap()[1]  # type: ignore
-    results_dict["Old Geneformer Dataset Get Length (s)"] = geneformer_metrics_old.get_length()[1]
-    results_dict["Old Geneformer Dataset Get First Item (s)"] = geneformer_metrics_old.get_first_item()[1]
-    results_dict["Old Geneformer Dataset Get Middle Item (s)"] = geneformer_metrics_old.get_middle_item()[1]
-    results_dict["Old Geneformer Dataset Get Last Item (s)"] = geneformer_metrics_old.get_last_item()[1]
-    results_dict["Old Geneformer Dataset Get Indices (s)"] = geneformer_metrics_old.stress_test_get_indices(
-        num_indices
-    )[1]
-    results_dict["Old Geneformer Dataset Get Items (s)"] = geneformer_metrics_old.stress_test_item()[1]
-    results_dict["Geneformer Dataset Get Items (s)"] = geneformer_metrics_old.iterate_train()[1]
+    print("ITERATE TRAIN DATA LOADER OLD: ")
+    for num_workers in [16, 32, 64, 128]:
+        print(
+            "Numworkers: ",
+            num_workers,
+            geneformer_metrics_old.iterate_train_dataloader(num_workers=num_workers, num_indices=num_indices)[1],
+        )
+        break
     df = pd.DataFrame([results_dict])
     df.to_csv("full_runtime.csv")
