@@ -416,7 +416,7 @@ def train_esm2_entrypoint():
         bias_activation_fusion=not args.no_bias_activation_fusion,
         bias_dropout_fusion=not args.no_bias_dropout_fusion,
         recompute_granularity=args.recompute_granularity,
-        grad_reduce_in_fp32=not args.grad_reduce_in_fp32,
+        grad_reduce_in_fp32=args.grad_reduce_in_fp32,
         overlap_grad_reduce=args.overlap_grad_reduce,
         overlap_param_gather=args.overlap_param_gather,
         average_in_collective=args.average_in_collective,
