@@ -145,7 +145,8 @@ class GeneformerDatasetMetrics:
         )
 
         for i, thing in enumerate(dataloader):
-            print("STEP", i)
+            if i % 100 == 0:
+                print(i)
             if i == num_indices:
                 break
             pass
@@ -289,7 +290,8 @@ class OldGeneformerDatasetMetrics:
         )
 
         for i, thing in enumerate(dataloader):
-            print("STEP", i)
+            if i % 100 == 0:
+                print(i)
             if i == num_indices:
                 break
             pass
@@ -301,11 +303,11 @@ if __name__ == "__main__":
     # memap_data_path = load("single_cell/testdata-20241203") / "cellxgene_2023-12-15_small_processed_scdl" / "train"
     # old_data_path = load("single_cell/testdata-20240506") / "cellxgene_2023-12-15_small" / "processed_data" / "train"
 
-    old_data_path = Path("/workspace/bionemo2/sub-packages/data/merged_30GB_old_geneformer")
-    memap_data_path = Path("/workspace/bionemo2/sub-packages/data/test_30GB_merged_test_subset")
+    # old_data_path = Path("/workspace/bionemo2/sub-packages/data/merged_30GB_old_geneformer")
+    # memap_data_path = Path("/workspace/bionemo2/sub-packages/data/test_30GB_merged_test_subset")
 
-    # memap_data_path = Path("/workspace/bionemo2/sub-packages/data/revised_large_memmap_dataset")
-    # old_data_path = Path("/workspace/bionemo2/sub-packages/data/revised_large_memmap_dataset")
+    memap_data_path = Path("/workspace/bionemo2/sub-packages/data/train_new")
+    old_data_path = Path("/workspace/bionemo2/sub-packages/data/train_old")
     preprocessor = GeneformerPreprocess(
         download_directory=memap_data_path,
         medians_file_path=memap_data_path / "medians.json",
@@ -326,7 +328,6 @@ if __name__ == "__main__":
     )  # type: ignore
     print("STARTING")
     print("NEW STUFF")
-
     results_dict["Create Geneformer Dataset"] = geneformer_metrics_new.create_from_memmap()[1]  # type: ignore
     # results_dict["Geneformer Dataset Get Length (s)"] = geneformer_metrics_new.get_length()[1]
     # results_dict["Geneformer Dataset Get First Item (s)"] = geneformer_metrics_new.get_first_item()[1]
@@ -342,12 +343,13 @@ if __name__ == "__main__":
             num_workers,
             geneformer_metrics_new.iterate_train_dataloader(num_workers=num_workers, num_indices=num_indices)[1],
         )
-
+        break
     geneformer_metrics_old = OldGeneformerDatasetMetrics(
         data_dir=old_data_path,
         tokenizer=tokenizer,
         median_dict=median_dict,  # type: ignore
     )  # type: ignore
+
     print("OLD STUFF")
     results_dict["Old Create Geneformer Dataset"] = geneformer_metrics_old.create_from_memmap()[1]  # type: ignore
     print("ITERATE TRAIN DATA LOADER OLD: ")
@@ -357,5 +359,6 @@ if __name__ == "__main__":
             num_workers,
             geneformer_metrics_old.iterate_train_dataloader(num_workers=num_workers, num_indices=num_indices)[1],
         )
+        break
     df = pd.DataFrame([results_dict])
     df.to_csv("full_runtime.csv")
