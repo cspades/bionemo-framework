@@ -124,7 +124,7 @@ class GeneformerDatasetMetrics:
             self.ds.__getitem__(index)
         return 0
 
-    def iterate_train_dataloader(self, num_workers=64, num_indices=30_000):
+    def iterate_train_dataloader(self, num_workers=64, num_indices=100_000):
         """Call get item on each item in training set."""
         # print(self.length)
         shuffled_dataset = MultiEpochDatasetResampler(
@@ -132,7 +132,6 @@ class GeneformerDatasetMetrics:
             shuffle=True,
             seed=42,
         )
-        print("HERE 1")
 
         dataloader = DataLoader(
             shuffled_dataset,  # NewWrapperDataset(self.ds),
@@ -144,7 +143,6 @@ class GeneformerDatasetMetrics:
             pin_memory=True,
             persistent_workers=True,
         )
-        print("HERE 2")
 
         for i, thing in enumerate(dataloader):
             print("STEP", i)
@@ -270,18 +268,17 @@ class OldGeneformerDatasetMetrics:
             self.ds.__getitem__(index)
         return 0
 
-    def iterate_train_dataloader(self, num_workers=64, num_indices=30_000):
+    def iterate_train_dataloader(self, num_workers=64, num_indices=100_000):
         """Call get item on each item in training set."""
         # print(self.length)
-
         shuffled_dataset = MultiEpochDatasetResampler(
             self.ds,
             shuffle=True,
             seed=42,
         )
-        print("HERE 1")
+
         dataloader = DataLoader(
-            shuffled_dataset,  # OldWrapperDataset(self.ds),
+            shuffled_dataset,  # NewWrapperDataset(self.ds),
             num_workers=num_workers,
             drop_last=False,
             shuffle=False,
@@ -290,10 +287,9 @@ class OldGeneformerDatasetMetrics:
             pin_memory=True,
             persistent_workers=True,
         )
-        print("HERE 2")
 
-        for i, _ in enumerate(dataloader):
-            print("HERE!!!", i)
+        for i, thing in enumerate(dataloader):
+            print("STEP", i)
             if i == num_indices:
                 break
             pass
@@ -305,10 +301,9 @@ if __name__ == "__main__":
     # memap_data_path = load("single_cell/testdata-20241203") / "cellxgene_2023-12-15_small_processed_scdl" / "train"
     # old_data_path = load("single_cell/testdata-20240506") / "cellxgene_2023-12-15_small" / "processed_data" / "train"
 
-    # old_data_path = Path("/workspace/bionemo2/sub-packages/data/merged_30GB_old_geneformer")
-    # memap_data_path = Path("/workspace/bionemo2/sub-packages/data/test_30GB_merged_test_subset")
-    old_data_path = Path("/workspace/bionemo2/sub-packages/data/train_old")
-    memap_data_path = Path("/workspace/bionemo2/sub-packages/data/train_new")
+    old_data_path = Path("/workspace/bionemo2/sub-packages/data/merged_30GB_old_geneformer")
+    memap_data_path = Path("/workspace/bionemo2/sub-packages/data/test_30GB_merged_test_subset")
+
     # memap_data_path = Path("/workspace/bionemo2/sub-packages/data/revised_large_memmap_dataset")
     # old_data_path = Path("/workspace/bionemo2/sub-packages/data/revised_large_memmap_dataset")
     preprocessor = GeneformerPreprocess(
@@ -355,17 +350,6 @@ if __name__ == "__main__":
     )  # type: ignore
     print("OLD STUFF")
     results_dict["Old Create Geneformer Dataset"] = geneformer_metrics_old.create_from_memmap()[1]  # type: ignore
-    # results_dict["Old Geneformer Dataset Get Length (s)"] = geneformer_metrics_old.get_length()[1]
-    # results_dict["Old Geneformer Dataset Get First Item (s)"] = geneformer_metrics_old.get_first_item()[1]
-    # results_dict["Old Geneformer Dataset Get Middle Item (s)"] = geneformer_metrics_old.get_middle_item()[1]
-    # results_dict["Old Geneformer Dataset Get Last Item (s)"] = geneformer_metrics_old.get_last_item()[1]
-    # results_dict["Old Geneformer Dataset Get Indices (s)"] = geneformer_metrics_old.stress_test_get_indices(
-    #    num_indices
-    # )[1]
-    # results_dict["Old Geneformer Dataset Get Items (s)"] = geneformer_metrics_old.stress_test_item()[1]
-    # results_dict["Geneformer Dataset Get Items (s)"] = geneformer_metrics_old.iterate_train()[1]
-    # results_dict["Geneformer Dataset Get Items Dataloader (s)"] = geneformer_metrics_old.iterate_train_dataloader()[1]
-
     print("ITERATE TRAIN DATA LOADER OLD: ")
     for num_workers in [16, 32, 64, 128]:
         print(
