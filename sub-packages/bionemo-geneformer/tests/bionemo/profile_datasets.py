@@ -13,7 +13,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-
+import argparse
 import logging
 import random
 import time
@@ -39,7 +39,6 @@ def timeit(method):
         result = method(*args, **kwargs)
         end_time = time.time()
         run_time = end_time - start_time
-        print(f"Method {method.__name__} took {run_time:.4f} seconds")
         return result, run_time
 
     return timed
@@ -116,10 +115,9 @@ class GeneformerDatasetMetrics:
             # print("NEW Indices: ", vals[1].dtype, type(vals[1]))
         return 0
 
-    def iterate_train(self):
+    def iterate_train(self, num_indices=100_000):
         """Call get item on each item in training set."""
-        print(self.length)
-        for i in range(self.length):
+        for i in range(num_indices):
             index = EpochIndex(idx=i, epoch=0)
             self.ds.__getitem__(index)
         return 0
@@ -145,8 +143,6 @@ class GeneformerDatasetMetrics:
         )
 
         for i, thing in enumerate(dataloader):
-            if i % 100 == 0:
-                print(i)
             if i == num_indices:
                 break
             pass
@@ -261,10 +257,9 @@ class OldGeneformerDatasetMetrics:
             # print("OLD Indices: ", indices.dtype, type(indices))
         return
 
-    def iterate_train(self):
+    def iterate_train(self, num_indices=100_000):
         """Call get item on each item in training set."""
-        print(self.length)
-        for i in range(self.length):
+        for i in range(num_indices):
             index = EpochIndex(idx=i, epoch=0)
             self.ds.__getitem__(index)
         return 0
@@ -290,8 +285,6 @@ class OldGeneformerDatasetMetrics:
         )
 
         for i, thing in enumerate(dataloader):
-            if i % 100 == 0:
-                print(i)
             if i == num_indices:
                 break
             pass
@@ -299,6 +292,10 @@ class OldGeneformerDatasetMetrics:
 
 
 if __name__ == "__main__":
+    parser = argparse.ArgumentParser(description="Process some indices.")
+    parser.add_argument("--num_indices", type=int, required=True, help="The number of indices to process.")
+    args = parser.parse_args()
+    num_indices = args.num_indices
     results_dict = {}
     # memap_data_path = load("single_cell/testdata-20241203") / "cellxgene_2023-12-15_small_processed_scdl" / "train"
     # old_data_path = load("single_cell/testdata-20240506") / "cellxgene_2023-12-15_small" / "processed_data" / "train"
@@ -313,9 +310,9 @@ if __name__ == "__main__":
         medians_file_path=memap_data_path / "medians.json",
         tokenizer_vocab_path=memap_data_path / "geneformer.vocab",
     )
+    print(f"{num_indices} indices")
     print(memap_data_path)
     print(old_data_path)
-    num_indices = 1000
     match preprocessor.preprocess():
         case {"tokenizer": tokenizer, "median_dict": median_dict}:
             logging.info("*************** Preprocessing Finished ************")
@@ -327,38 +324,43 @@ if __name__ == "__main__":
         median_dict=median_dict,  # type: ignore
     )  # type: ignore
     print("STARTING")
-    print("NEW STUFF")
-    results_dict["Create Geneformer Dataset"] = geneformer_metrics_new.create_from_memmap()[1]  # type: ignore
-    # results_dict["Geneformer Dataset Get Length (s)"] = geneformer_metrics_new.get_length()[1]
-    # results_dict["Geneformer Dataset Get First Item (s)"] = geneformer_metrics_new.get_first_item()[1]
-    # results_dict["Geneformer Dataset Get Middle Item (s)"] = geneformer_metrics_new.get_middle_item()[1]
-    # results_dict["Geneformer Dataset Get Last Item (s)"] = geneformer_metrics_new.get_last_item()[1]
-    # results_dict["Geneformer Dataset Get Indices (s)"] = geneformer_metrics_new.stress_test_get_indices(num_indices)[1]
-    # results_dict["Geneformer Dataset Get Items (s)"] = geneformer_metrics_new.stress_test_item()[1]
-    # results_dict["Geneformer Dataset Get Items (s)"] = geneformer_metrics_new.iterate_train()[1]
-    print("ITERATE TRAIN DATA LOADER NEW: ")
-    for num_workers in [16, 32, 64, 128]:
-        print(
-            "Numworkers: ",
-            num_workers,
-            geneformer_metrics_new.iterate_train_dataloader(num_workers=num_workers, num_indices=num_indices)[1],
-        )
-        break
     geneformer_metrics_old = OldGeneformerDatasetMetrics(
         data_dir=old_data_path,
         tokenizer=tokenizer,
         median_dict=median_dict,  # type: ignore
     )  # type: ignore
 
-    print("OLD STUFF")
-    results_dict["Old Create Geneformer Dataset"] = geneformer_metrics_old.create_from_memmap()[1]  # type: ignore
-    print("ITERATE TRAIN DATA LOADER OLD: ")
+    print("NEW", geneformer_metrics_new.create_from_memmap()[1])  # type: ignore
+    print("OLD", geneformer_metrics_old.create_from_memmap()[1])  # type: ignore
+
+    # print("Iterate indices only old", geneformer_metrics_old.iterate_train()[1])
+    # print("Iterate indices only new", geneformer_metrics_new.iterate_train()[1])
+
+    print("Iterate indices only new", geneformer_metrics_new.iterate_train(num_indices=20_000)[1])
+
+    print("Iterate indices only old", geneformer_metrics_old.iterate_train(num_indices=20_000)[1])
+
+    # results_dict["Geneformer Dataset Get Length (s)"] = geneformer_metrics_new.get_length()[1]
+    # results_dict["Geneformer Dataset Get First Item (s)"] = geneformer_metrics_new.get_first_item()[1]
+    # results_dict["Geneformer Dataset Get Middle Item (s)"] = geneformer_metrics_new.get_middle_item()[1]
+    # results_dict["Geneformer Dataset Get Last Item (s)"] = geneformer_metrics_new.get_last_item()[1]
+    # results_dict["Geneformer Dataset Get Indices (s)"] = geneformer_metrics_new.stress_test_get_indices(num_indices)[1]
+    # results_dict["Geneformer Dataset Get Items (s)"] = geneformer_metrics_new.stress_test_item()[1]
+    # print("Iterate indices only new", geneformer_metrics_new.iterate_train()[1])
+    print("ITERATE TRAIN DATA LOADER NEW: ")
     for num_workers in [16, 32, 64, 128]:
         print(
-            "Numworkers: ",
+            "New Numworkers: ",
+            num_workers,
+            geneformer_metrics_new.iterate_train_dataloader(num_workers=num_workers, num_indices=num_indices)[1],
+        )
+
+        print(
+            "Old Numworkers: ",
             num_workers,
             geneformer_metrics_old.iterate_train_dataloader(num_workers=num_workers, num_indices=num_indices)[1],
         )
-        break
+
+    print("ITERATE TRAIN DATA LOADER OLD: ")
     df = pd.DataFrame([results_dict])
     df.to_csv("full_runtime.csv")
