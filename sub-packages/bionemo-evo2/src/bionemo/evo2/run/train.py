@@ -20,6 +20,7 @@ from megatron.core.optimizer import OptimizerConfig
 from nemo import lightning as nl
 from nemo.collections import llm
 from nemo.collections.llm.gpt.data import PreTrainingDataModule
+from nemo.collections.nlp.data.language_modeling.megatron import Evo2Dataset
 from nemo.collections.nlp.modules.common.tokenizer_utils import get_nmt_tokenizer
 from nemo.lightning import NeMoLogger
 from nemo.lightning.pytorch.callbacks import ModelCheckpoint
@@ -30,28 +31,41 @@ from pytorch_lightning.loggers import WandbLogger
 
 def parse_args():
     """Parse arguments for Evo2 model training."""
-    parser = argparse.ArgumentParser(description="Train a Hyena model using NeMo 2.0")
-    parser.add_argument("--num-nodes", type=int, default=1, help="Number of nodes to use for training, defaults to 1")
-    parser.add_argument("--devices", type=int, help="Number of devices to use for training")
+    parser = argparse.ArgumentParser(description="Train a Hyena model using NeMo 2.0.")
+    parser.add_argument("--num-nodes", type=int, default=1, help="Number of nodes to use for training, defaults to 1.")
+    parser.add_argument("--devices", type=int, default=1, help="Number of devices to use for training, defaults to 1.")
     parser.add_argument("--seq-length", type=int, default=8192, help="Training sequence length")
-    parser.add_argument("--data-path", type=str, help="Data path")
-    parser.add_argument("--tensor-parallel-size", type=int, default=1, help="Tensor Parallel Size")
-    parser.add_argument("--pipeline-model-parallel-size", type=int, default=1, help="Pipeline Parallel Size")
-    parser.add_argument("--context-parallel-size", type=int, default=1, help="Context Parallel Size")
-    parser.add_argument("--sequence-parallel", action="store_true", help="Set to enable sequence parallel")
-    parser.add_argument("--micro-batch-size", type=int, default=1, help="Pipeline Parallel Size")
-    parser.add_argument("--global-batch-size", type=int, default=8, help="Pipeline Parallel Size")
-    parser.add_argument("--max-steps", type=int, help="Number of steps to train for")
-    parser.add_argument("--val-check-interval", type=int, help="Number of steps between val check")
+    parser.add_argument("--data-path", type=str, nargs="+", default=[], help="Paths to data directories for training.")
+    parser.add_argument(
+        "--tensor-parallel-size", type=int, default=1, help="Order of tensor parallelism. Defaults to 1."
+    )
+    parser.add_argument(
+        "--pipeline-model-parallel-size", type=int, default=1, help="Order of pipeline parallelism. Defaults to 1."
+    )
+    parser.add_argument(
+        "--context-parallel-size", type=int, default=1, help="Order of context parallelism. Defaults to 1."
+    )
+    parser.add_argument("--sequence-parallel", action="store_true", help="Set to enable sequence parallelism.")
+    parser.add_argument("--micro-batch-size", type=int, default=1, help="Micro-batch size for data-parallel training.")
+    parser.add_argument("--global-batch-size", type=int, default=8, help="Global batch size for training.")
+    parser.add_argument("--max-steps", type=int, help="Number of training optimizer update steps.")
+    parser.add_argument(
+        "--val-check-interval", type=int, help="Number of steps between validation measurements and model checkpoints."
+    )
     parser.add_argument(
         "--model-size",
         type=str,
+        choices=["7b", "40b", "test"],
         default="7b",
-        help="Model size, choose between 7b, 40b, or test (4 layers, less than 1b)",
+        help="Model size, choose between 7b, 40b, or test (4 layers, less than 1b).",
     )
-    parser.add_argument("--experiment-dir", type=str, default=None, help="directory to write results to")
-    parser.add_argument("--ckpt-dir", type=str, default=None, help="directory to write checkpoints to")
-    parser.add_argument("--tokenizer-path", type=str, default=None, help="Path to tokenizer model")
+    parser.add_argument(
+        "--experiment-dir", type=str, default=None, help="Directory to write model checkpoints and results to."
+    )
+    parser.add_argument("--ckpt-dir", type=str, default=None, help="Directory to read checkpoints from.")
+    parser.add_argument(
+        "--tokenizer-path", type=str, default=None, help="Path to tokenizer model if relevant to tokenizer."
+    )
 
     return parser.parse_args()
 
@@ -66,6 +80,7 @@ def main():
 
     data = PreTrainingDataModule(
         paths=args.data_path,
+        dataset_cls=Evo2Dataset,
         seq_length=args.seq_length,
         micro_batch_size=args.micro_batch_size,
         global_batch_size=args.global_batch_size,
@@ -90,7 +105,9 @@ def main():
         every_n_train_steps=args.val_check_interval,
         dirpath=args.experiment_dir,
         save_top_k=5,
+        always_save_context=True,
         save_optim_on_train_end=True,
+        save_context_on_train_end=True,
     )
 
     loggers = []
