@@ -142,9 +142,7 @@ class GeneformerDatasetMetrics:
             persistent_workers=True,
         )
 
-        for i, thing in enumerate(dataloader):
-            if i == num_indices:
-                break
+        for _ in dataloader:
             pass
         return 0
 
@@ -284,9 +282,7 @@ class OldGeneformerDatasetMetrics:
             persistent_workers=True,
         )
 
-        for i, thing in enumerate(dataloader):
-            if i == num_indices:
-                break
+        for _ in dataloader:
             pass
         return 0
 
