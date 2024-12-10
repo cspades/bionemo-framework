@@ -32,12 +32,12 @@ from typing import Any, Callable, List, Optional
 import polars as pl
 import pysam
 import torch
-from pyfaidx import Fasta
 from torch.utils.data import Dataset
 
 from bionemo.dnadl.tools.genome_editing import create_personal_sequence
 from bionemo.dnadl.tools.genome_interval import GenomeInterval
 from bionemo.dnadl.tools.vcf import SampleId, read_variants_in_interval
+from bionemo.noodles.nvfaidx import NvFaidx
 
 
 DNATokenizer = Callable[[str], torch.Tensor]
@@ -50,13 +50,13 @@ class Genome:
         """Instantiate the class."""
         fasta_file = Path(fasta_file)
         assert fasta_file.exists(), "path to fasta file must exist"
-        self.seqs = Fasta(str(fasta_file))
+        self.seqs = NvFaidx(str(fasta_file))
 
     def adjust_interval(self, interval: GenomeInterval, context_length: int) -> GenomeInterval:
         """Used to extend an interval by a fixed amount on both sides."""
         start, end = interval.start, interval.end
         interval_length = interval.end - interval.start
-        chromosome_length = len(self.seqs[interval.chromosome])
+        chromosome_length = self.seqs[interval.chromosome].length
         if interval_length >= context_length:
             return interval
 
