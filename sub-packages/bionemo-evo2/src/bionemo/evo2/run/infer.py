@@ -41,8 +41,8 @@ def parse_args():
         "--ckpt-dir", type=str, required=True, help="Path to checkpoint directory containing pre-trained Hyena model."
     )
     ap.add_argument("--temperature", type=float, default=1.0, help="Temperature during sampling")
-    ap.add_argument("--top-k", type=int, default=4, help="Top K during sampling")
-    ap.add_argument("--top-p", type=float, default=1.0, help="Top P during sampling")
+    ap.add_argument("--top-k", type=int, default=0, help="Top K during sampling")
+    ap.add_argument("--top-p", type=float, default=0.0, help="Top P during sampling")
     ap.add_argument("--cached-generation", type=bool, default=True, help="Use KV caching during generation")
     ap.add_argument("--max-new-tokens", type=int, default=1024, help="Max new tokens during sampling")
     ap.add_argument("--repetition-penalty", type=float, default=1.0, help="Repetition penalty during sampling")
@@ -51,7 +51,6 @@ def parse_args():
     ap.add_argument("--tensor-parallel-size", type=int, default=1, help="Tensor Parallel Size")
     ap.add_argument("--pipeline-model-parallel-size", type=int, default=1, help="Pipeline Parallel Size")
     ap.add_argument("--context-parallel-size", type=int, default=1, help="Context Parallel Size")
-    ap.add_argument("--sequence-parallel", action="store_true", help="Set to enable sequence parallel")
     # output args:
     ap.add_argument("--sequence-fasta", type=str, default="sequence.fasta", help="Sequence fasta file")
     ap.add_argument("--proteins-fasta", type=str, default="proteins.fasta", help="Proteins fasta file")
@@ -76,7 +75,6 @@ def main():
             pipeline_model_parallel_size=args.pipeline_model_parallel_size,
             context_parallel_size=args.context_parallel_size,
             pipeline_dtype=torch.bfloat16,
-            sequence_parallel=args.sequence_parallel,
             ckpt_load_optimizer=False,  # Needs to be false for a normal model checkpoint.
             ckpt_save_optimizer=False,
             ckpt_async_save=False,
@@ -105,7 +103,9 @@ def main():
         ),
         text_only=True,
     )
-    print(results)
+
+    if torch.distributed.get_rank() == 0:
+        print(results)
 
 
 if __name__ == "__main__":
