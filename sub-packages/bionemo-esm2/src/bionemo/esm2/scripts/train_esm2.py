@@ -781,26 +781,26 @@ def get_parser():
     parser.add_argument(
         "--overlap-grad-reduce",
         action="store_true",
-        default=False,
-        help="Enable overlap_grad_reduce. Default is False.",
+        default=True,
+        help="Enable overlap_grad_reduce. Default is True.",
     )
     parser.add_argument(
         "--overlap-param-gather",
         action="store_true",
-        default=False,
-        help="Enable overlap_param_gather. Default is False.",
+        default=True,
+        help="Enable overlap_param_gather. Default is True.",
     )
     parser.add_argument(
         "--average-in-collective",
         action="store_true",
-        default=False,
-        help="Enable average_in_collective. Default is False.",
+        default=True,
+        help="Enable average_in_collective. Default is True.",
     )
     parser.add_argument(
         "--use-distributed-optimizer",
         action="store_true",
-        default=False,
-        help="Enable use_distributed_optimizer. Default is False.",
+        default=True,
+        help="Enable use_distributed_optimizer. Default is True.",
     )
     return parser
 
