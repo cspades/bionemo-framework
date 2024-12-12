@@ -74,6 +74,7 @@ DEFAULT_BRANCH_NAME="main"
 ARCH=$(uname -m)
 if [[ "$ARCH" == "arm64" || "$ARCH" == "aarch64" ]]; then
     DEFAULT_DOCKERFILE_PATH="Dockerfile.arm"
+    EXTRA_ARGS="${EXTRA_ARGS} --build-arg LLVM_NINJA_THREADS=4"
 else
     DEFAULT_DOCKERFILE_PATH="Dockerfile"
 fi
