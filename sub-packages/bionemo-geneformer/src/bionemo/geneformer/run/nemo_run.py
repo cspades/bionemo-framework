@@ -1,7 +1,7 @@
 # Put NeMoRun related stuff here.
 
 from dataclasses import field, dataclass
-from typing import Type
+from typing import Optional, Type
 
 from nemo_run import Config, Partial, autoconvert
 import nemo_run as run
@@ -38,6 +38,7 @@ def parse_args_and_recipe():
     # Example using a simple local executor
     executor = run.LocalExecutor()
     run.run(recipe, executor=executor, detach=True, dryrun=False)
+
 
 def defer_load(fdl_config: Config[NRArgs]):
     ''' Executes a training job from a fiddle configuration object that has been derived from an argparse Namespace. 
