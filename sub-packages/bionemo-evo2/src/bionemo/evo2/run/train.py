@@ -16,17 +16,22 @@
 import argparse
 
 import torch
+import torch._dynamo
 from megatron.core.optimizer import OptimizerConfig
 from nemo import lightning as nl
 from nemo.collections import llm
 from nemo.collections.llm.gpt.data import PreTrainingDataModule
-from nemo.collections.nlp.data.language_modeling.megatron import Evo2Dataset
+from nemo.collections.llm.gpt.data.megatron.hyena import Evo2Dataset
 from nemo.collections.nlp.modules.common.tokenizer_utils import get_nmt_tokenizer
 from nemo.lightning import NeMoLogger
 from nemo.lightning.pytorch.callbacks import ModelCheckpoint
 from nemo.lightning.pytorch.optim import CosineAnnealingScheduler
 from nemo.lightning.pytorch.optim.megatron import MegatronOptimizerModule
-from pytorch_lightning.loggers import WandbLogger
+from nemo.lightning.pytorch.strategies.utils import RestoreConfig
+from pytorch_lightning.loggers import TensorBoardLogger, WandbLogger
+
+
+torch._dynamo.config.suppress_errors = True
 
 
 def parse_args():
@@ -46,6 +51,7 @@ def parse_args():
         "--context-parallel-size", type=int, default=1, help="Order of context parallelism. Defaults to 1."
     )
     parser.add_argument("--sequence-parallel", action="store_true", help="Set to enable sequence parallelism.")
+    parser.add_argument("--fp8", action="store_true", help="Set to enable FP8")
     parser.add_argument("--micro-batch-size", type=int, default=1, help="Micro-batch size for data-parallel training.")
     parser.add_argument("--global-batch-size", type=int, default=8, help="Global batch size for training.")
     parser.add_argument("--max-steps", type=int, help="Number of training optimizer update steps.")
@@ -66,6 +72,8 @@ def parse_args():
     parser.add_argument(
         "--tokenizer-path", type=str, default=None, help="Path to tokenizer model if relevant to tokenizer."
     )
+    parser.add_argument("--seed", type=int, default=1234, help="Set random seed for training.")
+    parser.add_argument("--workers", type=int, default=0, help="Number of workers to use for data loading.")
 
     return parser.parse_args()
 
@@ -84,8 +92,8 @@ def main():
         seq_length=args.seq_length,
         micro_batch_size=args.micro_batch_size,
         global_batch_size=args.global_batch_size,
-        seed=1234,
-        num_workers=2,
+        seed=args.seed,
+        num_workers=args.workers,
         tokenizer=tokenizer,
     )
 
@@ -120,10 +128,11 @@ def main():
         project="hyena_ux_test",
         save_dir=args.experiment_dir,
     )
-    # wandb_logger = TensorBoardLogger(
-    #     save_dir='dummy',  ## NOTE: this gets overwritten by default
-    # )
     loggers.append(wandb_logger)
+    tb_logger = TensorBoardLogger(
+        save_dir="dummy",  ## NOTE: this gets overwritten by default
+    )
+    loggers.append(tb_logger)
 
     nemo_logger = NeMoLogger(log_dir=args.experiment_dir, wandb=wandb_logger)
 
@@ -141,7 +150,7 @@ def main():
             ckpt_load_optimizer=False,  # Checkpoint model state only.
             ckpt_save_optimizer=False,
             ckpt_async_save=False,
-            save_ckpt_format="zarr",
+            save_ckpt_format="torch_dist",
         ),
         logger=loggers,
         callbacks=[checkpoint_callback],
@@ -151,6 +160,9 @@ def main():
         plugins=nl.MegatronMixedPrecision(
             precision="bf16-mixed",
             params_dtype=torch.bfloat16,
+            fp8="hybrid" if args.fp8 else None,
+            fp8_amax_history_len=16 if args.fp8 else 1,
+            fp8_amax_compute_algo="max" if args.fp8 else "most_recent",
         ),
         val_check_interval=args.val_check_interval,
     )
@@ -160,9 +172,6 @@ def main():
         trainer,
         resume_if_exists=True,
     )
-
-    # Auto resume setup
-    from nemo.lightning.pytorch.strategies.utils import RestoreConfig
 
     resume = nl.AutoResume(
         resume_if_exists=True,
