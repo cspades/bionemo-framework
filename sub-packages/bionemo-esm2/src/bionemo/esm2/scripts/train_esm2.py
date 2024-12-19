@@ -214,7 +214,6 @@ def main(
     )
 
     callbacks = [
-        PerplexityLoggingCallback(log_train=False, log_val=True),
         RichModelSummary(max_depth=4),
         LearningRateMonitor(),
         nl_callbacks.PreemptionCallback(),
