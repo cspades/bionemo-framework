@@ -351,9 +351,9 @@ class BionemoLightningModule(
             self.train_ppl(logits, batch["labels"])
 
         print(f"Logging train_ppl {self.train_ppl} at device {torch.cuda.current_device()} on training_step.")
-        computed_train_ppl = self.train_ppl.compute()
+        # computed_train_ppl = self.train_ppl.compute()
         self.log("train_ppl", self.train_ppl, on_step=True, on_epoch=False)
-        self.log("computed_train_ppl", computed_train_ppl, on_step=True, on_epoch=False)
+        # self.log("computed_train_ppl", computed_train_ppl, on_step=True, on_epoch=False)
         # Don't have to clean up at epoch level yet because it will never complete a single epoch in debug config
 
         return outputs
