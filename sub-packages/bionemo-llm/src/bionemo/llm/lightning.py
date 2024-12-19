@@ -349,6 +349,7 @@ class BionemoLightningModule(
 
         if self.log_train_ppl and parallel_state.is_pipeline_last_stage():
             self.train_ppl(logits, batch["labels"])
+            print(f"Logging at device {torch.cuda.current_device()} on log_train_ppl.")
             self.log("train_ppl", self.train_ppl, on_step=True, on_epoch=False)
 
         return outputs
