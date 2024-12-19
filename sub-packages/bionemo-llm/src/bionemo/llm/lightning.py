@@ -350,8 +350,14 @@ class BionemoLightningModule(
         if self.log_train_ppl and parallel_state.is_pipeline_last_stage():
             self.train_ppl(logits, batch["labels"])
 
+        if self.global_rank == 0:
+            print("I am rank 0 and I will log a dummy.")
+            self.log("rank_zero_report", 1)
+
+        # TODO only seeing 4, 5, 6, 7 device on print
         print(f"Logging train_ppl {self.train_ppl} at device {torch.cuda.current_device()} on training_step.")
         # computed_train_ppl = self.train_ppl.compute()
+        print(f"Device count is {torch.cuda.device_count()} at device {self.local_rank}/{self.global_rank} with pp group {parallel_state.get_pipeline_model_parallel_group()}")
         self.log("train_ppl", self.train_ppl, on_step=True, on_epoch=False)
         # self.log("computed_train_ppl", computed_train_ppl, on_step=True, on_epoch=False)
         # Don't have to clean up at epoch level yet because it will never complete a single epoch in debug config
