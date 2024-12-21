@@ -14,9 +14,15 @@
 # limitations under the License.
 
 import argparse
+from collections import defaultdict
+from dataclasses import dataclass
 
+import nvidia_resiliency_ext.ptl_resiliency as res_module
 import torch
-import torch._dynamo
+import yaml
+from lightning.pytorch.callbacks import LearningRateMonitor, RichModelSummary
+from lightning.pytorch.loggers import TensorBoardLogger, WandbLogger
+from megatron.core.distributed import DistributedDataParallelConfig
 from megatron.core.optimizer import OptimizerConfig
 from nemo import lightning as nl
 from nemo.collections import llm
@@ -24,11 +30,16 @@ from nemo.collections.llm.gpt.data import PreTrainingDataModule
 from nemo.collections.llm.gpt.data.megatron.hyena import Evo2Dataset
 from nemo.collections.nlp.modules.common.tokenizer_utils import get_nmt_tokenizer
 from nemo.lightning import NeMoLogger
+from nemo.lightning.pytorch import callbacks as nl_callbacks
 from nemo.lightning.pytorch.callbacks import ModelCheckpoint
+from nemo.lightning.pytorch.callbacks.megatron_comm_overlap import MegatronCommOverlapCallback
 from nemo.lightning.pytorch.optim import CosineAnnealingScheduler
 from nemo.lightning.pytorch.optim.megatron import MegatronOptimizerModule
 from nemo.lightning.pytorch.strategies.utils import RestoreConfig
-from pytorch_lightning.loggers import TensorBoardLogger, WandbLogger
+from nemo.utils.exp_manager import TimingCallback
+
+from bionemo.evo2.utils.config import Evo2BlendedDatasetConfig
+from bionemo.llm.utils.datamodule_utils import infer_global_batch_size
 
 
 torch._dynamo.config.suppress_errors = True
@@ -37,10 +48,16 @@ torch._dynamo.config.suppress_errors = True
 def parse_args():
     """Parse arguments for Evo2 model training."""
     parser = argparse.ArgumentParser(description="Train a Hyena model using NeMo 2.0.")
+    parser.add_argument(
+        "-d",
+        "--dataset-config",
+        type=str,
+        required=True,
+        help="Path to the blended / weighted training dataset configuration YAML.",
+    )
     parser.add_argument("--num-nodes", type=int, default=1, help="Number of nodes to use for training, defaults to 1.")
     parser.add_argument("--devices", type=int, default=1, help="Number of devices to use for training, defaults to 1.")
     parser.add_argument("--seq-length", type=int, default=8192, help="Training sequence length")
-    parser.add_argument("--data-path", type=str, nargs="+", default=[], help="Paths to data directories for training.")
     parser.add_argument(
         "--tensor-parallel-size", type=int, default=1, help="Order of tensor parallelism. Defaults to 1."
     )
@@ -50,14 +67,31 @@ def parse_args():
     parser.add_argument(
         "--context-parallel-size", type=int, default=1, help="Order of context parallelism. Defaults to 1."
     )
+    parser.add_argument("--wandb-project", type=str, default="bionemo_hyena", help="Wandb project name")
+    parser.add_argument("--wandb-run-id", type=str, default=None, help="Wandb run identifier")
     parser.add_argument("--sequence-parallel", action="store_true", help="Set to enable sequence parallelism.")
     parser.add_argument("--fp8", action="store_true", help="Set to enable FP8")
     parser.add_argument("--micro-batch-size", type=int, default=1, help="Micro-batch size for data-parallel training.")
-    parser.add_argument("--global-batch-size", type=int, default=8, help="Global batch size for training.")
+    parser.add_argument(
+        "--global-batch-size",
+        type=int,
+        default=None,
+        help="Global batch size for training. If set to None, infer it from the TP, CP, and PP parameters.",
+    )
+    parser.add_argument(
+        "--grad-acc-batches", type=int, default=1, help="Number of batches to accumulate gradients over."
+    )
     parser.add_argument("--max-steps", type=int, help="Number of training optimizer update steps.")
     parser.add_argument(
         "--val-check-interval", type=int, help="Number of steps between validation measurements and model checkpoints."
     )
+    parser.add_argument("--grad-reduce-in-fp32", action="store_true", default=False, help="Gradient reduce in FP32.")
+    parser.add_argument(
+        "--no-aligned-megatron-ddp", action="store_true", default=False, help="Do not do aligned gradient updates etc."
+    )
+    parser.add_argument("--use-megatron-comm-overlap-llama3-8k", action="store_true", default=False)
+    parser.add_argument("--align-param-gather", action="store_true", default=False)
+    parser.add_argument("--straggler-detection", action="store_true", default=False)
     parser.add_argument(
         "--model-size",
         type=str,
@@ -68,47 +102,178 @@ def parse_args():
     parser.add_argument(
         "--experiment-dir", type=str, default=None, help="Directory to write model checkpoints and results to."
     )
-    parser.add_argument("--ckpt-dir", type=str, default=None, help="Directory to read checkpoints from.")
     parser.add_argument(
-        "--tokenizer-path", type=str, default=None, help="Path to tokenizer model if relevant to tokenizer."
+        "--ckpt-dir",
+        type=str,
+        default=None,
+        help="Directory to restore an initial checkpoint from. Use this for supervised fine-tuning.",
+    )
+    parser.add_argument("--defer-embedding-wgrad-compute", action="store_true", default=False)
+    parser.add_argument(
+        "--restore-optimizer-from-ckpt",
+        action="store_true",
+        help="Restore optimizer state from initial checkpoint. Defaults to False.",
     )
     parser.add_argument("--seed", type=int, default=1234, help="Set random seed for training.")
     parser.add_argument("--workers", type=int, default=0, help="Number of workers to use for data loading.")
-
+    parser.add_argument(
+        "--gc-interval",
+        type=int,
+        default=0,
+        help="Set to a value > 0 if you want to synchronize garbage collection, will do gc every gc-interval steps.",
+    )
+    parser.add_argument(
+        "--enable-preemption",
+        action="store_true",
+        default=False,
+        help="Enable preemption hooks. If enabled this will save a checkpoint whenver slurm exits.",
+    )
+    parser.add_argument(
+        "--ckpt-async-save",
+        action="store_true",
+        default=False,
+    )
+    parser.add_argument(
+        "--wgrad-deferral-limit",
+        type=int,
+        default=22,
+        help="Unused unless you also do --defer-embedding-wgrad-compute.",
+    )
     return parser.parse_args()
+
+
+@dataclass
+class TPOverlapCfg:
+    pass
+
+
+@dataclass
+class PipelineOverlapCfg(TPOverlapCfg):
+    num_sm: int
+    cga_size: int
+    num_splits: int
+    set_sm_margin: bool
+    fp8_buf: bool = (False,)
+    method: str = "pipeline"
+
+
+@dataclass
+class RingExchangeOverlapCfg(TPOverlapCfg):
+    aggregate: bool = False
+    method: str = "ring_exchange"
+    num_sm: int = 1
+    set_sm_margin: bool = False
+
+
+@dataclass
+class BulkOverlapCfg(TPOverlapCfg):
+    num_sm: int
+    cga_size: int
+    set_sm_margin: bool
+    method: str = "bulk"
+
+
+@dataclass
+class TransformerLayerTPOverlapCfg:
+    qkv_dgrad: TPOverlapCfg
+    qkv_wgrad: TPOverlapCfg
+    fc1_dgrad: TPOverlapCfg
+    fc1_wgrad: TPOverlapCfg
+    qkv_fprop: TPOverlapCfg
+    proj_dgrad: TPOverlapCfg
+    fc1_fprop: TPOverlapCfg
+    fc2_dgrad: TPOverlapCfg
+    proj_fprop: TPOverlapCfg
+    fc2_fprop: TPOverlapCfg
+
+
+# TODO: Add more configs and create a getter function for expose a single api
+# Model configs: H100/70B/TP8/MBS1/SeqLen8K
+userbuffers_bf16_h100_h8192_tp4_mbs1_seqlen8192 = TransformerLayerTPOverlapCfg(
+    qkv_dgrad=BulkOverlapCfg(num_sm=4, cga_size=2, set_sm_margin=False),
+    qkv_wgrad=BulkOverlapCfg(num_sm=24, cga_size=2, set_sm_margin=False),
+    fc1_dgrad=BulkOverlapCfg(num_sm=2, cga_size=2, set_sm_margin=False),
+    fc1_wgrad=BulkOverlapCfg(num_sm=4, cga_size=2, set_sm_margin=False),
+    qkv_fprop=RingExchangeOverlapCfg(aggregate=False),
+    proj_dgrad=RingExchangeOverlapCfg(aggregate=False),
+    fc1_fprop=RingExchangeOverlapCfg(aggregate=False),
+    fc2_dgrad=RingExchangeOverlapCfg(aggregate=False),
+    proj_fprop=PipelineOverlapCfg(num_sm=24, cga_size=2, num_splits=4, set_sm_margin=True),
+    fc2_fprop=PipelineOverlapCfg(num_sm=16, cga_size=2, num_splits=4, set_sm_margin=True),
+)
+
+
+def parse_dataset_config(dataset_config_path: str):
+    """Parse the blended training datasplit configuration and renormalize data split weights for training Hyena."""
+    blended_dataset_config = defaultdict(list)
+    weight_sums = defaultdict(float)
+    with open(dataset_config_path, "r") as config_file:
+        dataset_config_batch = yaml.safe_load(config_file)
+        for dataset_config in dataset_config_batch:
+            # Validate.
+            config_model = Evo2BlendedDatasetConfig(**dataset_config)
+            # Integrate the weights for renormalization.
+            weight_sums[config_model.dataset_split] += abs(config_model.dataset_weight)
+        for dataset_config in dataset_config_batch:
+            # Validate.
+            config_model = Evo2BlendedDatasetConfig(**dataset_config)
+            # Add indexed dataset to split and associate with blended training weight.
+            blended_dataset_config[config_model.dataset_split].extend(
+                [config_model.dataset_weight / weight_sums[config_model.dataset_split], config_model.dataset_prefix]
+            )
+    return blended_dataset_config
 
 
 def main():
     """Main function to run Evo2 training."""
     args = parse_args()
 
+    # Parse dataset configuration.
+    blended_dataset_config = parse_dataset_config(args.dataset_config)
+
+    # Instantiate tokenizer.
     tokenizer = get_nmt_tokenizer(
         "byte-level",
     )
 
+    # Infer global batch size.
+    global_batch_size = args.global_batch_size
+    if global_batch_size is None:
+        global_batch_size = infer_global_batch_size(
+            micro_batch_size=args.micro_batch_size,
+            num_nodes=args.num_nodes,
+            devices=args.devices,
+            accumulate_grad_batches=args.grad_acc_batches,
+            tensor_model_parallel_size=args.tensor_parallel_size,
+            pipeline_model_parallel_size=args.pipeline_model_parallel_size,
+            context_model_parallel_size=args.context_parallel_size,
+        )
+
+    # Instantiate pre-training module.
     data = PreTrainingDataModule(
-        paths=args.data_path,
+        paths=blended_dataset_config,
         dataset_cls=Evo2Dataset,
         seq_length=args.seq_length,
         micro_batch_size=args.micro_batch_size,
-        global_batch_size=args.global_batch_size,
+        global_batch_size=global_batch_size,
         seed=args.seed,
         num_workers=args.workers,
         tokenizer=tokenizer,
     )
 
     if args.model_size == "7b":
-        hyena_config = llm.Hyena7bConfig()
+        hyena_config = llm.Hyena7bConfig(wgrad_deferral_limit=args.wgrad_deferral_limit, defer_embedding_wgrad_compute=args.defer_embedding_wgrad_compute)
     elif args.model_size == "40b":
-        hyena_config = llm.Hyena40bConfig()
+        hyena_config = llm.Hyena40bConfig(wgrad_deferral_limit=args.wgrad_deferral_limit, defer_embedding_wgrad_compute=args.defer_embedding_wgrad_compute)
     elif args.model_size == "test":
-        hyena_config = llm.HyenaTestConfig()
+        hyena_config = llm.HyenaTestConfig(wgrad_deferral_limit=args.wgrad_deferral_limit, defer_embedding_wgrad_compute=args.defer_embedding_wgrad_compute)
     else:
         raise ValueError(f"Invalid model size: {args.model_size}")
 
     hyena_config.seq_length = args.seq_length
     model = llm.GPTModel(hyena_config, tokenizer=data.tokenizer)
 
+    # Setup callbacks.
     checkpoint_callback = ModelCheckpoint(
         every_n_train_steps=args.val_check_interval,
         dirpath=args.experiment_dir,
@@ -117,15 +282,58 @@ def main():
         save_optim_on_train_end=True,
         save_context_on_train_end=True,
     )
+    callbacks = [
+        checkpoint_callback,
+        RichModelSummary(max_depth=4),
+        LearningRateMonitor(),
+        TimingCallback(),
+    ]
+    if args.enable_preemption:
+        callbacks.append(nl_callbacks.PreemptionCallback())
+
+    if args.straggler_detection:
+        callbacks.append(
+            res_module.StragglerDetectionCallback(
+                report_time_interval=300,
+                calc_relative_gpu_perf=True,
+                calc_individual_gpu_perf=True,
+                num_gpu_perf_scores_to_print=5,
+                gpu_relative_perf_threshold=0.7,
+                gpu_individual_perf_threshold=0.7,
+                stop_if_detected=True,
+                enable_ptl_logging=True,
+            )
+        )
+    if args.use_megatron_comm_overlap_llama3_8k:
+        callbacks.append(
+            MegatronCommOverlapCallback(
+                tp_comm_overlap=True,
+                tp_comm_overlap_cfg=userbuffers_bf16_h100_h8192_tp4_mbs1_seqlen8192,
+                defer_embedding_wgrad_compute=args.defer_embedding_wgrad_compute,
+                wgrad_deferral_limit=args.wgrad_deferral_limit,
+                overlap_param_gather_with_optimizer_step=False,  # Currently disabled due to an issue with checkpointing.
+                align_param_gather=args.align_param_gather,
+            )
+        )
+
+    if args.gc_interval > 0:
+        callbacks.append(
+            nl_callbacks.GarbageCollectionCallback(
+                gc_interval_train=args.gc_interval, gc_interval_val=args.gc_interval
+            )
+        )
 
     loggers = []
     wandb_logger = WandbLogger(
         name=(
             f"hyena-size-{args.model_size}-TP{args.tensor_parallel_size}-"
             f"PP{args.pipeline_model_parallel_size}-CP{args.context_parallel_size}"
-            f"-GBS{args.global_batch_size}-MBS{args.micro_batch_size}"
+            f"-GBS{global_batch_size}-MBS{args.micro_batch_size}"
+            f"-GRFP32{args.grad_reduce_in_fp32}-ALIGN{not args.no_aligned_megatron_ddp}"
+            f"-NODES{args.num_nodes}"
         ),
-        project="hyena_ux_test",
+        id=args.wandb_run_id,  # set this to use the same curve name for restarts.
+        project="bionemo_hyena",
         save_dir=args.experiment_dir,
     )
     loggers.append(wandb_logger)
@@ -135,28 +343,47 @@ def main():
     loggers.append(tb_logger)
 
     nemo_logger = NeMoLogger(log_dir=args.experiment_dir, wandb=wandb_logger)
-
+    if args.no_aligned_megatron_ddp:
+        ddp: str | DistributedDataParallelConfig = DistributedDataParallelConfig(
+            check_for_nan_in_grad=True,
+            grad_reduce_in_fp32=args.grad_reduce_in_fp32,
+            align_param_gather=args.align_param_gather,
+        )
+    else:
+        ddp = DistributedDataParallelConfig(
+            check_for_nan_in_grad=True,
+            grad_reduce_in_fp32=args.grad_reduce_in_fp32,
+            overlap_grad_reduce=True,
+            overlap_param_gather=True,
+            average_in_collective=True,
+            align_param_gather=args.align_param_gather,
+            use_distributed_optimizer=True,  # this should inherit from the optimizer config, but just in case...
+        )
+    # Initialize Megatron Strategy and Trainer.
+    strategy = nl.MegatronStrategy(
+        ddp=ddp,
+        tensor_model_parallel_size=args.tensor_parallel_size,
+        pipeline_model_parallel_size=args.pipeline_model_parallel_size,
+        context_parallel_size=args.context_parallel_size,
+        pipeline_dtype=torch.bfloat16,
+        sequence_parallel=args.sequence_parallel,
+        ckpt_load_optimizer=True,
+        ckpt_save_optimizer=True,
+        ckpt_async_save=args.ckpt_async_save,
+        save_ckpt_format="torch_dist",
+    )
     trainer = nl.Trainer(
         devices=args.devices,
         num_nodes=args.num_nodes,
         max_steps=args.max_steps,
         accelerator="gpu",
-        strategy=nl.MegatronStrategy(
-            tensor_model_parallel_size=args.tensor_parallel_size,
-            pipeline_model_parallel_size=args.pipeline_model_parallel_size,
-            context_parallel_size=args.context_parallel_size,
-            pipeline_dtype=torch.bfloat16,
-            sequence_parallel=args.sequence_parallel,
-            ckpt_load_optimizer=False,  # Checkpoint model state only.
-            ckpt_save_optimizer=False,
-            ckpt_async_save=False,
-            save_ckpt_format="torch_dist",
-        ),
+        strategy=strategy,
         logger=loggers,
-        callbacks=[checkpoint_callback],
+        callbacks=callbacks,
         log_every_n_steps=1,
         limit_val_batches=10,
         num_sanity_val_steps=0,
+        use_distributed_sampler=False,
         plugins=nl.MegatronMixedPrecision(
             precision="bf16-mixed",
             params_dtype=torch.bfloat16,
@@ -176,13 +403,13 @@ def main():
     resume = nl.AutoResume(
         resume_if_exists=True,
         resume_ignore_no_checkpoint=True,
-        resume_past_end=True,
-        resume_from_directory=args.ckpt_dir,
+        resume_past_end=False,
+        resume_from_directory=args.experiment_dir,
         restore_config=(
             RestoreConfig(
                 path=args.ckpt_dir,
                 load_model_state=True,
-                load_optim_state=False,  # Load model checkpoint, no optimizer state.
+                load_optim_state=args.restore_optimizer_from_ckpt,
             )
             if args.ckpt_dir
             else None
@@ -202,7 +429,7 @@ def main():
     sched = CosineAnnealingScheduler(
         max_steps=trainer.max_steps,
         warmup_steps=2500,
-        min_lr=0.00003,
+        min_lr=0.000003,
     )
 
     opt = MegatronOptimizerModule(opt_config, sched)

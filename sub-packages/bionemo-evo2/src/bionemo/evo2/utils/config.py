@@ -20,6 +20,13 @@ from typing import Literal
 from pydantic import BaseModel
 
 
+class Evo2BlendedDatasetConfig(BaseModel):
+    """Pydantic model class that specifies indexed datasets, dataset weights, and datasplits assignments for training."""
+    dataset_prefix: None | str = None
+    dataset_weight: None | float = None
+    dataset_split: Literal["train", "validation", "test"]
+
+
 class Evo2PreprocessingConfig(BaseModel):
     """Class specifying the configuration schema for Evo2 data preprocessing."""
 
@@ -27,7 +34,7 @@ class Evo2PreprocessingConfig(BaseModel):
     datapaths: list[Path] = []
     output_dir: None | Path = None
     output_prefix: None | str = None
-    # Datasplit
+    # Random Datasplit
     train_split: float = 0.7
     valid_split: float = 0.2
     test_split: float = 0.1

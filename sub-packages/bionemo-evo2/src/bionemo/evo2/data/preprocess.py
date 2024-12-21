@@ -37,9 +37,9 @@ from Bio import Seq, SeqIO
 from megatron.core.datasets.indexed_dataset import IndexedDatasetBuilder
 from nemo.utils import logging
 
-from bionemo.evo2.data.config import Evo2PreprocessingConfig
 from bionemo.evo2.data.resources.phyla_kingdom_map import PHYLA_TO_KINGDOM
 from bionemo.evo2.data.tokenizer import Evo2Tokenizer
+from bionemo.evo2.utils.config import Evo2PreprocessingConfig
 
 
 @contextmanager
@@ -87,9 +87,28 @@ class Evo2Preprocessor:
     @staticmethod
     def _reverse_complement_expansion(seq: Seq.Seq):
         return [seq, seq.reverse_complement()]
+    
+    @staticmethod
+    def _train_val_test_split(train_weight: float, val_weight: float, test_weight: float):
+        # Generate random number.
+        roll = random.random()
+        # Rectify and normalize split ratios.
+        total_weight = abs(train_weight) + abs(val_weight) + abs(test_weight)
+        if total_weight <= 0:
+            raise ValueError("Train-validation-test split proportions cannot be zero.")
+        train_split = abs(train_weight) / total_weight
+        test_split = abs(test_weight) / total_weight
+        split = "train"
+        if roll > train_split:
+            if roll < 1 - test_split:
+                split = "val"
+            else:
+                split = "test"
+        return split
 
     @staticmethod
     def _get_evo_seq_id(filename: str):
+        """TODO(@cye) Consider deprecating the Taxonomy resources from Arc in favor of an explicit SeqID -> Taxonomy mapping via config."""
         try:
             return ".".join(filename.split("/")[-1].split(".")[:-1])
         except Exception:
@@ -97,6 +116,7 @@ class Evo2Preprocessor:
 
     @staticmethod
     def _get_evo_phyla_from_lineage_string(lineage_str: str):
+        """TODO(@cye) Consider deprecating the Taxonomy resources from Arc in favor of an explicit SeqID -> Taxonomy mapping via config."""
         try:
             return lineage_str.split(";")[1].split("_")[-1]
         except Exception:
@@ -104,6 +124,7 @@ class Evo2Preprocessor:
 
     @staticmethod
     def _load_evo_taxonomy(fname):
+        """TODO(@cye) Consider deprecating the Taxonomy resources from Arc in favor of an explicit SeqID -> Taxonomy mapping via config."""
         df = pd.read_csv(fname, sep="\t")
         id_to_taxonomy = {}
         for _, row in df.iterrows():
@@ -242,13 +263,7 @@ class Evo2Preprocessor:
                 # Release semaphore for the task associated with the result.
                 semaphore.release()
                 # Randomly assign all sequences from this document to train, val, or test.
-                roll = random.random()
-                split = "train"
-                if roll > evo2_preproc_config.train_split:
-                    if roll < 1 - evo2_preproc_config.test_split:
-                        split = "val"
-                    else:
-                        split = "test"
+                split = Evo2Preprocessor._train_val_test_split(preproc_config.train_split, preproc_config.valid_split, preproc_config.test_split)
                 for sequence in result:
                     sequence["split"] = split
                     yield sequence
@@ -283,6 +298,8 @@ class Evo2Preprocessor:
                 val_builder.add_item(torch.Tensor(sequence["tokens"]))
             elif sequence["split"] == "test":
                 test_builder.add_item(torch.Tensor(sequence["tokens"]))
+        # IMPORTANT TODO(@cye): Split documents by filename instead of all datasets
+        # into one document, to check that BlendedDataset weighting make sense.
         train_builder.end_document()
         val_builder.end_document()
         test_builder.end_document()

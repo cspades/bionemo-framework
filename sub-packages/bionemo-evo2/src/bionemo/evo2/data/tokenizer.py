@@ -18,7 +18,7 @@ import ftfy
 from nemo.collections.common.tokenizers.tokenizer_spec import TokenizerSpec
 from nemo.collections.nlp.modules.common.tokenizer_utils import get_nmt_tokenizer
 
-from bionemo.evo2.data.config import Evo2PreprocessingConfig
+from bionemo.evo2.utils.config import Evo2PreprocessingConfig
 
 
 class Evo2Tokenizer:
