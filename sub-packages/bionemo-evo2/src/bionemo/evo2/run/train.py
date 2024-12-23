@@ -330,7 +330,7 @@ def main():
             f"PP{args.pipeline_model_parallel_size}-CP{args.context_parallel_size}"
             f"-GBS{global_batch_size}-MBS{args.micro_batch_size}"
             f"-GRFP32{args.grad_reduce_in_fp32}-ALIGN{not args.no_aligned_megatron_ddp}"
-            f"-NODES{args.num_nodes}"
+            f"-NODES{args.num_nodes}-FP8{args.fp8}"
         ),
         id=args.wandb_run_id,  # set this to use the same curve name for restarts.
         project="bionemo_hyena",
