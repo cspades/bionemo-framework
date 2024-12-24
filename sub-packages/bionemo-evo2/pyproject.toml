@@ -10,7 +10,9 @@ authors = [{ name = "BioNeMo Team", email = "bionemofeedback@nvidia.com" }]
 requires-python = ">=3.10"
 license = { file = "LICENSE" }
 dynamic = ["version"]
-dependencies = []
+dependencies = [
+    "bionemo-noodles"
+]
 
 # [project.scripts]
 # bionemo-evo2-train = ""

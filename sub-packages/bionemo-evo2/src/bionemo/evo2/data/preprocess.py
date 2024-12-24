@@ -17,8 +17,6 @@
 """Module containing data preprocessing and splitting functions for Evo2 in BioNeMo.
 
 It can also be utilized as a script to dump pre-processed data to JSON.
-
-TODO(@cye): Add commentary and config interface.
 """
 
 import argparse
@@ -33,13 +31,14 @@ import numpy as np
 import pandas as pd
 import torch
 import yaml
-from Bio import Seq, SeqIO
 from megatron.core.datasets.indexed_dataset import IndexedDatasetBuilder
 from nemo.utils import logging
 
 from bionemo.evo2.data.resources.phyla_kingdom_map import PHYLA_TO_KINGDOM
 from bionemo.evo2.data.tokenizer import Evo2Tokenizer
 from bionemo.evo2.utils.config import Evo2PreprocessingConfig
+from bionemo.noodles import back_transcribe_sequence, complement_sequence, reverse_sequence, transcribe_sequence
+from bionemo.noodles.nvfaidx import NvFaidx
 
 
 @contextmanager
@@ -71,22 +70,22 @@ class Evo2Preprocessor:
         )
 
     @staticmethod
-    def _subsequence_generator(sequence: Seq.Seq, subsequence_length: int | None = None, offset: int | None = None):
+    def _subsequence_generator(sequence: str, subsequence_length: int | None = None, offset: int | None = None):
         subsequence_length = subsequence_length if isinstance(subsequence_length, int) else len(sequence)
         step_size = offset if isinstance(offset, int) else subsequence_length
         for i in range(0, len(sequence), step_size):
             yield sequence[i : i + subsequence_length]
 
     @staticmethod
-    def _random_reverse_complement(seq: Seq.Seq, prob: float = 0.5):
+    def _random_reverse_complement(seq: str, prob: float = 0.5):
         if random.random() < prob:
-            return seq.reverse_complement()
+            return complement_sequence(reverse_sequence(seq))
         else:
             return seq
 
     @staticmethod
-    def _reverse_complement_expansion(seq: Seq.Seq):
-        return [seq, seq.reverse_complement()]
+    def _reverse_complement_expansion(seq: str):
+        return [seq, complement_sequence(reverse_sequence(seq))]
     
     @staticmethod
     def _train_val_test_split(train_weight: float, val_weight: float, test_weight: float):
@@ -141,20 +140,19 @@ class Evo2Preprocessor:
         return id_to_taxonomy
 
     @staticmethod
-    def _yield_sequences_from_files(fnames: list, semaphore: Semaphore, gzip_data: bool = False):
+    def _yield_sequences_from_files(fnames: list, semaphore: Semaphore):
         """Iterator over sequences within multiple input documents. Arguments for multiprocessing tasks.
 
         Utilized to limit the amount of sequences streamed into memory.
-        TODO(@cye): Just do the fasta parsing ourselves if there's no weird formats.
         """
 
         def yielder(fname, semaphore):
-            # Open file.
-            with gzip.open(fname, "rt") if gzip_data else open(fname, "r") as f:
-                for record in SeqIO.parse(f, "fasta"):
-                    semaphore.acquire()
-                    # Yield filename and record within fasta.
-                    yield str(fname), record
+            # Read FASTA.
+            index = NvFaidx(fname)
+            for seqid, sequence in index.items():
+                semaphore.acquire()
+                # Yield filename and sequence within fasta.
+                yield str(fname), seqid, sequence
 
         for fname in fnames:
             semaphore.acquire()
@@ -167,7 +165,7 @@ class Evo2Preprocessor:
             self._load_evo_taxonomy(self.params.taxonomy_path) if self.params.taxonomy_path is not None else None
         )
 
-    def preprocess_data(self, filepath: str, record) -> list[dict]:
+    def preprocess_data(self, filepath: str, seqid: str, seq: str) -> list[dict]:
         """Preprocess Evo2 fasta datapaths."""
         # Retrieve EVO taxonomy metadata if id_to_taxonomy is provided.
         lineage_string = (
@@ -186,7 +184,6 @@ class Evo2Preprocessor:
         with preprocessing_context_manager(
             self.params.seed + hash(filepath) if self.params.seed is not None else None
         ):
-            seq = record.seq
             # Randomly reverse complement the sequence.
             seq = self._random_reverse_complement(seq, prob=0.5) if self.params.random_reverse_complement else seq
             seqs_to_parse = self._reverse_complement_expansion(seq) if self.params.embed_reverse_complement else [seq]
@@ -194,9 +191,9 @@ class Evo2Preprocessor:
                 if self.params.force_uppercase:
                     seq = seq.upper()
                 if self.params.transcribe == "transcribe":
-                    seq = seq.transcribe()
+                    seq = transcribe_sequence(seq)
                 elif self.params.transcribe == "back_transcribe":
-                    seq = seq.back_transcribe()
+                    seq = back_transcribe_sequence(seq)
                 if self.params.drop_empty_sequences and len(seq) == 0:
                     continue
                 if self.params.nnn_filter and "NNN" in seq.upper():
@@ -216,7 +213,7 @@ class Evo2Preprocessor:
                         "text": taxonomy_token + str(subseq) if taxonomy_token is not None else str(subseq),
                     }
                     if self.params.include_sequence_id:
-                        preproc_data_record["id"] = f"{record.id}_{i}"
+                        preproc_data_record["id"] = f"{seqid}_{i}"
                     # Tokenize the sequence.
                     preproc_data_record["tokens"] = self.tokenizer.tokenize(
                         preproc_data_record["text"],
@@ -245,7 +242,7 @@ class Evo2Preprocessor:
             preproc_tasks = pool.imap(
                 evo2_preprocessor.preprocess_data_task,
                 Evo2Preprocessor._yield_sequences_from_files(
-                    preproc_config.datapaths, semaphore, preproc_config.gzip_data
+                    preproc_config.datapaths, semaphore
                 ),
                 chunksize=25,
             )
@@ -253,7 +250,7 @@ class Evo2Preprocessor:
             preproc_tasks = (
                 evo2_preprocessor.preprocess_data_task(x)
                 for x in Evo2Preprocessor._yield_sequences_from_files(
-                    preproc_config.datapaths, semaphore, preproc_config.gzip_data
+                    preproc_config.datapaths, semaphore
                 )
             )
 
@@ -294,15 +291,13 @@ class Evo2Preprocessor:
         for sequence in self.preprocess_generator(preproc_config):
             if sequence["split"] == "train":
                 train_builder.add_item(torch.Tensor(sequence["tokens"]))
+                train_builder.end_document()
             elif sequence["split"] == "val":
                 val_builder.add_item(torch.Tensor(sequence["tokens"]))
+                val_builder.end_document()
             elif sequence["split"] == "test":
                 test_builder.add_item(torch.Tensor(sequence["tokens"]))
-        # IMPORTANT TODO(@cye): Split documents by filename instead of all datasets
-        # into one document, to check that BlendedDataset weighting make sense.
-        train_builder.end_document()
-        val_builder.end_document()
-        test_builder.end_document()
+                test_builder.end_document()
 
         # Write preprocessed index sdata to disk.
         IDX = ".idx"

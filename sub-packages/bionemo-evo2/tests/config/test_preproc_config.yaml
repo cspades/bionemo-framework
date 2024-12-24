@@ -1,6 +1,6 @@
-- datapaths: ["/workspace/bionemo2/sub-packages/bionemo-evo2/tests/data/mmseqs_results_rep_seq.fasta"]
-  output_dir: "/workspace/bionemo2/sub-packages/bionemo-evo2/tests/data"
-  output_prefix: promoters_ab_test
+- datapaths: ["/workspace/bionemo2/data/mmseqs_results_rep_seq_distinct.fasta"]
+  output_dir: "/workspace/bionemo2/data"
+  output_prefix: promoters_ab_test_noodles_uint8_distinct
   # Datasplit
   train_split: 1.0  # because they do manual splits of first 1000 for validation, 2nd 1000 for test, and leftover for training
   valid_split: 0.0
@@ -8,7 +8,6 @@
   # Evo Taxonomy
   taxonomy_path: null
   # Raw Preprocessing Transforms
-  gzip_data: false
   embed_reverse_complement: true
   random_reverse_complement: false
   subsequence_length: null
@@ -36,3 +35,4 @@
   nnn_filter: true
   # RNG
   seed: 42
+

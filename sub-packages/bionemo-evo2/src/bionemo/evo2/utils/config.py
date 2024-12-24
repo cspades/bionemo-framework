@@ -41,7 +41,6 @@ class Evo2PreprocessingConfig(BaseModel):
     # Evo Taxonomy
     taxonomy_path: None | Path = None
     # Raw Preprocessing Transforms
-    gzip_data: bool = False
     embed_reverse_complement: bool = False
     random_reverse_complement: bool = False
     subsequence_length: None | int = None
