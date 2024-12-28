@@ -381,7 +381,8 @@ class BionemoLightningModule(
 
     def on_validation_epoch_end(self):  # noqa: D102
         valid_metric_value = self.valid_ppl.compute()
-        self.log("valid_ppl", valid_metric_value, on_step=False, on_epoch=True, logger=True)
+        print(f"valid_ppl at {torch.cuda.current_device()} is {valid_metric_value}.")
+        self.log("valid_ppl", valid_metric_value, on_step=False, on_epoch=True)
         self.valid_ppl.reset()
 
 
