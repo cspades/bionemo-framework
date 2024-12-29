@@ -389,7 +389,7 @@ class BionemoLightningModule(
 
         print(f"valid_ppl states are total_log_probs={self.valid_ppl.total_log_probs.sum()} and count={self.valid_ppl.count.sum()} at {self.trainer.global_rank} before compute.")
         valid_metric_value = self.valid_ppl.compute()
-        # print(f"valid_ppl states are total_log_probs={self.valid_ppl.total_log_probs.sum()} and count={self.valid_ppl.count.sum()} at {self.trainer.global_rank} after compute.")
+        print(f"valid_ppl states are total_log_probs={self.valid_ppl.total_log_probs.sum()} and count={self.valid_ppl.count.sum()} at {self.trainer.global_rank} after compute.")
         print(f"valid_ppl at {self.trainer.global_rank} is {valid_metric_value}.")
         self.log("valid_ppl", valid_metric_value, on_step=False, on_epoch=True)
         self.valid_ppl.reset()
