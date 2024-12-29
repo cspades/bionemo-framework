@@ -380,6 +380,9 @@ class BionemoLightningModule(
         return self.loss_reduction_class(validation_step=True)
 
     def on_validation_epoch_end(self):  # noqa: D102
+        if self.trainer.sanity_checking:
+            return
+
         print(f"valid_ppl states are total_log_probs={self.valid_ppl.total_log_probs.sum()} and count={self.valid_ppl.count.sum()} at {self.trainer.global_rank}.")
         valid_metric_value = self.valid_ppl.compute()
         print(f"valid_ppl at {self.trainer.global_rank} is {valid_metric_value}.")
