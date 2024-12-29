@@ -362,6 +362,7 @@ class BionemoLightningModule(
             count = (batch['labels'] == -100).sum()
             print(f"calling self.valid_ppl.update at {self.trainer.global_rank} with count={count}.")
             self.valid_ppl.update(logits, batch["labels"])
+            print(f"after self.valid_ppl.update at {self.trainer.global_rank} with count={self.valid_ppl.count}.")
 
         return outputs
 
