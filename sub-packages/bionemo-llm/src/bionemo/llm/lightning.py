@@ -391,6 +391,9 @@ class BionemoLightningModule(
         self.valid_ppl.reset()
         print(f"valid_ppl states are total_log_probs={self.valid_ppl.total_log_probs.sum()} and count={self.valid_ppl.count.sum()} at {self.trainer.global_rank} after reset.")
 
+        group = torch.distributed.group.WORLD
+        tp_group = parallel_state.get_tensor_model_parallel_group()
+        print(f"Number of devices seen in world group at {self.trainer.global_rank} is {torch.distributed.get_world_size(group)} and tp world size is {torch.distributed.get_world_size(tp_group)}.")
 
 def default_megatron_optimizer() -> MegatronOptimizerModule:
     """Default distributed optimizer uses Adam with a 1e-4 learning rate."""
