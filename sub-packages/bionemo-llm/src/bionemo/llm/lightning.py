@@ -359,7 +359,7 @@ class BionemoLightningModule(
         logits = outputs["token_logits"].transpose(0, 1)  #  [s, b] -> [b, s]
 
         if self.log_val_ppl and parallel_state.is_pipeline_last_stage():
-            count = (batch['labels'] == -100).sum()
+            count = (batch['labels'] != -100).sum()
             total_log_probs = -torch.nn.functional.softmax(logits.reshape(-1, logits.shape[-1]), dim=1).log().sum()
             print(f"calling self.valid_ppl.update at {self.trainer.global_rank} with total_log_probs={total_log_probs} and count={count}.")
             self.valid_ppl.update(logits, batch["labels"])
