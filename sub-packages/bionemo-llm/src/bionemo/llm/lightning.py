@@ -359,6 +359,8 @@ class BionemoLightningModule(
         logits = outputs["token_logits"].transpose(0, 1)  #  [s, b] -> [b, s]
 
         if self.log_val_ppl and parallel_state.is_pipeline_last_stage():
+            count = (batch['labels'] == -100).sum()
+            print(f"calling self.valid_ppl.update at {self.trainer.global_rank} with count={count}.")
             self.valid_ppl.update(logits, batch["labels"])
 
         return outputs
@@ -385,15 +387,15 @@ class BionemoLightningModule(
 
         print(f"valid_ppl states are total_log_probs={self.valid_ppl.total_log_probs.sum()} and count={self.valid_ppl.count.sum()} at {self.trainer.global_rank} before compute.")
         valid_metric_value = self.valid_ppl.compute()
-        print(f"valid_ppl states are total_log_probs={self.valid_ppl.total_log_probs.sum()} and count={self.valid_ppl.count.sum()} at {self.trainer.global_rank} after compute.")
+        # print(f"valid_ppl states are total_log_probs={self.valid_ppl.total_log_probs.sum()} and count={self.valid_ppl.count.sum()} at {self.trainer.global_rank} after compute.")
         print(f"valid_ppl at {self.trainer.global_rank} is {valid_metric_value}.")
         self.log("valid_ppl", valid_metric_value, on_step=False, on_epoch=True)
         self.valid_ppl.reset()
-        print(f"valid_ppl states are total_log_probs={self.valid_ppl.total_log_probs.sum()} and count={self.valid_ppl.count.sum()} at {self.trainer.global_rank} after reset.")
+        # print(f"valid_ppl states are total_log_probs={self.valid_ppl.total_log_probs.sum()} and count={self.valid_ppl.count.sum()} at {self.trainer.global_rank} after reset.")
 
-        group = torch.distributed.group.WORLD
-        tp_group = parallel_state.get_tensor_model_parallel_group()
-        print(f"Number of devices seen in world group at {self.trainer.global_rank} is {torch.distributed.get_world_size(group)} and tp world size is {torch.distributed.get_world_size(tp_group)}.")
+        # group = torch.distributed.group.WORLD
+        # tp_group = parallel_state.get_tensor_model_parallel_group()
+        # print(f"Number of devices seen in world group at {self.trainer.global_rank} is {torch.distributed.get_world_size(group)} and tp world size is {torch.distributed.get_world_size(tp_group)}.")
 
 def default_megatron_optimizer() -> MegatronOptimizerModule:
     """Default distributed optimizer uses Adam with a 1e-4 learning rate."""
