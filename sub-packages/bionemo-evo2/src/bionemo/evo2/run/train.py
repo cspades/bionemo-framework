@@ -39,7 +39,7 @@ from nemo.lightning.pytorch.optim.megatron import MegatronOptimizerModule
 from nemo.lightning.pytorch.strategies.utils import RestoreConfig
 from nemo.utils.exp_manager import TimingCallback
 
-from bionemo.evo2.utils.config import Evo2BlendedDatasetConfig
+from bionemo.evo2.utils.config import StipedHyena2BlendedDatasetConfig
 from bionemo.llm.utils.datamodule_utils import infer_global_batch_size
 
 
