@@ -20,16 +20,26 @@ from typing import Literal
 from pydantic import BaseModel
 
 
-class Evo2BlendedDatasetConfig(BaseModel):
+class StipedHyena2BlendedDatasetConfig(BaseModel):
     """Pydantic model class that specifies indexed datasets, dataset weights, and datasplits assignments for training."""
     dataset_prefix: None | str = None
     dataset_weight: None | float = None
     dataset_split: Literal["train", "validation", "test"]
 
 
-class Evo2PreprocessingConfig(BaseModel):
-    """Class specifying the configuration schema for Evo2 data preprocessing."""
+class StripedHyena2TaxonomyLineage(BaseModel):
+    """Pydantic model class that defines the source lineage of a DNA sequence."""
+    kingdom: None | str = None
+    phylum: None | str = None
+    clazz: None | str = None
+    order: None | str = None
+    family: None | str = None
+    genus: None | str = None
+    species: None | str = None
 
+
+class StipedHyena2PreprocessingConfig(BaseModel):
+    """Pydantic model class specifying the configuration schema for a preprocessed IndexedDataset (.bin, .idx)."""
     # Paths
     datapaths: list[Path] = []
     output_dir: None | Path = None
@@ -38,15 +48,16 @@ class Evo2PreprocessingConfig(BaseModel):
     train_split: float = 0.7
     valid_split: float = 0.2
     test_split: float = 0.1
-    # Evo Taxonomy
-    taxonomy_path: None | Path = None
+    # Overwrite existing binaries. Otherwise, skip already preprocessed datasets.
+    overwrite: bool = False
     # Raw Preprocessing Transforms
     embed_reverse_complement: bool = False
-    random_reverse_complement: bool = False
-    subsequence_length: None | int = None
+    random_reverse_complement: float = 0.0
+    random_lineage_dropout: float = 0.0
     include_sequence_id: bool = False
     transcribe: None | Literal["transcribe", "back_transcribe"] = None
     force_uppercase: bool = False
+    indexed_dataset_dtype: str = "uint8"
     # Tokenizer
     tokenizer_type: Literal[
         "Byte-Level",
@@ -66,12 +77,17 @@ class Evo2PreprocessingConfig(BaseModel):
     append_eod: bool = False
     enforce_sample_length: None | int = None
     ftfy: bool = False
-    indexed_dataset_dtype: str = "uint8"
     # Compute
+    # NOTE: If preprocessing short individual sequences (< 1000 bp), do NOT use multiprocessing
+    # (workers > 1) because sequence-level parallel IPC will dominate the preprocessing time!
     workers: int = 1
-    preproc_concurrency: int = 10000
+    preproc_concurrency: int = 100000
+    chunksize: int = 1
     # Filters
     drop_empty_sequences: bool = False
     nnn_filter: bool = False
     # RNG
     seed: None | int = None
+    # StipedHyena2 Taxonomic Lineage Tags
+    # SeqID Sub-String Indexing: "ABC" will have taxonomy data from "A".
+    taxonomy_data: dict[str, StripedHyena2TaxonomyLineage] = {}

@@ -1,1 +1,1 @@
-Source code for BioNeMo Evo2.
+Source code for BioNeMo StripedHyena2.

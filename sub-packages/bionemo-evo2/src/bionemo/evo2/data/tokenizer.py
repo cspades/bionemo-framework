@@ -18,16 +18,16 @@ import ftfy
 from nemo.collections.common.tokenizers.tokenizer_spec import TokenizerSpec
 from nemo.collections.nlp.modules.common.tokenizer_utils import get_nmt_tokenizer
 
-from bionemo.evo2.utils.config import Evo2PreprocessingConfig
+from bionemo.evo2.utils.config import StipedHyena2PreprocessingConfig
 
 
-class Evo2Tokenizer:
-    """Tokenizer for Evo2."""
+class StripedHyena2Tokenizer:
+    """Tokenizer for StripedHyena2."""
 
-    def __init__(self, params: Evo2PreprocessingConfig | None = None):
-        """Initialize the Evo2Tokenizer."""
-        # Pass all NeMo2/Megatron-compliant parameters associated with config.Evo2PreprocessingConfig.
-        self.params: Evo2PreprocessingConfig = params if params is not None else Evo2PreprocessingConfig()
+    def __init__(self, params: StipedHyena2PreprocessingConfig | None = None):
+        """Initialize the StripedHyena2Tokenizer."""
+        # Pass all NeMo2/Megatron-compliant parameters associated with config.StipedHyena2PreprocessingConfig.
+        self.params: StipedHyena2PreprocessingConfig = params if params is not None else StipedHyena2PreprocessingConfig()
         self.tokenizer: TokenizerSpec = get_nmt_tokenizer(
             library=self.params.tokenizer_type.lower(),
             vocab_file=str(self.params.vocab_file) if self.params.vocab_file is not None else None,
@@ -46,7 +46,7 @@ class Evo2Tokenizer:
         append_eod: bool = False,
         drop_empty_sequences: bool = False,
     ):
-        """Tokenize the input text data for Evo2."""
+        """Tokenize the input text data for StripedHyena2."""
         if isinstance(text, str):
             text = [text]
         # Tokenize a document or batch of strings.

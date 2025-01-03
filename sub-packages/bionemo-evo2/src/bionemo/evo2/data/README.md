@@ -23,44 +23,54 @@ $ ls -lah
 Next we acquired the `fasta` file that was used to generate this and placed it into the tests/data folder of this sub-package.
 
 ```yaml
-- datapaths: ["sub-packages/bionemo-evo2/tests/data/mmseqs_results_rep_seq.fasta"]
-  output_dir: "sub-packages/bionemo-evo2/tests/data"
-  output_prefix: promoters_ab_test
+- datapaths: ["/workspace/bionemo2/data/mmseqs_results_rep_seq_distinct.fasta"]
+  output_dir: "/workspace/bionemo2/data"
+  output_prefix: promoters_ab_test_noodles_uint8_distinct
   # Datasplit
-  train_split: 1.0  # because they do manual splits of first 1000 for validation, 2nd 1000 for test, and leftover for training, will verify this manually
+  train_split: 1.0  # because they do manual splits of first 1000 for validation, 2nd 1000 for test, and leftover for training
   valid_split: 0.0
   test_split: 0.0
-  # Evo Taxonomy
-  taxonomy_path: null
+  # Overwrite existing binaries. Otherwise, skip already preprocessed datasets.
+  overwrite: True
   # Raw Preprocessing Transforms
-  gzip_data: false
   embed_reverse_complement: true
-  random_reverse_complement: false
-  subsequence_length: null
+  random_reverse_complement: 0.5
+  random_lineage_dropout: 0.1
   include_sequence_id: false
   transcribe: "back_transcribe"
   force_uppercase: true
+  indexed_dataset_dtype: "uint8"
   # Tokenizer
   tokenizer_type: "Byte-Level"
-  # None of the following tokenization params matters for this byte-level dataset for META/optimal Evo2 specifically.
   vocab_file: null
   vocab_size: null
   merges_file: null
+  # Either a named pretrained tokenizer model, or a path to a SentencePiece tokenizer.
   pretrained_tokenizer_model: null
   special_tokens: null
   fast_hf_tokenizer: true
-  append_eod: true  # except this, this matters
+  append_eod: true
   enforce_sample_length: null
-  indexed_dataset_dtype: "uint8"
   ftfy: false
   # Compute
   workers: 1
-  preproc_concurrency: 10000
+  preproc_concurrency: 100000
+  chunksize: 25
   # Filters
   drop_empty_sequences: true
   nnn_filter: true
   # RNG
   seed: 42
+  # StipedHyena2 Taxonomic Lineage Tags
+  taxonomy_data:
+    FP002272:
+      kingdom: KINGDOM
+      phylum: PHYLUM
+      clazz: CLASS
+      order: ORDER
+      family: FAMILY
+      genus: GENUS
+      species: SPECIES
 ```
 
 Finally we generated our own bin/idx file for in this case everything going into the training set.
