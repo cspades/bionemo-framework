@@ -15,7 +15,7 @@
 
 import argparse
 from collections import defaultdict
-from dataclasses import dataclass
+from dataclasses import dataclass, asdict
 
 import nvidia_resiliency_ext.ptl_resiliency as res_module
 import torch
@@ -32,6 +32,7 @@ from nemo.collections.nlp.modules.common.tokenizer_utils import get_nmt_tokenize
 from nemo.lightning import NeMoLogger
 from nemo.lightning.pytorch import callbacks as nl_callbacks
 from nemo.lightning.pytorch.callbacks import ModelCheckpoint
+from nemo.lightning.pytorch.callbacks.flops_callback import FLOPsMeasurementCallback
 from nemo.lightning.pytorch.callbacks.megatron_comm_overlap import MegatronCommOverlapCallback
 from nemo.lightning.pytorch.optim import CosineAnnealingScheduler
 from nemo.lightning.pytorch.optim.megatron import MegatronOptimizerModule
@@ -285,11 +286,17 @@ def main():
         save_optim_on_train_end=True,
         save_context_on_train_end=True,
     )
+    flop_meas_callback = FLOPsMeasurementCallback(
+        asdict(hyena_config),
+        data,
+        "hyena",
+    )
     callbacks = [
         checkpoint_callback,
         RichModelSummary(max_depth=4),
         LearningRateMonitor(),
         TimingCallback(),
+        flop_meas_callback,
     ]
     if args.enable_preemption:
         callbacks.append(nl_callbacks.PreemptionCallback())
