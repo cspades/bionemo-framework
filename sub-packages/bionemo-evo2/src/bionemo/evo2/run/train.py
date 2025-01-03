@@ -112,7 +112,6 @@ def parse_args():
         default=None,
         help="Directory to restore an initial checkpoint from. Use this for supervised fine-tuning.",
     )
-    parser.add_argument("--defer-embedding-wgrad-compute", action="store_true", default=False)
     parser.add_argument(
         "--restore-optimizer-from-ckpt",
         action="store_true",
@@ -136,12 +135,6 @@ def parse_args():
         "--ckpt-async-save",
         action="store_true",
         default=False,
-    )
-    parser.add_argument(
-        "--wgrad-deferral-limit",
-        type=int,
-        default=22,
-        help="Unused unless you also do --defer-embedding-wgrad-compute.",
     )
     return parser.parse_args()
 
@@ -215,12 +208,12 @@ def parse_dataset_config(dataset_config_path: str):
         dataset_config_batch = yaml.safe_load(config_file)
         for dataset_config in dataset_config_batch:
             # Validate.
-            config_model = Evo2BlendedDatasetConfig(**dataset_config)
+            config_model = StipedHyena2BlendedDatasetConfig(**dataset_config)
             # Integrate the weights for renormalization.
             weight_sums[config_model.dataset_split] += abs(config_model.dataset_weight)
         for dataset_config in dataset_config_batch:
             # Validate.
-            config_model = Evo2BlendedDatasetConfig(**dataset_config)
+            config_model = StipedHyena2BlendedDatasetConfig(**dataset_config)
             # Add indexed dataset to split and associate with blended training weight.
             blended_dataset_config[config_model.dataset_split].extend(
                 [config_model.dataset_weight / weight_sums[config_model.dataset_split], config_model.dataset_prefix]
@@ -266,11 +259,11 @@ def main():
     )
 
     if args.model_size == "7b":
-        hyena_config = llm.Hyena7bConfig(wgrad_deferral_limit=args.wgrad_deferral_limit, defer_embedding_wgrad_compute=args.defer_embedding_wgrad_compute)
+        hyena_config = llm.Hyena7bConfig()
     elif args.model_size == "40b":
-        hyena_config = llm.Hyena40bConfig(wgrad_deferral_limit=args.wgrad_deferral_limit, defer_embedding_wgrad_compute=args.defer_embedding_wgrad_compute)
+        hyena_config = llm.Hyena40bConfig()
     elif args.model_size == "test":
-        hyena_config = llm.HyenaTestConfig(wgrad_deferral_limit=args.wgrad_deferral_limit, defer_embedding_wgrad_compute=args.defer_embedding_wgrad_compute)
+        hyena_config = llm.HyenaTestConfig()
     else:
         raise ValueError(f"Invalid model size: {args.model_size}")
 
@@ -319,8 +312,7 @@ def main():
             MegatronCommOverlapCallback(
                 tp_comm_overlap=True,
                 tp_comm_overlap_cfg=userbuffers_bf16_h100_h8192_tp4_mbs1_seqlen8192,
-                defer_embedding_wgrad_compute=args.defer_embedding_wgrad_compute,
-                wgrad_deferral_limit=args.wgrad_deferral_limit,
+                wgrad_deferral_limit=22, # default from NeMo
                 overlap_param_gather_with_optimizer_step=False,  # Currently disabled due to an issue with checkpointing.
                 align_param_gather=args.align_param_gather,
             )
