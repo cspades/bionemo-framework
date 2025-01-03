@@ -103,6 +103,9 @@ def parse_args():
         "--experiment-dir", type=str, default=None, help="Directory to write model checkpoints and results to."
     )
     parser.add_argument(
+        "--limit-val-batches", type=int, default=20, help="Number of validation steps",
+    )
+    parser.add_argument(
         "--ckpt-dir",
         type=str,
         default=None,
@@ -381,7 +384,7 @@ def main():
         logger=loggers,
         callbacks=callbacks,
         log_every_n_steps=1,
-        limit_val_batches=10,
+        limit_val_batches=args.limit_val_batches,
         num_sanity_val_steps=0,
         use_distributed_sampler=False,
         plugins=nl.MegatronMixedPrecision(
