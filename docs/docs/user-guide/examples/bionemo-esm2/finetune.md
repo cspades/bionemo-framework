@@ -131,7 +131,7 @@ csv_file = "./protein_dataset.csv"
 df.to_csv(csv_file, index=False)
 ```
 
-Therefore, the custom BioNeMo dataset class will be appropriate (found in ```bionemo.esm2.model.finetune.finetune_regressor.InMemorySingleValueDataset```) as it facilitates predicting on a single value. An excerpt from the class is shown below. This example dataset expects a `data_path` to a CSV file that has `sequence`, and `target` columns.
+Therefore, the custom BioNeMo dataset class will be appropriate (found in ```bionemo.esm2.model.finetune.finetune_regressor.InMemorySingleValueDataset```) as it facilitates predicting on a single value. An excerpt from the class is shown below. This example dataset expects a `data_path` to a CSV file that has `sequences`, and `labels` columns.
 
 ```python
 class InMemorySingleValueDataset(Dataset):

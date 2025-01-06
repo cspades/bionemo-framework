@@ -18,6 +18,7 @@ from pathlib import Path
 from typing import Dict, List, Optional, Sequence, Tuple, Type, get_args
 
 from lightning.pytorch.callbacks import Callback, LearningRateMonitor, RichModelSummary
+from megatron.core.distributed import DistributedDataParallelConfig
 from megatron.core.optimizer import OptimizerConfig
 from nemo import lightning as nl
 from nemo.collections import llm
@@ -93,6 +94,10 @@ def train_model(
     dataset_class: Type[InMemoryCSVDataset] = InMemorySingleValueDataset,
     config_class: Type[BioBertConfig] = ESM2FineTuneSeqConfig,
     metric_tracker: Callback | None = None,
+    overlap_grad_reduce: bool = True,
+    overlap_param_gather: bool = False,  # TODO waiting for a NeMo fix
+    average_in_collective: bool = True,
+    grad_reduce_in_fp32: bool = False,
 ) -> Tuple[Path, Callback | None, nl.Trainer]:
     """Train an ESM2 model on UR data.
 
@@ -139,6 +144,10 @@ def train_model(
         dataset_class (Type[InMemoryCSVDataset]): The dataset class for loading the data from a CSV file
         config_class (Type[BioBertConfig]): The config class for configuring the model using checkpoint provided
         metric_tracker: Optional callback to track metrics (used for testing)
+        overlap_grad_reduce (bool): overlap gradient reduction
+        overlap_param_gather (bool): overlap parameter gather
+        average_in_collective (bool): average in collective
+        grad_reduce_in_fp32 (bool): gradient reduction in fp32
     """
     # Create the result directory if it does not exist.
     result_dir.mkdir(parents=True, exist_ok=True)
@@ -156,10 +165,17 @@ def train_model(
     strategy = nl.MegatronStrategy(
         tensor_model_parallel_size=tensor_model_parallel_size,
         pipeline_model_parallel_size=pipeline_model_parallel_size,
-        ddp="megatron",
+        ddp=DistributedDataParallelConfig(
+            check_for_nan_in_grad=True,
+            overlap_grad_reduce=overlap_grad_reduce,
+            overlap_param_gather=overlap_param_gather,
+            average_in_collective=average_in_collective,
+            grad_reduce_in_fp32=grad_reduce_in_fp32,
+            use_distributed_optimizer=True,
+        ),
         find_unused_parameters=True,
+        gradient_as_bucket_view=True,
         ckpt_include_optimizer=True,
-        # NOTE: there are issues related to async that may occur, most recently observed due to duplicate filenames.
         ckpt_async_save=True,
         ckpt_parallel_load=True,
     )
@@ -207,7 +223,13 @@ def train_model(
         log_every_n_steps=log_every_n_steps,
         num_nodes=num_nodes,
         callbacks=callbacks,
-        plugins=nl.MegatronMixedPrecision(precision=precision),
+        plugins=nl.MegatronMixedPrecision(
+            precision=precision,
+            params_dtype=get_autocast_dtype(precision),
+            pipeline_dtype=get_autocast_dtype(precision),
+            grad_reduce_in_fp32=grad_reduce_in_fp32,
+            autocast_enabled=False,
+        ),
     )
 
     tokenizer = get_tokenizer()
@@ -328,6 +350,10 @@ def train_esm2_entrypoint():
         nsys_ranks=args.nsys_ranks,
         dataset_class=args.dataset_class,
         config_class=args.config_class,
+        overlap_grad_reduce=not args.no_overlap_grad_reduce,
+        overlap_param_gather=args.overlap_param_gather,
+        average_in_collective=not args.no_average_in_collective,
+        grad_reduce_in_fp32=args.grad_reduce_in_fp32,
     )
 
 
@@ -538,6 +564,27 @@ def get_parser():
         required=False,
         default=[0],
         help="Enable nsys profiling for these ranks.",
+    )
+    # DDP config
+    parser.add_argument(
+        "--no-overlap-grad-reduce",
+        action="store_true",
+        default=False,
+    )
+    parser.add_argument(
+        "--overlap-param-gather",
+        action="store_true",
+        default=False,
+    )  # TODO waiting for a NeMo fix
+    parser.add_argument(
+        "--no-average-in-collective",
+        action="store_true",
+        default=False,
+    )
+    parser.add_argument(
+        "--grad-reduce-in-fp32",
+        action="store_true",
+        default=False,
     )
 
     config_class_options: Dict[str, Type[BioBertConfig]] = SUPPORTED_CONFIGS
