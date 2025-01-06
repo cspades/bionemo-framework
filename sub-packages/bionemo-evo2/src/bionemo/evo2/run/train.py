@@ -136,6 +136,39 @@ def parse_args():
         action="store_true",
         default=False,
     )
+
+    # NSYS profiling/tooling arguments
+    parser.add_argument(
+        "--nsys-profiling",
+        action="store_true",
+        default=False,
+        help="Enable targeted `nsys` profiling on the training loop for a defined step range. To actually get profiling output you must run the whole program with `nsys`. For example: "
+        " `nsys profile -s none -o output_report_name -t cuda,nvtx --force-overwrite true --capture-range=cudaProfilerApi --capture-range-end=stop  [regular python command here]`",
+    )
+    # start, end, rank
+    parser.add_argument(
+        "--nsys-start-step",
+        type=int,
+        required=False,
+        default=0,
+        help="Start nsys profiling after this step.",
+    )
+    parser.add_argument(
+        "--nsys-end-step",
+        type=int,
+        required=False,
+        help="End nsys profiling after this step.",
+    )
+    # rank as list of integers
+    parser.add_argument(
+        "--nsys-ranks",
+        type=int,
+        nargs="+",
+        required=False,
+        default=[0],
+        help="Enable nsys profiling for these ranks.",
+    )
+
     return parser.parse_args()
 
 
@@ -322,6 +355,16 @@ def main():
         callbacks.append(
             nl_callbacks.GarbageCollectionCallback(
                 gc_interval_train=args.gc_interval, gc_interval_val=args.gc_interval
+            )
+        )
+    if args.nsys_profiling:
+        if args.nsys_end_step is None:
+            nsys_end_step = args.max_steps
+        else:
+            nsys_end_step = args.nsys_end_step
+        callbacks.append(
+            nl_callbacks.NsysCallback(
+                start_step=args.nsys_start_step, end_step=nsys_end_step, ranks=args.nsys_ranks, gen_shape=True
             )
         )
 
