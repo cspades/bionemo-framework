@@ -15,7 +15,7 @@
 
 
 import os
-from typing import Sequence, Tuple
+from typing import Sequence, Tuple, Union
 
 import numpy as np
 import pandas as pd
@@ -111,7 +111,7 @@ class InMemoryCSVDataset(Dataset):
         tensor = self.tokenizer.encode(sequence, add_special_tokens=True, return_tensors="pt")
         return tensor.flatten()  # type: ignore
 
-    def transform_label(self, label):
+    def transform_label(self, label: Union[str, int, float]) -> Tensor:
         """Transform the label.
 
         This method should be implemented by subclass if label needs additional transformation.

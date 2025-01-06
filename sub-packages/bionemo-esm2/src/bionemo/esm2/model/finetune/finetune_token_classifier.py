@@ -230,7 +230,7 @@ class InMemoryPerTokenValueDataset(InMemoryCSVDataset):
         self.label_tokenizer = label_tokenizer.build_vocab("CHE")
         self.label_cls_eos_id = MLM_LOSS_IGNORE_INDEX
 
-    def transform_label(self, label: str) -> Tensor:
+    def transform_label(self, label):
         """Transform the sequence label by tokenizing them.
 
         This method tokenizes the secondary structure token sequences.
