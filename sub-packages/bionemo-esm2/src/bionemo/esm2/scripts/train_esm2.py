@@ -18,6 +18,7 @@ from pathlib import Path
 from typing import List, Optional, Sequence, get_args
 
 from lightning.pytorch.callbacks import LearningRateMonitor, RichModelSummary
+from megatron.core.distributed import DistributedDataParallelConfig
 from megatron.core.optimizer import OptimizerConfig
 from nemo import lightning as nl
 from nemo.collections import llm
@@ -52,12 +53,13 @@ def main(
     max_seq_length: int,
     result_dir: Path,
     num_steps: int,
+    scheduler_num_steps: Optional[int],
     warmup_steps: int,
     limit_val_batches: int,
     val_check_interval: int,
     log_every_n_steps: Optional[int],
     num_dataset_workers: int,
-    biobert_spec_option: BiobertSpecOption,  # TODO(@farhadrgh) clarify how to parse this.
+    biobert_spec_option: BiobertSpecOption,
     lr: float,
     micro_batch_size: int,
     accumulate_grad_batches: int,
@@ -90,6 +92,10 @@ def main(
     hidden_size: int = 1280,
     num_attention_heads: int = 20,
     ffn_hidden_size: int = 1280 * 4,
+    overlap_grad_reduce: bool = True,
+    overlap_param_gather: bool = False,  # TODO waiting for a NeMo fix
+    average_in_collective: bool = True,
+    grad_reduce_in_fp32: bool = False,
 ) -> None:
     """Train an ESM2 model on UR data.
 
@@ -111,6 +117,7 @@ def main(
         num_dataset_workers (int): number of dataset workers
         biobert_spec_option (BiobertSpecOption): the biobert spec option (architecture) to use for this run
         lr (float): learning rate
+        scheduler_num_steps (Optional[int]): Number of steps in learning rate scheduler. Use num_steps if not provided.
         micro_batch_size (int): micro batch size, from this and parallelism settings we infer the global batch size
         accumulate_grad_batches (int): number of batches to accumulate gradients for
         experiment_name (str): experiment name, this is the name used for the wandb run, and the sub-directory of the
@@ -144,6 +151,10 @@ def main(
         hidden_size (int): hidden size
         num_attention_heads (int): number of attention heads
         ffn_hidden_size (int): feed forward hidden size
+        overlap_grad_reduce (bool): overlap gradient reduction
+        overlap_param_gather (bool): overlap parameter gather
+        average_in_collective (bool): average in collective
+        grad_reduce_in_fp32 (bool): gradient reduction in fp32
     """
     # Create the result directory if it does not exist.
     result_dir.mkdir(parents=True, exist_ok=True)
@@ -161,10 +172,18 @@ def main(
     strategy = nl.MegatronStrategy(
         tensor_model_parallel_size=tensor_model_parallel_size,
         pipeline_model_parallel_size=pipeline_model_parallel_size,
-        ddp="megatron",
+        pipeline_dtype=get_autocast_dtype(precision),
+        ddp=DistributedDataParallelConfig(
+            check_for_nan_in_grad=True,
+            overlap_grad_reduce=overlap_grad_reduce,
+            overlap_param_gather=overlap_param_gather,
+            average_in_collective=average_in_collective,
+            grad_reduce_in_fp32=grad_reduce_in_fp32,
+            use_distributed_optimizer=True,
+        ),
         find_unused_parameters=True,
+        gradient_as_bucket_view=True,
         ckpt_include_optimizer=True,
-        # NOTE: there are issues related to async that may occur, most recently observed due to duplicate filenames.
         ckpt_async_save=True,
         ckpt_parallel_load=True,
     )
@@ -211,7 +230,13 @@ def main(
         log_every_n_steps=log_every_n_steps,
         num_nodes=num_nodes,
         callbacks=callbacks,
-        plugins=nl.MegatronMixedPrecision(precision=precision),
+        plugins=nl.MegatronMixedPrecision(
+            precision=precision,
+            params_dtype=get_autocast_dtype(precision),
+            pipeline_dtype=get_autocast_dtype(precision),
+            grad_reduce_in_fp32=grad_reduce_in_fp32,
+            autocast_enabled=False,
+        ),
     )
 
     tokenizer = get_tokenizer()
@@ -247,20 +272,27 @@ def main(
         variable_seq_lengths=min_seq_length != max_seq_length,
     )
 
+    if scheduler_num_steps is None:
+        scheduler_num_steps = num_steps
+
     model = biobert_lightning_module(
         esm2_config,
         tokenizer=tokenizer,
         optimizer=MegatronOptimizerModule(
             config=OptimizerConfig(
                 lr=lr,
-                optimizer="adam",  # fused_adam not supported
+                optimizer="adam",
                 use_distributed_optimizer=True,
                 weight_decay=0.01,
                 adam_beta1=0.9,
                 adam_beta2=0.98,
             ),
             lr_scheduler=WarmupAnnealDecayHoldScheduler(
-                warmup_steps=warmup_steps, max_steps=num_steps, max_lr=lr, min_lr=0.0, anneal_percentage=0.10
+                warmup_steps=warmup_steps,
+                max_steps=scheduler_num_steps,
+                max_lr=lr,
+                min_lr=0.0,
+                anneal_percentage=0.10,
             ),
         ),
     )
@@ -328,6 +360,7 @@ def train_esm2_entrypoint():
         num_dataset_workers=args.num_dataset_workers,
         biobert_spec_option=args.biobert_spec_option,
         lr=args.lr,
+        scheduler_num_steps=args.scheduler_num_steps,
         micro_batch_size=args.micro_batch_size,
         pipeline_model_parallel_size=args.pipeline_model_parallel_size,
         tensor_model_parallel_size=args.tensor_model_parallel_size,
@@ -350,6 +383,10 @@ def train_esm2_entrypoint():
         hidden_size=args.hidden_size,
         num_attention_heads=args.num_attention_heads,
         ffn_hidden_size=args.ffn_hidden_size,
+        overlap_grad_reduce=not args.no_overlap_grad_reduce,
+        overlap_param_gather=args.overlap_param_gather,
+        average_in_collective=not args.no_average_in_collective,
+        grad_reduce_in_fp32=args.grad_reduce_in_fp32,
     )
 
 
@@ -397,6 +434,12 @@ def get_parser():
         required=False,
         default=4e-4,
         help="Learning rate for training. Default is 4e-4",
+    )
+    parser.add_argument(
+        "--scheduler-num-steps",
+        type=int,
+        required=False,
+        help="Number of steps for learning rate scheduler. Will use --num-steps if not given. Default is None.",
     )
     parser.add_argument(
         "--create-tensorboard-logger", action="store_true", default=False, help="Create a tensorboard logger."
@@ -650,6 +693,27 @@ def get_parser():
         required=False,
         default=4 * 1280,
         help="FFN hidden size of the model. Default is 4 * 1280.",
+    )
+    # DDP config
+    parser.add_argument(
+        "--no-overlap-grad-reduce",
+        action="store_true",
+        default=False,
+    )
+    parser.add_argument(
+        "--overlap-param-gather",
+        action="store_true",
+        default=False,
+    )  # TODO waiting for a NeMo fix
+    parser.add_argument(
+        "--no-average-in-collective",
+        action="store_true",
+        default=False,
+    )
+    parser.add_argument(
+        "--grad-reduce-in-fp32",
+        action="store_true",
+        default=False,
     )
     return parser
 
