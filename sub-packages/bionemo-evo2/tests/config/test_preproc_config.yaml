@@ -11,22 +11,22 @@
   embed_reverse_complement: true
   random_reverse_complement: 0.0
   random_lineage_dropout: 0.1
-  include_sequence_id: false
   transcribe: "back_transcribe"
   force_uppercase: true
   indexed_dataset_dtype: "uint8"
+  # Tokenizer Transforms
+  append_eod: true
+  enforce_sample_length: null
+  ftfy: false
   # Tokenizer
   tokenizer_type: "Byte-Level"
   vocab_file: null
   vocab_size: null
   merges_file: null
-  # Either a named pretrained tokenizer model, or a path to a SentencePiece tokenizer.
+  tokenizer_model_name: null
   pretrained_tokenizer_model: null
   special_tokens: null
   fast_hf_tokenizer: true
-  append_eod: true
-  enforce_sample_length: null
-  ftfy: false
   # Compute
   workers: 1
   preproc_concurrency: 100000
@@ -36,7 +36,7 @@
   nnn_filter: true
   # RNG
   seed: 42
-  # StipedHyena2 Taxonomic Lineage Tags
+  # Evo2 Taxonomic Lineage Tags
   taxonomy_data:
     FP002272:
       kingdom: KINGDOM

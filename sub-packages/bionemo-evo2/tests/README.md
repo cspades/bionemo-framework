@@ -1,1 +1,1 @@
-Tests for BioNeMo StripedHyena2.
+Tests for BioNeMo Evo2.

@@ -37,30 +37,29 @@ import yaml
 from megatron.core.datasets.indexed_dataset import IndexedDatasetBuilder
 from nemo.utils import logging
 
-from bionemo.evo2.data.tokenizer import StripedHyena2Tokenizer
-from bionemo.evo2.utils.config import StipedHyena2PreprocessingConfig, StripedHyena2TaxonomyLineage
+from bionemo.evo2.data.tokenizer import Evo2Tokenizer
+from bionemo.evo2.utils.config import Evo2PreprocessingConfig, Evo2TaxonomyLineage
 from bionemo.noodles import back_transcribe_sequence, complement_sequence, reverse_sequence, transcribe_sequence
 from bionemo.noodles.nvfaidx import NvFaidx
 
 
-class StipedHyena2Preprocessor:
+class Evo2Preprocessor:
     """Data preprocessing class for Evo2."""
 
-    PROMPT_SPACER_LENGTH = 131_072
     BIN = ".bin"
     IDX = ".idx"
     TRAIN = "train"
     VAL = "val"
     TEST = "test"
 
-    def __init__(self, params: StipedHyena2PreprocessingConfig | None = None):
-        """Initialize StipedHyena2Preprocessor."""
-        self.tokenizer: StripedHyena2Tokenizer = StripedHyena2Tokenizer(params)
+    def __init__(self, params: Evo2PreprocessingConfig | None = None):
+        """Initialize Evo2Preprocessor."""
+        self.tokenizer: Evo2Tokenizer = Evo2Tokenizer(params)
 
     @staticmethod
     @contextmanager
     def preprocessing_context_manager(seed: int | None = None):
-        """Context manager for Evo2 preprocessing RNG."""
+        """Context manager for preprocessing RNG."""
         # Track current state.
         current_state = random.getstate()
         try:
@@ -72,7 +71,7 @@ class StipedHyena2Preprocessor:
             random.setstate(current_state)
 
     @staticmethod
-    def _get_output_filename(config: StipedHyena2PreprocessingConfig, ext: str = None, split: str = None, temp: bool = False) -> Path:
+    def _get_output_filename(config: Evo2PreprocessingConfig, ext: str = None, split: str = None, temp: bool = False) -> Path:
         # Get output directory. Defaults to CWD.
         output_dir = config.output_dir
         if output_dir is None:
@@ -93,7 +92,7 @@ class StipedHyena2Preprocessor:
 
     @staticmethod
     def _random_reverse_complement(seq: str, prob: float = 0.0, seed: int = None):
-        with StipedHyena2Preprocessor.preprocessing_context_manager(
+        with Evo2Preprocessor.preprocessing_context_manager(
             seed if seed is not None else None
         ):
             if random.random() < prob:
@@ -107,7 +106,7 @@ class StipedHyena2Preprocessor:
     
     @staticmethod
     def _train_val_test_split(train_weight: float, val_weight: float, test_weight: float, seed: int = None):
-        with StipedHyena2Preprocessor.preprocessing_context_manager(
+        with Evo2Preprocessor.preprocessing_context_manager(
             seed if seed is not None else None
         ):
             # Generate random number.
@@ -127,10 +126,10 @@ class StipedHyena2Preprocessor:
             return split
 
     @staticmethod
-    def _construct_taxonomy_token(lineage: StripedHyena2TaxonomyLineage, dropout: float = 0.0, seed: int = None) -> Optional[str]:
+    def _construct_taxonomy_token(lineage: Evo2TaxonomyLineage, dropout: float = 0.0, seed: int = None) -> Optional[str]:
         """Construct a special Taxonomy token for natural language prompting of DNA generation models."""
         # If dropout > 0, randomly drop out segments of the lineage for training on incomplete lineages.
-        with StipedHyena2Preprocessor.preprocessing_context_manager(
+        with Evo2Preprocessor.preprocessing_context_manager(
             seed if seed is not None else None
         ):
             return "|d__{};p__{};c__{};o__{};f__{};g__{};s__{}|".format(
@@ -143,8 +142,8 @@ class StipedHyena2Preprocessor:
                 lineage.species if random.random() >= dropout else None,
             ) if lineage is not None else None
 
-    def preprocess_data(self, filepath: str, seqid: str, seq: str, seq_idx: int, config: StipedHyena2PreprocessingConfig):
-        """Preprocess Evo2 fasta datapaths."""
+    def preprocess_data(self, filepath: str, seqid: str, seq: str, seq_idx: int, config: Evo2PreprocessingConfig):
+        """Preprocess fasta datapaths."""
 
         # Timing.
         start = time.time()
@@ -183,10 +182,10 @@ class StipedHyena2Preprocessor:
                 # Construct taxonomy token with random dropout on the lineage categories per sequence.
                 taxonomy_token = self._construct_taxonomy_token(lineage, dropout=config.random_lineage_dropout)
                 
-                # Inject taxonomy lineage tokens every PROMPT_SPACER_LENGTH tokens in the sequence.
+                # Inject taxonomy lineage tokens every prompt_spacer_length tokens in the sequence.
                 # If the taxonomy lineage token is not provided, then just take the original sequence.
                 target_length = (
-                    self.PROMPT_SPACER_LENGTH - len(taxonomy_token)
+                    config.prompt_spacer_length - len(taxonomy_token)
                     if taxonomy_token is not None
                     else None
                 )
@@ -199,8 +198,6 @@ class StipedHyena2Preprocessor:
                 preproc_data_record = {
                     "text": "".join(taxonomy_injected_sequence),
                 }
-                if config.include_sequence_id:
-                    preproc_data_record["id"] = f"{seqid}"
                 preproc_data_record["tokens"] = self.tokenizer.tokenize(
                     preproc_data_record["text"],
                     use_ftfy=config.ftfy,
@@ -217,7 +214,7 @@ class StipedHyena2Preprocessor:
         return self.preprocess_data(*file_sequence_config)
     
     @staticmethod
-    def _yield_sequences_from_files(config: StipedHyena2PreprocessingConfig, semaphore: Semaphore):
+    def _yield_sequences_from_files(config: Evo2PreprocessingConfig, semaphore: Semaphore):
         """Iterator over sequences within multiple input documents. Arguments for multiprocessing tasks.
 
         Utilized to limit the amount of sequences streamed into memory.
@@ -235,7 +232,7 @@ class StipedHyena2Preprocessor:
             semaphore.acquire()
             yield from yielder(fname, semaphore)
 
-    def preprocess_generator(self, preproc_config: StipedHyena2PreprocessingConfig):
+    def preprocess_generator(self, preproc_config: Evo2PreprocessingConfig):
         """Main function to preprocess data for Evo2."""
 
         # Instantiate multiprocessing pool. Use semaphore to limit the amount of sequences to read into memory.
@@ -269,7 +266,7 @@ class StipedHyena2Preprocessor:
                     sequence["split"] = split
                     yield sequence, elapsed_time
 
-    def preprocess_offline(self, preproc_config: StipedHyena2PreprocessingConfig):
+    def preprocess_offline(self, preproc_config: Evo2PreprocessingConfig):
         """Offline data preprocessing script for Evo2."""
 
         # Validate if binaries have already been produced for the given config and overwrite is set to False.
@@ -327,25 +324,29 @@ class StipedHyena2Preprocessor:
 
 
 def parse_args():
-    """Parse arguments for Evo2 preprocessing."""
-    parser = argparse.ArgumentParser(description="Preprocess datapaths for Evo2.")
-    parser.add_argument("-c", "--config", type=str, required=True, help="Path to Evo2 data preprocessing config JSON.")
+    """Parse arguments for preprocessing."""
+    parser = argparse.ArgumentParser(description="Preprocess FASTA files for training Evo2.")
+    parser.add_argument("-c", "--config", type=str, required=True, help="Path to data preprocessing config JSON.")
     return parser.parse_args()
 
 
-if __name__ == "__main__":
+def main():
     # Parse arguments.
     args = parse_args()
     # Read config YAML.
     with open(args.config, "r") as yaml_fs:
-        hyena2_preproc_config_batch = yaml.safe_load(yaml_fs)
-    for config in hyena2_preproc_config_batch:
+        evo2_preproc_config_batch = yaml.safe_load(yaml_fs)
+    for config in evo2_preproc_config_batch:
         start = time.time()
-        # Convert into StipedHyena2PreprocessingConfig.
-        hyena2_preproc_config = StipedHyena2PreprocessingConfig(**config)
-        # Instantiate StipedHyena2Preprocessor.
-        hyena2_preprocessor = StipedHyena2Preprocessor(hyena2_preproc_config)
+        # Convert into Evo2PreprocessingConfig.
+        evo2_preproc_config = Evo2PreprocessingConfig(**config)
+        # Instantiate Evo2Preprocessor.
+        evo2_preprocessor = Evo2Preprocessor(evo2_preproc_config)
         # Preprocess data specified in config.
-        hyena2_preprocessor.preprocess_offline(hyena2_preproc_config)
+        evo2_preprocessor.preprocess_offline(evo2_preproc_config)
         end = time.time()
-        logging.info(f"Finished preprocessing {hyena2_preproc_config.output_prefix} ({hyena2_preproc_config.datapaths}) in {end - start:.3f} seconds with {hyena2_preproc_config.workers} workers.")
+        logging.info(f"Finished preprocessing {evo2_preproc_config.output_prefix} ({evo2_preproc_config.datapaths}) in {end - start:.3f} seconds with {evo2_preproc_config.workers} workers.")
+
+
+if __name__ == "__main__":
+    main()

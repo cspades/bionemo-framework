@@ -39,7 +39,7 @@ from nemo.lightning.pytorch.optim.megatron import MegatronOptimizerModule
 from nemo.lightning.pytorch.strategies.utils import RestoreConfig
 from nemo.utils.exp_manager import TimingCallback
 
-from bionemo.evo2.utils.config import StipedHyena2BlendedDatasetConfig
+from bionemo.evo2.utils.config import Evo2BlendedDatasetConfig
 from bionemo.llm.utils.datamodule_utils import infer_global_batch_size
 
 
@@ -68,7 +68,7 @@ def parse_args():
     parser.add_argument(
         "--context-parallel-size", type=int, default=1, help="Order of context parallelism. Defaults to 1."
     )
-    parser.add_argument("--wandb-project", type=str, default="bionemo_hyena", help="Wandb project name")
+    parser.add_argument("--wandb-project", type=str, default="bionemo_evo2", help="Wandb project name")
     parser.add_argument("--wandb-run-id", type=str, default=None, help="Wandb run identifier")
     parser.add_argument("--sequence-parallel", action="store_true", help="Set to enable sequence parallelism.")
     parser.add_argument("--fp8", action="store_true", help="Set to enable FP8")
@@ -241,12 +241,12 @@ def parse_dataset_config(dataset_config_path: str):
         dataset_config_batch = yaml.safe_load(config_file)
         for dataset_config in dataset_config_batch:
             # Validate.
-            config_model = StipedHyena2BlendedDatasetConfig(**dataset_config)
+            config_model = Evo2BlendedDatasetConfig(**dataset_config)
             # Integrate the weights for renormalization.
             weight_sums[config_model.dataset_split] += abs(config_model.dataset_weight)
         for dataset_config in dataset_config_batch:
             # Validate.
-            config_model = StipedHyena2BlendedDatasetConfig(**dataset_config)
+            config_model = Evo2BlendedDatasetConfig(**dataset_config)
             # Add indexed dataset to split and associate with blended training weight.
             blended_dataset_config[config_model.dataset_split].extend(
                 [config_model.dataset_weight / weight_sums[config_model.dataset_split], config_model.dataset_prefix]
@@ -292,16 +292,16 @@ def main():
     )
 
     if args.model_size == "7b":
-        hyena_config = llm.Hyena7bConfig()
+        evo2_config = llm.Hyena7bConfig()
     elif args.model_size == "40b":
-        hyena_config = llm.Hyena40bConfig()
+        evo2_config = llm.Hyena40bConfig()
     elif args.model_size == "test":
-        hyena_config = llm.HyenaTestConfig()
+        evo2_config = llm.HyenaTestConfig()
     else:
         raise ValueError(f"Invalid model size: {args.model_size}")
 
-    hyena_config.seq_length = args.seq_length
-    model = llm.GPTModel(hyena_config, tokenizer=data.tokenizer)
+    evo2_config.seq_length = args.seq_length
+    model = llm.GPTModel(evo2_config, tokenizer=data.tokenizer)
 
     # Setup callbacks.
     checkpoint_callback = ModelCheckpoint(
@@ -313,7 +313,7 @@ def main():
         save_context_on_train_end=True,
     )
     flop_meas_callback = FLOPsMeasurementCallback(
-        asdict(hyena_config),
+        asdict(evo2_config),
         data,
         "hyena",
     )
@@ -371,14 +371,14 @@ def main():
     loggers = []
     wandb_logger = WandbLogger(
         name=(
-            f"hyena-size-{args.model_size}-TP{args.tensor_parallel_size}-"
+            f"evo2-size-{args.model_size}-TP{args.tensor_parallel_size}-"
             f"PP{args.pipeline_model_parallel_size}-CP{args.context_parallel_size}"
             f"-GBS{global_batch_size}-MBS{args.micro_batch_size}"
             f"-GRFP32{args.grad_reduce_in_fp32}-ALIGN{not args.no_aligned_megatron_ddp}"
             f"-NODES{args.num_nodes}-FP8{args.fp8}"
         ),
         id=args.wandb_run_id,  # set this to use the same curve name for restarts.
-        project="bionemo_hyena",
+        project="bionemo_evo2",
         save_dir=args.experiment_dir,
     )
     loggers.append(wandb_logger)

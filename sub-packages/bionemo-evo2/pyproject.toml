@@ -14,15 +14,10 @@ dependencies = [
     "bionemo-noodles"
 ]
 
-# [project.scripts]
-# bionemo-evo2-train = ""
-# bionemo-evo2-recipe = ""
-# infer_evo2 = ""
-# train_evo2 = ""
-
-# Make sure that the tokenizer files are included along with the python files during installation.
-[tool.setuptools.package-data]
-"bionemo.evo2" = []
+[project.scripts]
+infer_evo2 = "bionemo.evo2.run.infer:main"
+train_evo2 = "bionemo.evo2.run.train:main"
+preprocess_evo2 = "bionemo.evo2.data.preprocess:main"
 
 [tool.setuptools.packages.find]
 where = ["src"]

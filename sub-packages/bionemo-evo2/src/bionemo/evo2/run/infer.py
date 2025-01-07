@@ -20,6 +20,7 @@ import nemo.lightning as nl
 import torch
 from megatron.core.inference.common_inference_params import CommonInferenceParams
 from nemo.collections.llm import generate
+from nemo.utils import logging
 
 
 def parse_args():
@@ -36,28 +37,20 @@ def parse_args():
         + "g__Escherichia;"
         + "s__Escherichia|"
     )
-    ap.add_argument("--prompt", type=str, default=default_prompt, help="Prompt for generation")
+    ap.add_argument("--prompt", type=str, default=default_prompt, help="Prompt to generate text from Evo2. Defaults to a phylogenetic lineage tag for E coli.")
     ap.add_argument(
-        "--ckpt-dir", type=str, required=True, help="Path to checkpoint directory containing pre-trained Hyena model."
+        "--ckpt-dir", type=str, required=True, help="Path to checkpoint directory containing pre-trained Evo2 model."
     )
-    ap.add_argument("--temperature", type=float, default=1.0, help="Temperature during sampling")
-    ap.add_argument("--top-k", type=int, default=0, help="Top K during sampling")
-    ap.add_argument("--top-p", type=float, default=0.0, help="Top P during sampling")
-    ap.add_argument("--cached-generation", type=bool, default=True, help="Use KV caching during generation")
-    ap.add_argument("--max-new-tokens", type=int, default=1024, help="Max new tokens during sampling")
-    ap.add_argument("--repetition-penalty", type=float, default=1.0, help="Repetition penalty during sampling")
-    ap.add_argument("--penalty-alpha", type=float, default=0.0, help="Penalty alpha during sampling")
+    ap.add_argument("--temperature", type=float, default=1.0, help="Temperature during sampling for generation.")
+    ap.add_argument("--top-k", type=int, default=0, help="Top K during sampling for generation.")
+    ap.add_argument("--top-p", type=float, default=0.0, help="Top P during sampling for generation.")
+    ap.add_argument("--max-new-tokens", type=int, default=1024, help="Maximum number of tokens to generate.")
     # compute args:
-    ap.add_argument("--tensor-parallel-size", type=int, default=1, help="Tensor Parallel Size")
-    ap.add_argument("--pipeline-model-parallel-size", type=int, default=1, help="Pipeline Parallel Size")
-    ap.add_argument("--context-parallel-size", type=int, default=1, help="Context Parallel Size")
+    ap.add_argument("--tensor-parallel-size", type=int, default=1, help="Order of tensor parallelism. Defaults to 1.")
+    ap.add_argument("--pipeline-model-parallel-size", type=int, default=1, help="Order of pipeline parallelism. Defaults to 1.")
+    ap.add_argument("--context-parallel-size", type=int, default=1, help="Order of context parallelism. Defaults to 1.")
     # output args:
-    ap.add_argument("--sequence-fasta", type=str, default="sequence.fasta", help="Sequence fasta file")
-    ap.add_argument("--proteins-fasta", type=str, default="proteins.fasta", help="Proteins fasta file")
-    ap.add_argument("--structure-pdb", type=str, default="structure.pdb", help="Structure PDB file")
-    # misc args:
-    ap.add_argument("--devices", type=str, default="cuda:0", help="Device for generation")
-    ap.add_argument("--seed", type=int, default=12345, help="Random seed")
+    ap.add_argument("--output-file", type=str, default=None, help="Output file containing the generated text produced by the Evo2 model. If not provided, the output will be logged.")
 
     return ap.parse_args()
 
@@ -103,9 +96,13 @@ def main():
         ),
         text_only=True,
     )
-
+    
     if torch.distributed.get_rank() == 0:
-        print(results)
+        if args.output_file is None:
+            logging.info(results)
+        else:
+            with open(args.output_file, "w") as f:
+                f.write(f"{results}\n")
 
 
 if __name__ == "__main__":

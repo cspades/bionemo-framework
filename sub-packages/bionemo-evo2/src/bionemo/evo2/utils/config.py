@@ -20,14 +20,14 @@ from typing import Literal
 from pydantic import BaseModel
 
 
-class StipedHyena2BlendedDatasetConfig(BaseModel):
+class Evo2BlendedDatasetConfig(BaseModel):
     """Pydantic model class that specifies indexed datasets, dataset weights, and datasplits assignments for training."""
     dataset_prefix: None | str = None
     dataset_weight: None | float = None
     dataset_split: Literal["train", "validation", "test"]
 
 
-class StripedHyena2TaxonomyLineage(BaseModel):
+class Evo2TaxonomyLineage(BaseModel):
     """Pydantic model class that defines the source lineage of a DNA sequence."""
     kingdom: None | str = None
     phylum: None | str = None
@@ -38,7 +38,7 @@ class StripedHyena2TaxonomyLineage(BaseModel):
     species: None | str = None
 
 
-class StipedHyena2PreprocessingConfig(BaseModel):
+class Evo2PreprocessingConfig(BaseModel):
     """Pydantic model class specifying the configuration schema for a preprocessed IndexedDataset (.bin, .idx)."""
     # Paths
     datapaths: list[Path] = []
@@ -54,11 +54,14 @@ class StipedHyena2PreprocessingConfig(BaseModel):
     embed_reverse_complement: bool = False
     random_reverse_complement: float = 0.0
     random_lineage_dropout: float = 0.0
-    include_sequence_id: bool = False
     transcribe: None | Literal["transcribe", "back_transcribe"] = None
     force_uppercase: bool = False
     indexed_dataset_dtype: str = "uint8"
-    # Tokenizer
+    # Tokenization Transforms
+    append_eod: bool = False
+    enforce_sample_length: None | int = None
+    ftfy: bool = False
+    # NeMo Tokenizer Configuration
     tokenizer_type: Literal[
         "Byte-Level",
         "HuggingFace",
@@ -70,16 +73,13 @@ class StipedHyena2PreprocessingConfig(BaseModel):
     vocab_file: None | Path = None
     vocab_size: None | int = 512
     merges_file: None | Path = None
-    # Either a named pretrained tokenizer model, or a path to a SentencePiece tokenizer.
+    tokenizer_model_name: None | str = None
     pretrained_tokenizer_model: None | str = None
     special_tokens: None | dict[str, str] = {}
     fast_hf_tokenizer: bool = False
-    append_eod: bool = False
-    enforce_sample_length: None | int = None
-    ftfy: bool = False
-    # Compute
-    # NOTE: If preprocessing short individual sequences (< 1000 bp), do NOT use multiprocessing
-    # (workers > 1) because sequence-level parallel IPC will dominate the preprocessing time!
+    # Compute Configuration
+    # NOTE: If preprocessing a large amount of short individual sequences (< 1000 bp), do NOT use
+    # multiprocessing (workers > 1) because sequence-level parallel IPC will dominate the preprocessing time!
     workers: int = 1
     preproc_concurrency: int = 100000
     chunksize: int = 1
@@ -88,6 +88,8 @@ class StipedHyena2PreprocessingConfig(BaseModel):
     nnn_filter: bool = False
     # RNG
     seed: None | int = None
-    # StipedHyena2 Taxonomic Lineage Tags
+    # Evo2 Taxonomic Lineage Tags
     # SeqID Sub-String Indexing: "ABC" will have taxonomy data from "A".
-    taxonomy_data: dict[str, StripedHyena2TaxonomyLineage] = {}
+    taxonomy_data: dict[str, Evo2TaxonomyLineage] = {}
+    # Periodicity of injecting phylogenetic lineage tags in the sequence prior to tokenization.
+    prompt_spacer_length: int = 131072
