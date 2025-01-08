@@ -189,3 +189,33 @@ True
 >>> all_our_data == all_ref_data
 True
 ```
+
+## Sequence Splicing & Stitching
+
+Evo2 has also been trained on spliced DNA and mRNA sequences, where introns are removed leaving only the concatenated exons of the genome. Moreover, "stitched" variants of spliced transcripts have been introduced into Evo2's training dataset, which include 1024 bp of sequence from the promoter and 32 bp around each exon.
+
+To perform splicing or "stitched" splicing on sequences in a FASTA file given an associated gene transfer format (GTF) file, execute the following command:
+```bash
+$ splice_evo2 --help
+usage: splice_evo2 [-h] --fasta-path FASTA_PATH --gtf-path GTF_PATH [--output-path OUTPUT_PATH] [--transcript-type {default,stitched}] [--stitched-promoter STITCHED_PROMOTER] [--stitched-intron STITCHED_INTRON] [--stitched-overlap] [--only-longest-transcript] [-v]
+
+Extract spliced transcripts from a FASTA and GTF.
+
+options:
+  -h, --help            show this help message and exit
+  --fasta-path FASTA_PATH
+                        Path to FASTA file to extract transcripts from.
+  --gtf-path GTF_PATH   Path to gene transfer format (GTF) file associated with the FASTA.
+  --output-path OUTPUT_PATH
+                        Path to output FASTA file.
+  --transcript-type {default,stitched}
+                        Type of transcript to extract from the GTF and FASTA files for splicing. 'Stitched' transcripts include 1024 bp of sequence from the promoter and 32 bp around each exon.
+  --stitched-promoter STITCHED_PROMOTER
+                        Number of bp to include in the promoter region when --transcript-type=stitched is used. Defaults to 1024.
+  --stitched-intron STITCHED_INTRON
+                        Number of bp to include from neighboring introns when --transcript-type=stitched is used. Defaults to 32.
+  --stitched-overlap    Allow overlap of neighboring intron windows when --transcript-type=stitched is used. Defaults to False, i.e. prevents overlap by shortening the intron windows for a contiguous splice.
+  --only-longest-transcript
+                        Only extract the longest transcript per gene.
+  -v, --verbose         Turn on verbose log messages.
+```

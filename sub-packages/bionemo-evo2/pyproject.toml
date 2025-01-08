@@ -18,6 +18,7 @@ dependencies = [
 infer_evo2 = "bionemo.evo2.run.infer:main"
 train_evo2 = "bionemo.evo2.run.train:main"
 preprocess_evo2 = "bionemo.evo2.data.preprocess:main"
+splice_evo2 = "bionemo.evo2.data.transcript_extraction:main"
 
 [tool.setuptools.packages.find]
 where = ["src"]
