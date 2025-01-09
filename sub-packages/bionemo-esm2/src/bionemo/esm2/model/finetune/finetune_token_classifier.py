@@ -16,7 +16,7 @@
 
 import os
 from dataclasses import dataclass, field
-from typing import List, Sequence, Tuple, Type, TypedDict
+from typing import Dict, List, Sequence, Tuple, Type
 
 import numpy as np
 import torch
@@ -45,22 +45,7 @@ __all__: Sequence[str] = (
     "ESM2FineTuneTokenModel",
     "ESM2FineTuneTokenConfig",
     "InMemoryPerTokenValueDataset",
-    "ClassifierInput",
-    "Esm2FineTuneTokenOutput",
 )
-
-
-class ClassifierInput(TypedDict):
-    """Used as input in the ClassifierLossReduction's forward method."""
-
-    labels: Tensor
-    loss_mask: Tensor
-
-
-class Esm2FineTuneTokenOutput(BioBertOutput):
-    """Inference output from ESM2FineTuneTokenModel."""
-
-    classification_output: Tensor
 
 
 class ClassifierLossReduction(BERTMLMLossWithReduction):
@@ -70,7 +55,7 @@ class ClassifierLossReduction(BERTMLMLossWithReduction):
     """
 
     def forward(
-        self, batch: ClassifierInput, forward_out: Esm2FineTuneTokenOutput
+        self, batch: Dict[str, Tensor], forward_out: Dict[str, Tensor]
     ) -> Tuple[Tensor, PerTokenLossDict | SameSizeLossDict]:
         """Calculates the loss within a micro-batch. A micro-batch is a batch of data on a single GPU.
 
@@ -159,9 +144,9 @@ class ESM2FineTuneTokenModel(ESM2Model):
             # if we are doing post process (eg pipeline last stage) then we need to add the output layers
             self.classification_head = MegatronConvNetHead(config)
 
-    def forward(self, *args, **kwargs) -> Tensor | BioBertOutput | Esm2FineTuneTokenOutput:
+    def forward(self, *args, **kwargs) -> Tensor | BioBertOutput:
         """Inference."""
-        output: Tensor | BioBertOutput | Esm2FineTuneTokenOutput = super().forward(*args, **kwargs)
+        output = super().forward(*args, **kwargs)
         # Stop early if we are not in post_process mode (for example if we are in the middle of model parallelism)
         if not self.post_process:
             return output  # we are not at the last pipeline stage so just return what the parent has
