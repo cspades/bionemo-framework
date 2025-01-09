@@ -360,6 +360,9 @@ class BionemoLightningModule(
         logits = outputs["token_logits"].transpose(0, 1).clone().detach()  #  [s, b] -> [b, s]
 
         if self.log_val_ppl and parallel_state.is_pipeline_last_stage():
+            valid_loss = unreduced_token_loss_fn(logits, batch["labels"])
+            print(f"valid_loss=${valid_loss.item()} on device {self.trainer.global_rank}")
+
             total_log_probs, count = _perplexity_update(logits, batch["labels"], ignore_index=self.valid_ppl.ignore_index)
             print(f"calling self.valid_ppl.update at {self.trainer.global_rank} with total_log_probs={total_log_probs} and count={count} on device {total_log_probs.device}.")
             self.valid_ppl.update(logits, batch["labels"])
