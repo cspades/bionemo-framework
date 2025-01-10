@@ -1,11 +1,11 @@
-- tag: 7b-8k:1.0
+- tag: 7b-8k-zarr:1.0
   ngc: null
   ngc_registry: model
-  pbss: "s3://bionemo-ci/models/interleaved_hyena_7b_nemo2.tar.gz"
-  sha256: cc36769cc80c19b7105e8341f51a89230ba704dbe11c982603378fc418425640 # pragma: allowlist secret
+  pbss: "s3://bionemo-ci/models/interleaved_hyena_7b_fix_shape.tar.gz"
+  sha256: 31261b3dce731e257f03b5f609306df1334cfc723a445cb3800c757a06263ebb # pragma: allowlist secret
   owner: John St John <jstjohn@nvidia.com>
   description: >
-    A 7b parameter evo2 model used in testing
+    A 7b parameter evo2 model used in testing, zarr format
 
 - tag: 7b-8k-nofp8-te-goldvalue-testdata:1.0
   ngc: null

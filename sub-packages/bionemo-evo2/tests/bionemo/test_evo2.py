@@ -18,15 +18,15 @@ import logging
 from pathlib import Path
 from typing import Literal, Set
 
+import pytest
 import torch
-from megatron.core.transformer.enums import AttnBackend
 from megatron.core.transformer.module import Float16Module
 from nemo.collections import llm
 from nemo.collections.nlp.modules.common.tokenizer_utils import get_nmt_tokenizer
 from nemo.lightning.io.pl import MegatronCheckpointIO
-from transformer_engine.pytorch.utils import get_cudnn_version
-from transformer_engine.pytorch.utils import get_device_compute_capability
+from transformer_engine.pytorch.utils import get_cudnn_version, get_device_compute_capability
 
+from bionemo.core.data.load import load
 from bionemo.llm.utils.weight_utils import (
     MegatronModelType,
     _key_in_filter,
@@ -34,7 +34,7 @@ from bionemo.llm.utils.weight_utils import (
     _munge_sharded_tensor_key_megatron_to_nemo2,
 )
 from bionemo.testing.megatron_parallel_state_utils import distributed_model_parallel_state
-from bionemo.core.data.load import load
+
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)  # Capture all levels in the logger itself
@@ -58,8 +58,8 @@ def load_weights_sharded_inplace_nemo2_to_mcore(
         distributed_checkpoint_dir, sharded_state_dict=sharded_state_dict
     )
 
-
-def test_golden_values():
+@pytest.mark.parametrize("seq_len", [8_192, 16_384])
+def test_golden_values(seq_len:int):
     """Step 1:
     # add local .ssh/*.pub key to eos ~/.ssh/authorized_keys
     mkdir -p arc_model/checkpoints/
@@ -69,7 +69,7 @@ def test_golden_values():
     rsync -avz --progress --partial login-eos01.eos.clusters.nvidia.com:/lustre/fsw/healthcareeng_bionemo/arc_evo2/savanna_outputs/final_7b_no_fp8_golden_value.pt arc_model/gold_standards/
     """
     try:
-        evo2_7b_checkpoint_weights: Path = load("evo2/7b-8k:1.0") / "weights"
+        evo2_7b_checkpoint_weights: Path = load("evo2/7b-8k-zarr:1.0") / "weights"
         gold_standard_no_fp8 = load("evo2/7b-8k-nofp8-te-goldvalue-testdata:1.0")
     except ValueError as e:
         if e.args[0].endswith("does not have an NGC URL."):
@@ -80,7 +80,7 @@ def test_golden_values():
         else:
             raise e
     with torch.inference_mode(), distributed_model_parallel_state():
-        hyena_config = llm.Hyena7bConfig(use_te=True)
+        hyena_config = llm.Hyena7bConfig(use_te=True, seq_length=seq_len)
         tokenizer = get_nmt_tokenizer(
             "byte-level",
         )
