@@ -19,6 +19,7 @@ from typing import List, Optional, Sequence, get_args
 
 from lightning.pytorch.callbacks import LearningRateMonitor, RichModelSummary
 from megatron.core.optimizer import OptimizerConfig
+from megatron.core.distributed.distributed_data_parallel_config import DistributedDataParallelConfig
 from nemo import lightning as nl
 from nemo.collections import llm
 from nemo.lightning import resume
