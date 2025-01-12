@@ -374,6 +374,12 @@ class BionemoLightningModule(
             self.valid_ppl.update(logits, batch["labels"])
             print(f"after self.valid_ppl.update at {self.trainer.global_rank} with total_log_probs={self.valid_ppl.total_log_probs} and count={self.valid_ppl.count} on device {self.valid_ppl.total_log_probs.device}.")
 
+            filename = f"/results/valid_step_output_rank{self.trainer.global_rank}_at_step_{self.trainer.global_step}.pt"
+            torch.save({
+                "batch": batch,
+                "outputs": outputs,
+            }, filename)
+
         return outputs
 
     def predict_step(self, batch, batch_idx: Optional[int] = None) -> Tensor:
