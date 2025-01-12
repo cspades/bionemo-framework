@@ -346,7 +346,10 @@ class BionemoLightningModule(
     def training_step(self, batch, batch_idx: Optional[int] = None) -> Tensor:
         """In mcore the loss-function is part of the forward-pass when labels are provided."""
         outputs = self.forward_step(batch)
-        logits = outputs["token_logits"].transpose(0, 1).clone().detach()  #  [s, b] -> [b, s]
+        logits = outputs["token_logits"].transpose(0, 1).clone().detach()  #  [s, b, v] -> [b, s, v]
+
+        # num_tokens = len(self.model.tokenizer)  # avoid megatron padding tokens
+        # logits = logits[:, :, :num_tokens]
 
         if self.log_train_ppl and parallel_state.is_pipeline_last_stage():
             train_metric_value = self.train_ppl(logits, batch["labels"])
@@ -357,7 +360,10 @@ class BionemoLightningModule(
     def validation_step(self, batch, batch_idx: Optional[int] = None) -> Tensor:
         """In mcore the loss-function is part of the forward-pass when labels are provided."""
         outputs = self.forward_step(batch)
-        logits = outputs["token_logits"].transpose(0, 1).clone().detach()  #  [s, b] -> [b, s]
+        logits = outputs["token_logits"].transpose(0, 1).clone().detach()  #  [s, b, v] -> [b, s, v]
+
+        # num_tokens = len(self.model.tokenizer)  # avoid megatron padding tokens
+        # logits = logits[:, :, :num_tokens]
 
         if self.log_val_ppl and parallel_state.is_pipeline_last_stage():
             valid_loss = unreduced_token_loss_fn(logits, batch["labels"])
