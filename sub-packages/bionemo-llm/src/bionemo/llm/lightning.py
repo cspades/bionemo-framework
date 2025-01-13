@@ -398,7 +398,6 @@ class BionemoLightningModule(
 
     def on_validation_epoch_end(self):  # noqa: D102
         if self.trainer.sanity_checking:
-            self.valid_ppl.reset()
             return
 
         # print(f"valid_ppl states are total_log_probs={self.valid_ppl.total_log_probs.sum()} and count={self.valid_ppl.count.sum()} at {self.trainer.global_rank} before sync.")
