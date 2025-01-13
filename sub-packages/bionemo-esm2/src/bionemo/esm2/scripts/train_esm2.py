@@ -176,6 +176,7 @@ def main(
     strategy = nl.MegatronStrategy(
         tensor_model_parallel_size=tensor_model_parallel_size,
         pipeline_model_parallel_size=pipeline_model_parallel_size,
+        sequence_parallel=tensor_model_parallel_size > 1,
         pipeline_dtype=get_autocast_dtype(precision),
         ddp=DistributedDataParallelConfig(
             check_for_nan_in_grad=True,
