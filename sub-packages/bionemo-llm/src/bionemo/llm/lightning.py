@@ -293,6 +293,8 @@ class BionemoLightningModule(
 
         self.log_train_ppl = log_train_ppl
         self.log_val_ppl = log_val_ppl
+        self.is_logging_device = parallel_state.is_pipeline_last_stage() and parallel_state.get_tensor_model_parallel_rank() == 1
+
         if log_train_ppl:
             self.train_ppl = torchmetrics.text.Perplexity(ignore_index=-100)
         if log_val_ppl:
@@ -364,7 +366,7 @@ class BionemoLightningModule(
         # num_tokens = len(self.model.tokenizer)  # avoid megatron padding tokens
         # logits = logits[:, :, :num_tokens]
 
-        if self.log_val_ppl and parallel_state.is_pipeline_last_stage() and parallel_state.get_tensor_model_parallel_rank() == 0:
+        if self.log_val_ppl and self.is_logging_device:
             # valid_loss = unreduced_token_loss_fn(logits, batch["labels"])
             # print(f"valid_loss=${valid_loss.item()} on device {self.trainer.global_rank}")
             total_log_probs, count = _perplexity_update(logits, batch["labels"], ignore_index=self.valid_ppl.ignore_index)
@@ -398,6 +400,9 @@ class BionemoLightningModule(
 
     def on_validation_epoch_end(self):  # noqa: D102
         if self.trainer.sanity_checking:
+            return
+        
+        if not self.is_logging_device:
             return
 
         # print(f"valid_ppl states are total_log_probs={self.valid_ppl.total_log_probs.sum()} and count={self.valid_ppl.count.sum()} at {self.trainer.global_rank} before sync.")
