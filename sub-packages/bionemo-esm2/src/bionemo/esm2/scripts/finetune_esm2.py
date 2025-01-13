@@ -99,7 +99,7 @@ def train_model(
     config_class: Type[BioBertConfig] = ESM2FineTuneSeqConfig,
     metric_tracker: Callback | None = None,
     overlap_grad_reduce: bool = True,
-    overlap_param_gather: bool = False,  # TODO waiting for a NeMo fix
+    overlap_param_gather: bool = True,
     average_in_collective: bool = True,
     grad_reduce_in_fp32: bool = False,
 ) -> Tuple[Path, Callback | None, nl.Trainer]:
@@ -355,7 +355,7 @@ def finetune_esm2_entrypoint():
         dataset_class=args.dataset_class,
         config_class=args.config_class,
         overlap_grad_reduce=not args.no_overlap_grad_reduce,
-        overlap_param_gather=args.overlap_param_gather,
+        overlap_param_gather=not args.overlap_param_gather,
         average_in_collective=not args.no_average_in_collective,
         grad_reduce_in_fp32=args.grad_reduce_in_fp32,
     )
@@ -576,10 +576,10 @@ def get_parser():
         default=False,
     )
     parser.add_argument(
-        "--overlap-param-gather",
+        "--no-overlap-param-gather",
         action="store_true",
         default=False,
-    )  # TODO waiting for a NeMo fix
+    )
     parser.add_argument(
         "--no-average-in-collective",
         action="store_true",
