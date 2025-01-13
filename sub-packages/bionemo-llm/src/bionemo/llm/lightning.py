@@ -291,7 +291,6 @@ class BionemoLightningModule(
         self._forward_step = forward_step
         self.model_transform = model_transform
 
-        # all scaling on the internal states are cancelled out in the formula "exp(total_log_probs / count)" so we can safely sum across all devices
         self.log_train_ppl = log_train_ppl
         self.log_val_ppl = log_val_ppl
         if log_train_ppl:
@@ -351,7 +350,7 @@ class BionemoLightningModule(
         # num_tokens = len(self.model.tokenizer)  # avoid megatron padding tokens
         # logits = logits[:, :, :num_tokens]
 
-        if self.log_train_ppl and parallel_state.is_pipeline_last_stage():
+        if self.log_train_ppl and parallel_state.is_pipeline_last_stage() and parallel_state.get_tensor_model_parallel_rank() == 0:
             train_metric_value = self.train_ppl(logits, batch["labels"])
             self.log("train_ppl", train_metric_value, on_step=True, on_epoch=False)
 
@@ -365,10 +364,9 @@ class BionemoLightningModule(
         # num_tokens = len(self.model.tokenizer)  # avoid megatron padding tokens
         # logits = logits[:, :, :num_tokens]
 
-        if self.log_val_ppl and parallel_state.is_pipeline_last_stage():
+        if self.log_val_ppl and parallel_state.is_pipeline_last_stage() and parallel_state.get_tensor_model_parallel_rank() == 0:
             # valid_loss = unreduced_token_loss_fn(logits, batch["labels"])
             # print(f"valid_loss=${valid_loss.item()} on device {self.trainer.global_rank}")
-
             total_log_probs, count = _perplexity_update(logits, batch["labels"], ignore_index=self.valid_ppl.ignore_index)
             print(f"calling self.valid_ppl.update at {self.trainer.global_rank} with total_log_probs={total_log_probs} and count={count} on device {total_log_probs.device}.")
             self.valid_ppl.update(logits, batch["labels"])
