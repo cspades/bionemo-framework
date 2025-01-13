@@ -136,6 +136,18 @@ def parse_args():
         action="store_true",
         default=False,
     )
+    parser.add_argument(
+        "--ckpt-format",
+        type=str,
+        choices=['torch_dist', 'zarr'],
+        default='torch_dist',
+        help="Specify checkpoint format to use. Defaults to 'torch_dist', as 'zarr' is deprecated."
+    )
+    parser.add_argument(
+        "--tflops-callback",
+        action="store_true",
+        help="Enable tflops calculation callback for Hyena / Evo2. Defaults to False."
+    )
 
     # NSYS profiling/tooling arguments
     parser.add_argument(
@@ -312,20 +324,22 @@ def main():
         save_optim_on_train_end=True,
         save_context_on_train_end=True,
     )
-    flop_meas_callback = FLOPsMeasurementCallback(
-        asdict(evo2_config),
-        data,
-        "hyena",
-    )
     callbacks = [
         checkpoint_callback,
         RichModelSummary(max_depth=4),
         LearningRateMonitor(),
         TimingCallback(),
-        flop_meas_callback,
     ]
     if args.enable_preemption:
         callbacks.append(nl_callbacks.PreemptionCallback())
+    if args.tflops_callback:
+        # Add callback that logs the tera-FLOPS per second per GPU during training.
+        flop_meas_callback = FLOPsMeasurementCallback(
+            asdict(evo2_config),
+            data,
+            "hyena",
+        )
+        callbacks.append(flop_meas_callback)
 
     if args.straggler_detection:
         callbacks.append(
@@ -415,7 +429,7 @@ def main():
         ckpt_load_optimizer=True,
         ckpt_save_optimizer=True,
         ckpt_async_save=args.ckpt_async_save,
-        save_ckpt_format="torch_dist",
+        save_ckpt_format=args.ckpt_format,
     )
     trainer = nl.Trainer(
         devices=args.devices,
