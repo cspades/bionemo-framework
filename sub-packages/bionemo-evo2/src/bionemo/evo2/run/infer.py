@@ -51,6 +51,14 @@ def parse_args():
     ap.add_argument("--context-parallel-size", type=int, default=1, help="Order of context parallelism. Defaults to 1.")
     # output args:
     ap.add_argument("--output-file", type=str, default=None, help="Output file containing the generated text produced by the Evo2 model. If not provided, the output will be logged.")
+    # extra:
+    ap.add_argument(
+        "--ckpt-format",
+        type=str,
+        choices=['torch_dist', 'zarr'],
+        default='torch_dist',
+        help="Specify checkpoint format to use. Defaults to 'torch_dist', as 'zarr' is deprecated."
+    )
 
     return ap.parse_args()
 
@@ -71,7 +79,7 @@ def main():
             ckpt_load_optimizer=False,  # Needs to be false for a normal model checkpoint.
             ckpt_save_optimizer=False,
             ckpt_async_save=False,
-            save_ckpt_format="zarr",
+            save_ckpt_format=args.ckpt_format,
         ),
         log_every_n_steps=1,
         limit_val_batches=10,
