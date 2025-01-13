@@ -19,14 +19,9 @@ import pytest
 from nemo.lightning import io
 
 from bionemo.core.data.load import load
-from bionemo.esm2.model.finetune.finetune_regressor import (
-    ESM2FineTuneSeqConfig,
-    InMemorySingleValueDataset,
-)
-from bionemo.esm2.model.finetune.finetune_token_classifier import (
-    ESM2FineTuneTokenConfig,
-    InMemoryPerTokenValueDataset,
-)
+from bionemo.esm2.model.finetune.dataset import InMemoryPerTokenValueDataset, InMemorySingleValueDataset
+from bionemo.esm2.model.finetune.finetune_regressor import ESM2FineTuneSeqConfig
+from bionemo.esm2.model.finetune.finetune_token_classifier import ESM2FineTuneTokenConfig
 from bionemo.esm2.scripts.finetune_esm2 import train_model as finetune
 from bionemo.testing import megatron_parallel_state_utils
 from bionemo.testing.callbacks import MetricTracker

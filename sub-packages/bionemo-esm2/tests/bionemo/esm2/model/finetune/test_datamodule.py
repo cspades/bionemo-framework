@@ -18,7 +18,8 @@ import pandas as pd
 import pytest
 from torch.utils.data import DataLoader
 
-from bionemo.esm2.model.finetune.datamodule import ESM2FineTuneDataModule, InMemoryCSVDataset
+from bionemo.esm2.model.finetune.datamodule import ESM2FineTuneDataModule
+from bionemo.esm2.model.finetune.dataset import InMemoryCSVDataset
 
 
 @pytest.fixture

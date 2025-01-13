@@ -29,9 +29,13 @@ from nemo.lightning.pytorch.optim import MegatronOptimizerModule
 from bionemo.core.utils.dtypes import PrecisionTypes, get_autocast_dtype
 from bionemo.esm2.data.tokenizer import get_tokenizer
 from bionemo.esm2.model.finetune.datamodule import ESM2FineTuneDataModule
-from bionemo.esm2.model.finetune.dataset import InMemoryCSVDataset
-from bionemo.esm2.model.finetune.finetune_regressor import ESM2FineTuneSeqConfig, InMemorySingleValueDataset
-from bionemo.esm2.model.finetune.finetune_token_classifier import ESM2FineTuneTokenConfig, InMemoryPerTokenValueDataset
+from bionemo.esm2.model.finetune.dataset import (
+    InMemoryCSVDataset,
+    InMemoryPerTokenValueDataset,
+    InMemorySingleValueDataset,
+)
+from bionemo.esm2.model.finetune.finetune_regressor import ESM2FineTuneSeqConfig
+from bionemo.esm2.model.finetune.finetune_token_classifier import ESM2FineTuneTokenConfig
 from bionemo.llm.model.biobert.lightning import biobert_lightning_module
 from bionemo.llm.model.biobert.model import BioBertConfig
 from bionemo.llm.utils.datamodule_utils import float_or_int_or_none, infer_global_batch_size

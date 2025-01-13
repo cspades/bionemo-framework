@@ -14,11 +14,9 @@
 # limitations under the License.
 
 
-import os
 from dataclasses import dataclass, field
 from typing import Dict, List, Sequence, Tuple, Type
 
-import numpy as np
 import torch
 from megatron.core import parallel_state
 from megatron.core.transformer.module import MegatronModule
@@ -26,8 +24,6 @@ from megatron.core.transformer.transformer_config import TransformerConfig
 from torch import Tensor
 
 from bionemo.esm2.api import ESM2GenericConfig, ESM2Model
-from bionemo.esm2.data import tokenizer
-from bionemo.esm2.model.finetune.dataset import InMemoryCSVDataset
 from bionemo.llm.model.biobert.model import BioBertOutput
 from bionemo.llm.model.loss import BERTMLMLossWithReduction, PerTokenLossDict, SameSizeLossDict
 from bionemo.llm.utils import iomixin_utils as iom
@@ -41,7 +37,6 @@ __all__: Sequence[str] = (
     "MegatronMLPHead",
     "ESM2FineTuneSeqModel",
     "ESM2FineTuneSeqConfig",
-    "InMemorySingleValueDataset",
 )
 
 
@@ -178,37 +173,3 @@ class ESM2FineTuneSeqConfig(
     def get_loss_reduction_class(self) -> Type[RegressorLossReduction]:
         """Returns RegressorLossReduction class."""
         return RegressorLossReduction
-
-
-class InMemorySingleValueDataset(InMemoryCSVDataset):
-    """An in-memory dataset that tokenizes strings into BertSample instances."""
-
-    def __init__(
-        self,
-        data_path: str | os.PathLike,
-        tokenizer: tokenizer.BioNeMoESMTokenizer = tokenizer.get_tokenizer(),
-        seed: int = np.random.SeedSequence().entropy,  # type: ignore
-    ):
-        """Initializes a dataset for single-value regression fine-tuning.
-
-        This is an in-memory dataset that does not apply masking to the sequence.
-
-        Args:
-            data_path (str | os.PathLike): A path to the CSV file containing sequences and labels (Optional)
-            tokenizer (tokenizer.BioNeMoESMTokenizer, optional): The tokenizer to use. Defaults to tokenizer.get_tokenizer().
-            seed: Random seed for reproducibility. This seed is mixed with the index of the sample to retrieve to ensure
-                that __getitem__ is deterministic, but can be random across different runs. If None, a random seed is
-                generated.
-        """
-        super().__init__(data_path=data_path, tokenizer=tokenizer, seed=seed)
-
-    def transform_label(self, label: float) -> Tensor:
-        """Transform the regression label.
-
-        Args:
-            label: regression value
-
-        Returns:
-            tokenized label
-        """
-        return torch.tensor([label], dtype=torch.float)

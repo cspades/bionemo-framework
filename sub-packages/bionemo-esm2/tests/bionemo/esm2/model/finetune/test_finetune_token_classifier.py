@@ -20,11 +20,10 @@ import torch
 
 from bionemo.core.data.load import load
 from bionemo.esm2.data import tokenizer
-from bionemo.esm2.model.finetune.dataset import InMemoryCSVDataset
+from bionemo.esm2.model.finetune.dataset import InMemoryCSVDataset, InMemoryPerTokenValueDataset
 from bionemo.esm2.model.finetune.finetune_token_classifier import (
     ESM2FineTuneTokenConfig,
     ESM2FineTuneTokenModel,
-    InMemoryPerTokenValueDataset,
     MegatronConvNetHead,
 )
 from bionemo.llm.data.collate import MLM_LOSS_IGNORE_INDEX

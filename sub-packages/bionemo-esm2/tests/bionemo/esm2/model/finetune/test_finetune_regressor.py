@@ -20,11 +20,10 @@ import torch
 
 from bionemo.core.data.load import load
 from bionemo.esm2.data import tokenizer
-from bionemo.esm2.model.finetune.dataset import InMemoryCSVDataset
+from bionemo.esm2.model.finetune.dataset import InMemoryCSVDataset, InMemorySingleValueDataset
 from bionemo.esm2.model.finetune.finetune_regressor import (
     ESM2FineTuneSeqConfig,
     ESM2FineTuneSeqModel,
-    InMemorySingleValueDataset,
     MegatronMLPHead,
 )
 from bionemo.testing import megatron_parallel_state_utils
