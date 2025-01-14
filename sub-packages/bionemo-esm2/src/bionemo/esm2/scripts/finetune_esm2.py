@@ -355,7 +355,7 @@ def finetune_esm2_entrypoint():
         dataset_class=args.dataset_class,
         config_class=args.config_class,
         overlap_grad_reduce=not args.no_overlap_grad_reduce,
-        overlap_param_gather=not args.overlap_param_gather,
+        overlap_param_gather=not args.no_overlap_param_gather,
         average_in_collective=not args.no_average_in_collective,
         grad_reduce_in_fp32=args.grad_reduce_in_fp32,
     )
