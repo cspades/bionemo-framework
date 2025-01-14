@@ -72,6 +72,7 @@ def infer_global_batch_size(
         accumulate_grad_batches (int): The accumulation of gradient batches. Defaults to 1.
         tensor_model_parallel_size (int): The tensor model parallel size. Defaults to 1.
         pipeline_model_parallel_size (int): The pipeline model parallel size. Defaults to 1.
+        context_model_parallel_size (int): The context model parallel size. Defaults to 1.
 
     Returns:
         int: The global batch size.

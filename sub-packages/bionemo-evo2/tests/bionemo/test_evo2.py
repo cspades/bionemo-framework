@@ -58,8 +58,9 @@ def load_weights_sharded_inplace_nemo2_to_mcore(
         distributed_checkpoint_dir, sharded_state_dict=sharded_state_dict
     )
 
+
 @pytest.mark.parametrize("seq_len", [8_192, 16_384])
-def test_golden_values(seq_len:int):
+def test_golden_values(seq_len: int):
     """Step 1:
     # add local .ssh/*.pub key to eos ~/.ssh/authorized_keys
     mkdir -p arc_model/checkpoints/
@@ -93,9 +94,7 @@ def test_golden_values(seq_len:int):
         position_ids = torch.arange(len(input_seq)).unsqueeze(0).to(device)
         attention_mask = None
         outputs = model(input_ids=input_ids, position_ids=position_ids, attention_mask=attention_mask)
-        gold_standard_no_fp8 = torch.load(gold_standard_no_fp8).to(
-            device=outputs.device, dtype=outputs.dtype
-        )
+        gold_standard_no_fp8 = torch.load(gold_standard_no_fp8).to(device=outputs.device, dtype=outputs.dtype)
         our_generation_str = "".join(
             [chr(idx) for idx in outputs.softmax(dim=-1).argmax(dim=-1).flatten().detach().cpu().numpy().tolist()]
         )

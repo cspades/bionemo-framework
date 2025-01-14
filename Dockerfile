@@ -60,7 +60,7 @@ ARG NEMU_RUN_TAG=34259bd3e752fef94045a9a019e4aaf62bd11ce2
 RUN pip install nemo_run@git+https://github.com/NVIDIA/NeMo-Run.git@${NEMU_RUN_TAG}
 
 # Used for straggler detection in large runs.
-ARG RESIL_COMMIT="97aad77609d2e25ed38ac5c99f0c13f93c48464e"
+ARG RESIL_COMMIT=97aad77609d2e25ed38ac5c99f0c13f93c48464e
 RUN pip install --no-cache-dir "git+https://github.com/NVIDIA/nvidia-resiliency-ext.git@${RESIL_COMMIT}"
 
 RUN mkdir -p /workspace/bionemo2/

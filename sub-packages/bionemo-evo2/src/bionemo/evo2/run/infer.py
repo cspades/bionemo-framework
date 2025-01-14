@@ -37,7 +37,12 @@ def parse_args():
         + "g__Escherichia;"
         + "s__Escherichia|"
     )
-    ap.add_argument("--prompt", type=str, default=default_prompt, help="Prompt to generate text from Evo2. Defaults to a phylogenetic lineage tag for E coli.")
+    ap.add_argument(
+        "--prompt",
+        type=str,
+        default=default_prompt,
+        help="Prompt to generate text from Evo2. Defaults to a phylogenetic lineage tag for E coli.",
+    )
     ap.add_argument(
         "--ckpt-dir", type=str, required=True, help="Path to checkpoint directory containing pre-trained Evo2 model."
     )
@@ -47,17 +52,26 @@ def parse_args():
     ap.add_argument("--max-new-tokens", type=int, default=1024, help="Maximum number of tokens to generate.")
     # compute args:
     ap.add_argument("--tensor-parallel-size", type=int, default=1, help="Order of tensor parallelism. Defaults to 1.")
-    ap.add_argument("--pipeline-model-parallel-size", type=int, default=1, help="Order of pipeline parallelism. Defaults to 1.")
-    ap.add_argument("--context-parallel-size", type=int, default=1, help="Order of context parallelism. Defaults to 1.")
+    ap.add_argument(
+        "--pipeline-model-parallel-size", type=int, default=1, help="Order of pipeline parallelism. Defaults to 1."
+    )
+    ap.add_argument(
+        "--context-parallel-size", type=int, default=1, help="Order of context parallelism. Defaults to 1."
+    )
     # output args:
-    ap.add_argument("--output-file", type=str, default=None, help="Output file containing the generated text produced by the Evo2 model. If not provided, the output will be logged.")
+    ap.add_argument(
+        "--output-file",
+        type=str,
+        default=None,
+        help="Output file containing the generated text produced by the Evo2 model. If not provided, the output will be logged.",
+    )
     # extra:
     ap.add_argument(
         "--ckpt-format",
         type=str,
-        choices=['torch_dist', 'zarr'],
-        default='torch_dist',
-        help="Specify checkpoint format to use. Defaults to 'torch_dist', as 'zarr' is deprecated."
+        choices=["torch_dist", "zarr"],
+        default="torch_dist",
+        help="Specify checkpoint format to use. Defaults to 'torch_dist', as 'zarr' is deprecated.",
     )
 
     return ap.parse_args()
@@ -104,7 +118,7 @@ def main():
         ),
         text_only=True,
     )
-    
+
     if torch.distributed.get_rank() == 0:
         if args.output_file is None:
             logging.info(results)

@@ -15,7 +15,7 @@
 
 import argparse
 from collections import defaultdict
-from dataclasses import dataclass, asdict
+from dataclasses import asdict, dataclass
 
 import nvidia_resiliency_ext.ptl_resiliency as res_module
 import torch
@@ -104,7 +104,10 @@ def parse_args():
         "--experiment-dir", type=str, default=None, help="Directory to write model checkpoints and results to."
     )
     parser.add_argument(
-        "--limit-val-batches", type=int, default=20, help="Number of validation steps",
+        "--limit-val-batches",
+        type=int,
+        default=20,
+        help="Number of validation steps",
     )
     parser.add_argument(
         "--ckpt-dir",
@@ -139,14 +142,14 @@ def parse_args():
     parser.add_argument(
         "--ckpt-format",
         type=str,
-        choices=['torch_dist', 'zarr'],
-        default='torch_dist',
-        help="Specify checkpoint format to use. Defaults to 'torch_dist', as 'zarr' is deprecated."
+        choices=["torch_dist", "zarr"],
+        default="torch_dist",
+        help="Specify checkpoint format to use. Defaults to 'torch_dist', as 'zarr' is deprecated.",
     )
     parser.add_argument(
         "--tflops-callback",
         action="store_true",
-        help="Enable tflops calculation callback for Hyena / Evo2. Defaults to False."
+        help="Enable tflops calculation callback for Hyena / Evo2. Defaults to False.",
     )
 
     # NSYS profiling/tooling arguments
@@ -186,11 +189,15 @@ def parse_args():
 
 @dataclass
 class TPOverlapCfg:
+    """Base configuration class for Tensor Parallelism (TP) overlap."""
+
     pass
 
 
 @dataclass
 class PipelineOverlapCfg(TPOverlapCfg):
+    """Configuration for Pipeline Parallelism overlap."""
+
     num_sm: int
     cga_size: int
     num_splits: int
@@ -201,6 +208,8 @@ class PipelineOverlapCfg(TPOverlapCfg):
 
 @dataclass
 class RingExchangeOverlapCfg(TPOverlapCfg):
+    """Configuration for ring exchange overlap."""
+
     aggregate: bool = False
     method: str = "ring_exchange"
     num_sm: int = 1
@@ -209,14 +218,19 @@ class RingExchangeOverlapCfg(TPOverlapCfg):
 
 @dataclass
 class BulkOverlapCfg(TPOverlapCfg):
+    """Configuration for bulk overlap in TP."""
+
     num_sm: int
     cga_size: int
     set_sm_margin: bool
     method: str = "bulk"
 
 
+# TODO(dorotat) why are we copy pasting those methods? They are in NeMo
 @dataclass
 class TransformerLayerTPOverlapCfg:
+    """Configuration for TP overlap in transformer layers."""
+
     qkv_dgrad: TPOverlapCfg
     qkv_wgrad: TPOverlapCfg
     fc1_dgrad: TPOverlapCfg
@@ -246,7 +260,15 @@ userbuffers_bf16_h100_h8192_tp4_mbs1_seqlen8192 = TransformerLayerTPOverlapCfg(
 
 
 def parse_dataset_config(dataset_config_path: str):
-    """Parse the blended training datasplit configuration and renormalize data split weights for training Hyena."""
+    """Parse the blended training datasplit configuration and renormalize data split weights for training Hyena.
+
+    Args:
+        dataset_config_path (str): Path to the dataset configuration YAML file.
+
+    Returns:
+        defaultdict: A dictionary where keys are dataset splits and values are lists containing the normalized weight
+                     and dataset prefix for each split.
+    """
     blended_dataset_config = defaultdict(list)
     weight_sums = defaultdict(float)
     with open(dataset_config_path, "r") as config_file:
@@ -359,7 +381,7 @@ def main():
             MegatronCommOverlapCallback(
                 tp_comm_overlap=True,
                 tp_comm_overlap_cfg=userbuffers_bf16_h100_h8192_tp4_mbs1_seqlen8192,
-                wgrad_deferral_limit=22, # default from NeMo
+                wgrad_deferral_limit=22,  # default from NeMo
                 overlap_param_gather_with_optimizer_step=False,  # Currently disabled due to an issue with checkpointing.
                 align_param_gather=args.align_param_gather,
             )

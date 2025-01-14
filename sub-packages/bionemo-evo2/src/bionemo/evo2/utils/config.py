@@ -22,6 +22,7 @@ from pydantic import BaseModel
 
 class Evo2BlendedDatasetConfig(BaseModel):
     """Pydantic model class that specifies indexed datasets, dataset weights, and datasplits assignments for training."""
+
     dataset_prefix: None | str = None
     dataset_weight: None | float = None
     dataset_split: Literal["train", "validation", "test"]
@@ -29,6 +30,7 @@ class Evo2BlendedDatasetConfig(BaseModel):
 
 class Evo2TaxonomyLineage(BaseModel):
     """Pydantic model class that defines the source lineage of a DNA sequence."""
+
     kingdom: None | str = None
     phylum: None | str = None
     clazz: None | str = None
@@ -40,6 +42,7 @@ class Evo2TaxonomyLineage(BaseModel):
 
 class Evo2PreprocessingConfig(BaseModel):
     """Pydantic model class specifying the configuration schema for a preprocessed IndexedDataset (.bin, .idx)."""
+
     # Paths
     datapaths: list[Path] = []
     output_dir: None | Path = None
