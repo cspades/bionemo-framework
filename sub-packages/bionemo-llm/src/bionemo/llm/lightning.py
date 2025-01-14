@@ -374,10 +374,10 @@ class BionemoLightningModule(
         if self.log_val_ppl and self.is_on_logging_device():
             # valid_loss = unreduced_token_loss_fn(logits, batch["labels"])
             # print(f"valid_loss=${valid_loss.item()} on device {self.trainer.global_rank}")
-            total_log_probs, count = _perplexity_update(logits, batch["labels"], ignore_index=self.valid_ppl.ignore_index)
-            print(f"calling self.valid_ppl.update at {self.trainer.global_rank} with total_log_probs={total_log_probs} and count={count} on device {total_log_probs.device}.")
+            # total_log_probs, count = _perplexity_update(logits, batch["labels"], ignore_index=self.valid_ppl.ignore_index)
+            # print(f"calling self.valid_ppl.update at {self.trainer.global_rank} with total_log_probs={total_log_probs} and count={count} on device {total_log_probs.device}.")
             self.valid_ppl.update(logits, batch["labels"])
-            print(f"after self.valid_ppl.update at {self.trainer.global_rank} with total_log_probs={self.valid_ppl.total_log_probs} and count={self.valid_ppl.count} on device {self.valid_ppl.total_log_probs.device}.")
+            # print(f"after self.valid_ppl.update at {self.trainer.global_rank} with total_log_probs={self.valid_ppl.total_log_probs} and count={self.valid_ppl.count} on device {self.valid_ppl.total_log_probs.device}.")
 
             # filename = f"/results/valid_step_output_rank{self.trainer.global_rank}_at_step_{self.trainer.global_step}.pt"
             # torch.save({
@@ -412,10 +412,10 @@ class BionemoLightningModule(
 
         # print(f"valid_ppl states are total_log_probs={self.valid_ppl.total_log_probs.sum()} and count={self.valid_ppl.count.sum()} at {self.trainer.global_rank} before sync.")
         # self.valid_ppl.sync()
-        print(f"valid_ppl states are total_log_probs={self.valid_ppl.total_log_probs.sum()} and count={self.valid_ppl.count.sum()} at {self.trainer.global_rank} before compute.")
+        # print(f"valid_ppl states are total_log_probs={self.valid_ppl.total_log_probs.sum()} and count={self.valid_ppl.count.sum()} at {self.trainer.global_rank} before compute.")
         valid_metric_value = self.valid_ppl.compute()
-        print(f"valid_ppl states are total_log_probs={self.valid_ppl.total_log_probs.sum()} and count={self.valid_ppl.count.sum()} at {self.trainer.global_rank} after compute.")
-        print(f"valid_ppl at {self.trainer.global_rank} is {valid_metric_value}.")
+        # print(f"valid_ppl states are total_log_probs={self.valid_ppl.total_log_probs.sum()} and count={self.valid_ppl.count.sum()} at {self.trainer.global_rank} after compute.")
+        # print(f"valid_ppl at {self.trainer.global_rank} is {valid_metric_value}.")
         self.log("valid_ppl", valid_metric_value, on_step=False, on_epoch=True, prog_bar=True)
         self.valid_ppl.reset()
         # print(f"valid_ppl states are total_log_probs={self.valid_ppl.total_log_probs.sum()} and count={self.valid_ppl.count.sum()} at {self.trainer.global_rank} after reset.")
