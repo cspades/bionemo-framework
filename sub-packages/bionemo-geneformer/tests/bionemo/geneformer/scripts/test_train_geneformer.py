@@ -29,18 +29,81 @@ from bionemo.llm.utils.datamodule_utils import parse_kwargs_to_arglist
 from bionemo.testing import megatron_parallel_state_utils
 
 
-data_path: Path = load("single_cell/testdata-20240506") / "cellxgene_2023-12-15_small" / "processed_data"
+@pytest.fixture
+def data_path() -> Path:
+    """Gets the path to the directory with cellx small dataset in Single Cell Memmap format.
+    Returns:
+        A Path object that is the directory with the specified test data.
+    """
+    return load("single_cell/testdata-20241203") / "cellxgene_2023-12-15_small_processed_scdl"
 
 
-def test_bionemo2_rootdir():
+def test_bionemo2_rootdir(data_path):
     assert data_path.exists(), "Could not find test data directory."
     assert data_path.is_dir(), "Test data directory is supposed to be a directory."
 
 
-@pytest.mark.parametrize("limit_val_batches", [0.0, 1])
-def test_val_dataloader_in_main_runs_with_limit_val_batches(tmpdir, limit_val_batches: float):
+@pytest.mark.parametrize("create_checkpoint_callback", [True, False])
+def test_main_runs(tmpdir, create_checkpoint_callback: bool, data_path: Path):
     result_dir = Path(tmpdir.mkdir("results"))
 
+    with megatron_parallel_state_utils.distributed_model_parallel_state():
+        main(
+            data_dir=data_path,
+            num_nodes=1,
+            devices=1,
+            seq_length=128,
+            result_dir=result_dir,
+            wandb_project=None,
+            wandb_offline=True,
+            num_steps=5,
+            limit_val_batches=1,
+            val_check_interval=2,
+            num_dataset_workers=0,
+            biobert_spec_option=BiobertSpecOption.bert_layer_local_spec,
+            lr=1e-4,
+            micro_batch_size=2,
+            accumulate_grad_batches=2,
+            cosine_rampup_frac=0.01,
+            cosine_hold_frac=0.01,
+            precision="bf16-mixed",
+            experiment_name="test_experiment",
+            resume_if_exists=False,
+            create_tensorboard_logger=False,
+            num_layers=2,
+            num_attention_heads=2,
+            hidden_size=4,
+            ffn_hidden_size=4 * 2,
+            create_checkpoint_callback=create_checkpoint_callback,
+        )
+
+    assert (result_dir / "test_experiment").exists(), "Could not find test experiment directory."
+    assert (result_dir / "test_experiment").is_dir(), "Test experiment directory is supposed to be a directory."
+    children = list((result_dir / "test_experiment").iterdir())
+    assert len(children) == 1, f"Expected 1 child in test experiment directory, found {children}."
+    uq_rundir = children[0]  # it will be some date.
+
+    expected_exists = create_checkpoint_callback
+    actual_exists = (result_dir / "test_experiment" / uq_rundir / "checkpoints").exists()
+
+    assert expected_exists == actual_exists, (
+        f"Checkpoints directory existence mismatch. "
+        f"Expected: {'exists' if expected_exists else 'does not exist'}, "
+        f"Found: {'exists' if actual_exists else 'does not exist'}."
+    )
+
+    if create_checkpoint_callback:
+        assert (
+            result_dir / "test_experiment" / uq_rundir / "checkpoints"
+        ).is_dir(), "Test experiment checkpoints directory is supposed to be a directory."
+    assert (
+        result_dir / "test_experiment" / uq_rundir / "nemo_log_globalrank-0_localrank-0.txt"
+    ).is_file(), "Could not find experiment log."
+
+
+@pytest.mark.parametrize("limit_val_batches", [0.0, 1])
+def test_val_dataloader_in_main_runs_with_limit_val_batches(tmpdir, data_path, limit_val_batches: float):
+    result_dir = Path(tmpdir.mkdir("results"))
     with megatron_parallel_state_utils.distributed_model_parallel_state():
         main(
             data_dir=data_path,
@@ -86,7 +149,39 @@ def test_val_dataloader_in_main_runs_with_limit_val_batches(tmpdir, limit_val_ba
     ).is_file(), "Could not find experiment log."
 
 
-def test_pretrain_cli(tmpdir):
+def test_throws_tok_not_in_vocab_error(tmpdir, data_path):
+    result_dir = Path(tmpdir.mkdir("results"))
+    with pytest.raises(ValueError) as error_info:
+        with megatron_parallel_state_utils.distributed_model_parallel_state():
+            main(
+                data_dir=data_path,
+                num_nodes=1,
+                devices=1,
+                seq_length=128,
+                result_dir=result_dir,
+                wandb_project=None,
+                wandb_offline=True,
+                num_steps=55,
+                limit_val_batches=1,
+                val_check_interval=1,
+                num_dataset_workers=0,
+                biobert_spec_option=BiobertSpecOption.bert_layer_local_spec,
+                lr=1e-4,
+                micro_batch_size=2,
+                accumulate_grad_batches=2,
+                cosine_rampup_frac=0.01,
+                cosine_hold_frac=0.01,
+                precision="bf16-mixed",
+                experiment_name="test_experiment",
+                resume_if_exists=False,
+                create_tensorboard_logger=False,
+                include_unrecognized_vocab_in_dataset=True,
+            )
+
+    assert "not in the tokenizer vocab." in str(error_info.value)
+
+
+def test_pretrain_cli(tmpdir, data_path):
     result_dir = Path(tmpdir.mkdir("results"))
     open_port = find_free_network_port()
     # NOTE: if you need to change the following command, please update the README.md example.

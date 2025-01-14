@@ -15,30 +15,96 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-set -xueo pipefail
-export PYTHONDONTWRITEBYTECODE=1
-# NOTE: if a non-nvidia user wants to run the test suite, just run `export BIONEMO_DATA_SOURCE=ngc` prior to this call.
-export BIONEMO_DATA_SOURCE="${BIONEMO_DATA_SOURCE:-pbss}"
-# flexible GPU memory management, reducing the risk of fragmentation-related CUDA OOM
-export PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True
-source "$(dirname "$0")/utils.sh"
 
-if ! set_bionemo_home; then
-    exit 1
-fi
+# Enable strict mode with better error handling
+set -euox pipefail
 
-python -m coverage erase
+# Function to display usage information
+usage() {
+    cat << EOF
+Usage: $(basename "$0") [OPTIONS]
 
+Options:
+    --skip-docs    Skip running tests in the docs directory
+    --no-nbval     Skip jupyter notebook validation tests
+    --skip-slow    Skip tests marked as slow (@pytest.mark.slow)
+
+Note: Documentation tests (docs/) are only run when notebook validation
+      is enabled (--no-nbval not set) and docs are not skipped
+      (--skip-docs not set)
+    -h, --help     Display this help message
+EOF
+    exit "${1:-0}"
+}
+
+# Set default environment variables
+: "${BIONEMO_DATA_SOURCE:=pbss}"
+: "${PYTHONDONTWRITEBYTECODE:=1}"
+: "${PYTORCH_CUDA_ALLOC_CONF:=expandable_segments:True}"
+
+# Export necessary environment variables
+export BIONEMO_DATA_SOURCE PYTHONDONTWRITEBYTECODE PYTORCH_CUDA_ALLOC_CONF
+
+# Initialize variables
+declare -a coverage_files
+SKIP_DOCS=false
+NO_NBVAL=false
+SKIP_SLOW=false
 error=false
-for dir in docs/ ./sub-packages/bionemo-*/; do
-    echo "Running pytest in $dir"
-    python -m coverage run --parallel-mode --source=bionemo \
-    -m pytest -v --nbval-lax --durations=0 --durations-min=60.0 "$dir" || error=true
+
+# Parse command line arguments
+while (( $# > 0 )); do
+    case "$1" in
+        --skip-docs) SKIP_DOCS=true ;;
+        --no-nbval) NO_NBVAL=true ;;
+        --skip-slow) SKIP_SLOW=true ;;
+        -h|--help) usage ;;
+        *) echo "Unknown option: $1" >&2; usage 1 ;;
+    esac
+    shift
 done
 
-python -m coverage combine
-python -m coverage report --show-missing
+# Source utility functions
+SCRIPT_DIR="$(dirname "$(readlink -f "$0")")"
+source "$SCRIPT_DIR/utils.sh" || { echo "Failed to source utils.sh" >&2; exit 1; }
 
-if [ "$error" = true ]; then
-    exit 1
+# Set up BioNeMo home directory
+set_bionemo_home || exit 1
+
+# Echo some useful information
+lscpu
+nvidia-smi
+uname -a
+
+# Set up pytest options
+PYTEST_OPTIONS=(
+    -v
+    --durations=0
+    --durations-min=30.0
+    --cov=bionemo
+    --cov-append
+    --cov-report=xml:coverage.xml
+)
+[[ "$NO_NBVAL" != true ]] && PYTEST_OPTIONS+=(--nbval-lax)
+[[ "$SKIP_SLOW" == true ]] && PYTEST_OPTIONS+=(-m "not slow")
+
+# Define test directories
+TEST_DIRS=(./sub-packages/bionemo-*/)
+if [[ "$NO_NBVAL" != true && "$SKIP_DOCS" != true ]]; then
+    TEST_DIRS+=(docs/)
 fi
+
+echo "Test directories: ${TEST_DIRS[*]}"
+
+# Run tests with coverage
+for dir in "${TEST_DIRS[@]}"; do
+    echo "Running pytest in $dir"
+
+    if ! pytest "${PYTEST_OPTIONS[@]}" --junitxml=$(basename $dir).junit.xml -o junit_family=legacy "$dir"; then
+        error=true
+    fi
+done
+
+# Exit with appropriate status
+$error && exit 1
+exit 0

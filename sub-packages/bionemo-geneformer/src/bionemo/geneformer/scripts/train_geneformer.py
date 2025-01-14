@@ -75,11 +75,13 @@ def main(
     wandb_offline: bool = False,
     wandb_tags: List[str] | None = None,
     wandb_group: Optional[str] = None,
+    wandb_job_type: Optional[str] = None,
     wandb_id: Optional[str] = None,
     wandb_anonymous: bool = False,
     wandb_log_model: bool = False,
     create_tensorboard_logger: bool = False,
     nemo1_init_path: Path | None = None,
+    create_checkpoint_callback: bool = True,
     restore_from_checkpoint_path: Path | None = None,
     num_layers: int = 6,
     hidden_size: int = 256,
@@ -97,6 +99,7 @@ def main(
     gc_interval: int = 0,
     aligned_megatron_ddp: bool = False,
     recompilation_check: bool = False,
+    include_unrecognized_vocab_in_dataset: bool = False,
     # TODO add datamodule class, and ability to change data step to get full support for pretraining workflows
 ) -> None:
     """Train a Geneformer model on single cell data.
@@ -131,11 +134,13 @@ def main(
         wandb_project (str): The name of the project to which this run will belong.
         wandb_tags (List[str]): Tags associated with this run.
         wandb_group (str): A unique string shared by all runs in a given group
+        wandb_job_type (Optional[str]): Type of run, which is useful when you're grouping runs together into larger experiments using group.
         wandb_offline (bool): Run offline (data can be streamed later to wandb servers).
         wandb_id (str): Sets the version, mainly used to resume a previous run.
         wandb_anonymous (bool): Enables or explicitly disables anonymous logging.
         wandb_log_model (bool): Save checkpoints in wandb dir to upload on W&B servers.
         create_tensorboard_logger (bool): create the tensorboard logger
+        create_checkpoint_callback (bool): create a ModelCheckpoint callback and attach it to the pytorch lightning trainer
         restore_from_checkpoint_path (path): If set, restores the model from the directory passed in. Expects the
             checkpoint to be created by using the ModelCheckpoint class and always_save_context=True.
         num_layers (int): Number of layers in geneformer. Default to 6.
@@ -155,6 +160,7 @@ def main(
             good for clusters. This will likely slow down single node runs though.
         recompilation_check (bool): enable a recompilation check (only do on a small run) to verify that fused gpu
             kernels are not being regularly recompiled, which is very expensive, with a particular model/settings.
+        include_unrecognized_vocab_in_dataset (bool): If set to True, a hard-check is performed to verify all gene identifers are in the user supplied tokenizer vocab. Defaults to False which means any gene identifier not in the user supplied tokenizer vocab will be excluded..
     """
     # Create the result directory if it does not exist.
     if wandb_tags is None:
@@ -213,6 +219,7 @@ def main(
             entity=wandb_entity,
             tags=wandb_tags,
             group=wandb_group,
+            job_type=wandb_job_type,
             id=wandb_id,
             anonymous=wandb_anonymous,
             log_model=wandb_log_model,
@@ -251,6 +258,7 @@ def main(
         callbacks=callbacks,
         use_distributed_sampler=False,
         plugins=nl.MegatronMixedPrecision(precision=precision),
+        enable_checkpointing=create_checkpoint_callback,
     )
 
     preprocessor = GeneformerPreprocess(
@@ -279,6 +287,7 @@ def main(
         persistent_workers=num_dataset_workers > 0,
         pin_memory=False,
         num_workers=num_dataset_workers,
+        include_unrecognized_vocab_in_dataset=include_unrecognized_vocab_in_dataset,
     )
     geneformer_config = config_class(
         num_layers=num_layers,
@@ -325,14 +334,17 @@ def main(
         ),
     )
     # Configure our custom Checkpointer
-    checkpoint_callback = nl_callbacks.ModelCheckpoint(
-        save_last=save_last_checkpoint,
-        monitor=metric_to_monitor_for_checkpoints,
-        save_top_k=save_top_k,
-        every_n_train_steps=val_check_interval,
-        always_save_context=True,  # Enables the .nemo file-like checkpointing where all IOMixins are under SerDe
-        filename="{epoch}-{val_loss:.2f}-{step}-{consumed_samples}",  # Including step and consumed_samples in the checkpoint filename prevents duplicate filenames and bugs related to this.
-    )
+    if create_checkpoint_callback:
+        checkpoint_callback = nl_callbacks.ModelCheckpoint(
+            save_last=save_last_checkpoint,
+            monitor=metric_to_monitor_for_checkpoints,
+            save_top_k=save_top_k,
+            every_n_train_steps=val_check_interval,
+            always_save_context=True,  # Enables the .nemo file-like checkpointing where all IOMixins are under SerDe
+            filename="{epoch}-{val_loss:.2f}-{step}-{consumed_samples}",  # Including step and consumed_samples in the checkpoint filename prevents duplicate filenames and bugs related to this.
+        )
+    else:
+        checkpoint_callback = None
 
     # Setup the logger and train the model
     nemo_logger = setup_nemo_lightning_logger(
@@ -407,6 +419,12 @@ def get_parser():
         "--wandb-group", type=str, default=None, help="A unique string shared by all runs in a given group"
     )
     parser.add_argument(
+        "--wandb-job-type",
+        type=str,
+        default=None,
+        help="A unique string representing a type of run, which is useful when you're grouping runs together into larger experiments using group.",
+    )
+    parser.add_argument(
         "--wandb-id", type=str, default=None, help="Sets the version, mainly used to resume a previous run"
     )
     parser.add_argument(
@@ -422,6 +440,11 @@ def get_parser():
         required=False,
         default=0.01,
         help="Fraction of steps in which to ramp up the learning rate. Default is 0.01.",
+    )
+    parser.add_argument(
+        "--include-unrecognized-vocab-in-dataset",
+        action="store_true",
+        help="If set to true, a hard-check is performed to verify all gene identifers are in the user supplied tokenizer vocab. Defaults to False which means any gene identifier not in the user supplied tokenizer vocab will be excluded.",
     )
     parser.add_argument(
         "--cosine-hold-frac",
@@ -514,6 +537,13 @@ def get_parser():
         type=Path,
         required=False,
         help="Path to nemo1 file, if desired to load at init time.",
+    )
+    parser.add_argument(
+        "--disable-checkpointing",
+        action="store_false",
+        default=True,
+        dest="create_checkpoint_callback",
+        help="Disable creating a ModelCheckpoint callback.",
     )
     parser.add_argument(
         "--save-best-checkpoint",
@@ -654,6 +684,7 @@ def entrypoint():
         wandb_project=args.wandb_project,
         wandb_tags=args.wandb_tags,
         wandb_group=args.wandb_group,
+        wandb_job_type=args.wandb_job_type,
         wandb_id=args.wandb_id,
         wandb_anonymous=args.wandb_anonymous,
         wandb_log_model=args.wandb_log_model,
@@ -676,6 +707,7 @@ def entrypoint():
         nsys_start_step=args.nsys_start_step,
         nsys_end_step=args.nsys_end_step,
         nsys_ranks=args.nsys_ranks,
+        create_checkpoint_callback=args.create_checkpoint_callback,
         restore_from_checkpoint_path=args.restore_from_checkpoint_path,
         config_class=args.training_model_config_class,
         save_last_checkpoint=args.save_last_checkpoint,
@@ -685,6 +717,7 @@ def entrypoint():
         gc_interval=args.gc_interval,
         aligned_megatron_ddp=args.aligned_megatron_ddp,
         recompilation_check=args.recompilation_check,
+        include_unrecognized_vocab_in_dataset=args.include_unrecognized_vocab_in_dataset,
     )
 
 

@@ -155,6 +155,7 @@ impl PyIndexedMmapFastaReader {
             .map(|record| PyFaidxRecord::from(record))
             .collect();
     }
+
     fn read_sequence_mmap(&self, region_str: &str) -> PyResult<String> {
         self.inner
             .read_sequence_mmap(region_str)

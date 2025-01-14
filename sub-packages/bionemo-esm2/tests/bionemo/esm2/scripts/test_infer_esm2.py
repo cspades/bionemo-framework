@@ -32,8 +32,12 @@ from bionemo.llm.lightning import batch_collator
 from bionemo.llm.utils.callbacks import IntervalT
 
 
-esm2_650m_checkpoint_path = load("esm2/650m:2.0")
-esm2_3b_checkpoint_path = load("esm2/3b:2.0", source="ngc")
+# Function to check GPU memory
+def check_gpu_memory(threshold_gb):
+    if torch.cuda.is_available():
+        gpu_memory = torch.cuda.get_device_properties(0).total_memory / (1024**3)  # Memory in GB
+        return gpu_memory < threshold_gb
+    return False
 
 
 # Function to check GPU memory
@@ -140,7 +144,6 @@ def test_esm2_fine_tune_data_module_val_dataloader(data_module):
 
 @pytest.mark.parametrize("precision", ["fp32", "bf16-mixed"])
 @pytest.mark.parametrize("prediction_interval", get_args(IntervalT))
-@pytest.mark.skipif(check_gpu_memory(30), reason="Skipping test due to insufficient GPU memory")
 def test_infer_runs(
     tmpdir,
     dummy_protein_csv,
@@ -155,7 +158,7 @@ def test_infer_runs(
 
     infer_model(
         data_path=data_path,
-        checkpoint_path=esm2_650m_checkpoint_path,
+        checkpoint_path=load("esm2/nv_8m:2.0"),
         results_path=result_dir,
         min_seq_length=min_seq_len,
         prediction_interval=prediction_interval,

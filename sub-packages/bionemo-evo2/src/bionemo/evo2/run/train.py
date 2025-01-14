@@ -17,7 +17,7 @@ import argparse
 from collections import defaultdict
 from dataclasses import asdict, dataclass
 
-import nvidia_resiliency_ext.ptl_resiliency as res_module
+# import nvidia_resiliency_ext.ptl_resiliency as res_module
 import torch
 import yaml
 from lightning.pytorch.callbacks import LearningRateMonitor, RichModelSummary
@@ -92,7 +92,7 @@ def parse_args():
     )
     parser.add_argument("--use-megatron-comm-overlap-llama3-8k", action="store_true", default=False)
     parser.add_argument("--align-param-gather", action="store_true", default=False)
-    parser.add_argument("--straggler-detection", action="store_true", default=False)
+    # parser.add_argument("--straggler-detection", action="store_true", default=False)
     parser.add_argument(
         "--model-size",
         type=str,
@@ -363,19 +363,20 @@ def main():
         )
         callbacks.append(flop_meas_callback)
 
-    if args.straggler_detection:
-        callbacks.append(
-            res_module.StragglerDetectionCallback(
-                report_time_interval=300,
-                calc_relative_gpu_perf=True,
-                calc_individual_gpu_perf=True,
-                num_gpu_perf_scores_to_print=5,
-                gpu_relative_perf_threshold=0.7,
-                gpu_individual_perf_threshold=0.7,
-                stop_if_detected=True,
-                enable_ptl_logging=True,
-            )
-        )
+    # TODO(@cye): Add this back when it works with 24.12.
+    # if args.straggler_detection:
+    #     callbacks.append(
+    #         res_module.StragglerDetectionCallback(
+    #             report_time_interval=300,
+    #             calc_relative_gpu_perf=True,
+    #             calc_individual_gpu_perf=True,
+    #             num_gpu_perf_scores_to_print=5,
+    #             gpu_relative_perf_threshold=0.7,
+    #             gpu_individual_perf_threshold=0.7,
+    #             stop_if_detected=True,
+    #             enable_ptl_logging=True,
+    #         )
+    #     )
     if args.use_megatron_comm_overlap_llama3_8k:
         callbacks.append(
             MegatronCommOverlapCallback(

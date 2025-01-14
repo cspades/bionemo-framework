@@ -1,12 +1,18 @@
 # Base image with apex and transformer engine, but without NeMo or Megatron-LM.
-ARG BASE_IMAGE=nvcr.io/nvidia/pytorch:24.10-py3
+#  Note that the core NeMo docker container is defined here:
+#   https://gitlab-master.nvidia.com/dl/JoC/nemo-ci/-/blob/main/llm_train/Dockerfile.train
+#  with settings that get defined/injected from this config:
+#   https://gitlab-master.nvidia.com/dl/JoC/nemo-ci/-/blob/main/.gitlab-ci.yml
+#  We should keep versions in our container up to date to ensure that we get the latest tested perf improvements and
+#   training loss curves from NeMo.
+ARG BASE_IMAGE=nvcr.io/nvidia/pytorch:24.12-py3
 
-FROM rust:1.82.0 as rust-env
+FROM rust:1.82.0 AS rust-env
 
 RUN rustup set profile minimal && \
-    rustup install 1.82.0 && \
-    rustup target add x86_64-unknown-linux-gnu && \
-    rustup default 1.82.0
+  rustup install 1.82.0 && \
+  rustup target add x86_64-unknown-linux-gnu && \
+  rustup default 1.82.0
 
 FROM ${BASE_IMAGE} AS bionemo2-base
 
@@ -59,9 +65,10 @@ RUN pip install hatchling   # needed to install nemo-run
 ARG NEMU_RUN_TAG=34259bd3e752fef94045a9a019e4aaf62bd11ce2
 RUN pip install nemo_run@git+https://github.com/NVIDIA/NeMo-Run.git@${NEMU_RUN_TAG}
 
-# Used for straggler detection in large runs.
-ARG RESIL_COMMIT=97aad77609d2e25ed38ac5c99f0c13f93c48464e
-RUN pip install --no-cache-dir "git+https://github.com/NVIDIA/nvidia-resiliency-ext.git@${RESIL_COMMIT}"
+# TODO(@cye): This does not install corrently on PyTorch 24.12.
+# # Used for straggler detection in large runs.
+# ARG RESIL_COMMIT="97aad77609d2e25ed38ac5c99f0c13f93c48464e"
+# RUN pip install --no-cache-dir "git+https://github.com/NVIDIA/nvidia-resiliency-ext.git@${RESIL_COMMIT}"
 
 RUN mkdir -p /workspace/bionemo2/
 
@@ -71,27 +78,43 @@ RUN rm -rf /build
 
 # Addressing Security Scan Vulnerabilities
 RUN rm -rf /opt/pytorch/pytorch/third_party/onnx
-RUN apt-get update  && \
-  apt-get install -y openssh-client=1:8.9p1-3ubuntu0.10 && \
-  rm -rf /var/lib/apt/lists/*
-RUN apt purge -y libslurm37 libpmi2-0 && \
-  apt autoremove -y
 
 
 # Use UV to install python packages from the workspace. This just installs packages into the system's python
-# environment, and does not use the current uv.lock file.
+# environment, and does not use the current uv.lock file. Note that with python 3.12, we now need to set
+# UV_BREAK_SYSTEM_PACKAGES, since the pytorch base image has made the decision not to use a virtual environment and UV
+# does not respect the PIP_BREAK_SYSTEM_PACKAGES environment variable set in the base dockerfile.
 COPY --from=ghcr.io/astral-sh/uv:0.4.25 /uv /usr/local/bin/uv
 ENV UV_LINK_MODE=copy \
   UV_COMPILE_BYTECODE=1 \
   UV_PYTHON_DOWNLOADS=never \
   UV_SYSTEM_PYTHON=true \
-  UV_NO_CACHE=1
+  UV_NO_CACHE=1 \
+  UV_BREAK_SYSTEM_PACKAGES=1
 
-# Install the bionemo-geomtric requirements ahead of copying over the rest of the repo, so that we can cache their
+# Install the bionemo-geometric requirements ahead of copying over the rest of the repo, so that we can cache their
 # installation. These involve building some torch extensions, so they can take a while to install.
 RUN --mount=type=bind,source=./sub-packages/bionemo-geometric/requirements.txt,target=/requirements-pyg.txt \
-  --mount=type=cache,id=uv-cache,target=/root/.cache,sharing=locked \
   uv pip install --no-build-isolation -r /requirements-pyg.txt
+
+COPY --from=rust-env /usr/local/cargo /usr/local/cargo
+COPY --from=rust-env /usr/local/rustup /usr/local/rustup
+
+ENV PATH="/usr/local/cargo/bin:/usr/local/rustup/bin:${PATH}"
+ENV RUSTUP_HOME="/usr/local/rustup"
+
+RUN <<EOF
+set -eo pipefail
+uv pip install maturin --no-build-isolation
+
+pip install --use-deprecated=legacy-resolver  --no-build-isolation \
+  tensorstore==0.1.45
+sed -i 's/^Version: 0\.0\.0$/Version: 0.1.45/' \
+  /usr/local/lib/python3.12/dist-packages/tensorstore-0.0.0.dist-info/METADATA
+mv /usr/local/lib/python3.12/dist-packages/tensorstore-0.0.0.dist-info \
+/usr/local/lib/python3.12/dist-packages/tensorstore-0.1.45.dist-info
+rm -rf /root/.cache/*
+EOF
 
 WORKDIR /workspace/bionemo2
 
@@ -100,23 +123,21 @@ COPY ./LICENSE /workspace/bionemo2/LICENSE
 COPY ./3rdparty /workspace/bionemo2/3rdparty
 COPY ./sub-packages /workspace/bionemo2/sub-packages
 
-COPY --from=rust-env /usr/local/cargo /usr/local/cargo
-COPY --from=rust-env /usr/local/rustup /usr/local/rustup
-
-ENV PATH="/usr/local/cargo/bin:/usr/local/rustup/bin:${PATH}"
-ENV RUSTUP_HOME="/usr/local/rustup"
-
 # Note, we need to mount the .git folder here so that setuptools-scm is able to fetch git tag for version.
+# Includes a hack to install tensorstore 0.1.45, which doesn't distribute a pypi wheel for python 3.12, and the metadata
+# in the source distribution doesn't match the expected pypi version.
 RUN --mount=type=bind,source=./.git,target=./.git \
   --mount=type=bind,source=./requirements-test.txt,target=/requirements-test.txt \
   --mount=type=bind,source=./requirements-cve.txt,target=/requirements-cve.txt \
   <<EOF
 set -eo pipefail
-uv pip install maturin --no-build-isolation && uv pip install --no-build-isolation \
+
+uv pip install --no-build-isolation \
   ./3rdparty/* \
   ./sub-packages/bionemo-* \
   -r /requirements-cve.txt \
   -r /requirements-test.txt
+
 rm -rf ./3rdparty
 rm -rf /tmp/*
 rm -rf ./sub-packages/bionemo-noodles/target
@@ -138,35 +159,32 @@ apt-get install -qyy \
 rm -rf /tmp/* /var/tmp/*
 EOF
 
-# Create a non-root user to use inside a devcontainer.
-ARG USERNAME=bionemo
-ARG USER_UID=1000
-ARG USER_GID=$USER_UID
-RUN groupadd --gid $USER_GID $USERNAME \
-  && useradd --uid $USER_UID --gid $USER_GID -m $USERNAME \
-  && echo $USERNAME ALL=\(root\) NOPASSWD:ALL > /etc/sudoers.d/$USERNAME \
+# Use a non-root user to use inside a devcontainer (with ubuntu 23 and later, we can use the default ubuntu user).
+ARG USERNAME=ubuntu
+RUN echo $USERNAME ALL=\(root\) NOPASSWD:ALL > /etc/sudoers.d/$USERNAME \
   && chmod 0440 /etc/sudoers.d/$USERNAME
 
 # Here we delete the dist-packages directory from the pytorch base image, and copy over the dist-packages directory from
 # the build image. This ensures we have all the necessary dependencies installed (megatron, nemo, etc.).
 RUN <<EOF
   set -eo pipefail
-  rm -rf /usr/local/lib/python3.10/dist-packages
-  mkdir -p /usr/local/lib/python3.10/dist-packages
-  chmod 777 /usr/local/lib/python3.10/dist-packages
+  rm -rf /usr/local/lib/python3.12/dist-packages
+  mkdir -p /usr/local/lib/python3.12/dist-packages
+  chmod 777 /usr/local/lib/python3.12/dist-packages
   chmod 777 /usr/local/bin
 EOF
 
 USER $USERNAME
 
 COPY --from=bionemo2-base --chown=$USERNAME:$USERNAME --chmod=777 \
-  /usr/local/lib/python3.10/dist-packages /usr/local/lib/python3.10/dist-packages
+  /usr/local/lib/python3.12/dist-packages /usr/local/lib/python3.12/dist-packages
 
 COPY --from=ghcr.io/astral-sh/uv:0.4.25 /uv /usr/local/bin/uv
 ENV UV_LINK_MODE=copy \
   UV_COMPILE_BYTECODE=0 \
   UV_PYTHON_DOWNLOADS=never \
-  UV_SYSTEM_PYTHON=true
+  UV_SYSTEM_PYTHON=true \
+  UV_BREAK_SYSTEM_PACKAGES=1
 
 # Bring in the rust toolchain, as maturin is a dependency listed in requirements-dev
 COPY --from=rust-env /usr/local/cargo /usr/local/cargo
@@ -184,7 +202,7 @@ EOF
 
 RUN <<EOF
   set -eo pipefail
-  rm -rf /usr/local/lib/python3.10/dist-packages/bionemo*
+  rm -rf /usr/local/lib/python3.12/dist-packages/bionemo*
   pip uninstall -y nemo_toolkit megatron_core
 EOF
 
@@ -208,9 +226,6 @@ COPY --from=rust-env /usr/local/rustup /usr/local/rustup
 ENV PATH="/usr/local/cargo/bin:/usr/local/rustup/bin:${PATH}"
 ENV RUSTUP_HOME="/usr/local/rustup"
 
-RUN uv pip uninstall maturin
-RUN uv pip install maturin --no-build-isolation
-
 RUN <<EOF
 set -eo pipefail
 find . -name __pycache__ -type d -print | xargs rm -rf
@@ -220,8 +235,8 @@ for sub in ./3rdparty/* ./sub-packages/bionemo-*; do
 done
 EOF
 
-# Since the entire repo is owned by root, swithcing username for development breaks things.
-ARG USERNAME=bionemo
+# Since the entire repo is owned by root, switching username for development breaks things.
+ARG USERNAME=ubuntu
 RUN chown $USERNAME:$USERNAME -R /workspace/bionemo2/
 USER $USERNAME
 
