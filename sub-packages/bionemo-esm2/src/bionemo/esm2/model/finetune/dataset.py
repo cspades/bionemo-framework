@@ -15,7 +15,7 @@
 
 
 import os
-from typing import Sequence, Tuple
+from typing import Sequence
 
 import numpy as np
 import pandas as pd
@@ -31,38 +31,56 @@ from bionemo.llm.data.types import BertSample
 
 
 __all__: Sequence[str] = (
-    "InMemoryCSVDataset",
+    "InMemoryProteinDataset",
     "InMemorySingleValueDataset",
     "InMemoryPerTokenValueDataset",
 )
 
 
-class InMemoryCSVDataset(Dataset):
+class InMemoryProteinDataset(Dataset):
     """An in-memory dataset that tokenize strings into BertSample instances."""
 
     def __init__(
         self,
-        data_path: str | os.PathLike,
+        sequences: pd.Series,
+        labels: pd.Series | None = None,
         tokenizer: tokenizer.BioNeMoESMTokenizer = tokenizer.get_tokenizer(),
         seed: int = np.random.SeedSequence().entropy,  # type: ignore
     ):
-        """Initializes a dataset for single-value regression fine-tuning.
+        """Initializes a dataset of protein sequences.
 
         This is an in-memory dataset that does not apply masking to the sequence. But keeps track of <mask> in the
         dataset sequences provided.
 
         Args:
-            data_path (str | os.PathLike): A path to the CSV file containing sequences and labels (Optional)
+            sequences (pd.Series): A pandas Series containing protein sequences.
+            labels (pd.Series, optional): A pandas Series containing labels. Defaults to None.
             tokenizer (tokenizer.BioNeMoESMTokenizer, optional): The tokenizer to use. Defaults to tokenizer.get_tokenizer().
             seed: Random seed for reproducibility. This seed is mixed with the index of the sample to retrieve to ensure
                 that __getitem__ is deterministic, but can be random across different runs. If None, a random seed is
                 generated.
         """
-        self.sequences, self.labels = self.load_data(data_path)
+        self.sequences = sequences
+        self.labels = labels
 
         self.seed = seed
         self._len = len(self.sequences)
         self.tokenizer = tokenizer
+
+    @classmethod
+    def from_csv(
+        cls, csv_path: str | os.PathLike, tokenizer: tokenizer.BioNeMoESMTokenizer = tokenizer.get_tokenizer()
+    ):
+        """Class method to create a ProteinDataset instance from a CSV file."""
+        df = pd.read_csv(csv_path)
+
+        # Validate presence of required columns
+        if "sequences" not in df.columns:
+            raise KeyError("The CSV must contain a 'sequences' column.")
+
+        sequences = df["sequences"]
+        labels = df["labels"] if "labels" in df.columns else None
+        return cls(sequences, labels, tokenizer)
 
     def __len__(self) -> int:
         """The size of the dataset."""
@@ -73,7 +91,7 @@ class InMemoryCSVDataset(Dataset):
         sequence = self.sequences[index]
         tokenized_sequence = self._tokenize(sequence)
 
-        label = tokenized_sequence if len(self.labels) == 0 else self.transform_label(self.labels[index])
+        label = tokenized_sequence if self.labels is None else self.transform_label(self.labels.iloc[index])
         # Overall mask for a token being masked in some capacity - either mask token, random token, or left as-is
         loss_mask = ~torch.isin(tokenized_sequence, Tensor(self.tokenizer.all_special_ids))
 
@@ -85,28 +103,6 @@ class InMemoryCSVDataset(Dataset):
             "loss_mask": loss_mask,
             "is_random": torch.zeros_like(tokenized_sequence, dtype=torch.int64),
         }
-
-    def load_data(self, csv_path: str | os.PathLike) -> Tuple[Sequence, Sequence]:
-        """Loads data from a CSV file, returning sequences and optionally labels.
-
-        This method should be implemented by subclasses to process labels for their specific dataset.
-
-        Args:
-            csv_path (str | os.PathLike): The path to the CSV file containing the data.
-            The file is expected to have at least one column named 'sequence'. A 'label' column is optional.
-
-        Returns:
-            Tuple[Sequence, Sequence]: A tuple where the first element is a list of sequences and the second element is
-            a list of labels. If the 'label' column is not present, an empty list is returned for labels.
-        """
-        df = pd.read_csv(csv_path)
-        sequences = df["sequences"].tolist()
-
-        if "labels" in df.columns:
-            labels = df["labels"].tolist()
-        else:
-            labels = []
-        return sequences, labels
 
     def _tokenize(self, sequence: str) -> Tensor:
         """Tokenize a protein sequence.
@@ -134,27 +130,30 @@ class InMemoryCSVDataset(Dataset):
         return label
 
 
-class InMemorySingleValueDataset(InMemoryCSVDataset):
+class InMemorySingleValueDataset(InMemoryProteinDataset):
     """An in-memory dataset that tokenizes strings into BertSample instances."""
 
     def __init__(
         self,
-        data_path: str | os.PathLike,
+        sequences: pd.Series,
+        labels: pd.Series | None = None,
         tokenizer: tokenizer.BioNeMoESMTokenizer = tokenizer.get_tokenizer(),
         seed: int = np.random.SeedSequence().entropy,  # type: ignore
     ):
         """Initializes a dataset for single-value regression fine-tuning.
 
-        This is an in-memory dataset that does not apply masking to the sequence.
+        This is an in-memory dataset that does not apply masking to the sequence. But keeps track of <mask> in the
+        dataset sequences provided.
 
         Args:
-            data_path (str | os.PathLike): A path to the CSV file containing sequences and labels (Optional)
+            sequences (pd.Series): A pandas Series containing protein sequences.
+            labels (pd.Series, optional): A pandas Series containing labels. Defaults to None.
             tokenizer (tokenizer.BioNeMoESMTokenizer, optional): The tokenizer to use. Defaults to tokenizer.get_tokenizer().
             seed: Random seed for reproducibility. This seed is mixed with the index of the sample to retrieve to ensure
                 that __getitem__ is deterministic, but can be random across different runs. If None, a random seed is
                 generated.
         """
-        super().__init__(data_path=data_path, tokenizer=tokenizer, seed=seed)
+        super().__init__(sequences, labels, tokenizer, seed)
 
     def transform_label(self, label: float) -> Tensor:
         """Transform the regression label.
@@ -168,27 +167,30 @@ class InMemorySingleValueDataset(InMemoryCSVDataset):
         return torch.tensor([label], dtype=torch.float)
 
 
-class InMemoryPerTokenValueDataset(InMemoryCSVDataset):
+class InMemoryPerTokenValueDataset(InMemoryProteinDataset):
     """An in-memory dataset of labeled strings, which are tokenized on demand."""
 
     def __init__(
         self,
-        data_path: str | os.PathLike,
+        sequences: pd.Series,
+        labels: pd.Series | None = None,
         tokenizer: tokenizer.BioNeMoESMTokenizer = tokenizer.get_tokenizer(),
         seed: int = np.random.SeedSequence().entropy,  # type: ignore
     ):
         """Initializes a dataset for per-token classification fine-tuning.
 
-        This is an in-memory dataset that does not apply masking to the sequence.
+        This is an in-memory dataset that does not apply masking to the sequence. But keeps track of <mask> in the
+        dataset sequences provided.
 
         Args:
-            data_path (str | os.PathLike): A path to the CSV file containing sequences and labels (Optional)
+            sequences (pd.Series): A pandas Series containing protein sequences.
+            labels (pd.Series, optional): A pandas Series containing labels. Defaults to None.
             tokenizer (tokenizer.BioNeMoESMTokenizer, optional): The tokenizer to use. Defaults to tokenizer.get_tokenizer().
             seed: Random seed for reproducibility. This seed is mixed with the index of the sample to retrieve to ensure
                 that __getitem__ is deterministic, but can be random across different runs. If None, a random seed is
                 generated.
         """
-        super().__init__(data_path=data_path, tokenizer=tokenizer, seed=seed)
+        super().__init__(sequences, labels, tokenizer, seed)
         label_tokenizer = Label2IDTokenizer()
         self.label_tokenizer = label_tokenizer.build_vocab("CHE")
         self.label_cls_eos_id = MLM_LOSS_IGNORE_INDEX

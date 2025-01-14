@@ -25,8 +25,8 @@ from nemo.utils import logging
 from bionemo.core.data.multi_epoch_dataset import IdentityMultiEpochDatasetWrapper, MultiEpochDatasetResampler
 from bionemo.esm2.data import tokenizer
 from bionemo.esm2.model.finetune.dataset import (
-    InMemoryCSVDataset,
     InMemoryPerTokenValueDataset,
+    InMemoryProteinDataset,
     InMemorySingleValueDataset,
 )
 from bionemo.llm.data import collate
@@ -35,7 +35,7 @@ from bionemo.llm.utils.datamodule_utils import infer_num_samples
 
 
 Mode = Literal["train", "validation", "test", "predict"]
-DATASET_TYPES = Union[InMemoryPerTokenValueDataset, InMemorySingleValueDataset, InMemoryCSVDataset, None]
+DATASET_TYPES = Union[InMemoryPerTokenValueDataset, InMemorySingleValueDataset, InMemoryProteinDataset, None]
 
 
 class ESM2FineTuneDataModule(MegatronDataModule):

@@ -19,7 +19,7 @@ import pytest
 from torch.utils.data import DataLoader
 
 from bionemo.esm2.model.finetune.datamodule import ESM2FineTuneDataModule
-from bionemo.esm2.model.finetune.dataset import InMemoryCSVDataset
+from bionemo.esm2.model.finetune.dataset import InMemoryProteinDataset
 
 
 @pytest.fixture
@@ -36,7 +36,7 @@ def dummy_protein_csv(tmp_path, dummy_protein_sequences):
 
 @pytest.fixture
 def dataset(dummy_protein_csv):
-    return InMemoryCSVDataset(dummy_protein_csv)
+    return InMemoryProteinDataset.from_csv(dummy_protein_csv)
 
 
 @pytest.fixture
@@ -50,12 +50,6 @@ def test_in_memory_csv_dataset(dataset):
     assert isinstance(sample, dict)
     assert "text" in sample
     assert "labels" in sample
-
-
-def test_in_memory_csv_dataset_load_data(dataset, dummy_protein_csv):
-    sequences, labels = dataset.load_data(dummy_protein_csv)
-    assert isinstance(sequences, list)
-    assert isinstance(labels, list)
 
 
 def test_esm2_fine_tune_data_module_init(data_module):

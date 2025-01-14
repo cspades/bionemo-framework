@@ -30,8 +30,8 @@ from bionemo.core.utils.dtypes import PrecisionTypes, get_autocast_dtype
 from bionemo.esm2.data.tokenizer import get_tokenizer
 from bionemo.esm2.model.finetune.datamodule import ESM2FineTuneDataModule
 from bionemo.esm2.model.finetune.dataset import (
-    InMemoryCSVDataset,
     InMemoryPerTokenValueDataset,
+    InMemoryProteinDataset,
     InMemorySingleValueDataset,
 )
 from bionemo.esm2.model.finetune.finetune_regressor import ESM2FineTuneSeqConfig
@@ -51,7 +51,7 @@ SUPPORTED_CONFIGS = {
 }
 
 SUPPORTED_DATASETS = {
-    "InMemoryCSVDataset": InMemoryCSVDataset,
+    "InMemoryProteinDataset": InMemoryProteinDataset,
     "InMemorySingleValueDataset": InMemorySingleValueDataset,
     "InMemoryPerTokenValueDataset": InMemoryPerTokenValueDataset,
 }
@@ -95,7 +95,7 @@ def train_model(
     nsys_start_step: int = 0,
     nsys_end_step: Optional[int] = None,
     nsys_ranks: List[int] = [0],
-    dataset_class: Type[InMemoryCSVDataset] = InMemorySingleValueDataset,
+    dataset_class: Type[InMemoryProteinDataset] = InMemorySingleValueDataset,
     config_class: Type[BioBertConfig] = ESM2FineTuneSeqConfig,
     metric_tracker: Callback | None = None,
     overlap_grad_reduce: bool = True,
@@ -145,7 +145,7 @@ def train_model(
         nsys_start_step (int): start step for nsys profiling
         nsys_end_step (Optional[int]): end step for nsys profiling
         nsys_ranks (List[int]): ranks for nsys profiling
-        dataset_class (Type[InMemoryCSVDataset]): The dataset class for loading the data from a CSV file
+        dataset_class (Type[InMemoryProteinDataset]): The dataset class for loading the data from a CSV file
         config_class (Type[BioBertConfig]): The config class for configuring the model using checkpoint provided
         metric_tracker: Optional callback to track metrics (used for testing)
         overlap_grad_reduce (bool): overlap gradient reduction
@@ -239,8 +239,8 @@ def train_model(
     tokenizer = get_tokenizer()
 
     # Initialize the data module.
-    train_dataset = dataset_class(train_data_path)
-    valid_dataset = dataset_class(valid_data_path)
+    train_dataset = dataset_class.from_csv(train_data_path)
+    valid_dataset = dataset_class.from_csv(valid_data_path)
 
     data_module = ESM2FineTuneDataModule(
         train_dataset=train_dataset,
@@ -612,9 +612,9 @@ def get_parser():
         f"modules for fine-tuning with different data types. Choices: {config_class_options.keys()}",
     )
 
-    dataset_class_options: Dict[str, Type[InMemoryCSVDataset]] = SUPPORTED_DATASETS
+    dataset_class_options: Dict[str, Type[InMemoryProteinDataset]] = SUPPORTED_DATASETS
 
-    def dataset_class_type(desc: str) -> Type[InMemoryCSVDataset]:
+    def dataset_class_type(desc: str) -> Type[InMemoryProteinDataset]:
         try:
             return dataset_class_options[desc]
         except KeyError:

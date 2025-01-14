@@ -14,13 +14,10 @@
 # limitations under the License.
 
 
-import pandas as pd
 import pytest
-import torch
 
 from bionemo.core.data.load import load
 from bionemo.esm2.data import tokenizer
-from bionemo.esm2.model.finetune.dataset import InMemoryCSVDataset, InMemorySingleValueDataset
 from bionemo.esm2.model.finetune.finetune_regressor import (
     ESM2FineTuneSeqConfig,
     ESM2FineTuneSeqModel,
@@ -33,22 +30,6 @@ from bionemo.testing import megatron_parallel_state_utils
 pretrain_ckpt_path = load("esm2/nv_8m:2.0")
 
 
-def data_to_csv(data, tmp_path):
-    """Create a mock protein dataset."""
-    csv_file = tmp_path / "protein_dataset.csv"
-    # Create a DataFrame
-    df = pd.DataFrame(data, columns=["sequences", "labels"])
-
-    # Save the DataFrame to a CSV file
-    df.to_csv(csv_file, index=False)
-    return csv_file
-
-
-@pytest.fixture
-def dataset(dummy_data_single_value_regression_ft, tmp_path):
-    return InMemorySingleValueDataset(data_to_csv(dummy_data_single_value_regression_ft, tmp_path))
-
-
 @pytest.fixture
 def config():
     return ESM2FineTuneSeqConfig(encoder_frozen=True, ft_dropout=0.50, initial_ckpt_path=str(pretrain_ckpt_path))
@@ -59,20 +40,6 @@ def finetune_seq_model(config):
     with megatron_parallel_state_utils.distributed_model_parallel_state():
         model = config.configure_model(tokenizer.get_tokenizer())
         yield model
-
-
-def test_dataset_getitem(dataset, dummy_data_single_value_regression_ft):
-    assert isinstance(dataset, InMemoryCSVDataset)
-    assert len(dataset) == len(dummy_data_single_value_regression_ft)
-    sample = dataset[0]
-    assert isinstance(sample, dict)
-    assert "text" in sample
-    assert "labels" in sample
-    assert "loss_mask" in sample
-    assert isinstance(sample["text"], torch.Tensor)
-    assert isinstance(sample["labels"], torch.Tensor)
-    assert sample["labels"].dtype == torch.float
-    assert isinstance(sample["loss_mask"], torch.Tensor)
 
 
 def test_ft_config(config):
