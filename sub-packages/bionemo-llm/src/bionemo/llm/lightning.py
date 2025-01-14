@@ -294,9 +294,6 @@ class BionemoLightningModule(
         self.log_train_ppl = log_train_ppl
         self.log_val_ppl = log_val_ppl
 
-        def _return_true():
-            return True
-
         if log_train_ppl:
             self.train_ppl = torchmetrics.text.Perplexity(ignore_index=-100, sync_on_compute=True, compute_with_cache=False)
         if log_val_ppl:
