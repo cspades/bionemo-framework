@@ -357,7 +357,7 @@ class BionemoLightningModule(
 
         if self.log_train_ppl and self.is_on_logging_device():
             train_metric_value = self.train_ppl(logits, batch["labels"])
-            self.log("train_ppl", train_metric_value, on_step=True, on_epoch=False)
+            self.log("train_ppl", train_metric_value, on_step=True, on_epoch=False, prog_bar=True)
 
         return outputs
 
@@ -414,7 +414,7 @@ class BionemoLightningModule(
         valid_metric_value = self.valid_ppl.compute()
         print(f"valid_ppl states are total_log_probs={self.valid_ppl.total_log_probs.sum()} and count={self.valid_ppl.count.sum()} at {self.trainer.global_rank} after compute.")
         print(f"valid_ppl at {self.trainer.global_rank} is {valid_metric_value}.")
-        self.log("valid_ppl", valid_metric_value, on_step=False, on_epoch=True)
+        self.log("valid_ppl", valid_metric_value, on_step=False, on_epoch=True, prog_bar=True)
         self.valid_ppl.reset()
         # print(f"valid_ppl states are total_log_probs={self.valid_ppl.total_log_probs.sum()} and count={self.valid_ppl.count.sum()} at {self.trainer.global_rank} after reset.")
 
