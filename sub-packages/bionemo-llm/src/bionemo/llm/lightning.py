@@ -295,9 +295,9 @@ class BionemoLightningModule(
         self.log_val_ppl = log_val_ppl
 
         if log_train_ppl:
-            self.train_ppl = torchmetrics.text.Perplexity(ignore_index=-100, sync_on_compute=True)
+            self.train_ppl = torchmetrics.text.Perplexity(ignore_index=-100)
         if log_val_ppl:
-            self.valid_ppl = torchmetrics.text.Perplexity(ignore_index=-100, sync_on_compute=True)
+            self.valid_ppl = torchmetrics.text.Perplexity(ignore_index=-100)
 
     def configure_model(self) -> None:
         """Updates internal state: instantiates the model from the object's config, assigns to `model` attribute.
