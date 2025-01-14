@@ -405,7 +405,7 @@ class BionemoLightningModule(
         if self.trainer.sanity_checking:
             return
         
-        if not self.is_logging_device:
+        if not self.is_on_logging_device():
             return
 
         # print(f"valid_ppl states are total_log_probs={self.valid_ppl.total_log_probs.sum()} and count={self.valid_ppl.count.sum()} at {self.trainer.global_rank} before sync.")
