@@ -137,7 +137,7 @@ def test_esm2_finetune_regressor(
 
 @pytest.fixture
 def mock_train_model():
-    with patch("train_model") as mock_train:
+    with patch("bionemo.esm2.scripts.finetune_esm2.train_model") as mock_train:
         yield mock_train
 
 
@@ -263,9 +263,9 @@ def test_get_parser():
             "--no-average-in-collective",
             "--grad-reduce-in-fp32",
             "--dataset-class",
-            "InMemorySingleValueDataset",
+            "InMemoryPerTokenValueDataset",
             "--config-class",
-            "ESM2FineTuneSeqConfig",
+            "ESM2FineTuneTokenConfig",
         ]
     )
 
@@ -311,5 +311,5 @@ def test_get_parser():
     assert args.no_overlap_param_gather is True
     assert args.no_average_in_collective is True
     assert args.grad_reduce_in_fp32 is True
-    assert args.dataset_class == "InMemorySingleValueDataset"
-    assert args.config_class == "ESM2FineTuneSeqConfig"
+    assert args.dataset_class == InMemoryPerTokenValueDataset
+    assert args.config_class == ESM2FineTuneTokenConfig

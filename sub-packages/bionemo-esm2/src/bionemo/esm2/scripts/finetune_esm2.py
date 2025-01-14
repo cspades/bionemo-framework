@@ -604,7 +604,7 @@ def get_parser():
     parser.add_argument(
         "--config-class",
         type=config_class_type,
-        default="ESM2FineTuneSeqConfig",
+        default=ESM2FineTuneSeqConfig,
         help="Model configs link model classes with losses, and handle model initialization (including from a prior "
         "checkpoint). This is how you can fine-tune a model. First train with one config class that points to one model "
         "class and loss, then implement and provide an alternative config class that points to a variant of that model "
@@ -625,7 +625,7 @@ def get_parser():
     parser.add_argument(
         "--dataset-class",
         type=dataset_class_type,
-        default="InMemorySingleValueDataset",
+        default=InMemorySingleValueDataset,
         help=f"Dataset class name for finetuning. Choices: {config_class_options.keys()}",
     )
     return parser
