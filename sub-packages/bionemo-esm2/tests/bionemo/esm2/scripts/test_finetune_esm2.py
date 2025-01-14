@@ -206,7 +206,7 @@ def test_get_parser():
             "--wandb-entity",
             "my_team",
             "--wandb-project",
-            "geneformer_project",
+            "ft_project",
             "--wandb-tags",
             "tag1",
             "tag2",
@@ -279,7 +279,7 @@ def test_get_parser():
     assert args.result_dir == Path("./results")
     assert args.experiment_name == "esm2_experiment"
     assert args.wandb_entity == "my_team"
-    assert args.wandb_project == "geneformer_project"
+    assert args.wandb_project == "ft_project"
     assert args.wandb_tags == ["tag1", "tag2"]
     assert args.wandb_group == "group1"
     assert args.wandb_id == "1234"

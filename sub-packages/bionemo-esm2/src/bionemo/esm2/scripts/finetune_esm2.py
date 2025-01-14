@@ -310,7 +310,7 @@ def train_model(
 
 
 def finetune_esm2_entrypoint():
-    """Entrypoint for running inference on a geneformer checkpoint and data."""
+    """Entrypoint for running ESM2 finetuning."""
     # 1. get arguments
     parser = get_parser()
     args = parser.parse_args()
