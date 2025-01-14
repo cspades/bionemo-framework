@@ -319,7 +319,7 @@ class BionemoLightningModule(
             raise ValueError("Invalid semantics: configure_model method **MUST** initialize the model.")
 
     def is_on_logging_device(self):
-        return parallel_state.is_pipeline_last_stage() and parallel_state.get_tensor_model_parallel_rank() == 1
+        return parallel_state.is_pipeline_last_stage() and parallel_state.get_tensor_model_parallel_rank() == 0
 
     def forward(self, *args, **kwargs) -> DataT:
         """Call the forward method of the underlying model, and return whatever it outputs."""
