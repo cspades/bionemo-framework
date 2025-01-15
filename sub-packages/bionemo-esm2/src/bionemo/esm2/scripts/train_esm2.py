@@ -99,6 +99,8 @@ def main(
     overlap_param_gather: bool = True,
     average_in_collective: bool = True,
     grad_reduce_in_fp32: bool = False,
+    log_train_ppl: bool = False,
+    log_val_ppl: bool = True,
 ) -> None:
     """Train an ESM2 model on UR data.
 

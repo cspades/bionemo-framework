@@ -401,11 +401,11 @@ class BionemoLightningModule(
         return self.loss_reduction_class(validation_step=True)
 
     def on_validation_epoch_end(self):  # noqa: D102
-        if self.trainer.sanity_checking:
-            self.valid_ppl.reset()  # clean up sanity runs
+        if not (self.log_val_ppl and self.is_on_logging_device()):
             return
 
-        if not self.is_on_logging_device():
+        if self.trainer.sanity_checking:
+            self.valid_ppl.reset()  # clean up sanity runs
             return
 
         # print(f"valid_ppl states are total_log_probs={self.valid_ppl.total_log_probs.sum()} and count={self.valid_ppl.count.sum()} at {self.trainer.global_rank} before sync.")
