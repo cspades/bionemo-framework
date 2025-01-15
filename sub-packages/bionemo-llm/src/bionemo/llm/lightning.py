@@ -293,8 +293,8 @@ class BionemoLightningModule(
 
         self.log_train_ppl = log_train_ppl
         self.log_val_ppl = log_val_ppl
-        self.train_ppl = torchmetrics.text.Perplexity(ignore_index=-100)
-        self.valid_ppl = torchmetrics.text.Perplexity(ignore_index=-100)
+        self.train_ppl = None
+        self.valid_ppl = None
 
     def configure_model(self) -> None:
         """Updates internal state: instantiates the model from the object's config, assigns to `model` attribute.
@@ -314,6 +314,12 @@ class BionemoLightningModule(
 
         if self.module is None:
             raise ValueError("Invalid semantics: configure_model method **MUST** initialize the model.")
+
+        device = f"cuda{self.trainer.global_rank}"
+        if self.train_ppl is None:
+            self.train_ppl = torchmetrics.text.Perplexity(ignore_index=-100).to(device)
+        if self.valid_ppl is None:
+            self.valid_ppl = torchmetrics.text.Perplexity(ignore_index=-100).to(device)
 
     def is_on_logging_device(self):
         return parallel_state.is_pipeline_last_stage() and parallel_state.get_tensor_model_parallel_rank() == 0
