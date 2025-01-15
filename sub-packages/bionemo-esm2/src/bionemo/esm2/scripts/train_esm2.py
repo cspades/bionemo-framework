@@ -244,6 +244,7 @@ def main(
             autocast_enabled=False,
         ),
         enable_checkpointing=create_checkpoint_callback,
+        num_sanity_val_steps=0,
     )
 
     tokenizer = get_tokenizer()
