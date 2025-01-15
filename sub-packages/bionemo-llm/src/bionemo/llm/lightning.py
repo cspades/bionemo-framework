@@ -354,8 +354,12 @@ class BionemoLightningModule(
 
         if self.log_train_ppl and self.is_on_logging_device():
             if self.is_on_logging_device():
+                print(f"Arrive right before self.train_ppl.update at device {self.trainer.global_rank}")
                 self.train_ppl.update(logits, batch["labels"])
+                print(f"Arrive right after self.train_ppl.compute at device {self.trainer.global_rank}")
+            print(f"Arrive right before self.train_ppl.compute at device {self.trainer.global_rank}")
             train_metric_value = self.train_ppl.compute()
+            print(f"Arrive right after self.train_ppl.compute at device {self.trainer.global_rank}")
             self.train_ppl.reset()
 
             if self.trainer.is_global_zero:
@@ -376,7 +380,9 @@ class BionemoLightningModule(
             # print(f"valid_loss=${valid_loss.item()} on device {self.trainer.global_rank}")
             # total_log_probs, count = _perplexity_update(logits, batch["labels"], ignore_index=self.valid_ppl.ignore_index)
             # print(f"calling self.valid_ppl.update at {self.trainer.global_rank} with total_log_probs={total_log_probs} and count={count} on device {total_log_probs.device}.")
+            print(f"Arrive right before self.valid_ppl.update at device {self.trainer.global_rank}")
             self.valid_ppl.update(logits, batch["labels"])
+            print(f"Arrive right after self.valid_ppl.update at device {self.trainer.global_rank}")
             # print(f"after self.valid_ppl.update at {self.trainer.global_rank} with total_log_probs={self.valid_ppl.total_log_probs} and count={self.valid_ppl.count} on device {self.valid_ppl.total_log_probs.device}.")
 
             # filename = f"/results/valid_step_output_rank{self.trainer.global_rank}_at_step_{self.trainer.global_step}.pt"
@@ -415,7 +421,9 @@ class BionemoLightningModule(
         # self.valid_ppl.sync()
         # print(f"valid_ppl states are total_log_probs={self.valid_ppl.total_log_probs.sum()} and count={self.valid_ppl.count.sum()} at {self.trainer.global_rank} before compute.")
         # torch.distributed.barrier()
+        print(f"Arrive right before self.valid_ppl.compute at device {self.trainer.global_rank}")
         valid_metric_value = self.valid_ppl.compute()
+        print(f"Arrive right after self.valid_ppl.compute at device {self.trainer.global_rank}")
         self.valid_ppl.reset()
 
         # print(f"valid_ppl states are total_log_probs={self.valid_ppl.total_log_probs.sum()} and count={self.valid_ppl.count.sum()} at {self.trainer.global_rank} after compute.")
