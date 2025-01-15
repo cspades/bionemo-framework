@@ -353,10 +353,13 @@ class BionemoLightningModule(
         # logits = logits[:, :, :num_tokens]
 
         if self.log_train_ppl and self.is_on_logging_device():
-            self.train_ppl.update(logits, batch["labels"])
+            if self.is_on_logging_device():
+                self.train_ppl.update(logits, batch["labels"])
             train_metric_value = self.train_ppl.compute()
-            self.log("train_ppl", train_metric_value, on_step=True, on_epoch=False, prog_bar=True)
             self.train_ppl.reset()
+
+            if self.trainer.is_global_zero:
+                self.log("train_ppl", train_metric_value, on_step=True, on_epoch=False, prog_bar=True)
 
         return outputs
 
