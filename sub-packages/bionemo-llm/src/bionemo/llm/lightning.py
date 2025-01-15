@@ -405,9 +405,10 @@ class BionemoLightningModule(
 
     def on_validation_epoch_end(self):  # noqa: D102
         if self.trainer.sanity_checking:
-            self.valid_ppl.reset()  # clean up sanity runs
+            if self.valid_ppl is not None:
+                self.valid_ppl.reset()  # clean up sanity runs
             return
-        
+
         if not self.is_on_logging_device():
             return
 
