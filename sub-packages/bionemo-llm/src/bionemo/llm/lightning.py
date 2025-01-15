@@ -401,7 +401,7 @@ class BionemoLightningModule(
         return self.loss_reduction_class(validation_step=True)
 
     def on_validation_epoch_end(self):  # noqa: D102
-        if not (self.log_val_ppl and self.is_on_logging_device()):
+        if not self.log_val_ppl:
             return
 
         if self.trainer.sanity_checking:
@@ -413,10 +413,12 @@ class BionemoLightningModule(
         # print(f"valid_ppl states are total_log_probs={self.valid_ppl.total_log_probs.sum()} and count={self.valid_ppl.count.sum()} at {self.trainer.global_rank} before compute.")
         # torch.distributed.barrier()
         valid_metric_value = self.valid_ppl.compute()
-        # print(f"valid_ppl states are total_log_probs={self.valid_ppl.total_log_probs.sum()} and count={self.valid_ppl.count.sum()} at {self.trainer.global_rank} after compute.")
-        print(f"valid_ppl at {self.trainer.global_rank} is {valid_metric_value}.")  # compare between devices
-        self.log("valid_ppl", valid_metric_value, on_step=False, on_epoch=True, prog_bar=True)
         self.valid_ppl.reset()
+
+        # print(f"valid_ppl states are total_log_probs={self.valid_ppl.total_log_probs.sum()} and count={self.valid_ppl.count.sum()} at {self.trainer.global_rank} after compute.")
+        if self.is_on_logging_device():
+            print(f"valid_ppl at {self.trainer.global_rank} is {valid_metric_value}.")  # compare between devices
+            self.log("valid_ppl", valid_metric_value, on_step=False, on_epoch=True, prog_bar=True)
         # print(f"valid_ppl states are total_log_probs={self.valid_ppl.total_log_probs.sum()} and count={self.valid_ppl.count.sum()} at {self.trainer.global_rank} after reset.")
 
         # group = torch.distributed.group.WORLD
