@@ -293,8 +293,8 @@ class BionemoLightningModule(
 
         self.log_train_ppl = log_train_ppl
         self.log_val_ppl = log_val_ppl
-        self.train_ppl = torchmetrics.text.Perplexity(ignore_index=-100) if log_train_ppl else None
-        self.valid_ppl = torchmetrics.text.Perplexity(ignore_index=-100) if log_val_ppl else None
+        self.train_ppl = torchmetrics.text.Perplexity(ignore_index=-100)
+        self.valid_ppl = torchmetrics.text.Perplexity(ignore_index=-100)
 
     def configure_model(self) -> None:
         """Updates internal state: instantiates the model from the object's config, assigns to `model` attribute.
@@ -402,8 +402,7 @@ class BionemoLightningModule(
 
     def on_validation_epoch_end(self):  # noqa: D102
         if self.trainer.sanity_checking:
-            if self.valid_ppl is not None:
-                self.valid_ppl.reset()  # clean up sanity runs
+            self.valid_ppl.reset()  # clean up sanity runs
             return
 
         if not self.is_on_logging_device():
