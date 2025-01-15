@@ -325,16 +325,21 @@ def main():
         tokenizer=tokenizer,
     )
 
+    # Retrieve model config.
+    config_modifiers_init = {
+        "tp_comm_overlap": args.use_megatron_comm_overlap_llama3_8k,
+        "seq_length": args.seq_length
+    }
     if args.model_size == "7b":
-        evo2_config = llm.Hyena7bConfig()
+        evo2_config = llm.Hyena7bConfig(**config_modifiers_init)
     elif args.model_size == "40b":
-        evo2_config = llm.Hyena40bConfig()
+        evo2_config = llm.Hyena40bConfig(**config_modifiers_init)
     elif args.model_size == "test":
-        evo2_config = llm.HyenaTestConfig()
+        evo2_config = llm.HyenaTestConfig(**config_modifiers_init)
     else:
         raise ValueError(f"Invalid model size: {args.model_size}")
 
-    evo2_config.seq_length = args.seq_length
+    # Instantiate model.
     model = llm.GPTModel(evo2_config, tokenizer=data.tokenizer)
 
     # Setup callbacks.
@@ -380,7 +385,7 @@ def main():
     if args.use_megatron_comm_overlap_llama3_8k:
         callbacks.append(
             MegatronCommOverlapCallback(
-                tp_comm_overlap=True,
+                tp_comm_overlap=evo2_config.tp_comm_overlap,
                 tp_comm_overlap_cfg=userbuffers_bf16_h100_h8192_tp4_mbs1_seqlen8192,
                 wgrad_deferral_limit=22,  # default from NeMo
                 overlap_param_gather_with_optimizer_step=False,  # Currently disabled due to an issue with checkpointing.
