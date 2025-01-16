@@ -67,7 +67,7 @@ RUN pip install nemo_run@git+https://github.com/NVIDIA/NeMo-Run.git@${NEMU_RUN_T
 
 # TODO(@cye): This does not install corrently on PyTorch 24.12.
 # # Used for straggler detection in large runs.
-# ARG RESIL_COMMIT="97aad77609d2e25ed38ac5c99f0c13f93c48464e"
+# ARG RESIL_COMMIT=97aad77609d2e25ed38ac5c99f0c13f93c48464e
 # RUN pip install --no-cache-dir "git+https://github.com/NVIDIA/nvidia-resiliency-ext.git@${RESIL_COMMIT}"
 
 RUN mkdir -p /workspace/bionemo2/
@@ -267,3 +267,9 @@ RUN chmod 777 -R /workspace/bionemo2/
 # FIXME the following results in unstable training curves even if faster.
 #  See https://github.com/NVIDIA/bionemo-framework/pull/421
 # ENV NVTE_FUSED_ATTN=1 NVTE_FLASH_ATTN=0
+
+# Apply patches with temporary fixes
+# FIXME(dorotat) remove when https://gitlab-master.nvidia.com/ADLR/megatron-lm/-/merge_requests/2468 is merged
+RUN MEGATRON_DIR=$(python -c 'import megatron; from pathlib import Path; print(Path(megatron.__path__[0]).parent)') && \
+patch -p1 -d $MEGATRON_DIR -i $PWD/ci/scripts/megatron-lm-mr2468-shard-tensor-fix.patch && \
+rm $PWD/ci/scripts/megatron-lm-mr2468-shard-tensor-fix.patch

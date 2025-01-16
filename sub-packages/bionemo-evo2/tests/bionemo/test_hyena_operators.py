@@ -92,8 +92,8 @@ class TestParallelShortHyenaOperator:
 
     def test_initialization(self, operator: ParallelShortHyenaOperator):
         assert operator.hidden_size == 864
-        assert operator.pregate == True
-        assert operator.postgate == True
+        assert operator.pregate
+        assert operator.postgate
         num_weights = sum([p.numel() for p in operator.parameters()])
         assert num_weights == 6048
 
@@ -134,7 +134,7 @@ class TestParallelCausalDepthwiseConv1d:
     def test_initialization(self, operator: ParallelCausalDepthwiseConv1d):
         assert operator.d_model == 864
         assert operator.kernel_size == 3
-        assert operator.use_bias == True
+        assert operator.use_bias
         num_weights = sum([p.numel() for p in operator.parameters()])
         assert num_weights == 2592
 

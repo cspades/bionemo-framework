@@ -328,7 +328,7 @@ def main():
     # Retrieve model config.
     config_modifiers_init = {
         "tp_comm_overlap": args.use_megatron_comm_overlap_llama3_8k,
-        "seq_length": args.seq_length
+        "seq_length": args.seq_length,
     }
     if args.model_size == "7b":
         evo2_config = llm.Hyena7bConfig(**config_modifiers_init)

@@ -40,14 +40,6 @@ def check_gpu_memory(threshold_gb):
     return False
 
 
-# Function to check GPU memory
-def check_gpu_memory(threshold_gb):
-    if torch.cuda.is_available():
-        gpu_memory = torch.cuda.get_device_properties(0).total_memory / (1024**3)  # Memory in GB
-        return gpu_memory < threshold_gb
-    return False
-
-
 @pytest.fixture
 def dummy_protein_sequences():
     """Create a list of artificial protein sequences"""
