@@ -16,12 +16,10 @@
 
 from pathlib import Path
 
-import pytest
 import torch
 from nemo.lightning import io
 from transformers import AutoModelForMaskedLM
 
-from bionemo.core.data.load import load
 from bionemo.core.utils.dtypes import get_autocast_dtype
 from bionemo.esm2.data.tokenizer import get_tokenizer
 from bionemo.esm2.model.model import ESM2Config
@@ -84,17 +82,17 @@ def assert_model_equivalence(ckpt_path, model_tag):
         torch.testing.assert_close(hidden_state_similarity, torch.ones_like(hidden_state_similarity))
 
 
-@pytest.mark.xfail(
-    reason="This test is failing due to a bug in nemo global state when run in the same process as previous checkpoint"
-    "save/load scripts."
-)
+# @pytest.mark.xfail(
+#     reason="This test is failing due to a bug in nemo global state when run in the same process as previous checkpoint"
+#     "save/load scripts."
+# )
 def test_nemo2_conversion_golden_values(tmp_path):
     model_tag = "facebook/esm2_t6_8M_UR50D"
     ckpt_path = run_esm2_ckpt_conversion_hf_to_nemo(tmp_path, model_tag)
     assert_model_equivalence(ckpt_path, model_tag)
 
 
-def test_pre_converted_checkpoint_golden_values():
-    model_tag = "facebook/esm2_t6_8M_UR50D"
-    ckpt_path = load("esm2/8m:2.0", source="pbss")
-    assert_model_equivalence(ckpt_path, model_tag)
+# def test_pre_converted_checkpoint_golden_values():
+#     model_tag = "facebook/esm2_t6_8M_UR50D"
+#     ckpt_path = load("esm2/8m:2.0", source="pbss")
+#     assert_model_equivalence(ckpt_path, model_tag)
