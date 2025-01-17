@@ -81,12 +81,12 @@ class ESM2Embedding(LanguageModelEmbedding):
             embeddings_mask = attention_mask
 
         if embeddings_mask is not None and self.token_dropout:
-            word_embeddings = word_embeddings.masked_fill((input_ids == self.mask_token_id).unsqueeze(-1), 0.0)
-            src_lengths = embeddings_mask.sum(-1)
-            mask_ratio_observed = (input_ids == self.mask_token_id).sum(-1).to(self.dtype) / src_lengths
+            word_embeddings = word_embeddings.masked_fill((input_ids == self.mask_token_id).unsqueeze(-1), 0.0)  # [b, s, h]
+            src_lengths = embeddings_mask.sum(-1)  # [b]  # sum across sequence dimension
+            mask_ratio_observed = (input_ids == self.mask_token_id).sum(-1).to(self.dtype) / src_lengths  # [b]
 
-            scale_factor = (1 - ESM2_MASK_RATIO_TRAIN) / (1 - mask_ratio_observed)[:, None, None]
-            word_embeddings = (word_embeddings * scale_factor).to(word_embeddings.dtype)
+            scale_factor = (1 - ESM2_MASK_RATIO_TRAIN) / (1 - mask_ratio_observed)[:, None, None]  # [b, 1, 1]
+            word_embeddings = (word_embeddings * scale_factor).to(word_embeddings.dtype)  # [b, s, h]
         if embeddings_mask is not None and self.use_attention_mask:
             word_embeddings = (word_embeddings * embeddings_mask.unsqueeze(-1)).to(word_embeddings.dtype)
         return word_embeddings, embeddings_mask
