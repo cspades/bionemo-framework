@@ -362,3 +362,6 @@ class ESM2Config(ESM2GenericConfig, iom.IOMixinWithGettersSetters):
     model_cls: Type[ESM2Model] = ESM2Model
     num_layers: int = 33  # 650M
     hidden_size: int = 1280  # 650M
+    output_layer_init_method: Callable = (
+        torch.nn.init.zeros_
+    )  # TODO make param init reproducible; remove after debugging
