@@ -489,9 +489,8 @@ def _zero3_merge_frozen_params(state_dict: Dict[str, Any], world_size: int, zero
 
     total_params = 0
     total_numel = 0
-    partitioned_numel = 0  # TODO(cory) - this is a bug, should be initialized to ?
     for name, shape in zero_model_states[0].frozen_param_shapes.items():
-        total_params += partitioned_numel
+        total_params += 1
         unpartitioned_numel = shape.numel()
         total_numel += unpartitioned_numel
 
