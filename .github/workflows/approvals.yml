@@ -1,22 +1,12 @@
 name: Enforce Tiered Approvals
 
 on:
-  pull_request:
-    types:
-      - review_requested
-      - review_submitted
-      - synchronize
-      - opened
-      - closed
-      - edited
-      - reopened
   pull_request_review:
     types:
       - submitted
       - edited
       - dismissed
 
-# TODO: Action should run when someone approves / disapproves etc.
 jobs:
   enforce_tiered_approvals:
     runs-on: ubuntu-latest
@@ -44,33 +34,13 @@ jobs:
               done
               continue
             fi
-
-            # Parse +1 CODEOWNERS
-            path=$(echo "$line" | awk '{print $1}')
-            owners=$(echo "$line" | awk '{$1=""; print $0}' | xargs)
-            CODEOWNERS["$path"]="$owners"
+            
           done < CODEOWNERS
 
-          # Export mappings as JSON
-          echo "$(declare -p CODEOWNERS)" > codeowners.json
+          # Export TIER2 Reviewers as JSON
           echo "$(declare -p TIER2_REVIEWERS)" > tier2reviewers.json
-          echo "CODEOWNERS and TIER2 reviewers exported to JSON."
-
-      - name: Get changed files
-        id: get_files
-        uses: actions/github-script@v6
-        with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-          script: |
-            const { data: files } = await github.rest.pulls.listFiles({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              pull_number: context.payload.pull_request.number,
-            });
-
-            const changedFiles = files.map(file => file.filename);
-            core.setOutput('changedFiles', changedFiles.join(','));
-
+          echo "TIER2 reviewers exported to JSON."
+      
       - name: Get PR reviews
         id: get_reviews
         uses: actions/github-script@v6
@@ -93,47 +63,6 @@ jobs:
             const approvedUsers = Object.keys(latestReviews).filter(user => latestReviews[user] === 'APPROVED');
 
             core.setOutput('approvedUsers', approvedUsers.join(','));
-
-      - name: Check +1 approvals (file-specific)
-        id: check_tier1
-        run: |
-          echo "Checking for +1 approvals for changed files..."
-          CHANGED_FILES="${{ steps.get_files.outputs.changedFiles }}"
-          APPROVED_USERS="${{ steps.get_reviews.outputs.approvedUsers }}"
-
-          # Load CODEOWNERS mapping
-          declare -A CODEOWNERS
-          eval "$(cat codeowners.json)"
-
-          TIER1_APPROVED=false
-
-          # Loop through changed files and verify approval
-          IFS=',' read -ra FILES <<< "$CHANGED_FILES"
-          IFS=',' read -ra USERS <<< "$APPROVED_USERS"
-
-          for FILE in "${FILES[@]}"; do
-            for PATTERN in "${!CODEOWNERS[@]}"; do
-              if [[ "$FILE" == $PATTERN* ]]; then
-                for OWNER in ${CODEOWNERS[$PATTERN]}; do
-                  # Strip '@' from OWNER
-                  CLEAN_OWNER="${OWNER#@}"
-                  echo "Comparing APPROVED_USERS with CLEAN_OWNER: $CLEAN_OWNER"
-                  if [[ " ${USERS[@]} " =~ " $CLEAN_OWNER " ]]; then
-                    TIER1_APPROVED=true
-                    break 3
-                  fi
-                done
-              fi
-            done
-          done
-
-          if [[ "$TIER1_APPROVED" == "true" ]]; then
-            echo "tier1Approved=true" >> $GITHUB_ENV
-          else
-            echo "tier1Approved=false" >> $GITHUB_ENV
-          fi
-
-          echo $TIER1_APPROVED
 
       - name: Check +2 approvals (global tier)
         id: check_tier2
@@ -176,14 +105,10 @@ jobs:
       - name: Enforce approval requirements
         run: |
           echo "Enforcing approval requirements..."
-          if [[ "$tier1Approved" != "true" ]]; then
-            echo "ERROR: No +1 reviewer has approved the pull request for changed files."
-            exit 1
-          fi
 
           if [[ "$tier2Approved" != "true" ]]; then
             echo "ERROR: No +2 reviewer has approved the pull request."
             exit 1
           fi
 
-          echo "All tiered approval requirements met. Proceeding."
+          echo "All tiered 2 approval requirements met. Proceeding."
