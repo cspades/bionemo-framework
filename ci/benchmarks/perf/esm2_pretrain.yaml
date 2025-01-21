@@ -62,4 +62,5 @@ script: |-
     --accumulate-grad-batches=${acc_grad} \
     --pipeline-model-parallel-size=${pp} \
     --tensor-model-parallel-size={tp} \
+    --log-tflops-per-sec-per-gpu \
     --disable-checkpointing;
