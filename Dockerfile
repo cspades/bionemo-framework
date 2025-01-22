@@ -123,6 +123,13 @@ COPY ./LICENSE /workspace/bionemo2/LICENSE
 COPY ./3rdparty /workspace/bionemo2/3rdparty
 COPY ./sub-packages /workspace/bionemo2/sub-packages
 
+# Apply patches with temporary fixes, before the modules are installed. (Use absolute path for patch filepath.)
+# FIXME(dorotat) remove when https://gitlab-master.nvidia.com/ADLR/megatron-lm/-/merge_requests/2468 is merged
+COPY ./ci/scripts/megatron-lm-mr2468-shard-tensor-fix.patch /workspace/bionemo2/ci/scripts/
+RUN MEGATRON_DIR=./3rdparty/Megatron-LM && \
+patch -p1 -d $MEGATRON_DIR -i /workspace/bionemo2/ci/scripts/megatron-lm-mr2468-shard-tensor-fix.patch && \
+rm ./ci/scripts/*.patch
+
 # Note, we need to mount the .git folder here so that setuptools-scm is able to fetch git tag for version.
 # Includes a hack to install tensorstore 0.1.45, which doesn't distribute a pypi wheel for python 3.12, and the metadata
 # in the source distribution doesn't match the expected pypi version.
@@ -258,6 +265,8 @@ COPY ./docs ./docs
 COPY --from=rust-env /usr/local/cargo /usr/local/cargo
 COPY --from=rust-env /usr/local/rustup /usr/local/rustup
 
+# Remove patches in built container.
+RUN rm ./ci/scripts/*.patch
 
 # RUN rm -rf /usr/local/cargo /usr/local/rustup
 RUN chmod 777 -R /workspace/bionemo2/
@@ -267,9 +276,3 @@ RUN chmod 777 -R /workspace/bionemo2/
 # FIXME the following results in unstable training curves even if faster.
 #  See https://github.com/NVIDIA/bionemo-framework/pull/421
 # ENV NVTE_FUSED_ATTN=1 NVTE_FLASH_ATTN=0
-
-# Apply patches with temporary fixes
-# FIXME(dorotat) remove when https://gitlab-master.nvidia.com/ADLR/megatron-lm/-/merge_requests/2468 is merged
-RUN MEGATRON_DIR=$(python -c 'import megatron; from pathlib import Path; print(Path(megatron.__path__[0]).parent)') && \
-patch -p1 -d $MEGATRON_DIR -i $PWD/ci/scripts/megatron-lm-mr2468-shard-tensor-fix.patch && \
-rm $PWD/ci/scripts/megatron-lm-mr2468-shard-tensor-fix.patch
