@@ -34,13 +34,13 @@ jobs:
               done
               continue
             fi
-            
+
           done < CODEOWNERS
 
           # Export TIER2 Reviewers as JSON
           echo "$(declare -p TIER2_REVIEWERS)" > tier2reviewers.json
           echo "TIER2 reviewers exported to JSON."
-      
+
       - name: Get PR reviews
         id: get_reviews
         uses: actions/github-script@v6
