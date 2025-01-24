@@ -21,7 +21,8 @@ from transformers import AutoModelForMaskedLM
 
 from bionemo.core.utils.dtypes import PrecisionTypes, get_autocast_dtype
 from bionemo.esm2.data.tokenizer import get_tokenizer
-from bionemo.esm2.testing.eval import eval_esm2
+from bionemo.esm2.model.model import ESM2Config
+from bionemo.esm2.testing.eval import ESM2ModelEvaluator
 
 
 def assert_model_equivalence(
@@ -51,14 +52,28 @@ def assert_model_equivalence(
         "MKTVRQERLKSIVRILERSKEPVSGAQLAEELSVSRQVIVQDIAYLRSLGYNIVATPRGYVLA",
         "MKTVRQERLKSI<mask>RILERSKEPVSGAQLAEELS<mask>SRQVIVQDIAYLRSLGYN<mask>VATPRGYVLAGG",
     ]
-
-    nemo_output = eval_esm2(ckpt_path, test_proteins, precision=precision)
-    nemo_logits = nemo_output["token_logits"].transpose(0, 1).contiguous()[..., : tokenizer.vocab_size]
-    nemo_hidden_state = nemo_output["hidden_states"]
-
     tokens = tokenizer(test_proteins, return_tensors="pt", padding=True, truncation=True).to("cuda")
     input_ids = tokens["input_ids"]
     attention_mask = tokens["attention_mask"]
+
+    dtype = get_autocast_dtype(precision)
+    nemo_config = ESM2Config(
+        initial_ckpt_path=ckpt_path,
+        include_embeddings=True,
+        include_hiddens=True,
+        params_dtype=dtype,
+        pipeline_dtype=dtype,
+        autocast_dtype=dtype,
+        bf16=dtype is torch.bfloat16,
+        fp16=dtype is torch.float16,
+    )
+    evaluator = ESM2ModelEvaluator(nemo_config)
+    evaluator.setup()
+    nemo_output = evaluator.eval(input_ids, attention_mask)
+    evaluator.teardown()
+
+    nemo_logits = nemo_output["token_logits"].transpose(0, 1).contiguous()[..., : tokenizer.vocab_size]
+    nemo_hidden_state = nemo_output["hidden_states"]
 
     hf_model = AutoModelForMaskedLM.from_pretrained(model_tag, torch_dtype=get_autocast_dtype(precision)).cuda().eval()
     hf_output_all = hf_model(input_ids, attention_mask, output_hidden_states=True)
