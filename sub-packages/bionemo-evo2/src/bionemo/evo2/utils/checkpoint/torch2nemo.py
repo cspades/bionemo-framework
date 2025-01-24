@@ -28,11 +28,11 @@ def parse_args():
     )
     parser.add_argument("--output-dir", type=str, required=True, help="Output directory path for the converted model.")
     parser.add_argument(
-        "--model-type",
+        "--model-size",
         type=str,
-        choices=["7b", "40b", "test"],
+        choices=["7b", "7b_arc_1m", "40b", "40b_arc_1m", "test"],
         default="7b",
-        help="Model size, choose between 7b, 40b, or test (4 layers, less than 1b).",
+        help="Model architecture to use, choose between 7b, 40b, or test (a sub-model of 4 layers, less than 1B parameters). '_arc_1m' models have GLU / FFN dimensions that support 1M context length when trained with TP<=8.",
     )
     return parser.parse_args()
 
@@ -42,14 +42,16 @@ if __name__ == "__main__":
     args = parse_args()
 
     # Hyena Model Config
-    if args.model_type == "7b":
+    if args.model_size == "7b":
         evo2_config = llm.Hyena7bConfig()
-    elif args.model_type == "40b":
+    elif args.model_size == "7b_arc_1m":
+        evo2_config = llm.Hyena7bARCLongContextConfig()
+    elif args.model_size == "40b":
         evo2_config = llm.Hyena40bConfig()
-    elif args.model_type == "test":
+    elif args.model_size == "40b_arc_1m":
+        evo2_config = llm.Hyena40bARCLongContextConfig()
+    elif args.model_size == "test":
         evo2_config = llm.HyenaTestConfig()
-    else:
-        raise ValueError(f"Invalid model type: {args.model_type}")
 
     importer = PyTorchHyenaImporter(args.model_path, model_config=evo2_config)
     importer.apply(args.output_dir)

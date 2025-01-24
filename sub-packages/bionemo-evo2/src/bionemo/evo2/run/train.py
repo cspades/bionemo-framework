@@ -96,9 +96,9 @@ def parse_args():
     parser.add_argument(
         "--model-size",
         type=str,
-        choices=["7b", "40b", "test"],
+        choices=["7b", "7b_arc_1m", "40b", "40b_arc_1m", "test"],
         default="7b",
-        help="Model size, choose between 7b, 40b, or test (4 layers, less than 1b).",
+        help="Model architecture to use, choose between 7b, 40b, or test (a sub-model of 4 layers, less than 1B parameters). '_arc_1m' models have GLU / FFN dimensions that support 1M context length when trained with TP<=8.",
     )
     parser.add_argument(
         "--experiment-dir", type=str, default=None, help="Directory to write model checkpoints and results to."
@@ -332,8 +332,12 @@ def main():
     }
     if args.model_size == "7b":
         evo2_config = llm.Hyena7bConfig(**config_modifiers_init)
+    elif args.model_size == "7b_arc_1m":
+        evo2_config = llm.Hyena7bARCLongContextConfig(**config_modifiers_init)
     elif args.model_size == "40b":
         evo2_config = llm.Hyena40bConfig(**config_modifiers_init)
+    elif args.model_size == "40b_arc_1m":
+        evo2_config = llm.Hyena40bARCLongContextConfig(**config_modifiers_init)
     elif args.model_size == "test":
         evo2_config = llm.HyenaTestConfig(**config_modifiers_init)
     else:
