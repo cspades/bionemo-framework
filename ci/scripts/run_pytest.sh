@@ -89,7 +89,13 @@ PYTEST_OPTIONS=(
 [[ "$SKIP_SLOW" == true ]] && PYTEST_OPTIONS+=(-m "not slow")
 
 # Define test directories
-TEST_DIRS=(./sub-packages/bionemo-*/)
+#TODO(dorotat): those are temporary changes to speed up testing, should be removed after the evo2-dev in on Github
+TEST_DIRS=(
+  ./sub-packages/bionemo-core
+  ./sub-packages/bionemo-evo2
+  ./sub-packages/bionemo-llm
+  ./sub-packages/bionemo-testing
+)
 if [[ "$NO_NBVAL" != true && "$SKIP_DOCS" != true ]]; then
     TEST_DIRS+=(docs/)
 fi
