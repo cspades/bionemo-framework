@@ -80,7 +80,7 @@ def test_golden_values(seq_len: int):
             )
         else:
             raise e
-    with torch.inference_mode(), distributed_model_parallel_state():
+    with distributed_model_parallel_state(), torch.no_grad():
         hyena_config = llm.Hyena7bConfig(use_te=True, seq_length=seq_len)
         tokenizer = get_nmt_tokenizer(
             "byte-level",
