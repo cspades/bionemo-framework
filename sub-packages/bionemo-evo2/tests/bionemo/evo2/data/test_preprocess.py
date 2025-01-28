@@ -25,8 +25,11 @@ from bionemo.evo2.utils.config import Evo2PreprocessingConfig
 @pytest.fixture
 def preprocessing_config(tmp_path: Path) -> Evo2PreprocessingConfig:
     """Creates a preprocessing configuration with test settings."""
+    # grab dir where test located
+    test_dir = Path(__file__).parent
+
     config_dict = {
-        "datapaths": ["test_datasets/mmseqs_results_rep_seq_distinct_sample_sequences.fasta"],
+        "datapaths": [str(test_dir / "test_datasets" / "mmseqs_results_rep_seq_distinct_sample_sequences.fasta")],
         "output_dir": str(tmp_path),
         "output_prefix": "test_promoters_uint8_distinct",
         "train_split": 1.0,
