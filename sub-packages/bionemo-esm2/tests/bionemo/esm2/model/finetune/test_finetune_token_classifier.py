@@ -27,7 +27,7 @@ from bionemo.testing import megatron_parallel_state_utils
 
 @pytest.fixture
 def config():
-    return ESM2FineTuneTokenConfig(encoder_frozen=True, cnn_dropout=0.1, cnn_hidden_dim=32, cnn_num_classes=5)
+    return ESM2FineTuneTokenConfig(encoder_frozen=True, cnn_dropout=0.1, cnn_hidden_size=32, cnn_num_classes=5)
 
 
 @pytest.fixture
@@ -41,7 +41,7 @@ def test_ft_config(config):
     assert config.initial_ckpt_skip_keys_with_these_prefixes == ["classification_head"]
     assert config.encoder_frozen
     assert config.cnn_dropout == 0.1
-    assert config.cnn_hidden_dim == 32
+    assert config.cnn_hidden_size == 32
     assert config.cnn_num_classes == 5
 
 

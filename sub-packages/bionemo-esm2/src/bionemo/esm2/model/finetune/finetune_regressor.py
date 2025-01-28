@@ -24,6 +24,7 @@ from megatron.core.transformer.transformer_config import TransformerConfig
 from torch import Tensor
 
 from bionemo.esm2.api import ESM2GenericConfig, ESM2Model
+from bionemo.esm2.model.finetune.finetune_token_classifier import ClassifierLossReduction
 from bionemo.llm.model.biobert.model import BioBertOutput
 from bionemo.llm.model.loss import BERTMLMLossWithReduction, PerTokenLossDict, SameSizeLossDict
 from bionemo.llm.utils import iomixin_utils as iom
@@ -93,12 +94,12 @@ class MegatronMLPHead(MegatronModule):
         """Constructor."""
         super().__init__(config)
 
-        layer_sizes = [config.hidden_size, 256, 1]
+        layer_sizes = [config.hidden_size, config.mlp_hidden_size, config.mlp_target_size]
         self.linear_layers = torch.nn.ModuleList(
             [torch.nn.Linear(i, o) for i, o in zip(layer_sizes[:-1], layer_sizes[1:])]  # noqa: RUF007
         )
         self.act = torch.nn.ReLU()
-        self.dropout = torch.nn.Dropout(p=config.ft_dropout)
+        self.dropout = torch.nn.Dropout(p=config.mlp_ft_dropout)
 
     def forward(self, hidden_states: Tensor) -> List[Tensor]:
         """Inference."""
@@ -128,8 +129,11 @@ class ESM2FineTuneSeqModel(ESM2Model):
         # If post_process is True that means that we are at the last megatron parallelism stage and we can
         #   apply the head.
         if post_process:
+            self.task_type = config.task_type
             # if we are doing post process (eg pipeline last stage) then we need to add the output layers
-            self.regression_head = MegatronMLPHead(config)
+            self.head_name = f"{self.task_type}_head"  # Example: 'regression_head' or 'classification_head'
+            # Set the attribute dynamically
+            setattr(self, self.head_name, MegatronMLPHead(config))
 
     def forward(self, *args, **kwargs) -> BioBertOutput | Tensor:
         """Inference."""
@@ -146,16 +150,16 @@ class ESM2FineTuneSeqModel(ESM2Model):
         # Get the embeddings from the parent output, and pull out the [CLS] token for this task
         embeddings: Tensor = output["embeddings"]
         # Predict our 1d regression target
-        regression_output = self.regression_head(embeddings)
+        task_head = getattr(self, self.head_name)
+        output[f"{self.task_type}_output"] = task_head(embeddings)
         if not self.include_embeddings_finetuning:
             del output["embeddings"]
-        output["regression_output"] = regression_output
         return output
 
 
 @dataclass
 class ESM2FineTuneSeqConfig(
-    ESM2GenericConfig[ESM2FineTuneSeqModel, RegressorLossReduction], iom.IOMixinWithGettersSetters
+    ESM2GenericConfig[ESM2FineTuneSeqModel, BERTMLMLossWithReduction], iom.IOMixinWithGettersSetters
 ):
     """ExampleConfig is a dataclass that is used to configure the model.
 
@@ -167,9 +171,17 @@ class ESM2FineTuneSeqConfig(
     # that has this new head and want to keep using these weights, please drop this next line or set to []
     initial_ckpt_skip_keys_with_these_prefixes: List[str] = field(default_factory=lambda: ["regression_head"])
 
+    task_type: str = "regression"
     encoder_frozen: bool = True  # freeze encoder parameters
-    ft_dropout: float = 0.25  # MLP layer dropout
+    mlp_ft_dropout: float = 0.25  # MLP layer dropout
+    mlp_hidden_size: int = 256
+    mlp_target_size: int = 1
 
-    def get_loss_reduction_class(self) -> Type[RegressorLossReduction]:
+    def get_loss_reduction_class(self) -> Type[BERTMLMLossWithReduction]:
         """Returns RegressorLossReduction class."""
-        return RegressorLossReduction
+        if self.task_type == "regression":
+            return RegressorLossReduction
+        elif self.task_type == "classification":
+            return ClassifierLossReduction
+        else:
+            raise ValueError(f"Unsupported task_type: {self.task_type}")

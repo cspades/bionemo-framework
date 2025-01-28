@@ -28,7 +28,7 @@ from bionemo.testing import megatron_parallel_state_utils
 
 @pytest.fixture
 def config():
-    return ESM2FineTuneSeqConfig(encoder_frozen=True, ft_dropout=0.50, initial_ckpt_path=str(load("esm2/8m:2.0")))
+    return ESM2FineTuneSeqConfig(encoder_frozen=True, mlp_ft_dropout=0.50, initial_ckpt_path=str(load("esm2/8m:2.0")))
 
 
 @pytest.fixture
@@ -41,7 +41,7 @@ def finetune_seq_model(config):
 def test_ft_config(config):
     assert config.initial_ckpt_skip_keys_with_these_prefixes == ["regression_head"]
     assert config.encoder_frozen
-    assert config.ft_dropout == 0.50
+    assert config.mlp_ft_dropout == 0.50
 
 
 def test_ft_model_initialized(finetune_seq_model):
