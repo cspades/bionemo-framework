@@ -15,7 +15,7 @@
 
 import argparse
 from collections import defaultdict
-from dataclasses import asdict, dataclass
+from dataclasses import asdict
 
 # import nvidia_resiliency_ext.ptl_resiliency as res_module
 import torch
@@ -28,6 +28,7 @@ from nemo import lightning as nl
 from nemo.collections import llm
 from nemo.collections.llm.gpt.data import PreTrainingDataModule
 from nemo.collections.llm.gpt.data.megatron.hyena import Evo2Dataset
+from nemo.collections.llm.recipes.tp_overlap_configs.userbuffers import userbuffers_bf16_h100_h8192_tp4_mbs1_seqlen8192
 from nemo.collections.nlp.modules.common.tokenizer_utils import get_nmt_tokenizer
 from nemo.lightning import NeMoLogger
 from nemo.lightning.pytorch import callbacks as nl_callbacks
@@ -44,6 +45,17 @@ from bionemo.llm.utils.datamodule_utils import infer_global_batch_size
 
 
 torch._dynamo.config.suppress_errors = True
+
+model_options = {
+    "7b": llm.Hyena7bConfig,
+    "7b_arc_longcontext": llm.Hyena7bARCLongContextConfig,
+    "7b_nv": llm.HyenaNV7bConfig,
+    "40b": llm.Hyena40bConfig,
+    "40b_arc_longcontext": llm.Hyena40bARCLongContextConfig,
+    "40b_nv": llm.HyenaNV40bConfig,
+    "test": llm.HyenaTestConfig,
+    "test_nv": llm.HyenaNVTestConfig,
+}
 
 
 def parse_args():
@@ -96,7 +108,7 @@ def parse_args():
     parser.add_argument(
         "--model-size",
         type=str,
-        choices=["7b", "7b_arc_1m", "40b", "40b_arc_1m", "test"],
+        choices=sorted(model_options.keys()),
         default="7b",
         help="Model architecture to use, choose between 7b, 40b, or test (a sub-model of 4 layers, less than 1B parameters). '_arc_1m' models have GLU / FFN dimensions that support 1M context length when trained with TP<=8.",
     )
@@ -115,6 +127,7 @@ def parse_args():
         default=None,
         help="Directory to restore an initial checkpoint from. Use this for supervised fine-tuning.",
     )
+    parser.add_argument("--wd", type=float, default=0.01, help="Weight decay for optimizer.")
     parser.add_argument(
         "--restore-optimizer-from-ckpt",
         action="store_true",
@@ -151,7 +164,9 @@ def parse_args():
         action="store_true",
         help="Enable tflops calculation callback for Hyena / Evo2. Defaults to False.",
     )
-
+    parser.add_argument("--lr", type=float, default=3e-4, help="Learning rate.")
+    parser.add_argument("--min-lr", type=float, default=3e-5, help="Min learning rate in cosine annealing.")
+    parser.add_argument("--warmup-steps", type=int, default=2500, help="Number of warmup steps in cosine annealing")
     # NSYS profiling/tooling arguments
     parser.add_argument(
         "--nsys-profiling",
@@ -174,6 +189,12 @@ def parse_args():
         required=False,
         help="End nsys profiling after this step.",
     )
+    parser.add_argument(
+        "--no-renormalize-loss",
+        action="store_true",
+        default=False,
+        help="Do not renormalize the loss weights.",
+    )
     # rank as list of integers
     parser.add_argument(
         "--nsys-ranks",
@@ -183,80 +204,15 @@ def parse_args():
         default=[0],
         help="Enable nsys profiling for these ranks.",
     )
-
+    parser.add_argument(
+        "--activation-checkpoint-recompute-num-layers",
+        type=int,
+        help="If set, override the default value set in the config.",
+    )
+    recompute_group = parser.add_mutually_exclusive_group(required=False)
+    recompute_group.add_argument("--no-activation-checkpointing", action="store_true", default=False)
+    recompute_group.add_argument("--selective-activation-checkpointing", action="store_true", default=False)
     return parser.parse_args()
-
-
-@dataclass
-class TPOverlapCfg:
-    """Base configuration class for Tensor Parallelism (TP) overlap."""
-
-    pass
-
-
-@dataclass
-class PipelineOverlapCfg(TPOverlapCfg):
-    """Configuration for Pipeline Parallelism overlap."""
-
-    num_sm: int
-    cga_size: int
-    num_splits: int
-    set_sm_margin: bool
-    fp8_buf: bool = (False,)
-    method: str = "pipeline"
-
-
-@dataclass
-class RingExchangeOverlapCfg(TPOverlapCfg):
-    """Configuration for ring exchange overlap."""
-
-    aggregate: bool = False
-    method: str = "ring_exchange"
-    num_sm: int = 1
-    set_sm_margin: bool = False
-
-
-@dataclass
-class BulkOverlapCfg(TPOverlapCfg):
-    """Configuration for bulk overlap in TP."""
-
-    num_sm: int
-    cga_size: int
-    set_sm_margin: bool
-    method: str = "bulk"
-
-
-# TODO(dorotat) why are we copy pasting those methods? They are in NeMo
-@dataclass
-class TransformerLayerTPOverlapCfg:
-    """Configuration for TP overlap in transformer layers."""
-
-    qkv_dgrad: TPOverlapCfg
-    qkv_wgrad: TPOverlapCfg
-    fc1_dgrad: TPOverlapCfg
-    fc1_wgrad: TPOverlapCfg
-    qkv_fprop: TPOverlapCfg
-    proj_dgrad: TPOverlapCfg
-    fc1_fprop: TPOverlapCfg
-    fc2_dgrad: TPOverlapCfg
-    proj_fprop: TPOverlapCfg
-    fc2_fprop: TPOverlapCfg
-
-
-# TODO: Add more configs and create a getter function for expose a single api
-# Model configs: H100/70B/TP8/MBS1/SeqLen8K
-userbuffers_bf16_h100_h8192_tp4_mbs1_seqlen8192 = TransformerLayerTPOverlapCfg(
-    qkv_dgrad=BulkOverlapCfg(num_sm=4, cga_size=2, set_sm_margin=False),
-    qkv_wgrad=BulkOverlapCfg(num_sm=24, cga_size=2, set_sm_margin=False),
-    fc1_dgrad=BulkOverlapCfg(num_sm=2, cga_size=2, set_sm_margin=False),
-    fc1_wgrad=BulkOverlapCfg(num_sm=4, cga_size=2, set_sm_margin=False),
-    qkv_fprop=RingExchangeOverlapCfg(aggregate=False),
-    proj_dgrad=RingExchangeOverlapCfg(aggregate=False),
-    fc1_fprop=RingExchangeOverlapCfg(aggregate=False),
-    fc2_dgrad=RingExchangeOverlapCfg(aggregate=False),
-    proj_fprop=PipelineOverlapCfg(num_sm=24, cga_size=2, num_splits=4, set_sm_margin=True),
-    fc2_fprop=PipelineOverlapCfg(num_sm=16, cga_size=2, num_splits=4, set_sm_margin=True),
-)
 
 
 def parse_dataset_config(dataset_config_path: str):
@@ -325,23 +281,37 @@ def main():
         tokenizer=tokenizer,
     )
 
+    if args.no_activation_checkpointing:
+        activation_checkpointing_args = {
+            "recompute_granularity": None,
+            "recompute_method": None,
+            "recompute_num_layers": None,
+        }
+    elif args.selective_activation_checkpointing:
+        activation_checkpointing_args = {
+            "recompute_granularity": "selective",
+            "recompute_method": None,
+            "recompute_num_layers": None,
+        }
+    else:
+        if args.activation_checkpoint_recompute_num_layers is not None:
+            activation_checkpointing_args = {
+                "recompute_num_layers": args.activation_checkpoint_recompute_num_layers,
+            }
+        else:
+            activation_checkpointing_args = {}
+
     # Retrieve model config.
     config_modifiers_init = {
         "tp_comm_overlap": args.use_megatron_comm_overlap_llama3_8k,
         "seq_length": args.seq_length,
+        "to_upper": "weighted" if args.no_renormalize_loss else "normalized_weighted",
+        **activation_checkpointing_args,
     }
-    if args.model_size == "7b":
-        evo2_config = llm.Hyena7bConfig(**config_modifiers_init)
-    elif args.model_size == "7b_arc_1m":
-        evo2_config = llm.Hyena7bARCLongContextConfig(**config_modifiers_init)
-    elif args.model_size == "40b":
-        evo2_config = llm.Hyena40bConfig(**config_modifiers_init)
-    elif args.model_size == "40b_arc_1m":
-        evo2_config = llm.Hyena40bARCLongContextConfig(**config_modifiers_init)
-    elif args.model_size == "test":
-        evo2_config = llm.HyenaTestConfig(**config_modifiers_init)
-    else:
+
+    if args.model_size not in model_options:
         raise ValueError(f"Invalid model size: {args.model_size}")
+    evo2_config = model_options[args.model_size](**config_modifiers_init)
 
     # Instantiate model.
     model = llm.GPTModel(evo2_config, tokenizer=data.tokenizer)
@@ -419,12 +389,14 @@ def main():
         name=(
             f"evo2-size-{args.model_size}-TP{args.tensor_parallel_size}-"
             f"PP{args.pipeline_model_parallel_size}-CP{args.context_parallel_size}"
-            f"-GBS{global_batch_size}-MBS{args.micro_batch_size}"
+            f"-GBS{global_batch_size}-MBS{args.micro_batch_size}-RENORMLOSS{args.renormalize_loss}"
+            f"-NOAC{args.no_activation_checkpointing}-SELAC{args.selective_activation_checkpointing}"
+            f"-LR{args.lr}-MINLR{args.min_lr}-WUSTEPS{args.warmup_steps}-WD{args.wd}"
             f"-GRFP32{args.grad_reduce_in_fp32}-ALIGN{not args.no_aligned_megatron_ddp}"
             f"-NODES{args.num_nodes}-FP8{args.fp8}"
         ),
         id=args.wandb_run_id,  # set this to use the same curve name for restarts.
-        project="bionemo_evo2",
+        project=args.wandb_project,
         save_dir=args.experiment_dir,
     )
     loggers.append(wandb_logger)
@@ -511,16 +483,17 @@ def main():
     # Optimizer and scheduler setup
     opt_config = OptimizerConfig(
         optimizer="adam",
-        lr=0.0003,
+        lr=args.lr,
         adam_beta1=0.9,
         adam_beta2=0.95,
+        weight_decay=args.wd,
         use_distributed_optimizer=True,
         bf16=True,
     )
     sched = CosineAnnealingScheduler(
         max_steps=trainer.max_steps,
-        warmup_steps=2500,
-        min_lr=0.000003,
+        warmup_steps=args.warmup_steps,
+        min_lr=args.min_lr,
     )
 
     opt = MegatronOptimizerModule(opt_config, sched)

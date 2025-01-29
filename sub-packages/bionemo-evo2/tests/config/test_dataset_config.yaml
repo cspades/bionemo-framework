@@ -1,10 +1,10 @@
 - dataset_prefix: /workspace/bionemo2/data/metagenomics/pretraining_data_metagenomics/data_metagenomics_train_text_CharLevelTokenizer_document
   dataset_split: train
   dataset_weight: 0.18
-- dataset_prefix: /workspace/bionemo2/data/gtdb_imgpr/pretraining_data_gtdb_imgpr/data_gtdb_imgpr_train_text_CharLevelTokenizer_document
+- dataset_prefix: /workspace/bionemo2/data/gtdb_v220/gtdb_v220_imgpr_merged_data/data_gtdb_imgpr_train_text_CharLevelTokenizer_document
   dataset_split: train
   dataset_weight: 0.24
-- dataset_prefix: /workspace/bionemo2/data/imgvr_untagged/imgvr_untagged_data/data_imgvr_train_text_CharLevelTokenizer_document
+- dataset_prefix: /workspace/bionemo2/data/imgvr/pretraining_data_imgvr/data_imgvr_train_text_CharLevelTokenizer_document
   dataset_split: train
   dataset_weight: 0.03
 - dataset_prefix: /workspace/bionemo2/data/ncrna/pretraining_data_ncrna/data_ncrna_train_text_CharLevelTokenizer_document
@@ -31,7 +31,7 @@
 - dataset_prefix: /workspace/bionemo2/data/gtdb_v220/gtdb_v220_imgpr_merged_data/data_gtdb_imgpr_valid_text_CharLevelTokenizer_document
   dataset_split: validation
   dataset_weight: 0.24
-- dataset_prefix: /workspace/bionemo2/data/imgvr_untagged/imgvr_untagged_data/data_imgvr_valid_text_CharLevelTokenizer_document
+- dataset_prefix: /workspace/bionemo2/data/imgvr/pretraining_data_imgvr/data_imgvr_valid_text_CharLevelTokenizer_document
   dataset_split: validation
   dataset_weight: 0.03
 - dataset_prefix: /workspace/bionemo2/data/ncrna/pretraining_data_ncrna/data_ncrna_valid_text_CharLevelTokenizer_document
@@ -58,7 +58,7 @@
 - dataset_prefix: /workspace/bionemo2/data/gtdb_v220/gtdb_v220_imgpr_merged_data/data_gtdb_imgpr_test_text_CharLevelTokenizer_document
   dataset_split: test
   dataset_weight: 0.24
-- dataset_prefix: /workspace/bionemo2/data/imgvr_untagged/imgvr_untagged_data/data_imgvr_test_text_CharLevelTokenizer_document
+- dataset_prefix: /workspace/bionemo2/data/imgvr/pretraining_data_imgvr/data_imgvr_test_text_CharLevelTokenizer_document
   dataset_split: test
   dataset_weight: 0.03
 - dataset_prefix: /workspace/bionemo2/data/ncrna/pretraining_data_ncrna/data_ncrna_test_text_CharLevelTokenizer_document
