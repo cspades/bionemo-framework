@@ -13,18 +13,17 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-
 import logging
 from pathlib import Path
 from typing import Literal, Set
 
+import numpy as np
 import pytest
 import torch
 from megatron.core.transformer.module import Float16Module
 from nemo.collections import llm
 from nemo.collections.nlp.modules.common.tokenizer_utils import get_nmt_tokenizer
 from nemo.lightning.io.pl import MegatronCheckpointIO
-from transformer_engine.pytorch.utils import get_cudnn_version, get_device_compute_capability
 
 from bionemo.core.data.load import load
 from bionemo.llm.utils.weight_utils import (
@@ -60,7 +59,7 @@ def load_weights_sharded_inplace_nemo2_to_mcore(
 
 
 @pytest.mark.parametrize("seq_len", [8_192, 16_384])
-def test_golden_values(seq_len: int):
+def test_golden_values_top_k_logits_and_cosine_similarity(seq_len: int):
     """Step 1:
     # add local .ssh/*.pub key to eos ~/.ssh/authorized_keys
     mkdir -p arc_model/checkpoints/
@@ -94,30 +93,46 @@ def test_golden_values(seq_len: int):
         position_ids = torch.arange(len(input_seq)).unsqueeze(0).to(device)
         attention_mask = None
         outputs = model(input_ids=input_ids, position_ids=position_ids, attention_mask=attention_mask)
-        gold_standard_no_fp8 = torch.load(gold_standard_no_fp8).to(device=outputs.device, dtype=outputs.dtype)
-        our_generation_str = "".join(
-            [chr(idx) for idx in outputs.softmax(dim=-1).argmax(dim=-1).flatten().detach().cpu().numpy().tolist()]
+        gold_standard_no_fp8_tensor = torch.load(gold_standard_no_fp8).to(device=outputs.device, dtype=outputs.dtype)
+
+        top_2_logits_golden = gold_standard_no_fp8_tensor.topk(dim=-1, sorted=True, largest=True, k=2)
+        ambiguous_positions = (
+            top_2_logits_golden.values[..., 0] - top_2_logits_golden.values[..., 1]
+        ).abs() < 9.9e-3  # hand tunes for observed diffs from A100 and H100
+        n_ambiguous = ambiguous_positions.sum()
+
+        assert n_ambiguous <= 19
+
+        our_char_indices = outputs.softmax(dim=-1).argmax(dim=-1).flatten().detach().cpu().numpy()
+        not_amb_positions = ~ambiguous_positions.flatten().cpu().numpy()
+        # Generate our string, removing the ambiguous positions.
+        our_generation_str = "".join([chr(idx) for idx in our_char_indices[not_amb_positions].tolist()])
+        # Do the same to the golden values
+        gold_std_char_indices = (
+            gold_standard_no_fp8_tensor.softmax(dim=-1).argmax(dim=-1).flatten().detach().cpu().numpy()
         )
-        their_generation_str_no_fp8 = "".join(
-            [
-                chr(idx)
-                for idx in gold_standard_no_fp8.softmax(dim=-1)
-                .argmax(dim=-1)
-                .flatten()
-                .detach()
-                .cpu()
-                .numpy()
-                .tolist()
-            ]
-        )
-        char_matches_ours_v_theirs_no_fp8 = [
-            our_generation_str[i] == their_generation_str_no_fp8[i] for i in range(len(their_generation_str_no_fp8))
-        ]
-        token_similarity_vs_no_fp8 = sum(char_matches_ours_v_theirs_no_fp8) / len(char_matches_ours_v_theirs_no_fp8)
-        # We can get exact very tight numerical precision on H100 with cudnn 9.5+ (nvidia docker 24.10-py3 or better)
-        if get_cudnn_version() >= (9, 5, 0) and get_device_compute_capability() >= (9, 0):
-            assert token_similarity_vs_no_fp8 == 1.0
-            torch.testing.assert_close(outputs, gold_standard_no_fp8)
-        else:
-            assert token_similarity_vs_no_fp8 >= 0.996
-            torch.testing.assert_close(outputs, gold_standard_no_fp8, atol=0.3, rtol=3)
+        # Make the string
+        gold_std_str = "".join([chr(idx) for idx in gold_std_char_indices[not_amb_positions].tolist()])
+
+        # Ensure the two strings are equal.
+        assert all(np.array(list(our_generation_str)) == np.array(list(gold_std_str)))
+
+        # Verify that the top-4 from the logit vectors are the same.
+        # A: 65
+        # C: 67
+        # G: 71
+        # T: 84
+        # Find the corresponding ATGC and compare the two vectors with those four values.
+        # Ensures that the top 4 ascii characters of the output are ACGT.
+        top_4_inds = outputs.topk(dim=-1, sorted=False, largest=True, k=4)
+        assert set(top_4_inds.indices.flatten().cpu().numpy().tolist()).issubset((65, 67, 71, 84))
+        output_vector = outputs[0, -1, top_4_inds.indices]
+
+        # Then its the top 4 indices of the gold standard tensor
+        top_4_inds_golden = gold_standard_no_fp8_tensor.topk(dim=-1, sorted=False, largest=True, k=4)
+        assert set(top_4_inds_golden.indices.flatten().cpu().numpy().tolist()).issubset((65, 67, 71, 84))
+        gold_standard_no_fp8_vector = gold_standard_no_fp8_tensor[0, -1, top_4_inds_golden.indices]
+
+        # Run cosine similarity between the two vectors.
+        logit_similarity = torch.nn.functional.cosine_similarity(output_vector, gold_standard_no_fp8_vector, dim=-1)
+        assert torch.mean(torch.abs(logit_similarity - torch.ones_like(logit_similarity))) < 9.9e-3
