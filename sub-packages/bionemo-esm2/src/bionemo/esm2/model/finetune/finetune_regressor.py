@@ -15,18 +15,17 @@
 
 
 from dataclasses import dataclass, field
-from typing import Dict, List, Sequence, Tuple, Type
+from typing import List, Sequence, Type
 
 import torch
-from megatron.core import parallel_state
 from megatron.core.transformer.module import MegatronModule
 from megatron.core.transformer.transformer_config import TransformerConfig
 from torch import Tensor
 
 from bionemo.esm2.api import ESM2GenericConfig, ESM2Model
-from bionemo.esm2.model.finetune.finetune_token_classifier import ClassifierLossReduction
+from bionemo.esm2.model.finetune.loss import ClassifierLossReduction, RegressorLossReduction
 from bionemo.llm.model.biobert.model import BioBertOutput
-from bionemo.llm.model.loss import BERTMLMLossWithReduction, PerTokenLossDict, SameSizeLossDict
+from bionemo.llm.model.loss import BERTMLMLossWithReduction
 from bionemo.llm.utils import iomixin_utils as iom
 
 
@@ -34,57 +33,10 @@ from bionemo.llm.utils import iomixin_utils as iom
 # to output sequence-level regression predictions.
 
 __all__: Sequence[str] = (
-    "RegressorLossReduction",
     "MegatronMLPHead",
     "ESM2FineTuneSeqModel",
     "ESM2FineTuneSeqConfig",
 )
-
-
-class RegressorLossReduction(BERTMLMLossWithReduction):
-    """A class for calculating the MSE loss of regression output.
-
-    This class used for calculating the loss, and for logging the reduced loss across micro batches.
-    """
-
-    def forward(
-        self, batch: Dict[str, Tensor], forward_out: Dict[str, Tensor]
-    ) -> Tuple[Tensor, PerTokenLossDict | SameSizeLossDict]:
-        """Calculates the loss within a micro-batch. A micro-batch is a batch of data on a single GPU.
-
-        Args:
-            batch: A batch of data that gets passed to the original forward inside LitAutoEncoder.
-            forward_out: the output of the forward method inside classification head.
-
-        Returns:
-            A tuple containing [<loss_tensor>, ReductionT] where the loss tensor will be used for
-                backpropagation and the ReductionT will be passed to the reduce method
-                (which currently only works for logging.).
-        """
-        regression_output = forward_out["regression_output"]
-        targets = batch["labels"].to(dtype=regression_output.dtype)  # [b, 1]
-
-        cp_size = parallel_state.get_context_parallel_world_size()
-        if cp_size == 1:
-            loss = torch.nn.functional.mse_loss(regression_output, targets)
-        else:  # TODO: support CP with masked_token_loss_context_parallel
-            raise NotImplementedError("Context Parallel support is not implemented for this loss")
-
-        return loss, {"avg": loss}
-
-    def reduce(self, losses_reduced_per_micro_batch: Sequence[SameSizeLossDict]) -> Tensor:
-        """Works across micro-batches. (data on single gpu).
-
-        Note: This currently only works for logging and this loss will not be used for backpropagation.
-
-        Args:
-            losses_reduced_per_micro_batch: a list of the outputs of forward
-
-        Returns:
-            A tensor that is the mean of the losses. (used for logging).
-        """
-        losses = torch.stack([loss["avg"] for loss in losses_reduced_per_micro_batch])
-        return losses.mean()
 
 
 class MegatronMLPHead(MegatronModule):
