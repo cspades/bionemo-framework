@@ -42,6 +42,11 @@ def parse_args():
     parser.add_argument(
         "--aws-endpoint-url", type=str, required=False, default="https://pbss.s8k.io", help="Set AWS endpoint URL."
     )
+    parser.add_argument(
+        "--enforce-checksum",
+        action="store_true",
+        help="As of AWS CLI v2.23.0, the checksum is required for all objects uploaded to S3. Default: Bypass this requirement.",
+    )
     return parser.parse_args()
 
 
@@ -50,9 +55,13 @@ def create_boto3_client(
     aws_region: str | None = None,
     aws_access_id: str | None = None,
     aws_secret_key: str | None = None,
+    enforce_checksum: bool = False,
 ):
     """Initialize the boto3 resource client for uploading and downloading files to S3."""
-    retry_config = Config(retries={"max_attempts": 10, "mode": "standard"})
+    retry_config = Config(
+        retries={"max_attempts": 10, "mode": "standard"},
+        request_checksum_calculation="when_required" if not enforce_checksum else None,
+    )
     # Initialize a resource client, which provides OOP access to AWS resources.
     return boto3.resource(
         "s3",
@@ -101,6 +110,7 @@ def upload(
     aws_region: str | None = None,
     aws_access_id: str | None = None,
     aws_secret_key: str | None = None,
+    enforce_checksum: bool = False,
 ):
     """Upload a list of files or directories (recursively) to S3."""
     # Instantiate S3 client with AWS configuration.
@@ -110,6 +120,7 @@ def upload(
         aws_region if aws_region is not None else os.getenv("AWS_REGION", None),
         aws_access_id if aws_access_id is not None else os.getenv("AWS_ACCESS_KEY_ID", None),
         aws_secret_key if aws_secret_key is not None else os.getenv("AWS_SECRET_ACCESS_KEY", None),
+        enforce_checksum,
     )
 
     # Upload data to S3.
