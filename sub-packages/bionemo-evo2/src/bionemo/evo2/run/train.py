@@ -389,8 +389,9 @@ def main():
         name=(
             f"evo2-size-{args.model_size}-TP{args.tensor_parallel_size}-"
             f"PP{args.pipeline_model_parallel_size}-CP{args.context_parallel_size}"
-            f"-GBS{global_batch_size}-MBS{args.micro_batch_size}-RENORMLOSS{args.renormalize_loss}"
+            f"-GBS{global_batch_size}-MBS{args.micro_batch_size}-SkipLossRenorm{args.no_renormalize_loss}"
             f"-NOAC{args.no_activation_checkpointing}-SELAC{args.selective_activation_checkpointing}"
+            f"-ACRNL{evo2_config.recompute_num_layers}"
             f"-LR{args.lr}-MINLR{args.min_lr}-WUSTEPS{args.warmup_steps}-WD{args.wd}"
             f"-GRFP32{args.grad_reduce_in_fp32}-ALIGN{not args.no_aligned_megatron_ddp}"
             f"-NODES{args.num_nodes}-FP8{args.fp8}"
