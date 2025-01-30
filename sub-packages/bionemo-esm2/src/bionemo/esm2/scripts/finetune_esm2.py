@@ -35,8 +35,8 @@ from bionemo.esm2.model.finetune.dataset import (
     InMemoryProteinDataset,
     InMemorySingleValueDataset,
 )
-from bionemo.esm2.model.finetune.finetune_regressor import ESM2FineTuneSeqConfig
-from bionemo.esm2.model.finetune.finetune_token_classifier import ESM2FineTuneTokenConfig
+from bionemo.esm2.model.finetune.sequence_model import ESM2FineTuneSeqConfig
+from bionemo.esm2.model.finetune.token_model import ESM2FineTuneTokenConfig
 from bionemo.llm.model.biobert.lightning import biobert_lightning_module
 from bionemo.llm.model.biobert.model import BioBertConfig
 from bionemo.llm.utils.datamodule_utils import float_or_int_or_none, infer_global_batch_size

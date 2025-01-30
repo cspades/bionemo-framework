@@ -17,7 +17,7 @@
 import pytest
 
 from bionemo.esm2.data import tokenizer
-from bionemo.esm2.model.finetune.finetune_token_classifier import (
+from bionemo.esm2.model.finetune.token_model import (
     ESM2FineTuneTokenConfig,
     ESM2FineTuneTokenModel,
     MegatronConvNetHead,

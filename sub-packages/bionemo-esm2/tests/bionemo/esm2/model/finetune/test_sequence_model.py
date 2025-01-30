@@ -18,7 +18,7 @@ import pytest
 
 from bionemo.core.data.load import load
 from bionemo.esm2.data import tokenizer
-from bionemo.esm2.model.finetune.finetune_regressor import (
+from bionemo.esm2.model.finetune.sequence_model import (
     ESM2FineTuneSeqConfig,
     ESM2FineTuneSeqModel,
     MegatronMLPHead,
