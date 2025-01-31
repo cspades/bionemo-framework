@@ -219,8 +219,6 @@ def mock_parser_args():
         "1",
         "--num-nodes",
         "1",
-        "--min-seq-length",
-        "512",
         "--max-seq-length",
         "1024",
         "--result-dir",
@@ -246,7 +244,6 @@ def test_finetune_esm2_entrypoint(mock_train_model, mock_parser_args):
         assert called_kwargs["valid_data_path"] == Path("valid.csv")
         assert called_kwargs["devices"] == 1
         assert called_kwargs["num_nodes"] == 1
-        assert called_kwargs["min_seq_length"] == 512
         assert called_kwargs["max_seq_length"] == 1024
         assert called_kwargs["lr"] == 0.001
         assert called_kwargs["result_dir"] == Path("./results")
