@@ -55,7 +55,7 @@ class RegressorLossReduction(BERTMLMLossWithReduction):
         cp_size = parallel_state.get_context_parallel_world_size()
         if cp_size == 1:
             loss = torch.nn.functional.mse_loss(regression_output, targets)
-        else:  # TODO: support CP with masked_token_loss_context_parallel
+        else:
             raise NotImplementedError("Context Parallel support is not implemented for this loss")
 
         return loss, {"avg": loss}
@@ -112,7 +112,7 @@ class ClassifierLossReduction(BERTMLMLossWithReduction):
                 loss = masked_loss.sum() / loss_mask.sum()
             else:
                 loss = losses.mean()  # sequence-level single value classification
-        else:  # TODO: support CP with masked_token_loss_context_parallel
+        else:
             raise NotImplementedError("Context Parallel support is not implemented for this loss")
 
         return loss, {"avg": loss}
