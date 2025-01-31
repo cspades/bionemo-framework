@@ -15,7 +15,7 @@
 
 
 from dataclasses import dataclass, field
-from typing import List, Sequence, Type
+from typing import List, Literal, Sequence, Type
 
 import torch
 from megatron.core.transformer.module import MegatronModule
@@ -123,7 +123,7 @@ class ESM2FineTuneSeqConfig(
     # that has this new head and want to keep using these weights, please drop this next line or set to []
     initial_ckpt_skip_keys_with_these_prefixes: List[str] = field(default_factory=lambda: ["regression_head"])
 
-    task_type: str = "regression"
+    task_type: Literal["classification", "regression"] = "regression"
     encoder_frozen: bool = True  # freeze encoder parameters
     mlp_ft_dropout: float = 0.25  # MLP layer dropout
     mlp_hidden_size: int = 256

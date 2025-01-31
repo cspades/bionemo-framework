@@ -235,10 +235,10 @@ class InMemoryPerTokenValueDataset(InMemoryProteinDataset):
     def transform_label(self, label: str) -> Tensor:
         """Transform the sequence label by tokenizing them.
 
-        This method tokenizes the secondary structure token sequences.
+        This method tokenizes a sequence of labels into a tensor of tokens and adds CLS/EOS tokens.
 
         Args:
-            label: secondary structure token sequences to be transformed
+            label: label sequence to be transformed
 
         Returns:
             tokenized label
