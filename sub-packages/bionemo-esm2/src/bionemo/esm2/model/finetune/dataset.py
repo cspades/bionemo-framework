@@ -15,7 +15,7 @@
 
 
 import os
-from typing import Sequence
+from typing import Literal, Sequence
 
 import numpy as np
 import pandas as pd
@@ -44,7 +44,7 @@ class InMemoryProteinDataset(Dataset):
         self,
         sequences: pd.Series,
         labels: pd.Series | None = None,
-        task_type: str | None = None,
+        task_type: Literal["classification", "regression", None] = None,
         tokenizer: tokenizer.BioNeMoESMTokenizer = tokenizer.get_tokenizer(),
         seed: int = np.random.SeedSequence().entropy,  # type: ignore
     ):
@@ -74,7 +74,7 @@ class InMemoryProteinDataset(Dataset):
     def from_csv(
         cls,
         csv_path: str | os.PathLike,
-        task_type: str | None = None,
+        task_type: Literal["classification", "regression", None] = None,
         tokenizer: tokenizer.BioNeMoESMTokenizer = tokenizer.get_tokenizer(),
         ignore_labels: bool = False,
     ):
@@ -154,7 +154,7 @@ class InMemorySingleValueDataset(InMemoryProteinDataset):
         self,
         sequences: pd.Series,
         labels: pd.Series,
-        task_type: str = "regression",
+        task_type: Literal["classification", "regression"] = "regression",
         tokenizer: tokenizer.BioNeMoESMTokenizer = tokenizer.get_tokenizer(),
         seed: int = np.random.SeedSequence().entropy,  # type: ignore
     ):
@@ -204,7 +204,7 @@ class InMemoryPerTokenValueDataset(InMemoryProteinDataset):
         self,
         sequences: pd.Series,
         labels: pd.Series,
-        task_type: str = "classification",
+        task_type: Literal["classification", "regression"] = "classification",
         tokenizer: tokenizer.BioNeMoESMTokenizer = tokenizer.get_tokenizer(),
         seed: int = np.random.SeedSequence().entropy,  # type: ignore
     ):
