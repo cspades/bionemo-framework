@@ -41,7 +41,6 @@ def data_to_csv(data, tmp_path):
     return csv_file
 
 
-@pytest.mark.needs_gpu
 @pytest.mark.parametrize("encoder_frozen", [True, False])
 def test_esm2_finetune_token_classifier(
     tmp_path,
@@ -94,7 +93,6 @@ def test_esm2_finetune_token_classifier(
         ), f"Conflict in param requires_grad when encoder_frozen={encoder_frozen}"
 
 
-@pytest.mark.needs_gpu
 @pytest.mark.parametrize("encoder_frozen", [True, False])
 def test_esm2_finetune_regressor(
     tmp_path,
@@ -147,7 +145,6 @@ def test_esm2_finetune_regressor(
         ), f"Conflict in param requires_grad when encoder_frozen={encoder_frozen}"
 
 
-@pytest.mark.needs_gpu
 @pytest.mark.parametrize("encoder_frozen", [True, False])
 def test_esm2_finetune_classifier(
     tmp_path,
