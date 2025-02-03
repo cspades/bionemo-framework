@@ -279,6 +279,7 @@ def main():
         seed=args.seed,
         num_workers=args.workers,
         tokenizer=tokenizer,
+        eod_mask_loss=False,
     )
 
     if args.no_activation_checkpointing:
@@ -306,6 +307,7 @@ def main():
         "tp_comm_overlap": args.use_megatron_comm_overlap_llama3_8k,
         "seq_length": args.seq_length,
         "to_upper": "weighted" if args.no_renormalize_loss else "normalized_weighted",
+        "distribute_saved_activations": False if args.sequence_parallel else True,
         **activation_checkpointing_args,
     }
 
