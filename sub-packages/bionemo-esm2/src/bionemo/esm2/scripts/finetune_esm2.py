@@ -352,6 +352,11 @@ def train_model(
             resume_ignore_no_checkpoint=True,  # When false this will throw an error with no existing checkpoint.
         ),
     )
+    """for name, p in trainer.model.named_parameters():
+        if "classification_head" not in name:
+            print(name, p.requires_grad)
+    """
+    breakpoint()
     ckpt_path = Path(checkpoint_callback.last_model_path.replace(".ckpt", ""))
     return ckpt_path, metric_tracker, trainer
 

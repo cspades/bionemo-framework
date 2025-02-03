@@ -19,12 +19,14 @@ from pathlib import Path
 from typing import Dict, Sequence, Type, get_args
 
 from nemo import lightning as nl
+from nemo.lightning.pytorch.callbacks.model_transform import ModelTransform
 
 from bionemo.core.utils.dtypes import PrecisionTypes, get_autocast_dtype
 from bionemo.esm2.api import ESM2Config
 from bionemo.esm2.data.tokenizer import get_tokenizer
 from bionemo.esm2.model.finetune.datamodule import ESM2FineTuneDataModule
 from bionemo.esm2.model.finetune.dataset import InMemoryProteinDataset
+from bionemo.esm2.model.finetune.peft import ESM2LoRA
 from bionemo.esm2.model.finetune.sequence_model import ESM2FineTuneSeqConfig
 from bionemo.esm2.model.finetune.token_model import ESM2FineTuneTokenConfig
 from bionemo.llm.model.biobert.lightning import biobert_lightning_module
@@ -107,7 +109,7 @@ def infer_model(
         devices=devices,
         strategy=strategy,
         num_nodes=num_nodes,
-        callbacks=[prediction_writer],
+        callbacks=[prediction_writer, ModelTransform()],
         plugins=nl.MegatronMixedPrecision(precision=precision),
     )
 
@@ -118,6 +120,7 @@ def infer_model(
         global_batch_size=global_batch_size,
         min_seq_length=min_seq_length,
     )
+    peft = ESM2LoRA()
 
     config = config_class(
         params_dtype=get_autocast_dtype(precision),
@@ -132,9 +135,10 @@ def infer_model(
         initial_ckpt_path=str(checkpoint_path),
         initial_ckpt_skip_keys_with_these_prefixes=[],  # load everything from the checkpoint.
     )
-
     tokenizer = get_tokenizer()
-    module = biobert_lightning_module(config=config, tokenizer=tokenizer)
+    module = biobert_lightning_module(config=config, tokenizer=tokenizer, model_transform=peft)
+    breakpoint()
+
     # datamodule is responsible for transforming dataloaders by adding MegatronDataSampler. Alternatively, to
     # directly use dataloader in predict method, the data sampler should be included in MegatronStrategy
     trainer.predict(module, datamodule=datamodule)  # return_predictions=False failing due to a lightning bug
