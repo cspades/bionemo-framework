@@ -583,6 +583,7 @@ class BioBertConfig(
         # We should eventually have an adapter for nemo1 checkpoints, HF checkpoints (at least for ESM2 @georgea)
         # and an adapter may also be the right way to handle expected missing/extra keys when importing
         # a checkpoint for fine-tuning (eg ignore misisng lm_head, if not there in model, etc).
+        breakpoint()
         if self.nemo1_ckpt_path is not None:
             assert self.initial_ckpt_path is None, "Mutually exclusive checkpoint path used twice"
             te_mapping = "transformer_engine" in self.biobert_spec_option.value

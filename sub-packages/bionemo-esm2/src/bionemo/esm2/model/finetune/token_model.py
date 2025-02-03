@@ -70,7 +70,7 @@ class ESM2FineTuneTokenModel(ESM2Model):
     def __init__(self, config, *args, include_hiddens: bool = False, post_process: bool = True, **kwargs):
         """Constructor."""
         super().__init__(config, *args, include_hiddens=True, post_process=post_process, **kwargs)
-
+        # breakpoint()
         # freeze encoder parameters
         if config.encoder_frozen:
             for _, param in self.named_parameters():

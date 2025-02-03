@@ -86,8 +86,13 @@ def test_esm2_finetune_token_classifier(
         assert simple_ft_metrics.collection_train["loss"][0] > simple_ft_metrics.collection_train["loss"][-1]
 
         encoder_requires_grad = [
-            p.requires_grad for name, p in trainer.model.named_parameters() if "classification_head" not in name
+            p.requires_grad
+            for name, p in trainer.model.named_parameters()
+            if "classification_head" not in name and "adapter" not in name
         ]
+        for name, p in trainer.model.named_parameters():
+            if "classification_head" not in name:
+                print(name, p.requires_grad)
         assert (
             not all(encoder_requires_grad) == encoder_frozen
         ), f"Conflict in param requires_grad when encoder_frozen={encoder_frozen}"

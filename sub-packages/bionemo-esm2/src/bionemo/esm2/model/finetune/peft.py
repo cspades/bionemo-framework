@@ -46,7 +46,7 @@ class ESM2LoRA(LoRA):
         Returns:
             The modified model.
         """
-        fn.walk(model, self.selective_freeze)
+        # fn.walk(model, self.selective_freeze)
         fn.walk(model, self.transform)
         return model
 

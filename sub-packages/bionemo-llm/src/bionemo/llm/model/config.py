@@ -94,6 +94,7 @@ class MegatronBioNeMoTrainableModelConfig(
         skip_fields = set(self.override_parent_fields)
         override_fields = [f for f in my_fields if f in initial_fields and f not in skip_fields]
         override_mutate_possibly_extra_mutated_fiddle(self, initial_config, override_fields)
+        breakpoint()
 
     def update_model_from_checkpoint(self, model: MegatronModelType, initial_ckpt_path: str) -> None:
         """Utility function to standardize how to load a megatron model from a checkpoint ignoring user-specified keys.

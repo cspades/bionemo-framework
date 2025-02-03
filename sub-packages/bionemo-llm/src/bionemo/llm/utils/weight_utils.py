@@ -147,6 +147,7 @@ def load_weights_sharded_inplace_nemo2_to_mcore(
         for k, v in model.sharded_state_dict().items()
         if not _key_in_filter(k, skip_keys_with_these_prefixes) and "_extra_state" not in k
     }
+    breakpoint()
     dist_checkpointing.load(
         sharded_state_dict=sharded_state_dict,
         checkpoint_dir=str(Path(distributed_checkpoint_dir) / "weights"),

@@ -25,6 +25,7 @@ from nemo import lightning as nl
 from nemo.collections import llm
 from nemo.lightning import resume
 from nemo.lightning.pytorch import callbacks as nl_callbacks
+from nemo.lightning.pytorch.callbacks.model_transform import ModelTransform
 from nemo.lightning.pytorch.optim import MegatronOptimizerModule
 
 from bionemo.core.utils.dtypes import PrecisionTypes, get_autocast_dtype
@@ -35,6 +36,7 @@ from bionemo.esm2.model.finetune.dataset import (
     InMemoryProteinDataset,
     InMemorySingleValueDataset,
 )
+from bionemo.esm2.model.finetune.peft import ESM2LoRA
 from bionemo.esm2.model.finetune.sequence_model import ESM2FineTuneSeqConfig
 from bionemo.esm2.model.finetune.token_model import ESM2FineTuneTokenConfig
 from bionemo.llm.model.biobert.lightning import biobert_lightning_module
@@ -223,6 +225,7 @@ def train_model(
             log_model=wandb_log_model,
         )
     )
+    peft = ESM2LoRA()
 
     callbacks = [
         RichModelSummary(max_depth=4),
@@ -237,7 +240,8 @@ def train_model(
         callbacks.append(
             nl_callbacks.NsysCallback(
                 start_step=nsys_start_step, end_step=nsys_end_step, ranks=nsys_ranks, gen_shape=True
-            )
+            ),
+            ModelTransform(),
         )
 
     trainer = nl.Trainer(
@@ -317,7 +321,7 @@ def train_model(
         optimizer.scale_lr_cond = lambda name, param: scale_lr_layer in name
         optimizer.lr_mult = lr_multiplier
 
-    module = biobert_lightning_module(config=config, tokenizer=tokenizer, optimizer=optimizer)
+    module = biobert_lightning_module(config=config, tokenizer=tokenizer, optimizer=optimizer, model_transform=peft)
 
     # Configure our custom Checkpointer
     checkpoint_callback = nl_callbacks.ModelCheckpoint(
@@ -570,7 +574,7 @@ def get_parser():
         "--num-steps",
         type=int,
         required=False,
-        default=500000,
+        default=5,
         help="Number of steps to use for training. Default is 500000.",
     )
     parser.add_argument(
@@ -584,7 +588,7 @@ def get_parser():
         "--val-check-interval",
         type=int,
         required=False,
-        default=10000,
+        default=5,
         help="Number of steps between validation. Default is 10000.",
     )
     parser.add_argument(
