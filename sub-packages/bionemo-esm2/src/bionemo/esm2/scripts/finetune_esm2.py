@@ -39,6 +39,7 @@ from bionemo.esm2.model.finetune.dataset import (
 from bionemo.esm2.model.finetune.peft import ESM2LoRA
 from bionemo.esm2.model.finetune.sequence_model import ESM2FineTuneSeqConfig
 from bionemo.esm2.model.finetune.token_model import ESM2FineTuneTokenConfig
+from bionemo.esm2.model.model import ESM2Config
 from bionemo.llm.model.biobert.lightning import biobert_lightning_module
 from bionemo.llm.model.biobert.model import BioBertConfig
 from bionemo.llm.utils.datamodule_utils import float_or_int_or_none, infer_global_batch_size
@@ -342,6 +343,50 @@ def train_model(
         ckpt_callback=checkpoint_callback,
     )
 
+    import torch.distributed as dist
+
+    dist.init_process_group(backend="nccl", init_method="env://")
+
+    dtype = get_autocast_dtype("fp32")
+    nemo_config = ESM2Config(
+        initial_ckpt_path=str(restore_from_checkpoint_path),
+        include_embeddings=True,
+        include_hiddens=True,
+        params_dtype=dtype,
+        pipeline_dtype=dtype,
+        autocast_dtype=dtype,
+        bf16=None,
+        fp16=None,
+    )
+
+    nemo_model = nemo_config.configure_model(tokenizer).to("cuda").eval()
+
+    if dtype is torch.float16 or dtype is torch.bfloat16:
+        nemo_model = Float16Module(nemo_config, nemo_model)
+
+    nemo_output = nemo_model(input_ids, attention_mask)
+    breakpoint()
+
+    #    test_datamodule = ESM2FineTuneDataModule(
+    #        predict_dataset=train_dataset,
+    #        micro_batch_size=micro_batch_size,
+    #        cccbldunek
+    #        min_seq_length=1024,
+    #    )
+    #
+    #    trainer = pl.Trainer(
+    #            devices=1,
+    #            strategy="ddp",
+    #            num_nodes=1,
+    #    )
+
+    breakpoint()
+    #
+    # fabric API???
+    trainer.predict(module, datamodule=test_datamodule)
+    # Want to run inference here of original model.
+    # Look at result
+
     llm.train(
         model=module,
         data=data_module,
@@ -352,6 +397,10 @@ def train_model(
             resume_ignore_no_checkpoint=True,  # When false this will throw an error with no existing checkpoint.
         ),
     )
+
+    # Want to run inference here of PEFT modified model
+    # Look at result, check it is different than original
+
     """for name, p in trainer.model.named_parameters():
         if "classification_head" not in name:
             print(name, p.requires_grad)
