@@ -82,6 +82,15 @@ def parse_args():
     )
     parser.add_argument("--wandb-project", type=str, default="bionemo_evo2", help="Wandb project name")
     parser.add_argument("--wandb-run-id", type=str, default=None, help="Wandb run identifier")
+    parser.add_argument(
+        "--wandb-group", type=str, default=None, help="A unique string shared by all runs in a given group"
+    )
+    parser.add_argument(
+        "--wandb-job-type",
+        type=str,
+        default=None,
+        help="A unique string representing a type of run, which is useful when you're grouping runs together into larger experiments using group.",
+    )
     parser.add_argument("--sequence-parallel", action="store_true", help="Set to enable sequence parallelism.")
     parser.add_argument("--fp8", action="store_true", help="Set to enable FP8")
     parser.add_argument("--micro-batch-size", type=int, default=1, help="Micro-batch size for data-parallel training.")
@@ -398,6 +407,8 @@ def main():
             f"-GRFP32{args.grad_reduce_in_fp32}-ALIGN{not args.no_aligned_megatron_ddp}"
             f"-NODES{args.num_nodes}-FP8{args.fp8}"
         ),
+        group=args.wandb_group,
+        job_type=args.wandb_job_type,
         id=args.wandb_run_id,  # set this to use the same curve name for restarts.
         project=args.wandb_project,
         save_dir=args.experiment_dir,
@@ -437,6 +448,7 @@ def main():
         ckpt_save_optimizer=True,
         ckpt_async_save=args.ckpt_async_save,
         save_ckpt_format=args.ckpt_format,
+        ckpt_load_strictness="log_all",  # or rebasing to https://github.com/NVIDIA/NeMo/pull/11988/files#diff-7667eae242a8ef776bff78cd08e79bc81df4896a450f0a781f6ed317a3dfb7ffR139
     )
     trainer = nl.Trainer(
         devices=args.devices,

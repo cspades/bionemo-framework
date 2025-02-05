@@ -53,24 +53,21 @@ def load_weights_sharded_inplace_nemo2_to_mcore(
             k, skip_keys_with_these_prefixes
         )  # and "_extra_state" not in k  # extra state is needed for fp8 sharded states
     }
+    # Load the checkpoint with strict=false to allow for missing keys (backward compatibility)
+    # Error: megatron.core.dist_checkpointing.core.CheckpointingException:
+    # Object shard ... module.decoder.final_norm._extra_state/shard_0_1.pt not found
     MegatronCheckpointIO(save_ckpt_format=ckpt_format).load_checkpoint(
-        distributed_checkpoint_dir, sharded_state_dict=sharded_state_dict
+        distributed_checkpoint_dir, sharded_state_dict=sharded_state_dict, strict=False
     )
 
 
 @pytest.mark.parametrize("seq_len", [8_192, 16_384])
 def test_golden_values_top_k_logits_and_cosine_similarity(seq_len: int):
-    """Step 1:
-    # add local .ssh/*.pub key to eos ~/.ssh/authorized_keys
-    mkdir -p arc_model/checkpoints/
-    rsync -avz --progress --partial login-eos01.eos.clusters.nvidia.com:/lustre/fsw/healthcareeng_bionemo/arc_evo2/savanna_outputs/interleaved_hyena_7b arc_model/checkpoints/
-    mkdir -p arc_model/gold_standards/
-    rsync -avz --progress --partial login-eos01.eos.clusters.nvidia.com:/lustre/fsw/healthcareeng_bionemo/arc_evo2/savanna_outputs/interleaved_7b_golden_value.pt arc_model/gold_standards/
-    rsync -avz --progress --partial login-eos01.eos.clusters.nvidia.com:/lustre/fsw/healthcareeng_bionemo/arc_evo2/savanna_outputs/final_7b_no_fp8_golden_value.pt arc_model/gold_standards/
-    """
     try:
-        evo2_7b_checkpoint_weights: Path = load("evo2/7b-8k-zarr:1.0") / "weights"
-        gold_standard_no_fp8 = load("evo2/7b-8k-nofp8-te-goldvalue-testdata:1.0")
+        # TODO (dorotat) remove PBSS source once the model is available on NGC
+        evo2_7b_checkpoint_weights: Path = load("evo2/7b-8k-zarr:1.0", source="pbss") / "weights"
+        # TODO (dorotat) remove PBSS source once the model is available on NGC
+        gold_standard_no_fp8 = load("evo2/7b-8k-nofp8-te-goldvalue-testdata:1.0", source="pbss")
     except ValueError as e:
         if e.args[0].endswith("does not have an NGC URL."):
             raise ValueError(

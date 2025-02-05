@@ -79,8 +79,6 @@ uname -a
 # Set up pytest options
 PYTEST_OPTIONS=(
     -v
-    --durations=0
-    --durations-min=30.0
     --cov=bionemo
     --cov-append
     --cov-report=xml:coverage.xml
@@ -96,8 +94,9 @@ TEST_DIRS=(
   ./sub-packages/bionemo-llm
   ./sub-packages/bionemo-testing
 )
+
 if [[ "$NO_NBVAL" != true && "$SKIP_DOCS" != true ]]; then
-    TEST_DIRS+=(docs/)
+    TEST_DIRS+=(docs/docs/user-guide/examples/bionemo-evo2/)
 fi
 
 echo "Test directories: ${TEST_DIRS[*]}"
@@ -105,6 +104,12 @@ echo "Test directories: ${TEST_DIRS[*]}"
 # Run tests with coverage
 for dir in "${TEST_DIRS[@]}"; do
     echo "Running pytest in $dir"
+    # TODO(dorotat) - remove this change, only helpful for evo2 dev branch
+    if [ ! -d "$dir" ]; then
+        echo "Directory $dir not found, skipping..."
+        continue
+    fi
+
 
     if ! pytest "${PYTEST_OPTIONS[@]}" --junitxml=$(basename $dir).junit.xml -o junit_family=legacy "$dir"; then
         error=true

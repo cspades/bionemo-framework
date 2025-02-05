@@ -9,9 +9,7 @@ and train/test splits are available.
 
 Validation perplexity evaluated on the NVIDIA validation set.
 
-<figure markdown="span">
-  ![ESM-2 Pre-training Convergence](../assets/images/esm2/esm2_pretrain_convergence.svg){ width="350" }
-</figure>
+![ESM-2 Pre-training Convergence](../../assets/images/esm2/esm2_pretrain_convergence.png)
 
 | Model Size     | Perplexity at 500k updates  |
 | -------------- | ------ |
@@ -24,7 +22,7 @@ Validation perplexity evaluated on the NVIDIA validation set.
 === "8M"
 
     ```python
-    esm2_8m_ckpt_path = load("esm2/nv_8m:2.0")
+    esm2_8m_ckpt_path = load("esm2/8m:2.0")
     ```
 
     ### Training Script

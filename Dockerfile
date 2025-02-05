@@ -16,41 +16,32 @@ RUN rustup set profile minimal && \
 
 FROM ${BASE_IMAGE} AS bionemo2-base
 
-# Install NeMo dependencies.
-WORKDIR /build
-
-ARG MAX_JOBS=4
-ENV MAX_JOBS=${MAX_JOBS}
-
-# See NeMo readme for the latest tested versions of these libraries
-ARG APEX_COMMIT=810ffae374a2b9cb4b5c5e28eaeca7d7998fca0c
-RUN git clone https://github.com/NVIDIA/apex.git && \
-  cd apex && \
-  git checkout ${APEX_COMMIT} && \
-  pip install . -v --no-build-isolation --disable-pip-version-check --no-cache-dir \
-  --config-settings "--build-option=--cpp_ext --cuda_ext --fast_layer_norm --distributed_adam --deprecated_fused_adam --group_norm"
-
-# Transformer Engine pre-1.7.0. 1.7 standardizes the meaning of bits in the attention mask to match
-ARG TE_COMMIT=2215fa5c7557b66034068816020f9f611019e457
-RUN git clone https://github.com/NVIDIA/TransformerEngine.git && \
-  cd TransformerEngine && \
-  git fetch origin ${TE_COMMIT} && \
-  git checkout FETCH_HEAD && \
-  git submodule init && git submodule update && \
-  NVTE_FRAMEWORK=pytorch NVTE_WITH_USERBUFFERS=1 MPI_HOME=/usr/local/mpi pip install .
-
 # Install core apt packages.
-RUN apt-get update \
-  && apt-get install -y \
+RUN --mount=type=cache,id=apt-cache,target=/var/cache/apt,sharing=locked \
+  --mount=type=cache,id=apt-lib,target=/var/lib/apt,sharing=locked \
+  <<EOF
+set -eo pipefail
+apt-get update -qy
+apt-get install -qyy \
   libsndfile1 \
   ffmpeg \
   git \
   curl \
   pre-commit \
   sudo \
-  && rm -rf /var/lib/apt/lists/*
+  gnupg
+apt-get upgrade -qyy \
+  rsync
+rm -rf /tmp/* /var/tmp/*
+EOF
 
-RUN apt-get install -y gnupg
+# Reinstall TE to avoid debugpy bug in vscode: https://nvbugspro.nvidia.com/bug/5078830
+# Pull the latest TE version from https://github.com/NVIDIA/TransformerEngine/releases
+# Use the version that matches the pytorch base container.
+ARG TE_TAG=v1.13
+RUN NVTE_FRAMEWORK=pytorch NVTE_WITH_USERBUFFERS=1 MPI_HOME=/usr/local/mpi \
+  pip --disable-pip-version-check --no-cache-dir install \
+  git+https://github.com/NVIDIA/TransformerEngine.git@${TE_TAG}
 
 # Check the nemo dependency for causal conv1d and make sure this checkout
 # tag matches. If not, update the tag in the following line.
@@ -72,9 +63,7 @@ RUN pip install nemo_run@git+https://github.com/NVIDIA/NeMo-Run.git@${NEMU_RUN_T
 
 RUN mkdir -p /workspace/bionemo2/
 
-# Delete the temporary /build directory.
 WORKDIR /workspace
-RUN rm -rf /build
 
 # Addressing Security Scan Vulnerabilities
 RUN rm -rf /opt/pytorch/pytorch/third_party/onnx
@@ -89,32 +78,19 @@ ENV UV_LINK_MODE=copy \
   UV_COMPILE_BYTECODE=1 \
   UV_PYTHON_DOWNLOADS=never \
   UV_SYSTEM_PYTHON=true \
-  UV_NO_CACHE=1 \
   UV_BREAK_SYSTEM_PACKAGES=1
 
 # Install the bionemo-geometric requirements ahead of copying over the rest of the repo, so that we can cache their
 # installation. These involve building some torch extensions, so they can take a while to install.
 RUN --mount=type=bind,source=./sub-packages/bionemo-geometric/requirements.txt,target=/requirements-pyg.txt \
-  uv pip install --no-build-isolation -r /requirements-pyg.txt
+    --mount=type=cache,target=/root/.cache \
+    uv pip install --no-build-isolation -r /requirements-pyg.txt
 
 COPY --from=rust-env /usr/local/cargo /usr/local/cargo
 COPY --from=rust-env /usr/local/rustup /usr/local/rustup
 
 ENV PATH="/usr/local/cargo/bin:/usr/local/rustup/bin:${PATH}"
 ENV RUSTUP_HOME="/usr/local/rustup"
-
-RUN <<EOF
-set -eo pipefail
-uv pip install maturin --no-build-isolation
-
-pip install --use-deprecated=legacy-resolver  --no-build-isolation \
-  tensorstore==0.1.45
-sed -i 's/^Version: 0\.0\.0$/Version: 0.1.45/' \
-  /usr/local/lib/python3.12/dist-packages/tensorstore-0.0.0.dist-info/METADATA
-mv /usr/local/lib/python3.12/dist-packages/tensorstore-0.0.0.dist-info \
-/usr/local/lib/python3.12/dist-packages/tensorstore-0.1.45.dist-info
-rm -rf /root/.cache/*
-EOF
 
 WORKDIR /workspace/bionemo2
 
@@ -124,11 +100,9 @@ COPY ./3rdparty /workspace/bionemo2/3rdparty
 COPY ./sub-packages /workspace/bionemo2/sub-packages
 
 # Apply patches with temporary fixes, before the modules are installed. (Use absolute path for patch filepath.)
-# FIXME(dorotat) Remove when https://gitlab-master.nvidia.com/ADLR/megatron-lm/-/merge_requests/2468 is merged.
 # FIXME(cspades) Remove the torch_dist checkpoint size patch when https://gitlab-master.nvidia.com/ADLR/megatron-lm/-/merge_requests/2604 is merged.
 COPY ./ci/scripts/*.patch /workspace/bionemo2/ci/scripts/
 RUN MEGATRON_DIR=./3rdparty/Megatron-LM && \
-patch -p1 -d $MEGATRON_DIR -i /workspace/bionemo2/ci/scripts/megatron-lm-mr2468-shard-tensor-fix.patch && \
 patch -p1 -d $MEGATRON_DIR -i /workspace/bionemo2/ci/scripts/megatron-lm-mr2604-torch-dist-ckpt-size.patch && \
 rm ./ci/scripts/*.patch
 
@@ -138,8 +112,10 @@ rm ./ci/scripts/*.patch
 RUN --mount=type=bind,source=./.git,target=./.git \
   --mount=type=bind,source=./requirements-test.txt,target=/requirements-test.txt \
   --mount=type=bind,source=./requirements-cve.txt,target=/requirements-cve.txt \
-  <<EOF
+  --mount=type=cache,target=/root/.cache <<EOF
 set -eo pipefail
+
+uv pip install maturin --no-build-isolation
 
 uv pip install --no-build-isolation \
   ./3rdparty/* \
@@ -203,7 +179,7 @@ ENV PATH="/usr/local/cargo/bin:/usr/local/rustup/bin:${PATH}"
 ENV RUSTUP_HOME="/usr/local/rustup"
 
 RUN --mount=type=bind,source=./requirements-dev.txt,target=/workspace/bionemo2/requirements-dev.txt \
-  --mount=type=cache,id=uv-cache,target=/root/.cache,sharing=locked <<EOF
+  --mount=type=cache,target=/root/.cache <<EOF
   set -eo pipefail
   uv pip install -r /workspace/bionemo2/requirements-dev.txt
   rm -rf /tmp/*
@@ -267,8 +243,6 @@ COPY ./docs ./docs
 COPY --from=rust-env /usr/local/cargo /usr/local/cargo
 COPY --from=rust-env /usr/local/rustup /usr/local/rustup
 
-# Remove patches in built container.
-RUN rm ./ci/scripts/*.patch
 
 # RUN rm -rf /usr/local/cargo /usr/local/rustup
 RUN chmod 777 -R /workspace/bionemo2/

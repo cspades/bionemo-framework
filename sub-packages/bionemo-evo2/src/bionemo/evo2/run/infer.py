@@ -15,12 +15,16 @@
 
 
 import argparse
+from typing import Literal, Optional
 
 import nemo.lightning as nl
 import torch
 from megatron.core.inference.common_inference_params import CommonInferenceParams
 from nemo.collections.llm import generate
 from nemo.utils import logging
+
+
+CheckpointFormats = Literal["torch_dist", "zarr"]
 
 
 def parse_args():
@@ -77,23 +81,50 @@ def parse_args():
     return ap.parse_args()
 
 
-def main():
-    """Inference workflow for Evo2."""
-    # Parse args.
-    args = parse_args()
+def infer(
+    prompt: str,
+    ckpt_dir: str,
+    temperature: float,
+    top_k: int,
+    top_p: float,
+    max_new_tokens: int,
+    tensor_parallel_size: int,
+    pipeline_model_parallel_size: int,
+    context_parallel_size: int,
+    output_file: Optional[str] = None,
+    ckpt_format: CheckpointFormats = "torch_dist",
+):
+    """Inference workflow for Evo2.
 
+    Args:
+        prompt (str): Prompt to generate text from Evo2.
+        ckpt_dir (str): Path to checkpoint directory containing pre-trained Evo2 model.
+        temperature (float): Temperature during sampling for generation.
+        top_k (int): Top K during sampling for generation.
+        top_p (float): Top P during sampling for generation.
+        max_new_tokens (int): Maximum number of tokens to generate.
+        tensor_parallel_size (int): Order of tensor parallelism.
+        pipeline_model_parallel_size (int): Order of pipeline parallelism.
+        context_parallel_size (int): Order of context parallelism.
+        output_file (str): Output file containing the generated text produced by the Evo2 model.
+        ckpt_format (CheckpointFormats): Checkpoint format to use.
+
+    Returns:
+        None
+    """
     # Create PTL trainer.
     trainer = nl.Trainer(
         accelerator="gpu",
         strategy=nl.MegatronStrategy(
-            tensor_model_parallel_size=args.tensor_parallel_size,
-            pipeline_model_parallel_size=args.pipeline_model_parallel_size,
-            context_parallel_size=args.context_parallel_size,
+            tensor_model_parallel_size=tensor_parallel_size,
+            pipeline_model_parallel_size=pipeline_model_parallel_size,
+            context_parallel_size=context_parallel_size,
             pipeline_dtype=torch.bfloat16,
             ckpt_load_optimizer=False,  # Needs to be false for a normal model checkpoint.
             ckpt_save_optimizer=False,
             ckpt_async_save=False,
-            save_ckpt_format=args.ckpt_format,
+            save_ckpt_format=ckpt_format,
+            ckpt_load_strictness="log_all",
         ),
         log_every_n_steps=1,
         limit_val_batches=10,
@@ -106,26 +137,40 @@ def main():
 
     # transformers generate method has more options than NeMo/Megatron.
     results = generate(
-        path=args.ckpt_dir,
-        prompts=[args.prompt],
+        path=ckpt_dir,
+        prompts=[prompt],
         trainer=trainer,
         inference_params=CommonInferenceParams(
-            args.temperature,
-            args.top_k,
-            args.top_p,
+            temperature,
+            top_k,
+            top_p,
             return_log_probs=False,
-            num_tokens_to_generate=args.max_new_tokens,
+            num_tokens_to_generate=max_new_tokens,
         ),
         text_only=True,
     )
 
     if torch.distributed.get_rank() == 0:
-        if args.output_file is None:
+        if output_file is None:
             logging.info(results)
         else:
-            with open(args.output_file, "w") as f:
+            with open(output_file, "w") as f:
                 f.write(f"{results}\n")
 
 
 if __name__ == "__main__":
-    main()
+    # Parse args.
+    args = parse_args()
+    infer(
+        prompt=args.prompt,
+        ckpt_dir=args.ckpt_dir,
+        temperature=args.temperature,
+        top_k=args.top_k,
+        top_p=args.top_p,
+        max_new_tokens=args.max_new_tokens,
+        tensor_parallel_size=args.tensor_parallel_size,
+        pipeline_model_parallel_size=args.pipeline_model_parallel_size,
+        context_parallel_size=args.context_parallel_size,
+        output_file=args.output_file,
+        ckpt_format=args.ckpt_format,
+    )

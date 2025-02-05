@@ -28,6 +28,7 @@ def preprocessing_config(tmp_path: Path) -> Evo2PreprocessingConfig:
     # grab dir where test located
     test_dir = Path(__file__).parent
 
+    # TODO (dorotat) move mmseqs_results_rep_seq_distinct_sample_sequences.fasta to PBSS and use load(...)
     config_dict = {
         "datapaths": [str(test_dir / "test_datasets" / "mmseqs_results_rep_seq_distinct_sample_sequences.fasta")],
         "output_dir": str(tmp_path),
