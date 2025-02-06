@@ -36,7 +36,7 @@ repos:
     hooks:
       - id: lint-xfail-fixme
         name: Lint XFAIL and FIXME markers
-        entry: python internal/scripts/lint_xfail_fixme.py
+        entry: python internal/infra-bionemo/src/infra_bionemo/lint_xfail_fixme.py
         language: python
         files: \.(py|sh|dockerfile|yaml|yml)$
         exclude: |
@@ -45,6 +45,7 @@ repos:
                 __pycache__/|
                 build/|
                 dist/|
-                3rdparty/
+                3rdparty/|
+                internal/
             )
         additional_dependencies: [ typing ]

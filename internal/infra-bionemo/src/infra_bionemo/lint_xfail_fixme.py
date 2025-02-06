@@ -51,7 +51,7 @@ from typing import List, Optional, Set, Tuple
 
 THIS_FILENAME = os.path.abspath(__file__)
 ISSUE_PATTERN = r"https://github\.com/NVIDIA/bionemo-framework/issues/\d+"
-TODO_PATTERN = r"\b( fix|FIXME|XXX)\b"
+FIXME_PATTERN = r"\b( fix|FIXME|XXX)\b"
 SKIP_DIRS = [".git", "__pycache__", ".pytest_cache", "build", "dist", "3rdparty"]
 SOURCE_EXTENSIONS = (".py", ".sh", "Dockerfile", ".yaml", ".yml")
 
@@ -89,7 +89,7 @@ def check_fixme_issues(file_path: str) -> List[Tuple[int, str, str]]:
     errors = []
     with open(file_path, "r", encoding="utf-8") as f:
         for line_num, line in enumerate(f, 1):
-            if re.search(TODO_PATTERN, line, re.IGNORECASE):
+            if re.search(FIXME_PATTERN, line, re.IGNORECASE):
                 if not re.search(ISSUE_PATTERN, line):
                     errors.append(
                         (line_num, f"FIXME in {file_path}:{line_num} missing required issue link", line.strip())
