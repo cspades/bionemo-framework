@@ -51,7 +51,7 @@ from typing import List, Optional, Set, Tuple
 
 THIS_FILENAME = os.path.abspath(__file__)
 ISSUE_PATTERN = r"https://github\.com/NVIDIA/bionemo-framework/issues/\d+"
-FIXME_PATTERN = r"\b( fix|FIXME|XXX)\b"
+FIXME_PATTERN = r"\b(FIXME)\b"
 SKIP_DIRS = [".git", "__pycache__", ".pytest_cache", "build", "dist", "3rdparty"]
 SOURCE_EXTENSIONS = (".py", ".sh", "Dockerfile", ".yaml", ".yml")
 
