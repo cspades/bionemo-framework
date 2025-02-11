@@ -14,11 +14,9 @@
 # limitations under the License.
 
 
-import torch
-
 from bionemo.core.data.load import load
 from bionemo.evo2.run.infer import infer
-from bionemo.testing.megatron_parallel_state_utils import _teardown_apex_megatron_cuda, clean_parallel_state_context
+from bionemo.testing.megatron_parallel_state_utils import clean_parallel_state_context
 
 
 RANDOM_SEED = 42
@@ -60,6 +58,3 @@ def test_run_infer():
             pipeline_model_parallel_size=pipeline_model_parallel_size,
             context_parallel_size=context_parallel_size,
         )
-
-    _teardown_apex_megatron_cuda()
-    torch.cuda.empty_cache()

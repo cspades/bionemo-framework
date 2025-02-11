@@ -99,13 +99,6 @@ COPY ./LICENSE /workspace/bionemo2/LICENSE
 COPY ./3rdparty /workspace/bionemo2/3rdparty
 COPY ./sub-packages /workspace/bionemo2/sub-packages
 
-# Apply patches with temporary fixes, before the modules are installed. (Use absolute path for patch filepath.)
-# FIXME(cspades) Remove the torch_dist checkpoint size patch when https://gitlab-master.nvidia.com/ADLR/megatron-lm/-/merge_requests/2604 is merged.
-COPY ./ci/scripts/*.patch /workspace/bionemo2/ci/scripts/
-RUN MEGATRON_DIR=./3rdparty/Megatron-LM && \
-patch -p1 -d $MEGATRON_DIR -i /workspace/bionemo2/ci/scripts/megatron-lm-mr2604-torch-dist-ckpt-size.patch && \
-rm ./ci/scripts/*.patch
-
 # Note, we need to mount the .git folder here so that setuptools-scm is able to fetch git tag for version.
 # Includes a hack to install tensorstore 0.1.45, which doesn't distribute a pypi wheel for python 3.12, and the metadata
 # in the source distribution doesn't match the expected pypi version.

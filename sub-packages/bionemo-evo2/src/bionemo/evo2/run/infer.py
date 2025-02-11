@@ -54,6 +54,7 @@ def parse_args():
     ap.add_argument("--top-k", type=int, default=0, help="Top K during sampling for generation.")
     ap.add_argument("--top-p", type=float, default=0.0, help="Top P during sampling for generation.")
     ap.add_argument("--max-new-tokens", type=int, default=1024, help="Maximum number of tokens to generate.")
+    ap.add_argument("--seed", type=int, default=None, help="Random seed for generation.")
     # compute args:
     ap.add_argument("--tensor-parallel-size", type=int, default=1, help="Order of tensor parallelism. Defaults to 1.")
     ap.add_argument(
@@ -93,6 +94,7 @@ def infer(
     context_parallel_size: int,
     output_file: Optional[str] = None,
     ckpt_format: CheckpointFormats = "torch_dist",
+    seed: Optional[int] = None,
 ):
     """Inference workflow for Evo2.
 
@@ -108,6 +110,7 @@ def infer(
         context_parallel_size (int): Order of context parallelism.
         output_file (str): Output file containing the generated text produced by the Evo2 model.
         ckpt_format (CheckpointFormats): Checkpoint format to use.
+        seed (int): Random seed for generation.
 
     Returns:
         None
@@ -148,6 +151,7 @@ def infer(
             num_tokens_to_generate=max_new_tokens,
         ),
         text_only=True,
+        random_seed=seed if seed is not None else None,
     )
 
     if torch.distributed.get_rank() == 0:
@@ -156,6 +160,8 @@ def infer(
         else:
             with open(output_file, "w") as f:
                 f.write(f"{results}\n")
+
+    return results
 
 
 if __name__ == "__main__":
@@ -173,4 +179,5 @@ if __name__ == "__main__":
         context_parallel_size=args.context_parallel_size,
         output_file=args.output_file,
         ckpt_format=args.ckpt_format,
+        seed=args.seed,
     )

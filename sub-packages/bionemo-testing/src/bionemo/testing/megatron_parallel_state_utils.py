@@ -72,9 +72,9 @@ def _teardown_apex_megatron_cuda():
     - sets the global variables related to model and data parallelism to None in Apex and Megatron:.
     - releases all unoccupied cached GPU memory currently held by the caching CUDA allocator, see torch.cuda.empty_cache
     """  # noqa: D205, D415
+    parallel_state.destroy_model_parallel()
     torch.cuda.empty_cache()
     _reset_microbatch_calculator()
-    parallel_state.destroy_model_parallel()
 
 
 def _initialize_distributed_parallel_state(

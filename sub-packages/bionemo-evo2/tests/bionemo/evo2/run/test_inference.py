@@ -19,7 +19,7 @@ from megatron.core.inference.common_inference_params import CommonInferenceParam
 from nemo.collections.llm import generate
 
 from bionemo.core.data.load import load
-from bionemo.testing.megatron_parallel_state_utils import _teardown_apex_megatron_cuda, clean_parallel_state_context
+from bionemo.testing.megatron_parallel_state_utils import clean_parallel_state_context
 
 
 RANDOM_SEED = 42
@@ -92,8 +92,6 @@ def test_infer_model_generates_expected_single_token_output():
 
         assert isinstance(results, list)
         assert results == ["T"]
-    _teardown_apex_megatron_cuda()
-    torch.cuda.empty_cache()
 
 
 # def test_infer_model_generates_expected_single_token_output_from_input_seq():
