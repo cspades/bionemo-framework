@@ -61,7 +61,7 @@ class Evo2PreprocessingConfig(BaseModel):
     force_uppercase: bool = False
     indexed_dataset_dtype: str = "uint8"
     # Tokenization Transforms
-    append_eod: bool = False
+    append_eod: bool = True
     enforce_sample_length: None | int = None
     ftfy: bool = False
     # NeMo Tokenizer Configuration
