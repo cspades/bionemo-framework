@@ -29,7 +29,10 @@ from nemo import lightning as nl
 from nemo.collections import llm
 from nemo.collections.llm.gpt.data import MockDataModule, PreTrainingDataModule
 from nemo.collections.llm.gpt.data.megatron.hyena.evo2_dataset import Evo2Dataset, Evo2DatasetPadEodLossMask
-from nemo.collections.llm.recipes.tp_overlap_configs.userbuffers import userbuffers_bf16_h100_h8192_tp4_mbs1_seqlen8192
+from nemo.collections.llm.recipes.tp_overlap_configs.userbuffers import (
+    userbuffers_bf16_h100_h8192_tp4_mbs1_seqlen8192,
+    userbuffers_fp8_h100_h8192_tp4_mbs1_seqlen8192,
+)
 from nemo.collections.nlp.modules.common.tokenizer_utils import get_nmt_tokenizer
 from nemo.lightning import NeMoLogger
 from nemo.lightning.pytorch import callbacks as nl_callbacks
@@ -126,6 +129,13 @@ def parse_args():
         "--no-aligned-megatron-ddp", action="store_true", default=False, help="Do not do aligned gradient updates etc."
     )
     parser.add_argument("--use-megatron-comm-overlap-llama3-8k", action="store_true", default=False)
+    parser.add_argument(
+        "--tp-comm-overlap-backend",
+        type=str,
+        choices=["nccl", "mpi", "gloo"],
+        default="nccl",
+        help="TP communication backend to use. Defaults to 'nccl'.",
+    )
     parser.add_argument("--align-param-gather", action="store_true", default=False)
     # parser.add_argument("--straggler-detection", action="store_true", default=False)
     parser.add_argument(
@@ -467,7 +477,10 @@ def main():
         callbacks.append(
             MegatronCommOverlapCallback(
                 tp_comm_overlap=evo2_config.tp_comm_overlap,
-                tp_comm_overlap_cfg=userbuffers_bf16_h100_h8192_tp4_mbs1_seqlen8192,
+                tp_comm_overlap_cfg=userbuffers_fp8_h100_h8192_tp4_mbs1_seqlen8192
+                if args.fp8
+                else userbuffers_bf16_h100_h8192_tp4_mbs1_seqlen8192,
+                tp_comm_bootstrap_backend=args.tp_comm_overlap_backend,
                 wgrad_deferral_limit=22,  # default from NeMo
                 overlap_param_gather_with_optimizer_step=False,  # Currently disabled due to an issue with checkpointing.
                 align_param_gather=args.align_param_gather,
@@ -578,7 +591,10 @@ def main():
             fp8="hybrid" if args.fp8 else None,
             fp8_amax_history_len=16 if args.fp8 else 1,
             fp8_amax_compute_algo="max" if args.fp8 else "most_recent",
-            fp8_wgrad=args.fp8_wgrad and args.fp8,  # faster and less accurate when set to True
+            fp8_wgrad=args.fp8
+            and (
+                args.fp8_wgrad or args.use_megatron_comm_overlap_llama3_8k
+            ),  # faster and less accurate when set to True, and MUST be True if using TP communication overlap
         ),
         val_check_interval=args.val_check_interval,
     )
