@@ -30,6 +30,7 @@ from megatron.core.transformer.enums import ModelType
 from megatron.core.transformer.transformer_block import TransformerBlock
 from megatron.core.transformer.transformer_config import TransformerConfig
 from megatron.core.transformer.utils import get_linear_layer
+from nemo.collections.nlp.parts.mixins.nlp_adapter_mixins import NLPAdapterModelMixin
 from torch import Tensor
 from torch.nn import functional as F
 from torch.optim import Optimizer
@@ -49,7 +50,7 @@ __all__: Sequence[str] = (
 )
 
 
-class ESM2Model(MegatronBioBertModel):
+class ESM2Model(MegatronBioBertModel, NLPAdapterModelMixin):
     """ESM2 Transformer language model."""
 
     def __init__(

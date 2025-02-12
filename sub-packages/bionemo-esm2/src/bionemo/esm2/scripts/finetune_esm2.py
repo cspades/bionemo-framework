@@ -570,7 +570,7 @@ def get_parser():
         "--num-steps",
         type=int,
         required=False,
-        default=500000,
+        default=5,
         help="Number of steps to use for training. Default is 500000.",
     )
     parser.add_argument(
@@ -584,7 +584,7 @@ def get_parser():
         "--val-check-interval",
         type=int,
         required=False,
-        default=10000,
+        default=5,
         help="Number of steps between validation. Default is 10000.",
     )
     parser.add_argument(
