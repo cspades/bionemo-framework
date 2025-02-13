@@ -18,8 +18,15 @@ from pathlib import Path
 
 import pytest
 
+from bionemo.core.data.load import load
 from bionemo.evo2.data.preprocess import Evo2Preprocessor
 from bionemo.evo2.utils.config import Evo2PreprocessingConfig
+
+
+@pytest.fixture
+def sample_data_path() -> Path:
+    data_path = load("evo2/sample-data-raw:1.0") / "mmseqs_results_rep_seq_distinct_sample_sequences.fasta"
+    return data_path
 
 
 @pytest.fixture
@@ -28,14 +35,10 @@ def output_prefix() -> str:
 
 
 @pytest.fixture
-def preprocessing_config(tmp_path: Path, output_prefix: str) -> Evo2PreprocessingConfig:
+def preprocessing_config(tmp_path: Path, output_prefix: str, sample_data_path: Path) -> Evo2PreprocessingConfig:
     """Creates a preprocessing configuration with test settings."""
-    # grab dir where test located
-    test_dir = Path(__file__).parent
-
-    # TODO (dorotat) move mmseqs_results_rep_seq_distinct_sample_sequences.fasta to PBSS and use load(...)
     config_dict = {
-        "datapaths": [str(test_dir / "test_datasets" / "mmseqs_results_rep_seq_distinct_sample_sequences.fasta")],
+        "datapaths": [str(sample_data_path)],
         "output_dir": str(tmp_path),
         "output_prefix": output_prefix,
         "train_split": 0.6,
