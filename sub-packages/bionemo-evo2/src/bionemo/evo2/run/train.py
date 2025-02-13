@@ -14,13 +14,11 @@
 # limitations under the License.
 
 import argparse
-from collections import defaultdict
 from dataclasses import asdict
 from typing import Type
 
 # import nvidia_resiliency_ext.ptl_resiliency as res_module
 import torch
-import yaml
 from lightning.pytorch.callbacks import LearningRateMonitor, RichModelSummary
 from lightning.pytorch.loggers import TensorBoardLogger, WandbLogger
 from megatron.core.distributed import DistributedDataParallelConfig
@@ -44,7 +42,7 @@ from nemo.lightning.pytorch.optim.megatron import MegatronOptimizerModule
 from nemo.lightning.pytorch.strategies.utils import RestoreConfig
 from nemo.utils.exp_manager import TimingCallback
 
-from bionemo.evo2.utils.config import Evo2BlendedDatasetConfig
+from bionemo.evo2.utils.config import parse_dataset_config
 from bionemo.llm.utils.datamodule_utils import infer_global_batch_size
 
 
@@ -78,6 +76,13 @@ def parse_args():
         action="store_true",
         help="Train with Mock data (for testing/debugging), either set this or provide a dataset config.",
     )
+
+    parser.add_argument(
+        "--dataset-dir",
+        type=str,
+        help="Absolute path to the dataset directory. Defaults to using the absolute or relative paths (dataset_prefix) specified in the dataset config YAML.",
+    )
+
     parser.add_argument("--num-nodes", type=int, default=1, help="Number of nodes to use for training, defaults to 1.")
     parser.add_argument("--devices", type=int, default=1, help="Number of devices to use for training, defaults to 1.")
     parser.add_argument("--seq-length", type=int, default=8192, help="Training sequence length")
@@ -154,13 +159,23 @@ def parse_args():
         help="Add bias to the output layer to enable learning a simple prior.",
     )
     parser.add_argument(
-        "--experiment-dir", type=str, default=None, help="Directory to write model checkpoints and results to."
+        "--experiment-dir",
+        type=str,
+        required=True,
+        help="Directory to write model checkpoints and results to.",
     )
     parser.add_argument(
         "--limit-val-batches",
         type=int,
         default=20,
         help="Number of validation steps",
+    )
+    parser.add_argument(
+        "--log-every-n-steps",
+        type=int,
+        default=1,
+        required=False,
+        help="Number of steps between logging. Default is 50.",
     )
     parser.add_argument(
         "--ckpt-dir",
@@ -299,44 +314,23 @@ def parse_args():
         help="If set, override the default value set in the config.",
     )
     parser.add_argument(
+        "--disable-checkpointing",
+        action="store_false",
+        default=True,
+        dest="create_checkpoint_callback",
+        help="Disable creating a ModelCheckpoint callback.",
+    )
+    parser.add_argument(
         "--clip-grad",
         type=float,
         default=1.0,
         help="Grad clip value. Note that when using DDP this may need to be inflated.",
     )
+
     recompute_group = parser.add_mutually_exclusive_group(required=False)
     recompute_group.add_argument("--no-activation-checkpointing", action="store_true", default=False)
     recompute_group.add_argument("--selective-activation-checkpointing", action="store_true", default=False)
     return parser.parse_args()
-
-
-def parse_dataset_config(dataset_config_path: str):
-    """Parse the blended training datasplit configuration and renormalize data split weights for training Hyena.
-
-    Args:
-        dataset_config_path (str): Path to the dataset configuration YAML file.
-
-    Returns:
-        defaultdict: A dictionary where keys are dataset splits and values are lists containing the normalized weight
-                     and dataset prefix for each split.
-    """
-    blended_dataset_config = defaultdict(list)
-    weight_sums = defaultdict(float)
-    with open(dataset_config_path, "r") as config_file:
-        dataset_config_batch = yaml.safe_load(config_file)
-        for dataset_config in dataset_config_batch:
-            # Validate.
-            config_model = Evo2BlendedDatasetConfig(**dataset_config)
-            # Integrate the weights for renormalization.
-            weight_sums[config_model.dataset_split] += abs(config_model.dataset_weight)
-        for dataset_config in dataset_config_batch:
-            # Validate.
-            config_model = Evo2BlendedDatasetConfig(**dataset_config)
-            # Add indexed dataset to split and associate with blended training weight.
-            blended_dataset_config[config_model.dataset_split].extend(
-                [config_model.dataset_weight / weight_sums[config_model.dataset_split], config_model.dataset_prefix]
-            )
-    return blended_dataset_config
 
 
 def main():
@@ -371,7 +365,7 @@ def main():
             tokenizer=tokenizer,
         )
     else:
-        blended_dataset_config = parse_dataset_config(args.dataset_config)
+        blended_dataset_config = parse_dataset_config(args.dataset_config, args.dataset_path)
         dataset_cls = Evo2DatasetPadEodLossMask if args.eod_pad_in_loss_mask else Evo2Dataset
         # Instantiate pre-training module.
         data = PreTrainingDataModule(
@@ -430,20 +424,22 @@ def main():
     model = llm.GPTModel(evo2_config, tokenizer=data.tokenizer)
 
     # Setup callbacks.
-    checkpoint_callback = ModelCheckpoint(
-        every_n_train_steps=args.val_check_interval,
-        dirpath=args.experiment_dir,
-        save_top_k=5,
-        always_save_context=True,
-        save_optim_on_train_end=True,
-        save_context_on_train_end=True,
-    )
     callbacks = [
-        checkpoint_callback,
         RichModelSummary(max_depth=4),
         LearningRateMonitor(),
         TimingCallback(),
     ]
+    if args.create_checkpoint_callback:
+        checkpoint_callback = ModelCheckpoint(
+            every_n_train_steps=args.val_check_interval,
+            dirpath=args.experiment_dir,
+            save_top_k=5,
+            always_save_context=True,
+            save_optim_on_train_end=True,
+            save_context_on_train_end=True,
+        )
+        callbacks.append(checkpoint_callback)
+
     if args.enable_preemption:
         callbacks.append(nl_callbacks.PreemptionCallback())
     if args.debug_ddp_parity_freq > 0:
@@ -580,7 +576,7 @@ def main():
         strategy=strategy,
         logger=loggers,
         callbacks=callbacks,
-        log_every_n_steps=1,
+        log_every_n_steps=args.log_every_n_steps,
         limit_val_batches=args.limit_val_batches,
         num_sanity_val_steps=0,
         use_distributed_sampler=False,
@@ -597,6 +593,7 @@ def main():
             ),  # faster and less accurate when set to True, and MUST be True if using TP communication overlap
         ),
         val_check_interval=args.val_check_interval,
+        enable_checkpointing=args.create_checkpoint_callback,
     )
 
     # Logger setup

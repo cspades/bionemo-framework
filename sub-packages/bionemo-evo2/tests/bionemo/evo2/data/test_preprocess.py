@@ -23,7 +23,12 @@ from bionemo.evo2.utils.config import Evo2PreprocessingConfig
 
 
 @pytest.fixture
-def preprocessing_config(tmp_path: Path) -> Evo2PreprocessingConfig:
+def output_prefix() -> str:
+    return "test_promoters_uint8_distinct"
+
+
+@pytest.fixture
+def preprocessing_config(tmp_path: Path, output_prefix: str) -> Evo2PreprocessingConfig:
     """Creates a preprocessing configuration with test settings."""
     # grab dir where test located
     test_dir = Path(__file__).parent
@@ -32,8 +37,10 @@ def preprocessing_config(tmp_path: Path) -> Evo2PreprocessingConfig:
     config_dict = {
         "datapaths": [str(test_dir / "test_datasets" / "mmseqs_results_rep_seq_distinct_sample_sequences.fasta")],
         "output_dir": str(tmp_path),
-        "output_prefix": "test_promoters_uint8_distinct",
-        "train_split": 1.0,
+        "output_prefix": output_prefix,
+        "train_split": 0.6,
+        "validation_split": 0.2,
+        "test_split": 0.2,
         "overwrite": True,
         "embed_reverse_complement": True,
         "random_reverse_complement": 0.0,
@@ -73,12 +80,17 @@ def test_preprocessor_creates_expected_files(
     preprocessor.preprocess_offline(preprocessing_config)
 
     # Check that all expected files exist
+    output_dir = Path(preprocessing_config.output_dir)
+    prefix = preprocessing_config.output_prefix
     expected_files = [
-        "test_promoters_uint8_distinct_byte-level_train.bin",
-        "test_promoters_uint8_distinct_byte-level_train.idx",
+        output_dir / Path(prefix + "_byte-level_" + split + suffix)
+        for suffix in [".bin", ".idx"]
+        for split in ["train", "val", "test"]
     ]
-
-    for filename in expected_files:
-        file_path = Path(preprocessing_config.output_dir) / filename
+    for file_path in expected_files:
         assert file_path.exists(), f"Expected file {file_path} was not created"
         assert file_path.stat().st_size > 0, f"File {file_path} is empty"
+
+    # Check that no unexpected files were created
+    all_files = [f for f in output_dir.iterdir() if f.is_file()]
+    assert set(all_files) == set(expected_files), "Unexpected files were created"
