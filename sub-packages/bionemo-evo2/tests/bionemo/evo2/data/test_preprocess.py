@@ -25,7 +25,8 @@ from bionemo.evo2.utils.config import Evo2PreprocessingConfig
 
 @pytest.fixture
 def sample_data_path() -> Path:
-    data_path = load("evo2/sample-data-raw:1.0") / "mmseqs_results_rep_seq_distinct_sample_sequences.fasta"
+    # TODO(@dorotat) replace source with ngc when artefacts are published
+    data_path = load("evo2/sample-data-raw:1.0", source="pbss")
     return data_path
 
 
