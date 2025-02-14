@@ -5,7 +5,7 @@
 #   https://gitlab-master.nvidia.com/dl/JoC/nemo-ci/-/blob/main/.gitlab-ci.yml
 #  We should keep versions in our container up to date to ensure that we get the latest tested perf improvements and
 #   training loss curves from NeMo.
-ARG BASE_IMAGE=nvcr.io/nvidia/pytorch:24.12-py3
+ARG BASE_IMAGE=nvcr.io/nvidia/pytorch:25.01-py3
 
 FROM rust:1.82.0 AS rust-env
 
@@ -56,11 +56,6 @@ RUN pip install hatchling   # needed to install nemo-run
 ARG NEMU_RUN_TAG=34259bd3e752fef94045a9a019e4aaf62bd11ce2
 RUN pip install nemo_run@git+https://github.com/NVIDIA/NeMo-Run.git@${NEMU_RUN_TAG}
 
-# TODO(@cye): This does not install corrently on PyTorch 24.12.
-# # Used for straggler detection in large runs.
-# ARG RESIL_COMMIT=97aad77609d2e25ed38ac5c99f0c13f93c48464e
-# RUN pip install --no-cache-dir "git+https://github.com/NVIDIA/nvidia-resiliency-ext.git@${RESIL_COMMIT}"
-
 RUN mkdir -p /workspace/bionemo2/
 
 WORKDIR /workspace
@@ -83,8 +78,8 @@ ENV UV_LINK_MODE=copy \
 # Install the bionemo-geometric requirements ahead of copying over the rest of the repo, so that we can cache their
 # installation. These involve building some torch extensions, so they can take a while to install.
 RUN --mount=type=bind,source=./sub-packages/bionemo-geometric/requirements.txt,target=/requirements-pyg.txt \
-    --mount=type=cache,target=/root/.cache \
-    uv pip install --no-build-isolation -r /requirements-pyg.txt
+  --mount=type=cache,target=/root/.cache \
+  uv pip install --no-build-isolation -r /requirements-pyg.txt
 
 COPY --from=rust-env /usr/local/cargo /usr/local/cargo
 COPY --from=rust-env /usr/local/rustup /usr/local/rustup

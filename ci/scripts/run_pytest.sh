@@ -87,16 +87,9 @@ PYTEST_OPTIONS=(
 [[ "$SKIP_SLOW" == true ]] && PYTEST_OPTIONS+=(-m "not slow")
 
 # Define test directories
-#TODO(dorotat): those are temporary changes to speed up testing, should be removed after the evo2-dev in on Github
-TEST_DIRS=(
-  ./sub-packages/bionemo-core
-  ./sub-packages/bionemo-evo2
-  ./sub-packages/bionemo-llm
-  ./sub-packages/bionemo-testing
-)
-
+TEST_DIRS=(./sub-packages/bionemo-*/)
 if [[ "$NO_NBVAL" != true && "$SKIP_DOCS" != true ]]; then
-    TEST_DIRS+=(docs/docs/user-guide/examples/bionemo-evo2/)
+    TEST_DIRS+=(docs/)
 fi
 
 echo "Test directories: ${TEST_DIRS[*]}"
@@ -104,13 +97,6 @@ echo "Test directories: ${TEST_DIRS[*]}"
 # Run tests with coverage
 for dir in "${TEST_DIRS[@]}"; do
     echo "Running pytest in $dir"
-    # TODO(dorotat) - remove this change, only helpful for evo2 dev branch
-    if [ ! -d "$dir" ]; then
-        echo "Directory $dir not found, skipping..."
-        continue
-    fi
-
-
     if ! pytest "${PYTEST_OPTIONS[@]}" --junitxml=$(basename $dir).junit.xml -o junit_family=legacy "$dir"; then
         error=true
     fi
