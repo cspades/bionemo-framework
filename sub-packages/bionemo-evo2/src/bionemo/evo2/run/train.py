@@ -17,6 +17,7 @@ import argparse
 from dataclasses import asdict
 from typing import Type
 
+# TODO add back support for slurm resilience.
 # import nvidia_resiliency_ext.ptl_resiliency as res_module
 import torch
 from lightning.pytorch.callbacks import LearningRateMonitor, RichModelSummary
@@ -26,6 +27,7 @@ from megatron.core.optimizer import OptimizerConfig
 from nemo import lightning as nl
 from nemo.collections import llm
 from nemo.collections.llm.gpt.data import MockDataModule, PreTrainingDataModule
+from nemo.collections.llm.gpt.data.megatron.hyena.config import parse_dataset_config
 from nemo.collections.llm.gpt.data.megatron.hyena.evo2_dataset import Evo2Dataset, Evo2DatasetPadEodLossMask
 from nemo.collections.llm.recipes.tp_overlap_configs.userbuffers import (
     userbuffers_bf16_h100_h8192_tp4_mbs1_seqlen8192,
@@ -42,7 +44,6 @@ from nemo.lightning.pytorch.optim.megatron import MegatronOptimizerModule
 from nemo.lightning.pytorch.strategies.utils import RestoreConfig
 from nemo.utils.exp_manager import TimingCallback
 
-from bionemo.evo2.utils.config import parse_dataset_config
 from bionemo.llm.utils.datamodule_utils import infer_global_batch_size
 
 
@@ -62,7 +63,10 @@ model_options: dict[str, Type[llm.HyenaConfig]] = {
 
 def parse_args():
     """Parse arguments for Evo2 model training."""
-    parser = argparse.ArgumentParser(description="Train a Hyena model using NeMo 2.0.")
+    parser = argparse.ArgumentParser(
+        description="Train a Hyena model using NeMo 2.0.",
+        formatter_class=argparse.ArgumentDefaultsHelpFormatter,
+    )
     data_group = parser.add_mutually_exclusive_group(required=True)
 
     data_group.add_argument(
@@ -175,7 +179,7 @@ def parse_args():
         type=int,
         default=1,
         required=False,
-        help="Number of steps between logging. Default is 50.",
+        help="Number of steps between logging.",
     )
     parser.add_argument(
         "--ckpt-dir",
@@ -196,7 +200,7 @@ def parse_args():
         help="Avaerage optimizer state in collective rather than dividing by dp size and summing.",
     )
     parser.add_argument("--seed", type=int, default=1234, help="Set random seed for training.")
-    parser.add_argument("--workers", type=int, default=0, help="Number of workers to use for data loading.")
+    parser.add_argument("--workers", type=int, default=8, help="Number of workers to use for data loading.")
     parser.add_argument(
         "--gc-interval",
         type=int,
@@ -219,7 +223,8 @@ def parse_args():
         type=str,
         choices=["torch_dist", "zarr"],
         default="torch_dist",
-        help="Specify checkpoint format to use. Defaults to 'torch_dist', as 'zarr' is deprecated.",
+        help="Specify checkpoint format to use. Defaults to 'torch_dist', as 'zarr' is deprecated. Only use if "
+        "resuming training from a zarr checkpoint.",
     )
     parser.add_argument(
         "--eod-pad-in-loss-mask",
@@ -326,7 +331,26 @@ def parse_args():
         default=1.0,
         help="Grad clip value. Note that when using DDP this may need to be inflated.",
     )
-
+    parser.add_argument(
+        "--seq-len-interpolation-factor",
+        type=float,
+        help="Adjusts the linear scaling of ROPE (Rotary Position Embedding) for context extension. "
+        "Set this factor relative to your base context length e.g., for an original context length of 8192 and "
+        "an extended context length of 524288, use 524288/8192 = 64.",
+    )
+    parser.add_argument(
+        "--overlap-param-gather",
+        action="store_true",
+        default=False,
+        help="Overlap the parameter gather with the optimizer step. This is currently disabled due to a NeMo bug "
+        "when using DDP. Making this an option defaulting to False is a temporary solution until the bug is fixed.",
+    )
+    parser.add_argument(
+        "--overlap-grad-reduce",
+        action="store_true",
+        default=False,
+        help="Overlap the gradient reduce with the optimizer step.",
+    )
     recompute_group = parser.add_mutually_exclusive_group(required=False)
     recompute_group.add_argument("--no-activation-checkpointing", action="store_true", default=False)
     recompute_group.add_argument("--selective-activation-checkpointing", action="store_true", default=False)
@@ -421,7 +445,7 @@ def main():
     evo2_config = model_options[args.model_size](**config_modifiers_init)
 
     # Instantiate model.
-    model = llm.GPTModel(evo2_config, tokenizer=data.tokenizer)
+    model = llm.HyenaModel(evo2_config, tokenizer=data.tokenizer)
 
     # Setup callbacks.
     callbacks = [
@@ -470,12 +494,15 @@ def main():
     #         )
     #     )
     if args.use_megatron_comm_overlap_llama3_8k:
+        # Pick the floating point appropriate config.
+        if args.fp8:
+            tp_comm_overlap_cfg = userbuffers_fp8_h100_h8192_tp4_mbs1_seqlen8192
+        else:
+            tp_comm_overlap_cfg = userbuffers_bf16_h100_h8192_tp4_mbs1_seqlen8192
         callbacks.append(
             MegatronCommOverlapCallback(
                 tp_comm_overlap=evo2_config.tp_comm_overlap,
-                tp_comm_overlap_cfg=userbuffers_fp8_h100_h8192_tp4_mbs1_seqlen8192
-                if args.fp8
-                else userbuffers_bf16_h100_h8192_tp4_mbs1_seqlen8192,
+                tp_comm_overlap_cfg=tp_comm_overlap_cfg,
                 tp_comm_bootstrap_backend=args.tp_comm_overlap_backend,
                 wgrad_deferral_limit=22,  # default from NeMo
                 overlap_param_gather_with_optimizer_step=False,  # Currently disabled due to an issue with checkpointing.
@@ -519,7 +546,7 @@ def main():
                 f"-GCLP{args.clip_grad}"
                 f"-LR{args.lr}-MINLR{args.min_lr}-WUSTEPS{args.warmup_steps}-WD{args.wd}"
                 f"-GRFP32{args.grad_reduce_in_fp32}-FP8WG{args.fp8_wgrad and args.fp8}"
-                f"-ALIGN{not args.no_aligned_megatron_ddp}"
+                f"-OGR{args.overlap_grad_reduce}-OPG{args.overlap_param_gather}"
                 f"-NODES{args.num_nodes}-FP8{args.fp8}"
             ),
             group=args.wandb_group,
@@ -537,23 +564,14 @@ def main():
     loggers.append(tb_logger)
 
     nemo_logger = NeMoLogger(log_dir=args.experiment_dir, **nemo_logger_kwargs)
-    if args.no_aligned_megatron_ddp:
-        ddp: str | DistributedDataParallelConfig = DistributedDataParallelConfig(
-            check_for_nan_in_grad=True,
-            grad_reduce_in_fp32=args.grad_reduce_in_fp32,
-            align_param_gather=args.align_param_gather,
-            average_in_collective=not args.no_average_in_collective,
-        )
-    else:
-        ddp = DistributedDataParallelConfig(
-            check_for_nan_in_grad=True,
-            grad_reduce_in_fp32=args.grad_reduce_in_fp32,
-            overlap_grad_reduce=True,
-            overlap_param_gather=True,
-            average_in_collective=not args.no_average_in_collective,
-            align_param_gather=args.align_param_gather,
-            use_distributed_optimizer=True,  # this should inherit from the optimizer config, but just in case...
-        )
+    ddp: DistributedDataParallelConfig = DistributedDataParallelConfig(
+        check_for_nan_in_grad=True,
+        overlap_grad_reduce=args.overlap_grad_reduce,
+        overlap_param_gather=args.overlap_param_gather,  # Verify that this works using
+        grad_reduce_in_fp32=args.grad_reduce_in_fp32,
+        align_param_gather=args.align_param_gather,
+        average_in_collective=not args.no_average_in_collective,
+    )
     # Initialize Megatron Strategy and Trainer.
     strategy = nl.MegatronStrategy(
         ddp=ddp,

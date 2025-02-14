@@ -65,7 +65,7 @@ def load_weights_sharded_inplace_nemo2_to_mcore(
 def test_golden_values_top_k_logits_and_cosine_similarity(seq_len: int):
     try:
         # TODO (dorotat) remove PBSS source once the model is available on NGC
-        evo2_7b_checkpoint_weights: Path = load("evo2/7b-8k-zarr:1.0", source="pbss") / "weights"
+        evo2_7b_checkpoint_weights: Path = load("evo2/7b-8k-zarr:1.1", source="pbss") / "weights"
         # TODO (dorotat) remove PBSS source once the model is available on NGC
         gold_standard_no_fp8 = load("evo2/7b-8k-nofp8-te-goldvalue-testdata:1.0", source="pbss")
     except ValueError as e:

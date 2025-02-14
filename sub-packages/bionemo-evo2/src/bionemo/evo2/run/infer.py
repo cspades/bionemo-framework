@@ -115,9 +115,16 @@ def infer(
     Returns:
         None
     """
+    model_parallel_size = tensor_parallel_size * pipeline_model_parallel_size * context_parallel_size
+    if model_parallel_size > torch.cuda.device_count():
+        raise ValueError(
+            f"Requested model parallel size {model_parallel_size} is greater than the "
+            f"number of available CUDA devices {torch.cuda.device_count()}"
+        )
     # Create PTL trainer.
     trainer = nl.Trainer(
         accelerator="gpu",
+        devices=model_parallel_size,
         strategy=nl.MegatronStrategy(
             tensor_model_parallel_size=tensor_parallel_size,
             pipeline_model_parallel_size=pipeline_model_parallel_size,

@@ -72,7 +72,7 @@ def test_infer_model_generates_expected_single_token_output():
     top_p = 0.0
     max_new_tokens = 1
     # TODO (dorotat) remove PBSS source once the model is available on NGC
-    checkpoint_path = load("evo2/7b-8k-zarr:1.0", source="pbss")
+    checkpoint_path = load("evo2/7b-8k-zarr:1.1", source="pbss")
 
     with clean_parallel_state_context():
         results = generate(
@@ -135,7 +135,7 @@ def test_infer_model_generates_expected_single_token_output():
 #     top_k = 0
 #     top_p = 0.0
 #     max_new_tokens = 1
-#     checkpoint_path = load("evo2/7b-8k-zarr:1.0", source="pbss")
+#     checkpoint_path = load("evo2/7b-8k-zarr:1.1", source="pbss")
 #     gold_standard_no_fp8 = load("evo2/7b-8k-nofp8-te-goldvalue-testdata:1.0")
 #     gold_standard_no_fp8_tensor = torch.load(gold_standard_no_fp8)
 #     gold_standard_no_fp8_tensor = gold_standard_no_fp8_tensor[0, -1]

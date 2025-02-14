@@ -32,7 +32,7 @@ def test_run_infer():
     top_p = 0.0
     max_new_tokens = 1
 
-    # generation args:
+    # Generation args.
     default_prompt = (
         "|d__Bacteria;"
         + "p__Pseudomonadota;"
@@ -44,7 +44,7 @@ def test_run_infer():
     )
 
     # TODO (dorotat) remove PBSS source once the model is available on NGC
-    checkpoint_path = load("evo2/7b-8k-zarr:1.0", source="pbss")
+    checkpoint_path = load("evo2/7b-8k-zarr:1.1", source="pbss")
 
     with clean_parallel_state_context():
         infer(

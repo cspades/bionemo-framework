@@ -1,11 +1,12 @@
-- tag: 7b-8k-zarr:1.0
+- tag: 7b-8k-zarr:1.1
   ngc: null
   ngc_registry: model
-  pbss: "s3://bionemo-ci/models/interleaved_hyena_7b_fix_shape.tar.gz"
-  sha256: 31261b3dce731e257f03b5f609306df1334cfc723a445cb3800c757a06263ebb # pragma: allowlist secret
+  pbss: "s3://bionemo-ci/models/interleaved_hyena_7b_fix_shape_v2.tar.gz"
+  sha256: e08d89a1841a6aa3796c772ffe84092f20ac0a11d1b6ef7b1966ebbd8253e17e # pragma: allowlist secret
   owner: John St John <jstjohn@nvidia.com>
   description: >
-    A 7b parameter evo2 model used in testing, zarr format
+    A 7b parameter evo2 model used in testing, zarr format. 1.1 is the same as 1.0 but the HyenaModel class names have
+    been updated to match the current version of the code in the checkpoint metadata.
 
 - tag: 7b-8k-nofp8-te-goldvalue-testdata:1.0
   ngc: null
