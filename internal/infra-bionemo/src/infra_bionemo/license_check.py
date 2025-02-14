@@ -44,7 +44,9 @@ __all__: Sequence[str] = (
     "main",
 )
 
-NVIDIA_COPYRIGHT: str = "# SPDX-FileCopyrightText: Copyright (c) 2024 NVIDIA CORPORATION & AFFILIATES. All rights reserved."
+NVIDIA_COPYRIGHT: str = (
+    "# SPDX-FileCopyrightText: Copyright (c) 2024 NVIDIA CORPORATION & AFFILIATES. All rights reserved."
+)
 APACHE_BLOCK: str = """
 # SPDX-License-Identifier: LicenseRef-Apache2
 #
@@ -138,12 +140,13 @@ def is_valid_python(pyfile_contents: str) -> Optional[SyntaxError]:
 
 def has_header(pyfile_contents: str, *, license_header: str = LICENSE_HEADER) -> bool:
     """Check if file has valid license header.
+
     First checks if file has multiple copyright lines - if so, validates structure only.
     If not, and custom license_header provided, does exact string match.
     Otherwise validates basic structure.
     """
-    lines = pyfile_contents.split('\n')
-    
+    lines = pyfile_contents.split("\n")
+
     # Count copyright lines at start of file
     copyright_count = 0
     for line in lines:
@@ -151,43 +154,43 @@ def has_header(pyfile_contents: str, *, license_header: str = LICENSE_HEADER) ->
             copyright_count += 1
         else:
             break
-            
+
     # If file has multiple copyrights, only validate structure
     if copyright_count > 1:
         # Must start with NVIDIA copyright
         if not lines or not lines[0].strip() == NVIDIA_COPYRIGHT:
             return False
-            
+
         # Find where Apache block starts
         apache_start = None
         for i, line in enumerate(lines):
             if line.strip().startswith("# SPDX-License-Identifier: LicenseRef-Apache2"):
                 apache_start = i
                 break
-                
+
         if apache_start is None:
             return False
-            
+
         # All lines between NVIDIA copyright and Apache block must be valid SPDX copyright lines
         for line in lines[1:apache_start]:
             if line.strip() and not line.strip().startswith("# SPDX-FileCopyrightText: Copyright"):
                 return False
-                
+
         # Check Apache block matches exactly
-        apache_lines = APACHE_BLOCK.split('\n')
+        apache_lines = APACHE_BLOCK.split("\n")
         if len(lines[apache_start:]) < len(apache_lines):
             return False
-            
-        for actual, expected in zip(lines[apache_start:apache_start + len(apache_lines)], apache_lines):
+
+        for actual, expected in zip(lines[apache_start : apache_start + len(apache_lines)], apache_lines):
             if actual.strip() != expected.strip():
                 return False
-                
+
         return True
-    
+
     # Otherwise, if custom header provided, use exact match
     if license_header != LICENSE_HEADER:
         return pyfile_contents.startswith(license_header)
-        
+
     # Otherwise do basic structure validation
     return lines[0].strip() == NVIDIA_COPYRIGHT and pyfile_contents.startswith(LICENSE_HEADER)
 
