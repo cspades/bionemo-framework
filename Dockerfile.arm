@@ -1,7 +1,13 @@
 # Base image with apex and transformer engine, but without NeMo or Megatron-LM.
-ARG BASE_IMAGE=nvcr.io/nvidia/pytorch:24.12-py3
+#  Note that the core NeMo docker container is defined here:
+#   https://gitlab-master.nvidia.com/dl/JoC/nemo-ci/-/blob/main/llm_train/Dockerfile.train
+#  with settings that get defined/injected from this config:
+#   https://gitlab-master.nvidia.com/dl/JoC/nemo-ci/-/blob/main/.gitlab-ci.yml
+#  We should keep versions in our container up to date to ensure that we get the latest tested perf improvements and
+#   training loss curves from NeMo.
+ARG BASE_IMAGE=nvcr.io/nvidia/pytorch:25.01-py3
 
-FROM rust:1.82.0 as rust-env
+FROM rust:1.82.0 AS rust-env
 
 RUN rustup set profile minimal && \
     rustup install 1.82.0 && \
@@ -10,62 +16,59 @@ RUN rustup set profile minimal && \
 
 FROM ${BASE_IMAGE} AS bionemo2-base
 
-# Install NeMo dependencies.
+# ARM ONLY (for cleanup after build stage):
 ENV WORKDIR=/build
 WORKDIR ${WORKDIR}
 
-ARG MAX_JOBS=4
-ENV MAX_JOBS=${MAX_JOBS}
-
-# See NeMo readme for the latest tested versions of these libraries
-ENV TORCH_CUDA_ARCH_LIST=9.0
-ARG APEX_COMMIT=810ffae374a2b9cb4b5c5e28eaeca7d7998fca0c
-RUN git clone https://github.com/NVIDIA/apex.git && \
-  cd apex && \
-  git checkout ${APEX_COMMIT} && \
-  pip install . -v --no-build-isolation --disable-pip-version-check --no-cache-dir \
-  --config-settings "--build-option=--cpp_ext --cuda_ext --fast_layer_norm --distributed_adam --deprecated_fused_adam --group_norm"
-
-# Transformer Engine pre-1.7.0. 1.7 standardizes the meaning of bits in the attention mask to match
-ARG TE_COMMIT=c27ee60ec746210bcea4ec33958dbbff06706506
-RUN git clone https://github.com/NVIDIA/TransformerEngine.git && \
-  cd TransformerEngine && \
-  git fetch origin ${TE_COMMIT} && \
-  git checkout FETCH_HEAD && \
-  git submodule init && git submodule update && \
-  NVTE_FRAMEWORK=pytorch NVTE_WITH_USERBUFFERS=1 MPI_HOME=/usr/local/mpi pip install .
-
 # Install core apt packages.
-RUN apt-get update \
-  && apt-get install -y \
+RUN --mount=type=cache,id=apt-cache,target=/var/cache/apt,sharing=locked \
+  --mount=type=cache,id=apt-lib,target=/var/lib/apt,sharing=locked \
+  <<EOF
+set -eo pipefail
+apt-get update -qy
+apt-get install -qyy \
   libsndfile1 \
   ffmpeg \
   git \
   curl \
-  cmake \
   pre-commit \
   sudo \
-  && rm -rf /var/lib/apt/lists/*
+  gnupg
+apt-get upgrade -qyy \
+  rsync
+rm -rf /tmp/* /var/tmp/*
+EOF
 
-RUN apt-get install -y gnupg
+# Reinstall TE to avoid debugpy bug in vscode: https://nvbugspro.nvidia.com/bug/5078830
+# Pull the latest TE version from https://github.com/NVIDIA/TransformerEngine/releases
+# Use the version that matches the pytorch base container.
+ARG TE_TAG=v1.13
+RUN NVTE_FRAMEWORK=pytorch NVTE_WITH_USERBUFFERS=1 MPI_HOME=/usr/local/mpi \
+  pip --disable-pip-version-check --no-cache-dir install \
+  git+https://github.com/NVIDIA/TransformerEngine.git@${TE_TAG}
 
 # Check the nemo dependency for causal conv1d and make sure this checkout
 # tag matches. If not, update the tag in the following line.
 RUN CAUSAL_CONV1D_FORCE_BUILD=TRUE pip --disable-pip-version-check --no-cache-dir install \
-  git+https://github.com/Dao-AILab/causal-conv1d.git@v1.2.0.post2
+  git+https://github.com/Dao-AILab/causal-conv1d.git@v1.2.2.post1
 
+# ARM ONLY: 
 # Build LLVM and triton
 # It's important to select a specific version of LLVM as per triton's README instructions, and
 # also important to constrain the build targets to the systems we care about or else there will
 # be many strange unlinked symbol issues. Here we assume this dockerfile is build on an aarch64
 # target (host), and build for NVIDIA GPUS (NVPTX). Unclear why, but we also need to build for
 # AMDGPUs to get triton to properly build or else there are linker issues.
+# Triton's version pin is located at https://github.com/pytorch/pytorch/blob/main/.ci/docker/ci_commit_pins/triton.txt
+# LLVM's version pin is located at https://github.com/triton-lang/triton/blob/main/cmake/llvm-hash.txt
 RUN git clone https://github.com/llvm/llvm-project.git && \
     pip install ninja && \
     cd llvm-project && \
     git fetch origin 10dc3a8e916d73291269e5e2b82dd22681489aa1 && \
     git checkout 10dc3a8e916d73291269e5e2b82dd22681489aa1 && \
     mkdir build && cd build && \
+    apt-get update -qy && \
+    apt-get install -qyy cmake && \
     cmake -G Ninja  -DCMAKE_BUILD_TYPE=Release -DLLVM_ENABLE_ASSERTIONS=ON -DLLVM_ENABLE_PROJECTS="mlir;llvm" -DLLVM_TARGETS_TO_BUILD="host;NVPTX;AMDGPU" ../llvm && \
     ninja && \
     export LLVM_BUILD_DIR=${WORKDIR}/llvm-project/build && \
@@ -73,8 +76,8 @@ RUN git clone https://github.com/llvm/llvm-project.git && \
     git clone https://github.com/triton-lang/triton.git && \
     pip install cmake wheel pybind11 && \
     cd triton && \
-    git fetch origin release/3.1.x && \
-    git checkout release/3.1.x && \
+    git fetch origin cf34004b8a67d290a962da166f5aa2fc66751326 && \
+    git checkout cf34004b8a67d290a962da166f5aa2fc66751326 && \
     LLVM_INCLUDE_DIRS=$LLVM_BUILD_DIR/include LLVM_LIBRARY_DIR=$LLVM_BUILD_DIR/lib LLVM_SYSPATH=$LLVM_BUILD_DIR pip install --verbose python/ && \
     cd ${WORKDIR} && \
     rm -rf llvm-project && \
@@ -82,7 +85,7 @@ RUN git clone https://github.com/llvm/llvm-project.git && \
 
 # Mamba dependancy installation
 RUN pip --disable-pip-version-check --no-cache-dir install \
-  git+https://github.com/state-spaces/mamba.git@v2.0.3
+  git+https://github.com/state-spaces/mamba.git@v2.2.2
 
 RUN pip install hatchling   # needed to install nemo-run
 ARG NEMO_RUN_TAG=34259bd3e752fef94045a9a019e4aaf62bd11ce2
@@ -108,22 +111,16 @@ ENV UV_LINK_MODE=copy \
   UV_COMPILE_BYTECODE=1 \
   UV_PYTHON_DOWNLOADS=never \
   UV_SYSTEM_PYTHON=true \
-  UV_NO_CACHE=1 \
   UV_BREAK_SYSTEM_PACKAGES=1
 
-# Install the bionemo-geomtric requirements ahead of copying over the rest of the repo, so that we can cache their
+# Install the bionemo-geometric requirements ahead of copying over the rest of the repo, so that we can cache their
 # installation. These involve building some torch extensions, so they can take a while to install.
 RUN --mount=type=bind,source=./sub-packages/bionemo-geometric/requirements.txt,target=/requirements-pyg.txt \
-  --mount=type=cache,id=uv-cache,target=/root/.cache,sharing=locked \
+  --mount=type=cache,target=/root/.cache \
   uv pip install --no-build-isolation -r /requirements-pyg.txt
 
 ENV WORKDIR=/workspace/bionemo2
 WORKDIR ${WORKDIR}
-
-# Install 3rd-party deps and bionemo submodules.
-COPY ./LICENSE /workspace/bionemo2/LICENSE
-COPY ./3rdparty /workspace/bionemo2/3rdparty
-COPY ./sub-packages /workspace/bionemo2/sub-packages
 
 COPY --from=rust-env /usr/local/cargo /usr/local/cargo
 COPY --from=rust-env /usr/local/rustup /usr/local/rustup
@@ -193,6 +190,13 @@ RUN git clone --single-branch --branch 1.15.0rc4 https://github.com/single-cell-
     pip install -v .
 
 WORKDIR /workspace/bionemo2
+
+# Install 3rd-party deps and bionemo submodules.
+COPY ./LICENSE /workspace/bionemo2/LICENSE
+COPY ./3rdparty /workspace/bionemo2/3rdparty
+COPY ./sub-packages /workspace/bionemo2/sub-packages
+
+# TODO: merge everything below
 # Note, we need to mount the .git folder here so that setuptools-scm is able to fetch git tag for version.
 # For some reason, we do not need to do the tensorstore verson package hack on arm64, while we do need this for x86 build.
 RUN --mount=type=bind,source=./.git,target=./.git \
