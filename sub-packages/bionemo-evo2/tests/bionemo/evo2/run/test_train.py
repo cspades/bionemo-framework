@@ -43,7 +43,7 @@ def test_train_evo2_runs(tmp_path, num_steps=5):
         "--model-size 7b_nv --num-layers 4 --hybrid-override-pattern SDH* "
         "--no-activation-checkpointing --add-bias-output "
         f"--max-steps {num_steps} --warmup-steps 1 --no-wandb "
-        "--seq-length 128 "
+        "--seq-length 128 --hidden-dropout 0.1 --attention-dropout 0.1 "
     )
 
     # Run the command in a subshell, using the temporary directory as the current working directory.
