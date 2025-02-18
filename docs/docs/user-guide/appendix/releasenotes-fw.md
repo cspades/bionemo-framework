@@ -1,5 +1,17 @@
 # Release Notes
 
+## BioNeMo Framework v2.4
+
+### New Features
+
+* Draft implementation of Evo2 including support for user-defined Hyena-based models
+* bionemo-moco v0.0.1 released for building diffusion-like generative models.
+
+### Updates & Improvements
+
+* ESM2 fine-tuning script with CLI (finetune_esm2) that supports sequence-level/token-level classification/regression using a CSV dataset.
+* [Brev.dev launchable fine-tuning tutorial for ESM2](https://nvidia.github.io/bionemo-framework/user-guide/examples/bionemo-esm2/finetune/)
+
 ## BioNeMo Framework v2.3
 
 ### New Features
