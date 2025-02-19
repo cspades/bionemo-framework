@@ -21,25 +21,22 @@ from pathlib import Path
 
 import pytest
 
-from bionemo.core.data.load import load
 from bionemo.evo2.data.preprocess import Evo2Preprocessor
 from bionemo.evo2.utils.config import Evo2PreprocessingConfig
+from bionemo.noodles.nvfaidx import NvFaidx
 
 
-@pytest.fixture
-def sample_data_path() -> Path:
-    # TODO(@dorotat) replace source with ngc when artefacts are published
-    data_path = load("evo2/sample-data-raw:1.0", source="pbss")
-    return data_path
+ALU_SEQUENCE: str = (
+    "GGCCGGGCGCGGTGGCTCACGCCTGTAATCCCAGCACTTTGGGAGGCCGAGGCGGGCGGATCACGAGGTC"
+    "aggagatcgagaccatcctggctaacacggtgaaaccccgtctctactaaaaatacaaaaaattagccgggc"
+    "GTGGTGGCGCGCGCCTGTAATCCCAGCTACTCGGGAGGCTGAGGCAGGAGAATGGCGTGAACCCGGGAGGCG"
+    "GAGCTTGCAGTGAGCCGAGATCGCGCCACTGCACTCCAGCCTGGGCGACAGAGCGAGACTCCGTCTCAAAAA"
+)
 
 
-@pytest.fixture
-def output_prefix() -> str:
-    return "test_promoters_uint8_distinct"
-
-
-@pytest.fixture
-def preprocessing_config(tmp_path: Path, output_prefix: str, sample_data_path: Path) -> Evo2PreprocessingConfig:
+def create_preprocessing_config(
+    tmp_path: Path, sample_data_path: Path, output_prefix: str = "test_alu_uint8_distinct"
+) -> Evo2PreprocessingConfig:
     """Creates a preprocessing configuration with test settings."""
     config_dict = {
         "datapaths": [str(sample_data_path)],
@@ -74,16 +71,61 @@ def preprocessing_config(tmp_path: Path, output_prefix: str, sample_data_path: P
     return Evo2PreprocessingConfig(**config_dict)
 
 
-@pytest.fixture
-def preprocessor(preprocessing_config: Evo2PreprocessingConfig) -> Evo2Preprocessor:
-    """Creates an Evo2Preprocessor instance with test configuration."""
-    return Evo2Preprocessor(preprocessing_config)
+def create_fasta_file(
+    fasta_file_path: Path,
+    num_sequences: int,
+    sequence_length: int,
+    repeating_dna_pattern: str = ALU_SEQUENCE,
+    max_line_length: int = 80,
+) -> Path:
+    """Creates a fasta file with the given number of sequences, sequence length, and repeating dna pattern. Each contig uses a shifted version of the repeating pattern."""
+    with open(fasta_file_path, "w") as f:
+        for i in range(num_sequences):
+            # get the repeating pattern shifted by i for this contig
+            repeat_pattern_for_contig = repeating_dna_pattern[i:] + repeating_dna_pattern[:i]
+            # repeat the pattern enough times to reach the desired sequence length
+            if sequence_length <= len(repeat_pattern_for_contig):
+                contig_output = repeat_pattern_for_contig[:sequence_length]
+            else:
+                # Calculate how many complete repeats we need
+                num_repeats = sequence_length // len(repeat_pattern_for_contig)
+                remainder = sequence_length % len(repeat_pattern_for_contig)
+                contig_output = repeat_pattern_for_contig * num_repeats + repeat_pattern_for_contig[:remainder]
+            # verify the length of the contig is as expected
+            assert len(contig_output) == sequence_length
+            # Fold the contig output into lines of max_line_length
+            contig_output = "\n".join(
+                contig_output[i : i + max_line_length] for i in range(0, sequence_length, max_line_length)
+            )
+            # write to the fasta file with the actual contig_output, not the repeating pattern
+            f.write(f">contig_{i}\n{contig_output}\n")
+    return fasta_file_path
 
 
-def test_preprocessor_creates_expected_files(
-    preprocessor: Evo2Preprocessor, preprocessing_config: Evo2PreprocessingConfig
+@pytest.mark.parametrize("target_sequence_length, num_sequences", [(123, 3), (1234, 2), (12345, 1)])
+def test_created_fasta_file_has_expected_length(
+    tmp_path: Path, num_sequences: int, target_sequence_length: int
 ) -> None:
+    fasta_file_path = tmp_path / "test.fasta"
+    create_fasta_file(fasta_file_path, num_sequences, target_sequence_length, repeating_dna_pattern=ALU_SEQUENCE)
+    assert fasta_file_path.stat().st_size > 0
+    idx = NvFaidx(fasta_file_path)
+    for i, (seq_name, sequence) in enumerate(sorted(idx.items())):
+        assert seq_name == f"contig_{i}"
+        assert len(sequence) == target_sequence_length
+        if i == 0:
+            assert ALU_SEQUENCE[:target_sequence_length] in sequence
+
+
+def test_preprocessor_creates_expected_files(tmp_path: Path) -> None:
     """Verifies that preprocessing creates all expected output files."""
+    test_fasta_file_path = create_fasta_file(tmp_path / "test.fasta", num_sequences=10, sequence_length=10000)
+    output_dir = tmp_path / "processed_data"
+    output_dir.mkdir(parents=True, exist_ok=True)
+    preprocessing_config = create_preprocessing_config(
+        tmp_path / "processed_data", test_fasta_file_path, output_prefix="test_alu_uint8_distinct"
+    )
+    preprocessor = Evo2Preprocessor(preprocessing_config)
     preprocessor.preprocess_offline(preprocessing_config)
 
     # Check that all expected files exist

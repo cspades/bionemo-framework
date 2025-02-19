@@ -22,12 +22,3 @@
     TCTTAGCGAAGGACCTCCCCTCTTGCTTGCGTATTGCCCCGCGAAATTTCTTTTCGGCGATGAACGATACAAAAAATTCTATCGAATGTTACTTCTATTCTCTGCCTCGTCTATGA
     CTTGGAGATTGGTCTATGTCGTTCGTTTTCTCGCGAGTTTCCAATATGTCCGTAGTATGTGAACGCTGGTATTCGTGAAGATAAATTATTGTTTTTACAATTTCTTTCAAAAATAT
     ATAATTTTAATTTATATAAT
-
-- tag: sample-data-raw:1.0
-  ngc: null
-  ngc_registry: resource
-  pbss: "s3://bionemo-ci/test_data/evo2/mmseqs_results_rep_seq_distinct_sample_sequences.fasta"
-  sha256: 9938a2234496366e57c136958e697550bb608ddf1427ba080eb51d1d331a744f  # pragma: allowlist secret
-  owner: John St John <jstjohn@nvidia.com>
-  description: >
-    Sample data for Evo2 preprocessing required by training.
