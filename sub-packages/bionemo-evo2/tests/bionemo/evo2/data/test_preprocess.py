@@ -19,19 +19,9 @@
 
 from pathlib import Path
 
-import pytest
-
 from bionemo.evo2.data.preprocess import Evo2Preprocessor
 from bionemo.evo2.utils.config import Evo2PreprocessingConfig
-from bionemo.noodles.nvfaidx import NvFaidx
-
-
-ALU_SEQUENCE: str = (
-    "GGCCGGGCGCGGTGGCTCACGCCTGTAATCCCAGCACTTTGGGAGGCCGAGGCGGGCGGATCACGAGGTC"
-    "aggagatcgagaccatcctggctaacacggtgaaaccccgtctctactaaaaatacaaaaaattagccgggc"
-    "GTGGTGGCGCGCGCCTGTAATCCCAGCTACTCGGGAGGCTGAGGCAGGAGAATGGCGTGAACCCGGGAGGCG"
-    "GAGCTTGCAGTGAGCCGAGATCGCGCCACTGCACTCCAGCCTGGGCGACAGAGCGAGACTCCGTCTCAAAAA"
-)
+from bionemo.testing.data.fasta import create_fasta_file
 
 
 def create_preprocessing_config(
@@ -69,52 +59,6 @@ def create_preprocessing_config(
         "nnn_filter": True,
     }
     return Evo2PreprocessingConfig(**config_dict)
-
-
-def create_fasta_file(
-    fasta_file_path: Path,
-    num_sequences: int,
-    sequence_length: int,
-    repeating_dna_pattern: str = ALU_SEQUENCE,
-    max_line_length: int = 80,
-) -> Path:
-    """Creates a fasta file with the given number of sequences, sequence length, and repeating dna pattern. Each contig uses a shifted version of the repeating pattern."""
-    with open(fasta_file_path, "w") as f:
-        for i in range(num_sequences):
-            # get the repeating pattern shifted by i for this contig
-            repeat_pattern_for_contig = repeating_dna_pattern[i:] + repeating_dna_pattern[:i]
-            # repeat the pattern enough times to reach the desired sequence length
-            if sequence_length <= len(repeat_pattern_for_contig):
-                contig_output = repeat_pattern_for_contig[:sequence_length]
-            else:
-                # Calculate how many complete repeats we need
-                num_repeats = sequence_length // len(repeat_pattern_for_contig)
-                remainder = sequence_length % len(repeat_pattern_for_contig)
-                contig_output = repeat_pattern_for_contig * num_repeats + repeat_pattern_for_contig[:remainder]
-            # verify the length of the contig is as expected
-            assert len(contig_output) == sequence_length
-            # Fold the contig output into lines of max_line_length
-            contig_output = "\n".join(
-                contig_output[i : i + max_line_length] for i in range(0, sequence_length, max_line_length)
-            )
-            # write to the fasta file with the actual contig_output, not the repeating pattern
-            f.write(f">contig_{i}\n{contig_output}\n")
-    return fasta_file_path
-
-
-@pytest.mark.parametrize("target_sequence_length, num_sequences", [(123, 3), (1234, 2), (12345, 1)])
-def test_created_fasta_file_has_expected_length(
-    tmp_path: Path, num_sequences: int, target_sequence_length: int
-) -> None:
-    fasta_file_path = tmp_path / "test.fasta"
-    create_fasta_file(fasta_file_path, num_sequences, target_sequence_length, repeating_dna_pattern=ALU_SEQUENCE)
-    assert fasta_file_path.stat().st_size > 0
-    idx = NvFaidx(fasta_file_path)
-    for i, (seq_name, sequence) in enumerate(sorted(idx.items())):
-        assert seq_name == f"contig_{i}"
-        assert len(sequence) == target_sequence_length
-        if i == 0:
-            assert ALU_SEQUENCE[:target_sequence_length] in sequence
 
 
 def test_preprocessor_creates_expected_files(tmp_path: Path) -> None:
