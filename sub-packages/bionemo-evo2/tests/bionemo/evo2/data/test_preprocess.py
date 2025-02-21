@@ -33,7 +33,7 @@ def create_preprocessing_config(
         "output_dir": str(tmp_path),
         "output_prefix": output_prefix,
         "train_split": 0.6,
-        "validation_split": 0.2,
+        "valid_split": 0.2,
         "test_split": 0.2,
         "overwrite": True,
         "embed_reverse_complement": True,
