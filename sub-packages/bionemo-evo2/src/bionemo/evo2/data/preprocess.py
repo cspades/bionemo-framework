@@ -206,7 +206,7 @@ class Evo2Preprocessor:
         with Evo2Preprocessor.preprocessing_context_manager(seed if seed is not None else None):
             return (
                 "|d__{};p__{};c__{};o__{};f__{};g__{};s__{}|".format(
-                    lineage.kingdom if random.random() >= dropout else None,
+                    lineage.domain if random.random() >= dropout else None,
                     lineage.phylum if random.random() >= dropout else None,
                     lineage.clazz if random.random() >= dropout else None,
                     lineage.order if random.random() >= dropout else None,

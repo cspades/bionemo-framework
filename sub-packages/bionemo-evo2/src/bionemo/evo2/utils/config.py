@@ -26,7 +26,7 @@ from pydantic import BaseModel
 class Evo2TaxonomyLineage(BaseModel):
     """Pydantic model class that defines the source lineage of a DNA sequence."""
 
-    kingdom: None | str = None
+    domain: None | str = None
     phylum: None | str = None
     clazz: None | str = None
     order: None | str = None
