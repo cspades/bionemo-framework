@@ -46,7 +46,7 @@ def load_weights_sharded_inplace_nemo2_to_mcore(
     model: MegatronModelType,
     distributed_checkpoint_dir: str | Path,
     skip_keys_with_these_prefixes: Set[str],
-    ckpt_format: Literal["zarr", "torch_dist"] = "zarr",
+    ckpt_format: Literal["zarr", "torch_dist"] = "torch_dist",
 ):
     logger.info("Start setting up state dict")
     sharded_state_dict = {
@@ -68,7 +68,7 @@ def load_weights_sharded_inplace_nemo2_to_mcore(
 def test_golden_values_top_k_logits_and_cosine_similarity(seq_len: int):
     try:
         # TODO (dorotat) remove PBSS source once the model is available on NGC
-        evo2_7b_checkpoint_weights: Path = load("evo2/7b-8k-zarr:1.1", source="pbss") / "weights"
+        evo2_7b_checkpoint_weights: Path = load("evo2/7b-8k:1.0", source="pbss") / "weights"
         # TODO (dorotat) remove PBSS source once the model is available on NGC
         gold_standard_no_fp8 = load("evo2/7b-8k-nofp8-te-goldvalue-testdata:1.0", source="pbss")
     except ValueError as e:
@@ -86,7 +86,7 @@ def test_golden_values_top_k_logits_and_cosine_similarity(seq_len: int):
         )
         raw_megatron_model = hyena_config.configure_model(tokenizer).eval().cuda()
         device = raw_megatron_model.parameters().__next__().device
-        load_weights_sharded_inplace_nemo2_to_mcore(raw_megatron_model, evo2_7b_checkpoint_weights, {}, "zarr")
+        load_weights_sharded_inplace_nemo2_to_mcore(raw_megatron_model, evo2_7b_checkpoint_weights, {}, "torch_dist")
         model = Float16Module(hyena_config, raw_megatron_model)
         input_seq = "GAAATTAGCGCGTCCGGAATGATACGAGGGGAAACGAAATTTTGAATTAATGGAGAAAAAAGACGAGAAACCTTAAGCAAAAAAATTTTAGCTTCGAATATTTATTAATTTCTGAGATGTTGTTAAACGATTTTCGATTCCAAGTTGTGCGCACGAACGTTATTGCAAATAAATGCTGCTTATTCGGATGTTTCCACGATCTTTGTTGCAATGGTAGTCGAGTACCCGATAACCCAATTTCGTTACATCGGCCTATCTGTAGAATATCCAATCTATGGTTCATAAAAAATCTGATCGTTTGTTTTTAAGAAATTAAACGCGTTAAATTGAACGAATTTCGAATACCGGTCTTAGCGAAGGACCTCCCCTCTTGCTTGCGTATTGCCCCGCGAAATTTCTTTTCGGCGATGAACGATACAAAAAATTCTATCGAATGTTACTTCTATTCTCTGCCTCGTCTATGACTTGGAGATTGGTCTATGTCGTTCGTTTTCTCGCGAGTTTCCAATATGTCCGTAGTATGTGAACGCTGGTATTCGTGAAGATAAATTATTGTTTTTACAATTTCTTTCAAAAATATATAATTTTAATTTATATAAT"
         input_ids = torch.tensor(tokenizer.text_to_ids(input_seq)).int().unsqueeze(0).to(device)

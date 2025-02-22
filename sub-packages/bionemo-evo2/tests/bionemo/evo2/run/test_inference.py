@@ -44,7 +44,7 @@ def test_infer_model_generates_expected_single_token_output():
         ckpt_load_optimizer=False,  # Needs to be false for a normal model checkpoint.
         ckpt_save_optimizer=False,
         ckpt_async_save=False,
-        save_ckpt_format="zarr",
+        save_ckpt_format="torch_dist",
         ckpt_load_strictness="log_all",
     )
     trainer = nl.Trainer(
@@ -75,7 +75,7 @@ def test_infer_model_generates_expected_single_token_output():
     top_p = 0.0
     max_new_tokens = 1
     # TODO (dorotat) remove PBSS source once the model is available on NGC
-    checkpoint_path = load("evo2/7b-8k-zarr:1.1", source="pbss")
+    checkpoint_path = load("evo2/7b-8k:1.0", source="pbss")
 
     with clean_parallel_state_context():
         results = generate(

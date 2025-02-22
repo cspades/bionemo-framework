@@ -157,3 +157,75 @@ As in `train_evo2`, `--ckpt-dir` points to the NeMo2 checkpoint directory for Ev
 ```
 [NeMo I 2025-01-06 17:22:22 infer:102] ['CTCTTCTGGTATTTGG']
 ```
+
+## Checkpoint conversion from hugging face to NeMo2
+The following conversion script should work on any savanna formatted arc evo2 checkpoint. Make sure you match up the
+model size with the checkpoint you are converting.
+The pyproject.toml also makes the conversion script available as a command line tool `evo2_convert_to_nemo2`, so you
+can try replacing:
+```bash
+python \
+  sub-packages/bionemo-evo2/src/bionemo/evo2/utils/checkpoint/convert_to_nemo.py \
+  ...
+```
+with:
+```bash
+evo2_convert_to_nemo2 \
+  ...
+```
+
+
+```bash
+python \
+  sub-packages/bionemo-evo2/src/bionemo/evo2/utils/checkpoint/convert_to_nemo.py \
+  --model-path hf://arcinstitute/savanna_evo2_1b_base \
+  --model-size 1b --output-dir nemo2_evo2_1b_8k
+```
+
+To create the checkpoint for distribution in NGC, first cd into the checkpiont directory:
+```bash
+cd nemo2_evo2_1b_8k
+```
+
+Then run the following command to make a tar of the full directory that gets unpacked into the current directory which
+our NGC loader expects:
+```bash
+tar -czvf ../nemo2_evo2_1b_8k.tar.gz .
+```
+
+Finally `sha256sum` the tar file to get the checksum:
+```bash
+sha256sum nemo2_evo2_1b_8k.tar.gz
+```
+
+Then register it into the loader for testing purposes by editing
+`sub-packages/bionemo-core/src/bionemo/core/data/resources/evo2.yaml`.
+
+### 7b-8k
+```bash
+python \
+  sub-packages/bionemo-evo2/src/bionemo/evo2/utils/checkpoint/convert_to_nemo.py \
+  --model-path hf://arcinstitute/savanna_evo2_7b_base \
+  --model-size 7b --output-dir nemo2_evo2_7b_8k
+```
+### 7b-1M
+```bash
+python \
+  sub-packages/bionemo-evo2/src/bionemo/evo2/utils/checkpoint/convert_to_nemo.py \
+  --model-path hf://arcinstitute/savanna_evo2_7b \
+  --model-size 7b_arc_longcontext --output-dir nemo2_evo2_7b_1m
+```
+### 40b-8k
+```bash
+python \
+  sub-packages/bionemo-evo2/src/bionemo/evo2/utils/checkpoint/convert_to_nemo.py \
+  --model-path hf://arcinstitute/savanna_evo2_40b_base \
+  --model-size 40b --output-dir nemo2_evo2_40b_8k
+```
+### 40b-1M
+```bash
+python \
+  sub-packages/bionemo-evo2/src/bionemo/evo2/utils/checkpoint/convert_to_nemo.py \
+  --model-path hf://arcinstitute/savanna_evo2_40b \
+  --model-size 40b_arc_longcontext --output-dir nemo2_evo2_40b_1m
+```
