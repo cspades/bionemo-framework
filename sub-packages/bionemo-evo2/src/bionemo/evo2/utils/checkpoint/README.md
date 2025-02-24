@@ -6,7 +6,7 @@ This library contains helper scripts for converting checkpoint formats for Evo2.
 
 To convert a single PyTorch or ZeRO-1 checkpoints (`.pt`) into NeMo2 format, run the following command:
 ```
-python sub-packages/bionemo-evo2/src/bionemo/evo2/utils/checkpoint/torch2nemo.py --model-path <CKPT_FILE> --output-dir <OUTPUT_DIR> --model-size <MODEL_SIZE> --ckpt-format <CONVERTED_CKPT_FORMAT>
+python sub-packages/bionemo-evo2/src/bionemo/evo2/utils/checkpoint/convert_to_nemo.py --model-path <CKPT_FILE> --output-dir <OUTPUT_DIR> --model-size <MODEL_SIZE> --ckpt-format <CONVERTED_CKPT_FORMAT>
 ```
 where `--model-size` can be set to `7b` or `40b` (or their `_arc_1m` variants with modified GLU dimensions) and `--ckpt-format` can be set to `torch_dist` or `zarr`.
 
@@ -36,7 +36,7 @@ interleaved_hyena_7b_fix_shape
 
 ## Converting ZeRO-1 MP{N} to ZeRO-1 MP1
 
-To convert sharded (MP>1) ZeRO-1 checkpoints to un-sharded (MP1) checkpoints (or any order of model parallelism) compatible with the `torch2nemo.py` conversion script, you can run the following command:
+To convert sharded (MP>1) ZeRO-1 checkpoints to un-sharded (MP1) checkpoints (or any order of model parallelism) compatible with the `convert_to_nemo.py` conversion script, you can run the following command:
 ```
 python sub-packages/bionemo-evo2/src/bionemo/evo2/utils/checkpoint/convert_checkpoint_model_parallel_evo2.py --source_dir <CKPT_DIR> --output_dir <OUTPUT_DIR> --mp_size <TARGET_MODEL_PARALLEL_SIZE>
 ```
