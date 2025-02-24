@@ -22,14 +22,20 @@ from bionemo.testing.data.fasta import ALU_SEQUENCE, create_fasta_file
 
 @pytest.mark.parametrize("target_sequence_length, num_sequences", [(123, 3), (1234, 2), (12345, 1)])
 def test_created_fasta_file_has_expected_length(
-    tmp_path: Path, num_sequences: int, target_sequence_length: int
+    tmp_path: Path,
+    target_sequence_length: int,
+    num_sequences: int,
 ) -> None:
     fasta_file_path = tmp_path / "test.fasta"
     create_fasta_file(fasta_file_path, num_sequences, target_sequence_length, repeating_dna_pattern=ALU_SEQUENCE)
     assert fasta_file_path.stat().st_size > 0
     idx = NvFaidx(fasta_file_path)
+    assert len(idx) == num_sequences
+    n_out = 0
     for i, (seq_name, sequence) in enumerate(sorted(idx.items())):
         assert seq_name == f"contig_{i}"
         assert len(sequence) == target_sequence_length
         if i == 0:
             assert ALU_SEQUENCE[:target_sequence_length] in sequence
+        n_out += 1
+    assert n_out == num_sequences
