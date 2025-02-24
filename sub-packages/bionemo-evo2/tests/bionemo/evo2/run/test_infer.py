@@ -47,7 +47,7 @@ def test_run_infer():
     )
 
     # TODO (dorotat) remove PBSS source once the model is available on NGC
-    checkpoint_path = load("evo2/7b-8k:1.0", source="pbss")
+    checkpoint_path = load("evo2/1b-8k:1.0", source="pbss")
 
     with clean_parallel_state_context():
         infer(

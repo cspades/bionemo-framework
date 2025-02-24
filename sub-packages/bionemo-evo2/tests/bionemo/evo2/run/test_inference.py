@@ -75,7 +75,7 @@ def test_infer_model_generates_expected_single_token_output():
     top_p = 0.0
     max_new_tokens = 1
     # TODO (dorotat) remove PBSS source once the model is available on NGC
-    checkpoint_path = load("evo2/7b-8k:1.0", source="pbss")
+    checkpoint_path = load("evo2/1b-8k:1.0", source="pbss")
 
     with clean_parallel_state_context():
         results = generate(
