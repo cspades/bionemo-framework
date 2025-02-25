@@ -339,6 +339,14 @@ class Evo2Preprocessor:
         Yields:
             tuple[dict, float]: Preprocessed sequence data and the time taken for preprocessing.
         """
+        # Track which splits have been assigned
+        split_assignments = {
+            "train": preproc_config.train_split > 0,
+            "val": preproc_config.valid_split > 0,
+            "test": preproc_config.test_split > 0,
+        }
+        splits_needed = {k for k, v in split_assignments.items() if v}
+
         # Instantiate multiprocessing pool. Use semaphore to limit the amount of sequences to read into memory.
         semaphore = Semaphore(preproc_config.preproc_concurrency + preproc_config.workers)
         if preproc_config.workers > 1:
@@ -359,10 +367,15 @@ class Evo2Preprocessor:
             for result, elapsed_time in preproc_tasks:
                 # Release semaphore for the task associated with the result.
                 semaphore.release()
-                # Randomly assign all sequences to train, validation, or test.
-                split = self._train_val_test_split(
-                    preproc_config.train_split, preproc_config.valid_split, preproc_config.test_split
-                )
+                # If we still need to ensure splits are assigned
+                if splits_needed:
+                    # Force assign to a needed split
+                    split = splits_needed.pop()
+                else:
+                    # Regular random assignment
+                    split = self._train_val_test_split(
+                        preproc_config.train_split, preproc_config.valid_split, preproc_config.test_split
+                    )
                 for sequence in result:
                     sequence["split"] = split
                     yield sequence, elapsed_time
@@ -456,6 +469,8 @@ def main():
         start = time.time()
         # Convert into Evo2PreprocessingConfig.
         evo2_preproc_config = Evo2PreprocessingConfig(**config)
+        if evo2_preproc_config.output_dir is not None:
+            evo2_preproc_config.output_dir.mkdir(parents=True, exist_ok=True)
         # Instantiate Evo2Preprocessor.
         evo2_preprocessor = Evo2Preprocessor(evo2_preproc_config)
         # Preprocess data specified in config.
