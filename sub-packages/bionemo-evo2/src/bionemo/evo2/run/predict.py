@@ -236,7 +236,7 @@ class PredictDataModule(LightningDataModule):
 
     def predict_dataloader(self):
         """Create a dataloader for prediction."""
-        return torch.utils.data.DataLoader(self.dataset, batch_size=self.batch_size, shuffle=False)
+        return torch.utils.data.DataLoader(self.dataset, batch_size=self.batch_size, num_workers=8, shuffle=False, drop_last=False)
 
 
 def predict(
@@ -273,6 +273,7 @@ def predict(
         accelerator="gpu",
         devices=model_parallel_size,
         strategy=nl.MegatronStrategy(
+            drop_last_batch=False,
             tensor_model_parallel_size=tensor_parallel_size,
             pipeline_model_parallel_size=pipeline_model_parallel_size,
             context_parallel_size=context_parallel_size,
@@ -283,8 +284,8 @@ def predict(
             save_ckpt_format=ckpt_format,
             ckpt_load_strictness="log_all",
             data_sampler=nl.MegatronDataSampler(
-                micro_batch_size=1,
-                global_batch_size=1,
+                micro_batch_size=batch_size,
+                global_batch_size=batch_size,
                 seq_len=8192,
                 output_log=False,  # this is needed for predict step to work
             ),
