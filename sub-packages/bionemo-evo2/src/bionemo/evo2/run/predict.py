@@ -77,21 +77,46 @@ def parse_args():
         default="torch_dist",
         help="Specify checkpoint format to use. Defaults to 'torch_dist', as 'zarr' is deprecated.",
     )
-
+    ap.add_argument("--output-log-prob-seqs", action="store_true", help="Output log probability of sequences. Defaults to False.")
+    ap.add_argument("--log-prob-collapse-option", choices=["sum", "mean"], default="mean", help="How to collapse the log probabilities across the sequence dimension.")
     return ap.parse_args()
 
 
 class HyenaPredictor(LightningPassthroughPredictionMixin, HyenaModel):
     """A predictor for the Hyena model. This adds in the predict step and the passthrough method."""
+    def __init__(self, *args, output_log_prob_seqs: bool = False, log_prob_collapse_option: Literal["sum", "mean"] = "mean", **kwargs):
+        super().__init__(*args, **kwargs)
+        self.output_log_prob_seqs = output_log_prob_seqs
+        self.log_prob_collapse_option = log_prob_collapse_option
+        self.reduce_fn = torch.sum
 
     def predict_step(self, batch, batch_idx: Optional[int] = None) -> Tensor:
         """Alias for forward_step, also log the pad mask since sequences may not all have the same length."""
         if len(batch) == 0:
             return
         forward_out = self.forward_step(batch)
-        if isinstance(forward_out, Tensor):
-            return {"token_logits": forward_out, "pad_mask": batch["loss_mask"], "seq_idx": batch["seq_idx"]}
-        return forward_out
+        if self.output_log_prob_seqs:
+            if isinstance(forward_out, Tensor):
+                softmax_logprobs = torch.log_softmax(forward_out, dim=-1)
+                softmax_logprobs = softmax_logprobs #[:, :-1]
+                input_ids = batch["tokens"] #[:, 1:]
+                assert softmax_logprobs.shape[1] == input_ids.shape[1]
+
+                logprobs = torch.gather(
+                    softmax_logprobs,       # Gather likelihoods...
+                    2,                      # along the vocab dimension...
+                    input_ids.unsqueeze(-1) # using the token ids to index.
+                ).squeeze(-1)
+                log_prob_seqs = self.reduce_fn(logprobs * batch["loss_mask"], dim=-1)
+                if self.log_prob_collapse_option == "mean":
+                    log_prob_seqs = log_prob_seqs / (batch["loss_mask"].sum(dim=-1) + 1e-8)
+                return {"log_probs_seqs": log_prob_seqs.cpu(), "seq_idx": batch["seq_idx"].cpu()}
+            else:
+                return forward_out
+        else:
+            if isinstance(forward_out, Tensor):
+                return {"token_logits": forward_out.cpu(), "pad_mask": batch["loss_mask"].cpu(), "seq_idx": batch["seq_idx"].cpu()}
+            return forward_out
 
 
 class SimpleFastaDataset(torch.utils.data.Dataset):
@@ -226,6 +251,8 @@ def predict(
     fp8: bool = False,
     work_dir: Path | None = None,
     batch_size: int = 1,
+    output_log_prob_seqs: bool = False,
+    log_prob_collapse_option: Literal["sum", "mean"] = "mean",
 ):
     """Inference workflow for Evo2.
 
@@ -299,7 +326,7 @@ def predict(
         ),
     )
     tokenizer = get_nmt_tokenizer("byte-level")
-    model = HyenaPredictor(config, tokenizer=tokenizer)
+    model = HyenaPredictor(config, tokenizer=tokenizer, output_log_prob_seqs=output_log_prob_seqs, log_prob_collapse_option=log_prob_collapse_option)
     resume.setup(trainer, model)  # this pulls weights from the starting checkpoint.
 
     dataset = SimpleFastaDataset(fasta_path, tokenizer)
@@ -324,6 +351,8 @@ def main():
         ckpt_format=args.ckpt_format,
         fp8=args.fp8,
         batch_size=args.batch_size,
+        output_log_prob_seqs=args.output_log_prob_seqs,
+        log_prob_collapse_option=args.log_prob_collapse_option,
     )
 
 
