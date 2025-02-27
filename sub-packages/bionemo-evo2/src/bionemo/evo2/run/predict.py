@@ -77,14 +77,29 @@ def parse_args():
         default="torch_dist",
         help="Specify checkpoint format to use. Defaults to 'torch_dist', as 'zarr' is deprecated.",
     )
-    ap.add_argument("--output-log-prob-seqs", action="store_true", help="Output log probability of sequences. Defaults to False.")
-    ap.add_argument("--log-prob-collapse-option", choices=["sum", "mean"], default="mean", help="How to collapse the log probabilities across the sequence dimension.")
+    ap.add_argument(
+        "--output-log-prob-seqs", action="store_true", help="Output log probability of sequences. Defaults to False."
+    )
+    ap.add_argument(
+        "--log-prob-collapse-option",
+        choices=["sum", "mean"],
+        default="mean",
+        help="How to collapse the log probabilities across the sequence dimension.",
+    )
     return ap.parse_args()
 
 
 class HyenaPredictor(LightningPassthroughPredictionMixin, HyenaModel):
     """A predictor for the Hyena model. This adds in the predict step and the passthrough method."""
-    def __init__(self, *args, output_log_prob_seqs: bool = False, log_prob_collapse_option: Literal["sum", "mean"] = "mean", **kwargs):
+
+    def __init__(
+        self,
+        *args,
+        output_log_prob_seqs: bool = False,
+        log_prob_collapse_option: Literal["sum", "mean"] = "mean",
+        **kwargs,
+    ):
+        """Initialize the predictor with our needs around computing log probabilities."""
         super().__init__(*args, **kwargs)
         self.output_log_prob_seqs = output_log_prob_seqs
         self.log_prob_collapse_option = log_prob_collapse_option
@@ -95,39 +110,43 @@ class HyenaPredictor(LightningPassthroughPredictionMixin, HyenaModel):
         if len(batch) == 0:
             return
         forward_out = self.forward_step(batch)
-        if self.output_log_prob_seqs:
-            if isinstance(forward_out, Tensor):
-                softmax_logprobs = torch.log_softmax(forward_out, dim=-1)
-                softmax_logprobs = softmax_logprobs[:, :-1]
-                input_ids = batch["tokens"][:, 1:]
-                assert softmax_logprobs.shape[1] == input_ids.shape[1]
-
-                logprobs = torch.gather(
-                    softmax_logprobs,       # Gather likelihoods...
-                    2,                      # along the vocab dimension...
-                    input_ids.unsqueeze(-1) # using the token ids to index.
-                ).squeeze(-1)
-                log_prob_seqs = self.reduce_fn(logprobs * batch["loss_mask"][:, 1:], dim=-1)
-                if self.log_prob_collapse_option == "mean":
-                    log_prob_seqs = log_prob_seqs / (batch["loss_mask"][:, 1:].sum(dim=-1) + 1e-8)
-                return {"log_probs_seqs": log_prob_seqs.cpu(), "seq_idx": batch["seq_idx"].cpu()}
-            else:
-                return forward_out
-        else:
-            if isinstance(forward_out, Tensor):
-                return {"token_logits": forward_out[:, :-1, :].cpu(), "pad_mask": batch["loss_mask"][:, 1:].cpu(), "seq_idx": batch["seq_idx"].cpu()}
+        if not isinstance(forward_out, Tensor):
             return forward_out
+        # Reminder: the model's predictions for input i land at output i+1. To get everything to align, we prepend the
+        # EOS token to the input sequences and take the outputs for all but the first token.
+        if self.output_log_prob_seqs:
+            softmax_logprobs = torch.log_softmax(forward_out, dim=-1)
+            softmax_logprobs = softmax_logprobs[:, :-1]
+            input_ids = batch["tokens"][:, 1:]
+            assert softmax_logprobs.shape[1] == input_ids.shape[1]
+
+            logprobs = torch.gather(
+                softmax_logprobs,  # Gather likelihoods...
+                2,  # along the vocab dimension...
+                input_ids.unsqueeze(-1),  # using the token ids to index.
+            ).squeeze(-1)
+            log_prob_seqs = self.reduce_fn(logprobs * batch["loss_mask"][:, 1:], dim=-1)
+            if self.log_prob_collapse_option == "mean":
+                log_prob_seqs = log_prob_seqs / (batch["loss_mask"][:, 1:].sum(dim=-1) + 1e-8)
+            return {"log_probs_seqs": log_prob_seqs.cpu(), "seq_idx": batch["seq_idx"].cpu()}
+        else:
+            return {
+                "token_logits": forward_out[:, :-1, :].cpu(),
+                "pad_mask": batch["loss_mask"][:, 1:].cpu(),
+                "seq_idx": batch["seq_idx"].cpu(),
+            }
 
 
 class SimpleFastaDataset(torch.utils.data.Dataset):
     """A simple dataset for Evo2 prediction."""
 
-    def __init__(self, fasta_path: Path, tokenizer):
+    def __init__(self, fasta_path: Path, tokenizer, prepend_bos: bool = True):
         """Initialize the dataset."""
         super().__init__()
         self.fasta = NvFaidx(fasta_path)
         self.seqids = list(self.fasta.keys())
         self.tokenizer = tokenizer
+        self.prepend_bos = prepend_bos  # needed for getting predictions for the requested set of tokens.
 
     def write_idx_map(self, output_dir: Path):
         """Write the index map to the output directory."""
@@ -141,12 +160,19 @@ class SimpleFastaDataset(torch.utils.data.Dataset):
     def __getitem__(self, idx: int) -> dict[str, torch.Tensor]:
         """Get an item from the dataset."""
         sequence = self.fasta[self.seqids[idx]].sequence().upper()
-        tokens: list[int] = [self.tokenizer.eos_id] + self.tokenizer.text_to_ids(sequence)
+        tokenized_seq = self.tokenizer.text_to_ids(sequence)
+        if self.prepend_bos:  # in pretraining we use EOS to start new sequences.
+            tokens: list[int] = [self.tokenizer.eos_id] + tokenized_seq
+        else:
+            tokens: list[int] = tokenized_seq
+        loss_mask = torch.ones_like(torch.tensor(tokens, dtype=torch.long), dtype=torch.long)
+        loss_mask[0] = 0  # mask the eos token which we use for causal offsetting. Later in predict we take the output
+        #  for the first [:-1] tokens which align with the sequence starting after the EOS.
         return {
             "tokens": torch.tensor(tokens, dtype=torch.long),
             "position_ids": torch.arange(len(tokens), dtype=torch.long),
             "seq_idx": torch.tensor(idx, dtype=torch.long),
-            "loss_mask": torch.ones_like(torch.tensor(tokens, dtype=torch.long), dtype=torch.long),
+            "loss_mask": loss_mask,
         }
 
 
@@ -236,7 +262,9 @@ class PredictDataModule(LightningDataModule):
 
     def predict_dataloader(self):
         """Create a dataloader for prediction."""
-        return torch.utils.data.DataLoader(self.dataset, batch_size=self.batch_size, num_workers=8, shuffle=False, drop_last=False)
+        return torch.utils.data.DataLoader(
+            self.dataset, batch_size=self.batch_size, num_workers=8, shuffle=False, drop_last=False
+        )
 
 
 def predict(
@@ -327,7 +355,12 @@ def predict(
         ),
     )
     tokenizer = get_nmt_tokenizer("byte-level")
-    model = HyenaPredictor(config, tokenizer=tokenizer, output_log_prob_seqs=output_log_prob_seqs, log_prob_collapse_option=log_prob_collapse_option)
+    model = HyenaPredictor(
+        config,
+        tokenizer=tokenizer,
+        output_log_prob_seqs=output_log_prob_seqs,
+        log_prob_collapse_option=log_prob_collapse_option,
+    )
     resume.setup(trainer, model)  # this pulls weights from the starting checkpoint.
 
     dataset = SimpleFastaDataset(fasta_path, tokenizer)
