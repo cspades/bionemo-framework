@@ -98,8 +98,8 @@ class HyenaPredictor(LightningPassthroughPredictionMixin, HyenaModel):
         if self.output_log_prob_seqs:
             if isinstance(forward_out, Tensor):
                 softmax_logprobs = torch.log_softmax(forward_out, dim=-1)
-                softmax_logprobs = softmax_logprobs #[:, :-1]
-                input_ids = batch["tokens"] #[:, 1:]
+                softmax_logprobs = softmax_logprobs[:, :-1]
+                input_ids = batch["tokens"][:, 1:]
                 assert softmax_logprobs.shape[1] == input_ids.shape[1]
 
                 logprobs = torch.gather(
@@ -107,15 +107,15 @@ class HyenaPredictor(LightningPassthroughPredictionMixin, HyenaModel):
                     2,                      # along the vocab dimension...
                     input_ids.unsqueeze(-1) # using the token ids to index.
                 ).squeeze(-1)
-                log_prob_seqs = self.reduce_fn(logprobs * batch["loss_mask"], dim=-1)
+                log_prob_seqs = self.reduce_fn(logprobs * batch["loss_mask"][:, 1:], dim=-1)
                 if self.log_prob_collapse_option == "mean":
-                    log_prob_seqs = log_prob_seqs / (batch["loss_mask"].sum(dim=-1) + 1e-8)
+                    log_prob_seqs = log_prob_seqs / (batch["loss_mask"][:, 1:].sum(dim=-1) + 1e-8)
                 return {"log_probs_seqs": log_prob_seqs.cpu(), "seq_idx": batch["seq_idx"].cpu()}
             else:
                 return forward_out
         else:
             if isinstance(forward_out, Tensor):
-                return {"token_logits": forward_out.cpu(), "pad_mask": batch["loss_mask"].cpu(), "seq_idx": batch["seq_idx"].cpu()}
+                return {"token_logits": forward_out[:, :-1, :].cpu(), "pad_mask": batch["loss_mask"][:, 1:].cpu(), "seq_idx": batch["seq_idx"].cpu()}
             return forward_out
 
 
@@ -141,7 +141,7 @@ class SimpleFastaDataset(torch.utils.data.Dataset):
     def __getitem__(self, idx: int) -> dict[str, torch.Tensor]:
         """Get an item from the dataset."""
         sequence = self.fasta[self.seqids[idx]].sequence().upper()
-        tokens: list[int] = self.tokenizer.text_to_ids(sequence)
+        tokens: list[int] = [self.tokenizer.eos_id] + self.tokenizer.text_to_ids(sequence)
         return {
             "tokens": torch.tensor(tokens, dtype=torch.long),
             "position_ids": torch.arange(len(tokens), dtype=torch.long),
