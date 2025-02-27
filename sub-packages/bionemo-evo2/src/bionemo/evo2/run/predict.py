@@ -162,7 +162,7 @@ class SimpleFastaDataset(torch.utils.data.Dataset):
         sequence = self.fasta[self.seqids[idx]].sequence().upper()
         tokenized_seq = self.tokenizer.text_to_ids(sequence)
         if self.prepend_bos:  # in pretraining we use EOS to start new sequences.
-            tokens: list[int] = [self.tokenizer.eos_id] + tokenized_seq
+            tokens: list[int] = [self.tokenizer.eod] + tokenized_seq
         else:
             tokens: list[int] = tokenized_seq
         loss_mask = torch.ones_like(torch.tensor(tokens, dtype=torch.long), dtype=torch.long)
