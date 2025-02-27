@@ -30,6 +30,7 @@ from nemo.collections.llm.gpt.model.base import get_batch_on_this_context_parall
 from nemo.collections.llm.gpt.model.hyena import HYENA_MODEL_OPTIONS, HyenaModel
 from nemo.collections.nlp.modules.common.tokenizer_utils import get_nmt_tokenizer
 from nemo.lightning import NeMoLogger
+from nemo.lightning.data import WrappedDataLoader
 from torch import Tensor
 
 from bionemo.llm.lightning import LightningPassthroughPredictionMixin
@@ -125,9 +126,9 @@ class HyenaPredictor(LightningPassthroughPredictionMixin, HyenaModel):
                 2,  # along the vocab dimension...
                 input_ids.unsqueeze(-1),  # using the token ids to index.
             ).squeeze(-1)
-            log_prob_seqs = self.reduce_fn(logprobs * batch["loss_mask"][:, 1:], dim=-1)
+            log_prob_seqs = self.reduce_fn(logprobs * batch["loss_mask"][:, 1:].float(), dim=-1)
             if self.log_prob_collapse_option == "mean":
-                log_prob_seqs = log_prob_seqs / (batch["loss_mask"][:, 1:].sum(dim=-1) + 1e-8)
+                log_prob_seqs = log_prob_seqs / (batch["loss_mask"][:, 1:].float().sum(dim=-1) + 1e-8)
             return {"log_probs_seqs": log_prob_seqs.cpu(), "seq_idx": batch["seq_idx"].cpu()}
         else:
             return {
@@ -166,8 +167,11 @@ class SimpleFastaDataset(torch.utils.data.Dataset):
         else:
             tokens: list[int] = tokenized_seq
         loss_mask = torch.ones_like(torch.tensor(tokens, dtype=torch.long), dtype=torch.long)
-        loss_mask[0] = 0  # mask the eos token which we use for causal offsetting. Later in predict we take the output
-        #  for the first [:-1] tokens which align with the sequence starting after the EOS.
+        if self.prepend_bos:
+            loss_mask[0] = (
+                0  # mask the eos token which we use for causal offsetting. Later in predict we take the output
+            )
+            #  for the first [:-1] tokens which align with the sequence starting after the EOS.
         return {
             "tokens": torch.tensor(tokens, dtype=torch.long),
             "position_ids": torch.arange(len(tokens), dtype=torch.long),
@@ -262,8 +266,14 @@ class PredictDataModule(LightningDataModule):
 
     def predict_dataloader(self):
         """Create a dataloader for prediction."""
-        return torch.utils.data.DataLoader(
-            self.dataset, batch_size=self.batch_size, num_workers=8, shuffle=False, drop_last=False
+        # need to use this to communicate that we are in predict mode and safe to not drop last batch
+        return WrappedDataLoader(
+            mode="predict",
+            dataset=self.dataset,
+            batch_size=self.batch_size,
+            num_workers=8,
+            shuffle=False,
+            drop_last=False,
         )
 
 
