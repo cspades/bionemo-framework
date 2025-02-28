@@ -47,6 +47,7 @@ def parse_args():
 
     ap.add_argument("--fasta", type=Path, required=True, help="Fasta path from which to generate logit predictions.")
     ap.add_argument("--ckpt-dir", type=Path, required=True, help="NeMo2 checkpoint directory for inference.")
+    ap.add_argument("--prepend-bos", action="store_true", help="Prepend BOS token to sequences. Defaults to False.")
     ap.add_argument("--tensor-parallel-size", type=int, default=1, help="Order of tensor parallelism. Defaults to 1.")
     ap.add_argument(
         "--pipeline-model-parallel-size", type=int, default=1, help="Order of pipeline parallelism. Defaults to 1."
@@ -104,7 +105,6 @@ class HyenaPredictor(LightningPassthroughPredictionMixin, HyenaModel):
         super().__init__(*args, **kwargs)
         self.output_log_prob_seqs = output_log_prob_seqs
         self.log_prob_collapse_option = log_prob_collapse_option
-        self.reduce_fn = torch.sum
 
     def predict_step(self, batch, batch_idx: Optional[int] = None) -> Tensor:
         """Alias for forward_step, also log the pad mask since sequences may not all have the same length."""
@@ -126,14 +126,15 @@ class HyenaPredictor(LightningPassthroughPredictionMixin, HyenaModel):
                 2,  # along the vocab dimension...
                 input_ids.unsqueeze(-1),  # using the token ids to index.
             ).squeeze(-1)
-            log_prob_seqs = self.reduce_fn(logprobs * batch["loss_mask"][:, 1:].float(), dim=-1)
+            log_prob_seqs = torch.sum(logprobs * batch["loss_mask"][:, 1:].float(), dim=-1)
             if self.log_prob_collapse_option == "mean":
                 log_prob_seqs = log_prob_seqs / (batch["loss_mask"][:, 1:].float().sum(dim=-1) + 1e-8)
             return {"log_probs_seqs": log_prob_seqs.cpu(), "seq_idx": batch["seq_idx"].cpu()}
         else:
+            # If the user wants to match back to logits, then they will need to do the offsetting logic themselves.
             return {
-                "token_logits": forward_out[:, :-1, :].cpu(),
-                "pad_mask": batch["loss_mask"][:, 1:].cpu(),
+                "token_logits": forward_out.cpu(),
+                "pad_mask": batch["loss_mask"].cpu(),
                 "seq_idx": batch["seq_idx"].cpu(),
             }
 
@@ -291,6 +292,7 @@ def predict(
     batch_size: int = 1,
     output_log_prob_seqs: bool = False,
     log_prob_collapse_option: Literal["sum", "mean"] = "mean",
+    prepend_bos: bool = False,
 ):
     """Inference workflow for Evo2.
 
@@ -348,7 +350,8 @@ def predict(
         ),
     )
     config = HYENA_MODEL_OPTIONS[model_size](
-        forward_step_fn=hyena_predict_forward_step, data_step_fn=hyena_predict_data_step
+        forward_step_fn=hyena_predict_forward_step,
+        data_step_fn=hyena_predict_data_step,  # , attention_backend=AttnBackend.fused,
     )
     trainer.strategy._setup_optimizers = False
 
@@ -362,6 +365,7 @@ def predict(
             path=str(ckpt_dir),  # NeMo expects a string path.
             load_model_state=True,
             load_optim_state=False,
+            load_artifacts=False,
         ),
     )
     tokenizer = get_nmt_tokenizer("byte-level")
@@ -373,9 +377,9 @@ def predict(
     )
     resume.setup(trainer, model)  # this pulls weights from the starting checkpoint.
 
-    dataset = SimpleFastaDataset(fasta_path, tokenizer)
+    dataset = SimpleFastaDataset(fasta_path, tokenizer, prepend_bos=prepend_bos)
     datamodule = PredictDataModule(dataset, batch_size=batch_size)
-    trainer.predict(model, datamodule.predict_dataloader())
+    trainer.predict(model, datamodule=datamodule)
     dataset.write_idx_map(
         output_dir
     )  # Finally write out the index map so we can match the predictions to the original sequences.
@@ -397,6 +401,7 @@ def main():
         batch_size=args.batch_size,
         output_log_prob_seqs=args.output_log_prob_seqs,
         log_prob_collapse_option=args.log_prob_collapse_option,
+        prepend_bos=args.prepend_bos,
     )
 
 
