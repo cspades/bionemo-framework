@@ -146,7 +146,7 @@ class SimpleFastaDataset(torch.utils.data.Dataset):
         """Initialize the dataset."""
         super().__init__()
         self.fasta = NvFaidx(fasta_path)
-        self.seqids = list(self.fasta.keys())
+        self.seqids = sorted(self.fasta.keys())
         self.tokenizer = tokenizer
         self.prepend_bos = prepend_bos  # needed for getting predictions for the requested set of tokens.
 
