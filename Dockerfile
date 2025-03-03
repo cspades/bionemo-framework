@@ -38,7 +38,8 @@ EOF
 # Check the nemo dependency for causal conv1d and make sure this checkout
 # tag matches. If not, update the tag in the following line.
 RUN CAUSAL_CONV1D_FORCE_BUILD=TRUE pip --disable-pip-version-check --no-cache-dir install \
-  git+https://github.com/Dao-AILab/causal-conv1d.git@v1.2.2.post1
+#  git+https://github.com/Dao-AILab/causal-conv1d.git@v1.2.2.post1
+  git+https://github.com/johnnynunez/causal-conv1d.git@3a5173a4183692f1994e24fe333e3c7a19239abc
 
 # Mamba dependancy installation
 RUN pip --disable-pip-version-check --no-cache-dir install \
