@@ -113,6 +113,31 @@ def _gather_along_cp_dim(input_, seq_dim: int = 1):
     return output
 
 
+def _collect_into_dim(input_: torch.Tensor, dim: int = -1):
+    """Gather tensors and concatinate along the last dimension, assuming the input shape is not split.
+
+    This is needed when there is no sequence parallelism but tensor parallelism is enabled along the last dimension.
+    """
+    world_size = parallel_state.get_tensor_model_parallel_world_size()
+    my_rank = parallel_state.get_tensor_model_parallel_rank()
+    # Bypass the function if we are using only 1 GPU.
+    if world_size == 1:
+        return input_
+    my_chunk_input = input_.chunk(world_size, dim=dim)[my_rank]
+    dim_size = list(my_chunk_input.size())
+    dim_size[0] = dim_size[0] * world_size
+    output = torch.empty(dim_size, dtype=my_chunk_input.dtype, device=torch.cuda.current_device())
+    # Gather all chunks into the 0th dimension of the output tensor.
+    torch.distributed.all_gather_into_tensor(
+        output, my_chunk_input.contiguous(), group=parallel_state.get_tensor_model_parallel_group()
+    )
+    # Split the output tensor back into the original chunks, now synchronized across GPUs that own each chunk.
+    tensor_list = output.chunk(world_size, dim=0)
+    output = torch.cat(tensor_list, dim=dim).contiguous()
+
+    return output
+
+
 class HyenaPredictor(LightningPassthroughPredictionMixin, HyenaModel):
     """A predictor for the Hyena model. This adds in the predict step and the passthrough method."""
 
@@ -137,9 +162,12 @@ class HyenaPredictor(LightningPassthroughPredictionMixin, HyenaModel):
             return forward_out
         # Reminder: the model's predictions for input i land at output i+1. To get everything to align, we prepend the
         # EOS token to the input sequences and take the outputs for all but the first token.
-        forward_out_tp_gathered = _gather_along_last_dim(forward_out)
+        if self.config.sequence_parallel:
+            forward_out_tp_gathered = _gather_along_last_dim(forward_out)
+        else:
+            forward_out_tp_gathered = _collect_into_dim(forward_out, dim=-1)
         forward_out_gathered = _gather_along_cp_dim(forward_out_tp_gathered)
-
+        assert self.tokenizer.vocab_size == forward_out_gathered.shape[-1]
         if self.output_log_prob_seqs:
             softmax_logprobs = torch.log_softmax(forward_out_gathered, dim=-1)
             softmax_logprobs = softmax_logprobs[:, :-1]
@@ -399,6 +427,7 @@ def predict(
         tokenizer=tokenizer,
         output_log_prob_seqs=output_log_prob_seqs,
         log_prob_collapse_option=log_prob_collapse_option,
+        sequence_parallel=tensor_parallel_size > 1,  # turn on by default for tensor parallelism
     )
     resume.setup(trainer, model)  # this pulls weights from the starting checkpoint.
 
