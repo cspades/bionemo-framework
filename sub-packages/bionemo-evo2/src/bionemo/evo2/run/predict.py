@@ -57,6 +57,13 @@ def parse_args():
     ap.add_argument(
         "--context-parallel-size", type=int, default=1, help="Order of context parallelism. Defaults to 1."
     )
+    ap.add_argument(
+        "--no-sequence-parallel",
+        action="store_true",
+        help="When using TP, skip sequence parallelism. Otherwise sequence parallelism is used whenever tensor "
+        "parallelism is used. sequence parallelism should save a small amount of GPU memory so it's on"
+        " by default.",
+    )
     ap.add_argument("--batch-size", type=int, default=1, help="Batch size for prediction. Defaults to 1.")
     ap.add_argument(
         "--model-size",
@@ -162,10 +169,9 @@ class HyenaPredictor(LightningPassthroughPredictionMixin, HyenaModel):
             return forward_out
         # Reminder: the model's predictions for input i land at output i+1. To get everything to align, we prepend the
         # EOS token to the input sequences and take the outputs for all but the first token.
-        if self.config.sequence_parallel:
-            forward_out_tp_gathered = _gather_along_last_dim(forward_out)
-        else:
-            forward_out_tp_gathered = _collect_into_dim(forward_out, dim=-1)
+        forward_out_tp_gathered = _gather_along_last_dim(forward_out)
+        # else:
+        #     forward_out_tp_gathered = _collect_into_dim(forward_out, dim=-1)
         forward_out_gathered = _gather_along_cp_dim(forward_out_tp_gathered)
         assert self.tokenizer.vocab_size == forward_out_gathered.shape[-1]
         if self.output_log_prob_seqs:
@@ -346,6 +352,7 @@ def predict(
     output_log_prob_seqs: bool = False,
     log_prob_collapse_option: Literal["sum", "mean"] = "mean",
     prepend_bos: bool = False,
+    no_sequence_parallel: bool = False,
 ):
     """Inference workflow for Evo2.
 
@@ -354,6 +361,7 @@ def predict(
     """
     if work_dir is None:
         work_dir = Path(tempfile.mkdtemp())
+    sequence_parallel = tensor_parallel_size > 1 and not no_sequence_parallel
     output_dir.mkdir(parents=True, exist_ok=True)  # Make sure the output directory exists, files will be written here.
     model_parallel_size = tensor_parallel_size * pipeline_model_parallel_size * context_parallel_size
     if model_parallel_size > torch.cuda.device_count():
@@ -374,6 +382,7 @@ def predict(
             ckpt_load_optimizer=False,  # Needs to be false for a normal model checkpoint.
             ckpt_save_optimizer=False,
             ckpt_async_save=False,
+            sequence_parallel=tensor_parallel_size > 1 and sequence_parallel,
             save_ckpt_format=ckpt_format,
             ckpt_load_strictness="log_all",
             data_sampler=nl.MegatronDataSampler(
@@ -405,6 +414,7 @@ def predict(
     config = HYENA_MODEL_OPTIONS[model_size](
         forward_step_fn=hyena_predict_forward_step,
         data_step_fn=hyena_predict_data_step,  # , attention_backend=AttnBackend.fused,
+        distribute_saved_activations=False if sequence_parallel and tensor_parallel_size > 1 else True,
     )
     trainer.strategy._setup_optimizers = False
 
@@ -427,7 +437,6 @@ def predict(
         tokenizer=tokenizer,
         output_log_prob_seqs=output_log_prob_seqs,
         log_prob_collapse_option=log_prob_collapse_option,
-        sequence_parallel=tensor_parallel_size > 1,  # turn on by default for tensor parallelism
     )
     resume.setup(trainer, model)  # this pulls weights from the starting checkpoint.
 
@@ -456,6 +465,7 @@ def main():
         output_log_prob_seqs=args.output_log_prob_seqs,
         log_prob_collapse_option=args.log_prob_collapse_option,
         prepend_bos=args.prepend_bos,
+        no_sequence_parallel=args.no_sequence_parallel,
     )
 
 
