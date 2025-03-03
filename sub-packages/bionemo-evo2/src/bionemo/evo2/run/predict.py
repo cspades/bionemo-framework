@@ -26,6 +26,8 @@ from typing import Literal, Optional
 import nemo.lightning as nl
 import torch
 from lightning.pytorch import LightningDataModule
+from megatron.core import parallel_state
+from megatron.core.tensor_parallel.mappings import _gather_along_last_dim
 from nemo.collections.llm.gpt.model.base import get_batch_on_this_context_parallel_rank, get_packed_seq_params
 from nemo.collections.llm.gpt.model.hyena import HYENA_MODEL_OPTIONS, HyenaModel
 from nemo.collections.nlp.modules.common.tokenizer_utils import get_nmt_tokenizer
@@ -91,6 +93,26 @@ def parse_args():
     return ap.parse_args()
 
 
+def _gather_along_cp_dim(input_, seq_dim: int = 1):
+    """Gather tensors and concatinate along the last dimension."""
+    world_size = parallel_state.get_context_parallel_world_size()
+    # Bypass the function if we are using only 1 GPU.
+    if world_size == 1:
+        return input_
+
+    dim_size = list(input_.size())
+    dim_size[0] = dim_size[0] * world_size
+
+    output = torch.empty(dim_size, dtype=input_.dtype, device=torch.cuda.current_device())
+    torch.distributed.all_gather_into_tensor(
+        output, input_.contiguous(), group=parallel_state.get_tensor_model_parallel_group()
+    )
+    tensor_list = output.chunk(world_size, dim=0)
+    output = torch.cat(tensor_list, dim=seq_dim).contiguous()
+
+    return output
+
+
 class HyenaPredictor(LightningPassthroughPredictionMixin, HyenaModel):
     """A predictor for the Hyena model. This adds in the predict step and the passthrough method."""
 
@@ -115,8 +137,11 @@ class HyenaPredictor(LightningPassthroughPredictionMixin, HyenaModel):
             return forward_out
         # Reminder: the model's predictions for input i land at output i+1. To get everything to align, we prepend the
         # EOS token to the input sequences and take the outputs for all but the first token.
+        forward_out_tp_gathered = _gather_along_last_dim(forward_out)
+        forward_out_gathered = _gather_along_cp_dim(forward_out_tp_gathered)
+
         if self.output_log_prob_seqs:
-            softmax_logprobs = torch.log_softmax(forward_out, dim=-1)
+            softmax_logprobs = torch.log_softmax(forward_out_gathered, dim=-1)
             softmax_logprobs = softmax_logprobs[:, :-1]
             input_ids = batch["tokens"][:, 1:]
             assert softmax_logprobs.shape[1] == input_ids.shape[1]
@@ -133,7 +158,7 @@ class HyenaPredictor(LightningPassthroughPredictionMixin, HyenaModel):
         else:
             # If the user wants to match back to logits, then they will need to do the offsetting logic themselves.
             return {
-                "token_logits": forward_out.cpu(),
+                "token_logits": forward_out_gathered.cpu(),
                 "pad_mask": batch["loss_mask"].cpu(),
                 "seq_idx": batch["seq_idx"].cpu(),
             }
