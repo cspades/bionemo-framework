@@ -94,7 +94,7 @@ def parse_args():
 
 
 def _gather_along_cp_dim(input_, seq_dim: int = 1):
-    """Gather tensors and concatinate along the last dimension."""
+    """Gather tensors and concatenate along the last dimension."""
     world_size = parallel_state.get_context_parallel_world_size()
     # Bypass the function if we are using only 1 GPU.
     if world_size == 1:
@@ -114,7 +114,7 @@ def _gather_along_cp_dim(input_, seq_dim: int = 1):
 
 
 def _collect_into_dim(input_: torch.Tensor, dim: int = -1):
-    """Gather tensors and concatinate along the last dimension, assuming the input shape is not split.
+    """Gather tensors and concatenate along the last dimension, assuming the input shape is not split.
 
     This is needed when there is no sequence parallelism but tensor parallelism is enabled along the last dimension.
     """
