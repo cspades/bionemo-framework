@@ -31,6 +31,8 @@ class MegatronDataModule(pl.LightningDataModule):
     def update_init_global_step(self):
         """Please always call this when you get a new dataloader... if you forget, your resumption will not work."""
         self.init_global_step = self.trainer.global_step  # Update the init_global_step whenever we re-init training
+
+        # NOTE (SKH): No where is the data_sampler attribute defined or enforced. This pre-req should be clear in code.
         self.data_sampler.init_global_step = (
             self.init_global_step
         )  # Update the init_global_step whenever we re-init training

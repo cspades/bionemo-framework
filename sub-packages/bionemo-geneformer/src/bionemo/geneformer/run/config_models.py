@@ -23,6 +23,7 @@ from tokenizers import Tokenizer
 
 from bionemo.geneformer.api import GeneformerConfig
 from bionemo.geneformer.data.singlecell.datamodule import SingleCellDataModule
+from bionemo.geneformer.data.singlecell.mock_dataset import FixedLengthDataModule
 from bionemo.geneformer.data.singlecell.preprocess import GeneformerPreprocess
 from bionemo.geneformer.model.finetune_token_regressor import FineTuneSeqLenBioBertConfig
 from bionemo.llm.run.config_models import (
@@ -39,6 +40,22 @@ class GeneformerDataArtifacts:
 
     tokenizer: Tokenizer
     median_dict: dict
+
+
+class FixedLengthDataConfig(DataConfig[FixedLengthDataModule]):
+    # They all get these
+    micro_batch_size: int = 8
+    result_dir: str | pathlib.Path = "./results"
+    num_dataset_workers: int = 0
+    seq_length: int = 128
+
+    def construct_data_module(self, global_batch_size: int) -> FixedLengthDataModule:
+        return FixedLengthDataModule(
+            seq_length=self.seq_length,
+            micro_batch_size=self.micro_batch_size,
+            global_batch_size=global_batch_size,
+            num_workers=self.num_dataset_workers,
+        )
 
 
 class GeneformerPretrainingDataConfig(DataConfig[SingleCellDataModule]):
