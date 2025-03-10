@@ -110,7 +110,7 @@ def setup_nemo_lightning_logger(
         ckpt=ckpt_callback,
         use_datetime_version=False,
         version="dev",
-        **kwargs,
+        update_logger_directory=False**kwargs,
     )
     # Needed so that the trainer can find an output directory for the profiler
     logger.save_dir = save_dir
