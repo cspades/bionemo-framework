@@ -483,6 +483,12 @@ def get_parser():
         help="Number of steps for learning rate scheduler. Will use --num-steps if not given. Default is None.",
     )
     parser.add_argument(
+        "--create-tflops-callback",
+        action="store_true",
+        default=False,
+        help="Enable tflops calculation callback for Hyena / Evo2. Defaults to False.",
+    )
+    parser.add_argument(
         "--create-tensorboard-logger", action="store_true", default=False, help="Create a tensorboard logger."
     )
     # FIXME (@skothenhill) figure out how checkpointing and resumption should work with the new nemo trainer

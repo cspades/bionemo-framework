@@ -46,7 +46,7 @@ class WandbConfig(BaseModel):
 
     entity: str | None  # The team posting this run (default: your username or your default team)
     project: str  # The name of the project to which this run will belong.
-    name: str | None  # Display name for the run. By default it is set by NeMoLogger to experiment name
+    name: str | None = None  # Display name for the run. By default, it is set by NeMoLogger to experiment name
     # save_dir: #Path where data is saved. "This is handled by NeMoLogger"
     tags: List[str] | None  # Tags associated with this run.
     group: str | None  # A unique string shared by all runs in a given group.
@@ -110,7 +110,8 @@ def setup_nemo_lightning_logger(
         ckpt=ckpt_callback,
         use_datetime_version=False,
         version="dev",
-        update_logger_directory=False**kwargs,
+        update_logger_directory=False,
+        **kwargs,
     )
     # Needed so that the trainer can find an output directory for the profiler
     logger.save_dir = save_dir
