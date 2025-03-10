@@ -169,6 +169,8 @@ def parse_args(args: Optional[List[str]] = None) -> argparse.Namespace:
         required=True,
         help="Directory to write model checkpoints and results to.",
     )
+    parser.add_argument("--experiment-name", type=str, required=False, default="esm2", help="Name of the experiment.")
+
     parser.add_argument(
         "--limit-val-batches",
         type=int,
@@ -261,7 +263,7 @@ def parse_args(args: Optional[List[str]] = None) -> argparse.Namespace:
         "--num-layers", type=int, help="If set, override the number of layers specified in the requested config."
     )
     parser.add_argument(
-        "--tflops-callback",
+        "--create-tflops-callback",
         action="store_true",
         default=False,
         help="Enable tflops calculation callback for Hyena / Evo2. Defaults to False.",
@@ -485,7 +487,7 @@ def train(args: argparse.Namespace):
         callbacks.append(nl_callbacks.DdpParityChecker(interval=args.debug_ddp_parity_freq))
     if args.log_parameters_and_shapes:
         callbacks.append(nl_callbacks.ParameterDebugger())
-    if args.tflops_callback:
+    if args.create_tflops_callback:
         # Add callback that logs the tera-FLOPS per second per GPU during training.
         flop_meas_callback = FLOPsMeasurementCallback(
             evo2_config,
@@ -542,12 +544,34 @@ def train(args: argparse.Namespace):
             )
         )
 
+    wandb_run_name = (
+        f"evo2-size-{args.model_size}-TP{args.tensor_parallel_size}-"
+        f"PP{args.pipeline_model_parallel_size}-CP{args.context_parallel_size}"
+        f"-GBS{global_batch_size}-MBS{args.micro_batch_size}-SkipLossRenorm{args.no_renormalize_loss}"
+        f"-NOAC{args.no_activation_checkpointing}-SELAC{args.selective_activation_checkpointing}"
+        f"-ACRNL{evo2_config.recompute_num_layers}"
+        f"-PAT{evo2_config.hybrid_override_pattern}"
+        f"-F32R{evo2_config.fp32_residual_connection}"
+        f"-FCE{evo2_config.cross_entropy_loss_fusion}"
+        f"-AIC{not args.no_average_in_collective}"
+        f"-PEOD{args.eod_pad_in_loss_mask}"
+        f"-BO{args.add_bias_output}"
+        f"-GCLP{args.clip_grad}"
+        f"-HDO{args.hidden_dropout}"
+        f"-ADO{args.attention_dropout}"
+        f"-LR{args.lr}-MINLR{args.min_lr}-WUSTEPS{args.warmup_steps}-WD{args.wd}"
+        f"-GRFP32{args.grad_reduce_in_fp32}-FP8WG{args.fp8_wgrad and args.fp8}"
+        f"-OGR{args.overlap_grad_reduce}-OPG{args.overlap_param_gather}"
+        f"-NODES{args.num_nodes}-FP8{args.fp8}"
+    )
+
     wandb_config: Optional[WandbConfig] = (
         None
         if args.wandb_project is None
         else WandbConfig(
             offline=args.wandb_offline,
             project=args.wandb_project,
+            name=wandb_run_name,
             entity=args.wandb_entity,
             tags=args.wandb_tags,
             group=args.wandb_group,
@@ -557,35 +581,8 @@ def train(args: argparse.Namespace):
             log_model=args.wandb_log_model,
         )
     )
-
-    experiment_name = (
-        args.experiment_name
-        if args.experiment_name is None
-        else (
-            f"evo2-size-{args.model_size}-TP{args.tensor_parallel_size}-"
-            f"PP{args.pipeline_model_parallel_size}-CP{args.context_parallel_size}"
-            f"-GBS{global_batch_size}-MBS{args.micro_batch_size}-SkipLossRenorm{args.no_renormalize_loss}"
-            f"-NOAC{args.no_activation_checkpointing}-SELAC{args.selective_activation_checkpointing}"
-            f"-ACRNL{evo2_config.recompute_num_layers}"
-            f"-PAT{evo2_config.hybrid_override_pattern}"
-            f"-F32R{evo2_config.fp32_residual_connection}"
-            f"-FCE{evo2_config.cross_entropy_loss_fusion}"
-            f"-AIC{not args.no_average_in_collective}"
-            f"-PEOD{args.eod_pad_in_loss_mask}"
-            f"-BO{args.add_bias_output}"
-            f"-GCLP{args.clip_grad}"
-            f"-HDO{args.hidden_dropout}"
-            f"-ADO{args.attention_dropout}"
-            f"-LR{args.lr}-MINLR{args.min_lr}-WUSTEPS{args.warmup_steps}-WD{args.wd}"
-            f"-GRFP32{args.grad_reduce_in_fp32}-FP8WG{args.fp8_wgrad and args.fp8}"
-            f"-OGR{args.overlap_grad_reduce}-OPG{args.overlap_param_gather}"
-            f"-NODES{args.num_nodes}-FP8{args.fp8}"
-        )
-    )
-
     nemo_logger = setup_nemo_lightning_logger(
         root_dir=args.experiment_dir,
-        name=experiment_name,
         initialize_tensorboard_logger=args.create_tensorboard_logger,
         wandb_config=wandb_config,
         ckpt_callback=checkpoint_callback,
