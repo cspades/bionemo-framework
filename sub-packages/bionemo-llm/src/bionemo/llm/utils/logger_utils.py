@@ -70,7 +70,7 @@ def setup_nemo_lightning_logger(
     """Setup the logger for the experiment.
 
     Arguments:
-        name: The name of the experiment. Results go into `root_dir`/`name`
+        name: The name of the experiment. Results go into `root_dir`/`name`. If not provided, root dir is used as experiment directory.
         root_dir: The root directory to create the `name` directory in for saving run results.
         initialize_tensorboard_logger: Whether to initialize the tensorboard logger.
         wandb_config: The remaining configuration options for the wandb logger.
@@ -86,15 +86,19 @@ def setup_nemo_lightning_logger(
     if name is None:
         name = root_dir.name
         save_dir = root_dir
+        root_dir = root_dir.parent
     else:
         save_dir = pathlib.Path(root_dir) / name
+    save_dir.mkdir(parents=True, exist_ok=True)
     if wandb_config is not None:
-        wandb_logger = WandbLogger(save_dir=save_dir, name=name, **wandb_config.model_dump())
+        if wandb_config.name is None:
+            wandb_config.name = name
+        wandb_logger = WandbLogger(save_dir=save_dir, **wandb_config.model_dump())
     else:
         wandb_logger = None
         logging.warning("WandB is currently turned off.")
     if initialize_tensorboard_logger:
-        tb_logger = TensorBoardLogger(save_dir=save_dir, name=name)
+        tb_logger = TensorBoardLogger(save_dir=root_dir, name=name)
     else:
         tb_logger = None
         logging.warning("User-set tensorboard is currently turned off. Internally one may still be set by NeMo2.")
