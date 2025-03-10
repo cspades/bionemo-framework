@@ -250,7 +250,7 @@ def main(
     tokenizer = get_tokenizer()
 
     # Initialize the data module.
-    data = ESMDataModule(
+    data_module = ESMDataModule(
         train_cluster_path=train_cluster_path,
         train_database_path=train_database_path,
         valid_cluster_path=valid_cluster_path,
@@ -343,7 +343,7 @@ def main(
 
     llm.train(
         model=model,
-        data=data,
+        data=data_module,
         trainer=trainer,
         log=nemo_logger,
         resume=resume.AutoResume(
