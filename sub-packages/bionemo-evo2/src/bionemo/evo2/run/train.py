@@ -471,7 +471,6 @@ def train(args: argparse.Namespace):
     if args.create_checkpoint_callback:
         checkpoint_callback = ModelCheckpoint(
             every_n_train_steps=args.val_check_interval,
-            dirpath=args.experiment_dir,
             save_top_k=5,
             always_save_context=True,
             save_optim_on_train_end=True,
