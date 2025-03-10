@@ -1,18 +1,36 @@
-import os
+# SPDX-FileCopyrightText: Copyright (c) 2024 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-License-Identifier: LicenseRef-Apache2
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+
 import gzip
 import math
-import pandas as pd
+import os
 from pathlib import Path
+
+import pandas as pd
 from Bio import SeqIO
+
 
 # Constants
 WINDOW_SIZE = 8192
-DEFAULT_COMMIT_HASH = "3819474bee6c24938016614411f1fa025e542bbe"
+DEFAULT_COMMIT_HASH = "3819474bee6c24938016614411f1fa025e542bbe"  # pragma: allowlist secret
 
-def download_data(data_dir='brca1', commit_hash=DEFAULT_COMMIT_HASH):
-    """
-    Download required data files if they don't exist locally.
-    
+
+def download_data(data_dir="brca1", commit_hash=DEFAULT_COMMIT_HASH):
+    """Download required data files if they don't exist locally.
+
     Parameters:
     -----------
     data_dir : str
@@ -22,27 +40,31 @@ def download_data(data_dir='brca1', commit_hash=DEFAULT_COMMIT_HASH):
     """
     if not os.path.exists(data_dir):
         os.makedirs(data_dir)
-    
-    excel_path = os.path.join(data_dir, '41586_2018_461_MOESM3_ESM.xlsx')
-    genome_path = os.path.join(data_dir, 'GRCh37.p13_chr17.fna.gz')
-    
+
+    excel_path = os.path.join(data_dir, "41586_2018_461_MOESM3_ESM.xlsx")
+    genome_path = os.path.join(data_dir, "GRCh37.p13_chr17.fna.gz")
+
     if not os.path.exists(excel_path):
-        os.system(f"wget https://github.com/ArcInstitute/evo2/raw/{commit_hash}/notebooks/brca1/41586_2018_461_MOESM3_ESM.xlsx -O {excel_path}")
-    
+        os.system(
+            f"wget https://github.com/ArcInstitute/evo2/raw/{commit_hash}/notebooks/brca1/41586_2018_461_MOESM3_ESM.xlsx -O {excel_path}"
+        )
+
     if not os.path.exists(genome_path):
-        os.system(f"wget https://github.com/ArcInstitute/evo2/raw/{commit_hash}/notebooks/brca1/GRCh37.p13_chr17.fna.gz -O {genome_path}")
-    
+        os.system(
+            f"wget https://github.com/ArcInstitute/evo2/raw/{commit_hash}/notebooks/brca1/GRCh37.p13_chr17.fna.gz -O {genome_path}"
+        )
+
     return excel_path, genome_path
 
+
 def load_brca1_data(excel_path):
-    """
-    Load and preprocess BRCA1 data from Excel file.
-    
+    """Load and preprocess BRCA1 data from Excel file.
+
     Parameters:
     -----------
     excel_path : str
         Path to the Excel file
-        
+
     Returns:
     --------
     pandas.DataFrame
@@ -50,35 +72,45 @@ def load_brca1_data(excel_path):
     """
     # Load the dataframe
     brca1_df = pd.read_excel(excel_path, header=2)
-    
+
     # Select and rename columns
-    brca1_df = brca1_df[[
-        'chromosome', 'position (hg19)', 'reference', 'alt', 'function.score.mean', 'func.class',
-    ]]
-    
-    brca1_df.rename(columns={
-        'chromosome': 'chrom',
-        'position (hg19)': 'pos',
-        'reference': 'ref',
-        'alt': 'alt',
-        'function.score.mean': 'score',
-        'func.class': 'class',
-    }, inplace=True)
-    
+    brca1_df = brca1_df[
+        [
+            "chromosome",
+            "position (hg19)",
+            "reference",
+            "alt",
+            "function.score.mean",
+            "func.class",
+        ]
+    ]
+
+    brca1_df.rename(
+        columns={
+            "chromosome": "chrom",
+            "position (hg19)": "pos",
+            "reference": "ref",
+            "alt": "alt",
+            "function.score.mean": "score",
+            "func.class": "class",
+        },
+        inplace=True,
+    )
+
     # Convert to two-class system
-    brca1_df['class'] = brca1_df['class'].replace(['FUNC', 'INT'], 'FUNC/INT')
-    
+    brca1_df["class"] = brca1_df["class"].replace(["FUNC", "INT"], "FUNC/INT")
+
     return brca1_df
 
+
 def load_genome_sequence(genome_path):
-    """
-    Load genome sequence from FASTA file.
-    
+    """Load genome sequence from FASTA file.
+
     Parameters:
     -----------
     genome_path : str
         Path to the genome FASTA file
-        
+
     Returns:
     --------
     str
@@ -87,13 +119,13 @@ def load_genome_sequence(genome_path):
     with gzip.open(genome_path, "rt") as handle:
         for record in SeqIO.parse(handle, "fasta"):
             return str(record.seq)
-    
+
     raise ValueError("Failed to parse genome sequence")
 
+
 def parse_sequences(pos, ref, alt, seq_chr17, window_size=WINDOW_SIZE):
-    """
-    Parse reference and variant sequences from the reference genome sequence.
-    
+    """Parse reference and variant sequences from the reference genome sequence.
+
     Parameters:
     -----------
     pos : int
@@ -106,7 +138,7 @@ def parse_sequences(pos, ref, alt, seq_chr17, window_size=WINDOW_SIZE):
         Full chromosome 17 sequence
     window_size : int
         Size of the sequence window to extract
-        
+
     Returns:
     --------
     tuple
@@ -115,11 +147,11 @@ def parse_sequences(pos, ref, alt, seq_chr17, window_size=WINDOW_SIZE):
     p = pos - 1  # Convert to 0-indexed position
     full_seq = seq_chr17
 
-    ref_seq_start = max(0, p - window_size//2)
-    ref_seq_end = min(len(full_seq), p + window_size//2)
+    ref_seq_start = max(0, p - window_size // 2)
+    ref_seq_end = min(len(full_seq), p + window_size // 2)
     ref_seq = seq_chr17[ref_seq_start:ref_seq_end]
-    snv_pos_in_ref = min(window_size//2, p)
-    var_seq = ref_seq[:snv_pos_in_ref] + alt + ref_seq[snv_pos_in_ref+1:]
+    snv_pos_in_ref = min(window_size // 2, p)
+    var_seq = ref_seq[:snv_pos_in_ref] + alt + ref_seq[snv_pos_in_ref + 1 :]
 
     # Sanity checks
     assert len(var_seq) == len(ref_seq)
@@ -128,10 +160,10 @@ def parse_sequences(pos, ref, alt, seq_chr17, window_size=WINDOW_SIZE):
 
     return ref_seq, var_seq
 
+
 def sample_data(df, sample_frac=1.0, balanced=True, disable=False, random_state=42):
-    """
-    Sample dataframe, optionally with balanced classes.
-    
+    """Sample dataframe, optionally with balanced classes.
+
     Parameters:
     -----------
     df : pandas.DataFrame
@@ -144,7 +176,7 @@ def sample_data(df, sample_frac=1.0, balanced=True, disable=False, random_state=
         Whether to disable sampling
     random_state : int
         Random seed for reproducibility
-        
+
     Returns:
     --------
     pandas.DataFrame
@@ -152,22 +184,28 @@ def sample_data(df, sample_frac=1.0, balanced=True, disable=False, random_state=
     """
     if disable:
         return df
-    
+
     if balanced:
         # Get the number of rows in the dataframe
-        num_rows_minor_class = math.ceil(len(df[df['class'] == 'LOF']) * sample_frac)
-        return pd.concat([
-            df[df['class'] == 'LOF'].sample(n=num_rows_minor_class, random_state=random_state),
-            df[df['class'] == 'FUNC/INT'].sample(n=num_rows_minor_class, random_state=random_state)
-        ]).sample(frac=1.0, random_state=random_state).reset_index(drop=True)
+        num_rows_minor_class = math.ceil(len(df[df["class"] == "LOF"]) * sample_frac)
+        return (
+            pd.concat(
+                [
+                    df[df["class"] == "LOF"].sample(n=num_rows_minor_class, random_state=random_state),
+                    df[df["class"] == "FUNC/INT"].sample(n=num_rows_minor_class, random_state=random_state),
+                ]
+            )
+            .sample(frac=1.0, random_state=random_state)
+            .reset_index(drop=True)
+        )
     else:
         # Calculate the number of rows to sample
         return df.sample(frac=sample_frac, random_state=random_state).reset_index(drop=True)
 
+
 def generate_fasta_files(df, seq_chr17, output_dir="brca1_fasta_files", window_size=WINDOW_SIZE):
-    """
-    Generate FASTA files for reference and variant sequences.
-    
+    """Generate FASTA files for reference and variant sequences.
+
     Parameters:
     -----------
     df : pandas.DataFrame
@@ -178,7 +216,7 @@ def generate_fasta_files(df, seq_chr17, output_dir="brca1_fasta_files", window_s
         Output directory for FASTA files
     window_size : int
         Size of sequence window
-        
+
     Returns:
     --------
     pandas.DataFrame
@@ -196,38 +234,34 @@ def generate_fasta_files(df, seq_chr17, output_dir="brca1_fasta_files", window_s
     ref_sequences = set()
     var_sequences = set()
     ref_seq_to_name = {}
-    
+
     # Store unique sequences with metadata for writing
     ref_entries = []
     var_entries = []
     ref_names = []
     var_names = []
-    
+
     # Collect unique reference and variant sequences
     for idx, row in df.iterrows():
-        ref_seq, var_seq = parse_sequences(row['pos'], row['ref'], row['alt'], seq_chr17, window_size)
+        ref_seq, var_seq = parse_sequences(row["pos"], row["ref"], row["alt"], seq_chr17, window_size)
 
         # Add to sets to ensure uniqueness
         if ref_seq not in ref_sequences:
             ref_sequences.add(ref_seq)
             ref_name = f"BRCA1_ref_pos_{row['pos']}_{row['ref']}_class_{row['class']}"
 
-            ref_entries.append(
-                f">{ref_name}\n{ref_seq}\n"
-            )
+            ref_entries.append(f">{ref_name}\n{ref_seq}\n")
             ref_names.append(ref_name)
             ref_seq_to_name[ref_seq] = ref_name
         else:
             ref_name = ref_seq_to_name[ref_seq]
             ref_names.append(ref_name)
-            
+
         if var_seq not in var_sequences:
             var_sequences.add(var_seq)
             var_name = f"BRCA1_var_pos_{row['pos']}_{row['ref']}to{row['alt']}_class_{row['class']}"
 
-            var_entries.append(
-                f">{var_name}\n{var_seq}\n"
-            )
+            var_entries.append(f">{var_name}\n{var_seq}\n")
             var_names.append(var_name)
         else:
             assert False, "Duplicate variant sequence"
@@ -241,10 +275,10 @@ def generate_fasta_files(df, seq_chr17, output_dir="brca1_fasta_files", window_s
 
     # Add FASTA names to dataframe
     df_with_names = df.copy()
-    df_with_names['ref_fasta_name'] = ref_names
-    df_with_names['var_fasta_name'] = var_names
+    df_with_names["ref_fasta_name"] = ref_names
+    df_with_names["var_fasta_name"] = var_names
 
     print(f"Total unique reference sequences: {len(ref_sequences)}")
     print(f"Total unique variant sequences: {len(var_sequences)}")
-    
+
     return df_with_names
