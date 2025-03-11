@@ -1,15 +1,220 @@
 import os
 import gzip
 import math
+
+import torch
 import pandas as pd
 from pathlib import Path
 from Bio import SeqIO
+
+import numpy as np
+import altair as alt
+from sklearn.metrics import roc_curve, auc
 
 # Constants
 WINDOW_SIZE = 8192
 DEFAULT_COMMIT_HASH = "3819474bee6c24938016614411f1fa025e542bbe"
 
-def download_data(data_dir='brca1', commit_hash=DEFAULT_COMMIT_HASH):
+
+# NVIDIA Light Theme Colors
+NVIDIA_GREEN = "#76B900"
+BACKGROUND_COLOR = "#F8F8F8"  # Light background
+GRID_COLOR = "#DDDDDD"
+FONT_COLOR = "#333333"
+
+
+import pandas as pd
+import altair as alt
+from sklearn.metrics import roc_curve, auc
+
+def plot_roc_curve(df):
+    """
+    Plots an ROC curve using Altair with a light NVIDIA-themed design.
+    The function assumes:
+    - `class` column as the true labels (binary, 'LOF' = 1, else 0).
+    - `evo2_delta_score` as the prediction score.
+
+    Parameters:
+    - df (pd.DataFrame): DataFrame containing `class` and `evo2_delta_score`.
+
+    Returns:
+    - Altair Chart: ROC Curve Visualization.
+    """
+    # NVIDIA theme colors
+    nvidia_green = "#76B900"
+    background_color = "#F8F8F8"
+    grid_color = "#DDDDDD"
+    font_color = "#333333"
+
+    # Validate required columns
+    if "class" not in df.columns or "evo2_delta_score" not in df.columns:
+        raise ValueError("DataFrame must contain 'class' and 'evo2_delta_score' columns.")
+
+    # Convert 'class' to binary labels: Assume 'LOF' = 1, anything else = 0
+    y_true = (df["class"] == "LOF").astype(int)
+
+    # Compute ROC curve
+    fpr, tpr, _ = roc_curve(y_true, -df["evo2_delta_score"])  # Negative to align with previous logic
+    roc_auc = auc(fpr, tpr)
+
+    # Create DataFrame for plotting
+    roc_df = pd.DataFrame({'False Positive Rate': fpr, 'True Positive Rate': tpr})
+
+    # Create the ROC curve plot
+    roc_chart = (
+        alt.Chart(roc_df)
+        .mark_line(color=nvidia_green, strokeWidth=3)
+        .encode(
+            x=alt.X(
+                'False Positive Rate',
+                title='False Positive Rate',
+                scale=alt.Scale(domain=[0, 1]),
+                axis=alt.Axis(gridColor=grid_color, labelColor=font_color, titleColor=font_color)
+            ),
+            y=alt.Y(
+                'True Positive Rate',
+                title='True Positive Rate',
+                scale=alt.Scale(domain=[0, 1]),
+                axis=alt.Axis(gridColor=grid_color, labelColor=font_color, titleColor=font_color)
+            ),
+            tooltip=['False Positive Rate', 'True Positive Rate']
+        )
+    )
+
+    # Add diagonal reference line for random guessing
+    diagonal = (
+        alt.Chart(pd.DataFrame({'x': [0, 1], 'y': [0, 1]}))
+        .mark_line(color="gray", strokeDash=[5, 5])
+        .encode(x='x', y='y')
+    )
+
+    # Combine plots with NVIDIA-themed styling and left-aligned title & subtitle
+    final_chart = (
+        (roc_chart + diagonal)
+        .properties(
+            title=alt.TitleParams(
+                text=f'Zeroshot ROC Curve (AUROC = {roc_auc:.2f})',
+                subtitle="Evaluating the discriminative performance of Evo 2 predictions.",
+                anchor="start",
+                fontSize=16,
+                subtitleFontSize=14,
+                color=font_color
+            ),
+            width=500,
+            height=400,
+            background=background_color
+        )
+        .configure_axis(grid=True, gridColor=grid_color)
+    )
+
+    return final_chart
+
+
+
+
+def plot_strip_with_means(df, x_col="evo2_delta_score", class_col="class"):
+    """
+    Creates a strip plot with jittered points and vertical mean lines for each class.
+
+    Parameters:
+    - df (pd.DataFrame): The input DataFrame containing data.
+    - x_col (str): The column name representing the x-axis values (e.g., evo2_delta_score).
+    - class_col (str): The column name representing the class labels.
+
+    Returns:
+    - Altair Chart: Strip plot with mean indicators.
+    """
+    # NVIDIA theme colors
+    nvidia_green = "#76B900"
+    background_color = "#F8F8F8"
+    grid_color = "#DDDDDD"
+    font_color = "#333333"
+
+    # Define class mapping for y-axis positions
+    unique_classes = df[class_col].unique()
+    y_positions = {cls: i for i, cls in enumerate(unique_classes)}
+
+    # Add jitter manually to the y-axis for strip plot
+    df = df.copy()  # Avoid modifying the original dataframe
+    df["jitter"] = df[class_col].map(y_positions) + (np.random.rand(len(df)) - 0.5) * 0.3
+
+    # Compute mean values for each class
+    mean_scores = df.groupby(class_col)[x_col].mean().reset_index()
+    mean_scores["y_start"] = mean_scores[class_col].map(y_positions) - 0.2
+    mean_scores["y_end"] = mean_scores[class_col].map(y_positions) + 0.2
+
+    # Create strip plot with jittered y values
+    strip_plot = (
+        alt.Chart(df)
+        .mark_circle(size=20, opacity=0.6)
+        .encode(
+            x=alt.X(
+                x_col,
+                title="Delta Likelihood Score, Evo 2",
+                axis=alt.Axis(gridColor=grid_color, labelColor=font_color, titleColor=font_color),
+            ),
+            y=alt.Y("jitter", title="BRCA1 SNV Class", axis=None),
+            color=alt.Color(
+                class_col,
+                scale=alt.Scale(domain=list(y_positions.keys()), range=["red", nvidia_green]),
+            ),
+            tooltip=[x_col, class_col],
+        )
+    )
+
+    # Create vertical mean lines that are limited to each class group
+    mean_lines = (
+        alt.Chart(mean_scores)
+        .mark_rule(strokeWidth=4, opacity=0.8)
+        .encode(
+            x=alt.X(f"{x_col}:Q"),
+            y=alt.Y("y_start:Q"),
+            y2="y_end:Q",
+            color=alt.value('black'),  # NVIDIA green for mean indicators
+        )
+    )
+
+    # Combine strip plot and class-specific mean lines with left-aligned title & subtitle
+    final_chart = (
+        (strip_plot + mean_lines)
+        .properties(
+            title=alt.TitleParams(
+                text="Distribution of Delta Likelihoods Scores",
+                subtitle="Comparing Evo 2 likelihood scores for different BRCA1 SNV classes.",
+                anchor="start",
+                fontSize=16,
+                subtitleFontSize=14,
+                color=font_color
+            ),
+            width=450,
+            height=250,
+            background=background_color
+        )
+        .configure_axis(grid=True, gridColor=grid_color)
+    )
+
+    return final_chart
+
+
+# Check if FP8 is supported on the current GPU
+def check_fp8_support():
+    """
+    Check if FP8 is supported on the current GPU.
+    FP8 requires compute capability 8.9+ (Ada Lovelace/Hopper architecture or newer).
+    """
+    if not torch.cuda.is_available():
+        return False, "CUDA not available"
+    
+    device_props = torch.cuda.get_device_properties(0)
+    compute_capability = f"{device_props.major}.{device_props.minor}"
+    device_name = device_props.name
+    
+    # FP8 is supported on compute capability 8.9+ (Ada Lovelace/Hopper architecture)
+    is_supported = (device_props.major > 8) or (device_props.major == 8 and device_props.minor >= 9)
+    
+    return is_supported, f"Device: {device_name}, Compute Capability: {compute_capability}"
+
+def download_data(data_dir='brca1', commit_hash="3819474bee6c24938016614411f1fa025e542bbe"):
     """
     Download required data files if they don't exist locally.
     
