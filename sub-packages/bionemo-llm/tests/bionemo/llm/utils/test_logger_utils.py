@@ -44,9 +44,11 @@ def wandb_config(project_name):
     )
 
 
-def test_construct_logger_no_wandb():
+def test_construct_logger_no_loggers():
     logger = setup_nemo_lightning_logger("test")
     assert logger.name == "test"
+    assert logger.wandb is None
+    assert logger.tensorboard is None
 
 
 def test_setup_logger_all_loggers(tmp_path, wandb_config, project_name, caplog):
