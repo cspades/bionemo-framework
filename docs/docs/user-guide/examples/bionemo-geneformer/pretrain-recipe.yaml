@@ -72,7 +72,7 @@ training_config:
   limit_val_batches: 8
   log_train_ppl: false
   log_val_ppl: true
-  max_steps: 400000
+  max_steps: 40
   precision: bf16-mixed
   val_check_interval: 100
 wandb_config:

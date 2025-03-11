@@ -61,12 +61,12 @@ def geneformer_base_training_config() -> TrainingConfig:
         max_steps=400000, limit_val_batches=8, val_check_interval=100, precision="bf16-mixed"
     )  # matches bionemo1
 
+
 def geneformer_short_base_training_config() -> TrainingConfig:
     """Base training config for Geneformer."""
     return TrainingConfig(
         max_steps=500, limit_val_batches=8, val_check_interval=100, precision="bf16-mixed"
     )  # matches bionemo1
-
 
 
 def geneformer_data_recipe(data_dir) -> GeneformerPretrainingDataConfig:
