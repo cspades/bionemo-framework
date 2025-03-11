@@ -15,8 +15,8 @@
 """Generate the code reference pages and copy Jupyter notebooks and README files."""
 
 import logging
-from pathlib import Path
 import shutil
+from pathlib import Path
 
 import mkdocs_gen_files
 
@@ -101,7 +101,7 @@ def get_subpackage_notebooks(sub_package: Path, root: Path) -> None:
         assets_dir = examples_dir / "assets"
         if assets_dir.exists():
             dest_dir = Path("user-guide/examples") / sub_package.name / "assets"
-            shutil.copytree(assets_dir, dest_dir)
+            shutil.copytree(assets_dir, dest_dir, dirs_exist_ok=True)
             logger.info(f"Added assets: {dest_dir}")
 
 
