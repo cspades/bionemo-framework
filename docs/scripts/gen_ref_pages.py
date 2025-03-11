@@ -79,6 +79,7 @@ def get_subpackage_notebooks(sub_package: Path, root: Path) -> None:
     """
     examples_dir = sub_package / "examples"
     if examples_dir.exists():
+        # Copy notebooks
         for notebook in examples_dir.glob("*.ipynb"):
             dest_dir = Path("user-guide/examples") / sub_package.name
             dest_file = dest_dir / notebook.name
@@ -87,6 +88,8 @@ def get_subpackage_notebooks(sub_package: Path, root: Path) -> None:
                 fd.write(notebook.read_bytes())
             logger.info(f"Added notebook: {dest_file}")
             mkdocs_gen_files.set_edit_path(dest_file, notebook.relative_to(root))
+        # Copy markdown files
+        # Copy assets dir if it exists
         for other_file in [e for e in examples_dir.glob("*") if e.suffix != ".ipynb"]:
             # Check if file is git tracked
             import subprocess
@@ -100,7 +103,7 @@ def get_subpackage_notebooks(sub_package: Path, root: Path) -> None:
                     check=False
                 )
                 is_tracked = result.returncode == 0
-                
+
                 if is_tracked:
                     dest_dir = Path("user-guide/examples") / sub_package.name
                     dest_file = dest_dir / other_file.name
