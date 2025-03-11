@@ -71,7 +71,7 @@ script: |-
   --log-every-n-steps=50 \
   --val-check-interval=500 \
   --create-tflops-callback \
-  --create-tensorboard-callback \
+  --create-tensorboard-logger \
   --experiment-dir=${tensorboard_dir} \
   --wandb-project=${wandb_project_name} \
   --wandb-group=${model}_${variant}_${config_name}__${target}__slen${seq_len} \
