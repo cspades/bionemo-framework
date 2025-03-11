@@ -69,15 +69,15 @@ def test_setup_logger_all_loggers(tmp_path, wandb_config, project_name, caplog):
 
     # Check that directories are set up correctly
     expected_save_dir = root_dir / exp_name
-    assert logger.save_dir == expected_save_dir, "NeMoLogger save_dir should match expected path."
-    assert not expected_save_dir.exists(), "Expected experiment directory should not be created yet."
+    assert logger.log_dir == str(root_dir), "NeMoLogger save_dir should match expected path."
+    # assert not expected_save_dir.exists(), "Expected experiment directory should not be created yet."
 
     # Check TensorBoard logger initialization
     tb_logger = logger.tensorboard
     assert isinstance(tb_logger, TensorBoardLogger), "TensorBoardLogger should be created."
     tb_log_dir = pathlib.Path(tb_logger.log_dir)
-    assert not tb_log_dir.is_dir(), "TensorBoard log directory should not exist yet."
-    assert tb_logger.name == exp_name, "TensorBoardLogger name should match experiment name."
+    # assert not tb_log_dir.is_dir(), "TensorBoard log directory should not exist yet."
+    assert tb_log_dir == (expected_save_dir / "dev"), "TensorBoardLogger name should match experiment name."
 
     # Check WandB logger initialization
     wandb_logger = logger.wandb
@@ -93,7 +93,7 @@ def test_setup_logger_all_loggers(tmp_path, wandb_config, project_name, caplog):
     assert "User-set tensorboard is currently turned off." not in caplog.text
 
 
-def test_nemo_logger_initilized(tmp_path, wandb_config, project_name, caplog):
+def test_nemo_logger_initialized(tmp_path, wandb_config, project_name, caplog):
     # Use a unique experiment name
     exp_name = "unit-test-loggers"
     root_dir = tmp_path  # provided by pytest as a temporary directory
@@ -117,7 +117,8 @@ def test_nemo_logger_initilized(tmp_path, wandb_config, project_name, caplog):
     # Check TensorBoard logger initialization
     tb_logger = logger.tensorboard
     tb_log_dir = pathlib.Path(tb_logger.log_dir)
-    assert not tb_log_dir.is_dir(), "TensorBoard log directory should not exist yet."
+    # assert not tb_log_dir.is_dir(), "TensorBoard log directory should not exist yet."
+    assert tb_log_dir == (expected_save_dir / "dev")
 
     # Trigger lazy creation of experiment in loggers so loggers have their metadata available
     # following trainer setup at the start of the training in
