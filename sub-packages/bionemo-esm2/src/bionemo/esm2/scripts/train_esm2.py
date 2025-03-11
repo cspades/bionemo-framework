@@ -304,12 +304,40 @@ def main(
 
     if create_tflops_callback:
         # Add callback that logs the tera-FLOPS per second per GPU during training.
+        data_module.global_batch_size = (
+            global_batch_size  # TODO(dorotat): remove this change after FLOPsMeasurementCallback is refactored
+        )
         flop_meas_callback = FLOPsMeasurementCallback(
             esm2_config,
             data_module,
             "bert",
         )
         callbacks.append(flop_meas_callback)
+
+    # Configure our custom Checkpointer
+    if create_checkpoint_callback:
+        checkpoint_callback = nl_callbacks.ModelCheckpoint(
+            save_last=save_last_checkpoint,
+            monitor=metric_to_monitor_for_checkpoints,  # "val_loss",
+            save_top_k=save_top_k,
+            every_n_train_steps=val_check_interval,
+            always_save_context=True,
+            # Enables the .nemo file-like checkpointing where all IOMixins are under SerDe
+            filename="{epoch}-{val_loss:.2f}-{step}-{consumed_samples}",
+            # Including step and consumed_samples in the checkpoint filename prevents duplicate filenames and bugs related to this.
+        )
+        callbacks.append(checkpoint_callback)
+    else:
+        checkpoint_callback = None
+
+    # Setup the logger and train the model
+    nemo_logger = setup_nemo_lightning_logger(
+        root_dir=result_dir,
+        name=experiment_name,
+        initialize_tensorboard_logger=create_tensorboard_logger,
+        wandb_config=wandb_config,
+        ckpt_callback=checkpoint_callback,
+    )
 
     trainer = nl.Trainer(
         devices=devices,
@@ -329,28 +357,6 @@ def main(
             autocast_enabled=False,
         ),
         enable_checkpointing=create_checkpoint_callback,
-    )
-
-    # Configure our custom Checkpointer
-    if create_checkpoint_callback:
-        checkpoint_callback = nl_callbacks.ModelCheckpoint(
-            save_last=save_last_checkpoint,
-            monitor=metric_to_monitor_for_checkpoints,  # "val_loss",
-            save_top_k=save_top_k,
-            every_n_train_steps=val_check_interval,
-            always_save_context=True,  # Enables the .nemo file-like checkpointing where all IOMixins are under SerDe
-            filename="{epoch}-{val_loss:.2f}-{step}-{consumed_samples}",  # Including step and consumed_samples in the checkpoint filename prevents duplicate filenames and bugs related to this.
-        )
-    else:
-        checkpoint_callback = None
-
-    # Setup the logger and train the model
-    nemo_logger = setup_nemo_lightning_logger(
-        root_dir=result_dir,
-        name=experiment_name,
-        initialize_tensorboard_logger=create_tensorboard_logger,
-        wandb_config=wandb_config,
-        ckpt_callback=checkpoint_callback,
     )
 
     llm.train(
@@ -410,6 +416,7 @@ def train_esm2_entrypoint():
         nemo1_init_path=args.nemo1_init_path,
         create_tflops_callback=args.create_tflops_callback,
         create_checkpoint_callback=args.create_checkpoint_callback,
+        create_tensorboard_logger=args.create_tensorboard_logger,
         restore_from_checkpoint_path=args.restore_from_checkpoint_path,
         save_best_checkpoint=args.save_best_checkpoint,
         save_last_checkpoint=args.save_last_checkpoint,
