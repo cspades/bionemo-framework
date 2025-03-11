@@ -26,7 +26,7 @@ To remove cells from the rendered `mkdocs` html you can add a `remove-cell` tag 
 `remove-input` does not seem to be supported.
 
 To collapse jupyter-lab rendered code cells, for example in a `brev.dev` or user ran `jupyter lab` session, you can add a special `jupyter` block to the `metadata` block for that cell in the
-json representation of your `.ipynb` file. You can do this in vscode by clicking the `...` above the cell and selecting `Edit cell tags (JSON)`. 
+json representation of your `.ipynb` file. You can do this in vscode by clicking the `...` above the cell and selecting `Edit cell tags (JSON)`.
 
 A metadata field with both changes, (removed from the rendered docs and collapsed in jupyter) would look like the following:
 
