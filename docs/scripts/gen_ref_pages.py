@@ -16,6 +16,7 @@
 
 import logging
 from pathlib import Path
+import shutil
 
 import mkdocs_gen_files
 
@@ -86,6 +87,32 @@ def get_subpackage_notebooks(sub_package: Path, root: Path) -> None:
                 fd.write(notebook.read_bytes())
             logger.info(f"Added notebook: {dest_file}")
             mkdocs_gen_files.set_edit_path(dest_file, notebook.relative_to(root))
+        for other_file in [e for e in examples_dir.glob("*") if e.suffix != ".ipynb"]:
+            # Check if file is git tracked
+            import subprocess
+            try:
+                # Run git ls-files to check if file is tracked
+                relative_path = other_file.relative_to(root)
+                result = subprocess.run(
+                    ["git", "ls-files", "--error-unmatch", str(relative_path)],
+                    stdout=subprocess.PIPE,
+                    stderr=subprocess.PIPE,
+                    check=False
+                )
+                is_tracked = result.returncode == 0
+                
+                if is_tracked:
+                    dest_dir = Path("user-guide/examples") / sub_package.name
+                    dest_file = dest_dir / other_file.name
+                    logger.info(f"Added git-tracked file or directory: {dest_file}")
+                    if other_file.is_dir():
+                        shutil.copytree(other_file, dest_file)
+                    else:
+                        shutil.copy2(other_file, dest_file)
+                        # TODO do we need this?
+                        #mkdocs_gen_files.set_edit_path(dest_file, other_file.relative_to(root))
+            except Exception as e:
+                logger.warning(f"Error checking git status for {other_file}: {e}")
 
 
 def get_subpackage_readmes(sub_package: Path, root: Path) -> None:
