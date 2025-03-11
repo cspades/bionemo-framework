@@ -17,6 +17,7 @@
 # limitations under the License.
 
 import argparse
+from pathlib import Path
 from typing import List, Optional
 
 # TODO add back support for slurm resilience.
@@ -164,12 +165,9 @@ def parse_args(args: Optional[List[str]] = None) -> argparse.Namespace:
         help="Add bias to the output layer to enable learning a simple prior.",
     )
     parser.add_argument(
-        "--experiment-dir",
-        type=str,
-        required=True,
-        help="Directory to write model checkpoints and results to.",
+        "--result-dir", type=Path, required=False, default=Path("./results"), help="Path to the result directory."
     )
-    parser.add_argument("--experiment-name", type=str, required=False, default="esm2", help="Name of the experiment.")
+    parser.add_argument("--experiment-name", type=str, required=False, default="evo2", help="Name of the experiment.")
 
     parser.add_argument(
         "--limit-val-batches",
@@ -581,17 +579,12 @@ def train(args: argparse.Namespace):
         )
     )
     nemo_logger = setup_nemo_lightning_logger(
-        root_dir=args.experiment_dir,
+        root_dir=args.result_dir,
+        name=args.experiment_name,
         initialize_tensorboard_logger=args.create_tensorboard_logger,
         wandb_config=wandb_config,
         ckpt_callback=checkpoint_callback,
     )
-
-    loggers = []
-    if args.wandb_project is not None:
-        loggers.append(nemo_logger.wandb)
-    if args.create_tensorboard_logger:
-        loggers.append(nemo_logger.tensorboard)
 
     ddp: DistributedDataParallelConfig = DistributedDataParallelConfig(
         check_for_nan_in_grad=True,
@@ -621,7 +614,6 @@ def train(args: argparse.Namespace):
         max_steps=args.max_steps,
         accelerator="gpu",
         strategy=strategy,
-        logger=loggers,
         callbacks=callbacks,
         log_every_n_steps=args.log_every_n_steps,
         limit_val_batches=args.limit_val_batches,
@@ -653,7 +645,7 @@ def train(args: argparse.Namespace):
         resume_if_exists=True,
         resume_ignore_no_checkpoint=True,
         resume_past_end=False,
-        resume_from_directory=args.experiment_dir,
+        resume_from_directory=Path(args.result_dir) / args.experiment_name,
         restore_config=(
             RestoreConfig(
                 path=args.ckpt_dir,
