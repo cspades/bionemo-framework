@@ -50,10 +50,10 @@ def test_train_evo2_runs(tmp_path, num_steps=5):
     # Build the command string.
     # Note: The command assumes that `train_evo2` is in your PATH.
     command = (
-        f"train_evo2 --mock-data --result-dir {tmp_path}"
+        f"train_evo2 --mock-data --result-dir {tmp_path} "
         "--model-size 1b_nv --num-layers 4 --hybrid-override-pattern SDH* "
         "--no-activation-checkpointing --add-bias-output "
-        f"--max-steps {num_steps} --warmup-steps 1"
+        f"--max-steps {num_steps} --warmup-steps 1 "
         "--seq-length 128 --hidden-dropout 0.1 --attention-dropout 0.1 "
     )
 
@@ -93,10 +93,10 @@ def test_train_evo2_stops(tmp_path, num_steps=500000, early_stop_steps=3):
     # Build the command string.
     # Note: The command assumes that `train_evo2` is in your PATH.
     command = (
-        f"train_evo2 --mock-data --result-dir {tmp_path}"
+        f"train_evo2 --mock-data --result-dir {tmp_path} "
         "--model-size 1b_nv --num-layers 4 --hybrid-override-pattern SDH* "
         "--no-activation-checkpointing --add-bias-output "
-        f"--max-steps {num_steps} --early-stop-on-step {early_stop_steps} --warmup-steps 1"
+        f"--max-steps {num_steps} --early-stop-on-step {early_stop_steps} --warmup-steps 1 "
         "--seq-length 128 --hidden-dropout 0.1 --attention-dropout 0.1 "
     )
     command_parts_no_program = shlex.split(command)[1:]
@@ -148,6 +148,10 @@ def test_train_single_gpu(tmp_path, model_size: str):
         model_size,
         "--num-layers",
         str(4),
+        "--val-check-interval",
+        str(1),
+        "--limit-val-batches",
+        str(1),
         "--hybrid-override-pattern",
         "SDH*",
         "--no-activation-checkpointing",
