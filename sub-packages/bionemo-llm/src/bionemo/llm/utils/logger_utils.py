@@ -84,6 +84,8 @@ def setup_nemo_lightning_logger(
     # The directory that the logger will save to
     save_dir = pathlib.Path(root_dir) / name
     save_dir.mkdir(parents=True, exist_ok=True)
+
+    version = "dev"
     if wandb_config is not None:
         if wandb_config.name is None:
             wandb_config.name = name
@@ -92,17 +94,18 @@ def setup_nemo_lightning_logger(
         wandb_logger = None
         logging.warning("WandB is currently turned off.")
     if initialize_tensorboard_logger:
-        tb_logger = TensorBoardLogger(save_dir=root_dir, name=name, version="dev")
+        tb_logger = TensorBoardLogger(save_dir=root_dir, name=name, version=version)
     else:
         tb_logger = None
         logging.warning("User-set tensorboard is currently turned off. Internally one may still be set by NeMo2.")
+
     logger: NeMoLogger = NeMoLogger(
         name=name,
         log_dir=str(root_dir),
         tensorboard=tb_logger,
         wandb=wandb_logger,
         ckpt=ckpt_callback,
-        version="dev",
+        version=version,
         update_logger_directory=False,
         **kwargs,
     )
