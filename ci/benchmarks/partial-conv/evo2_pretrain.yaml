@@ -1,5 +1,5 @@
 scope: partial-conv
-time_limit: 14400
+time_limit: 900
 script_args:
   # All arguments referenced in the script string must be specified here.
   # Arguments not referenced in the script string must have the 'arg' field specified.
@@ -19,7 +19,8 @@ script_args:
   gpus: 8
   nodes: 4
   batch_size: 8
-  max_steps: 900
+  max_steps: 490000
+  stop_step: 6900
   pp: 1
   cp: 1
   tp: 1
@@ -54,6 +55,7 @@ script: |-
   --clip-grad=${clip_grad} \
   --eod-pad-in-loss-mask \
   --seq-length=${seq_len} \
+  --seed ${seed}
   --lr=${lr} \
   --wd=${wd} \
   --min-lr=${min_lr} \
@@ -66,7 +68,8 @@ script: |-
   --devices=${gpus} \
   --micro-batch-size=${batch_size} \
   --model-size=${config_name} \
-  --max-steps=${max_steps} \
+  --max-steps=490000 \
+  --early-stop-on-step ${stop_step}\
   --limit-val-batches=20 \
   --log-every-n-steps=50 \
   --val-check-interval=500 \

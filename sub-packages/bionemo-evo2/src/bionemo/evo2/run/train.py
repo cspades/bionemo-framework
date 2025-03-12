@@ -49,6 +49,9 @@ from nemo.utils.exp_manager import TimingCallback
 from bionemo.llm.utils.datamodule_utils import infer_global_batch_size
 from bionemo.llm.utils.logger_utils import WandbConfig, setup_nemo_lightning_logger
 
+# TODO(dorotat_nv) remove when https://github.com/NVIDIA/bionemo-framework/issues/749
+from bionemo.testing.testing_callbacks import SignalAfterGivenStepCallback
+
 
 torch._dynamo.config.suppress_errors = True
 
@@ -128,7 +131,18 @@ def parse_args(args: Optional[List[str]] = None) -> argparse.Namespace:
     parser.add_argument(
         "--grad-acc-batches", type=int, default=1, help="Number of batches to accumulate gradients over."
     )
-    parser.add_argument("--max-steps", type=int, help="Number of training optimizer update steps.")
+    parser.add_argument(
+        "--max-steps",
+        type=int,
+        help="Number of training optimizer update steps. This controls the total number of steps as well as the "
+        "shape of the learning rate curve.",
+        default=500000,
+    )
+    parser.add_argument(
+        "--early-stop-on-step",
+        type=int,
+        help="Stop training on this step, if set. This may be useful for testing or debugging purposes.",
+    )
     parser.add_argument(
         "--val-check-interval", type=int, help="Number of steps between validation measurements and model checkpoints."
     )
@@ -478,6 +492,13 @@ def train(args: argparse.Namespace):
     else:
         checkpoint_callback = None
 
+    if args.early_stop_on_step:
+        # Ask the trainer to stop by setting should_stop to True rather than emitting a kill signal.
+        callbacks.append(
+            SignalAfterGivenStepCallback(
+                stop_step=args.early_stop_on_step, stop_before_step=True, use_trainer_should_stop=True
+            )
+        )
     if args.enable_preemption:
         callbacks.append(nl_callbacks.PreemptionCallback())
     if args.debug_ddp_parity_freq > 0:
