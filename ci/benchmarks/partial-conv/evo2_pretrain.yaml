@@ -55,7 +55,7 @@ script: |-
   --clip-grad=${clip_grad} \
   --eod-pad-in-loss-mask \
   --seq-length=${seq_len} \
-  --seed ${seed}
+  --seed ${seed} \
   --lr=${lr} \
   --wd=${wd} \
   --min-lr=${min_lr} \
