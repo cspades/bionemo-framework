@@ -77,6 +77,26 @@ def test_train_evo2_runs(tmp_path, num_steps=5):
     assert result.returncode == 0, "train_evo2 command failed."
 
 
+def run_train_with_std_redirect(args) -> str:
+    # Run training with output capture
+    with distributed_model_parallel_state():
+        stdout_buf, stderr_buf = io.StringIO(), io.StringIO()
+        with redirect_stdout(stdout_buf), redirect_stderr(stderr_buf):
+            train(args=args)
+
+    train_stdout = stdout_buf.getvalue()
+    train_stderr = stderr_buf.getvalue()
+    print("Captured STDOUT:\n", train_stdout)
+    print("Captured STDERR:\n", train_stderr)
+    return train_stdout
+
+
+def extract_global_steps_from_log(log_string):
+    pattern = r"\| global_step: (\d+) \|"
+    matches = re.findall(pattern, log_string)
+    return [int(step) for step in matches]
+
+
 @pytest.mark.timeout(256)  # Optional: fail if the test takes too long.
 @pytest.mark.slow
 def test_train_evo2_stops(tmp_path, num_steps=500000, early_stop_steps=3):
@@ -95,36 +115,17 @@ def test_train_evo2_stops(tmp_path, num_steps=500000, early_stop_steps=3):
     command = (
         f"train_evo2 --mock-data --result-dir {tmp_path} "
         "--model-size 1b_nv --num-layers 4 --hybrid-override-pattern SDH* "
-        "--no-activation-checkpointing --add-bias-output "
+        "--no-activation-checkpointing --add-bias-output --limit-val-batche 1 "
         f"--max-steps {num_steps} --early-stop-on-step {early_stop_steps} --warmup-steps 1 "
         "--seq-length 128 --hidden-dropout 0.1 --attention-dropout 0.1 "
     )
     command_parts_no_program = shlex.split(command)[1:]
     args = parse_args(args=command_parts_no_program)
-    with distributed_model_parallel_state():
-        # Capture stdout/stderr during train function execution
-        stdout_buffer = io.StringIO()
-        stderr_buffer = io.StringIO()
-        with redirect_stdout(stdout_buffer), redirect_stderr(stderr_buffer):
-            train(args=args)
-        # Get the captured output
-        train_stdout = stdout_buffer.getvalue()
-        train_stderr = stderr_buffer.getvalue()
-        # Print the captured output for debugging
-        print("TRAIN FUNCTION STDOUT:")
-        print(train_stdout)
-        print("TRAIN FUNCTION STDERR:")
-        print(train_stderr)
+    train_stdout = run_train_with_std_redirect(args)
 
     # Assert that the command completed successfully.
     assert "reduced_train_loss:" in train_stdout
-    pattern = r"\| global_step: (\d+) \|"
-
-    def extract_global_steps(log_string):
-        matches = re.findall(pattern, log_string)
-        return [int(step) for step in matches]
-
-    global_step_ints = extract_global_steps(train_stdout)
+    global_step_ints = extract_global_steps_from_log(train_stdout)
     assert global_step_ints[-1] == early_stop_steps - 1
     assert len(global_step_ints) == early_stop_steps
 
@@ -208,3 +209,85 @@ def test_train_multi_gpu(tmp_path, model_size: str):
     with distributed_model_parallel_state(devices=world_size, tensor_model_parallel_size=world_size):
         args = parse_args(args=additional_args)
         train(args=args)
+
+
+@pytest.mark.timeout(256)  # Optional: fail if the test takes too long.
+@pytest.mark.slow
+def test_train_evo2_stops_at_max_steps_and_continue(tmp_path):
+    # Setup
+    open_port = find_free_network_port()
+    env = dict(**os.environ)
+    env["MASTER_PORT"] = str(open_port)
+
+    def small_training_cmd(path, max_steps, val_check):
+        cmd = (
+            f"train_evo2 --mock-data --result-dir {path} "
+            "--model-size 1b_nv --num-layers 4 --hybrid-override-pattern SDH* --limit-val-batches 1 "
+            "--no-activation-checkpointing --add-bias-output --create-tensorboard-logger "
+            f"--max-steps {max_steps} --warmup-steps 1 --val-check-interval {val_check} --limit-val-batche 1 "
+            "--seq-length 128 --hidden-dropout 0.1 --attention-dropout 0.1"
+        )
+        return cmd
+
+    max_steps_first_run = 4
+    max_steps_second_run = 6
+    val_check_interval = 2
+    checkpoints_dir = tmp_path / "evo2" / "checkpoints"
+    tensorboard_dir = tmp_path / "evo2" / "dev"
+
+    ######### FIRST TRAINING max_steps=max_steps_first_run #########
+    # Parse args
+    command_first_run = small_training_cmd(tmp_path, max_steps_first_run, val_check_interval)
+    args_first_run = parse_args(shlex.split(command_first_run)[1:])
+    train_stdout_first_run = run_train_with_std_redirect(args_first_run)
+
+    # Assertions
+    assert f"Training epoch 0, iteration 0/{max_steps_first_run - 1}" in train_stdout_first_run
+    # Extract and validate global steps
+    global_steps_first_run = [int(m) for m in re.findall(r"\| global_step: (\d+) \|", train_stdout_first_run)]
+    assert global_steps_first_run[0] == 0
+    assert global_steps_first_run[-1] == (max_steps_first_run - 1)
+    assert len(global_steps_first_run) == max_steps_first_run
+
+    expected_checkpoint_first_run_suffix = f"{max_steps_first_run}.0-last"
+    # Check if checkpoints dir exists
+    assert checkpoints_dir.exists(), "Checkpoints folder does not exist."
+
+    # Check if any subfolder ends with the expected suffix
+    matching_subfolders = [
+        p for p in checkpoints_dir.iterdir() if p.is_dir() and (expected_checkpoint_first_run_suffix in p.name)
+    ]
+
+    assert (
+        matching_subfolders
+    ), f"No checkpoint subfolder ending with '{expected_checkpoint_first_run_suffix}' found in {checkpoints_dir}."
+
+    # Recursively search for files starting with 'event.'
+    event_files = list(tensorboard_dir.rglob("tfevents*"))
+
+    assert event_files, f"No TensorBoard event files found under {tensorboard_dir}"
+
+    ######### SECOND TRAINING continues previous training since max_steps=max_steps_second_run #########
+    # Parse args
+    command_second_run = small_training_cmd(tmp_path, max_steps_second_run, val_check_interval)
+    args_second_run = parse_args(shlex.split(command_second_run)[1:])
+    train_stdout_second_run = run_train_with_std_redirect(args_second_run)
+
+    # Assertions
+    assert f"Training epoch 0, iteration 0/{max_steps_second_run - 1}" not in train_stdout_second_run
+    assert f"Training epoch 0, iteration {max_steps_first_run}/{max_steps_second_run - 1}" in train_stdout_second_run
+    # Extract and validate global steps
+    global_steps_second_run = [int(m) for m in re.findall(r"\| global_step: (\d+) \|", train_stdout_second_run)]
+    assert global_steps_second_run[0] == max_steps_first_run
+    assert global_steps_second_run[-1] == max_steps_second_run - 1
+    assert len(global_steps_second_run) == (max_steps_second_run - max_steps_first_run)
+    expected_checkpoint_second_run_suffix = f"{max_steps_second_run}.0-last"
+
+    # Check if any subfolder ends with the expected suffix
+    matching_subfolders = [
+        p for p in checkpoints_dir.iterdir() if p.is_dir() and (expected_checkpoint_second_run_suffix in p.name)
+    ]
+
+    assert (
+        matching_subfolders
+    ), f"No checkpoint subfolder ending with '{expected_checkpoint_second_run_suffix}' found in {checkpoints_dir}."

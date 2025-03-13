@@ -480,18 +480,6 @@ def train(args: argparse.Namespace):
         LearningRateMonitor(),
         TimingCallback(),
     ]
-    if args.create_checkpoint_callback:
-        checkpoint_callback = ModelCheckpoint(
-            every_n_train_steps=args.val_check_interval,
-            dirpath=Path(args.result_dir) / args.experiment_name,
-            save_top_k=5,
-            always_save_context=True,
-            save_optim_on_train_end=True,
-            save_context_on_train_end=True,
-        )
-        callbacks.append(checkpoint_callback)
-    else:
-        checkpoint_callback = None
 
     if args.early_stop_on_step:
         # Ask the trainer to stop by setting should_stop to True rather than emitting a kill signal.
@@ -605,8 +593,37 @@ def train(args: argparse.Namespace):
         name=args.experiment_name,
         initialize_tensorboard_logger=args.create_tensorboard_logger,
         wandb_config=wandb_config,
-        ckpt_callback=checkpoint_callback,
     )
+
+    if args.create_checkpoint_callback:
+        checkpoint_path = str(Path(nemo_logger.save_dir) / "checkpoints")
+        checkpoint_callback = ModelCheckpoint(
+            every_n_train_steps=args.val_check_interval,
+            dirpath=checkpoint_path,
+            save_top_k=5,
+            always_save_context=True,
+            save_optim_on_train_end=True,
+            save_context_on_train_end=True,
+        )
+        callbacks.append(checkpoint_callback)
+
+        auto_resume = nl.AutoResume(
+            resume_if_exists=True,
+            resume_ignore_no_checkpoint=True,
+            resume_past_end=False,
+            resume_from_directory=checkpoint_path,
+            restore_config=(
+                RestoreConfig(
+                    path=args.ckpt_dir,
+                    load_model_state=True,
+                    load_optim_state=args.restore_optimizer_from_ckpt,
+                )
+                if args.ckpt_dir
+                else None
+            ),
+        )
+    else:
+        auto_resume = None
 
     ddp: DistributedDataParallelConfig = DistributedDataParallelConfig(
         check_for_nan_in_grad=True,
@@ -663,22 +680,8 @@ def train(args: argparse.Namespace):
         resume_if_exists=True,
     )
 
-    resume = nl.AutoResume(
-        resume_if_exists=True,
-        resume_ignore_no_checkpoint=True,
-        resume_past_end=False,
-        resume_from_directory=Path(args.result_dir) / args.experiment_name,
-        restore_config=(
-            RestoreConfig(
-                path=args.ckpt_dir,
-                load_model_state=True,
-                load_optim_state=args.restore_optimizer_from_ckpt,
-            )
-            if args.ckpt_dir
-            else None
-        ),
-    )
-    resume.setup(trainer, model)
+    if auto_resume is not None:
+        auto_resume.setup(trainer, model)
 
     # Optimizer and scheduler setup
     opt_config = OptimizerConfig(
@@ -691,6 +694,7 @@ def train(args: argparse.Namespace):
         use_distributed_optimizer=True,
         bf16=True,
     )
+
     sched = CosineAnnealingScheduler(
         max_steps=trainer.max_steps,
         warmup_steps=args.warmup_steps,
