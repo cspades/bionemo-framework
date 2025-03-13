@@ -69,7 +69,7 @@ script: |-
   --micro-batch-size=${batch_size} \
   --model-size=${config_name} \
   --max-steps=490000 \
-  --early-stop-on-step ${stop_step}\
+  --early-stop-on-step ${stop_step} \
   --limit-val-batches=20 \
   --log-every-n-steps=50 \
   --val-check-interval=500 \
