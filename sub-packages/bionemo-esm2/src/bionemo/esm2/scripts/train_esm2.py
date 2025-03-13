@@ -314,9 +314,19 @@ def main(
         )
         callbacks.append(flop_meas_callback)
 
-    # Configure our custom Checkpointer
+    # Setup the logger and train the model
+    nemo_logger = setup_nemo_lightning_logger(
+        root_dir=result_dir,
+        name=experiment_name,
+        initialize_tensorboard_logger=create_tensorboard_logger,
+        wandb_config=wandb_config,
+    )
+
+    # Configure our custom ModelCheckpointe callback and AutoResume to save at nemo_logger.save_dir/checkpoints
     if create_checkpoint_callback:
+        checkpoint_path = str(Path(nemo_logger.save_dir) / "checkpoints")
         checkpoint_callback = nl_callbacks.ModelCheckpoint(
+            dirpath=checkpoint_path,
             save_last=save_last_checkpoint,
             monitor=metric_to_monitor_for_checkpoints,  # "val_loss",
             save_top_k=save_top_k,
@@ -327,17 +337,15 @@ def main(
             # Including step and consumed_samples in the checkpoint filename prevents duplicate filenames and bugs related to this.
         )
         callbacks.append(checkpoint_callback)
-    else:
-        checkpoint_callback = None
 
-    # Setup the logger and train the model
-    nemo_logger = setup_nemo_lightning_logger(
-        root_dir=result_dir,
-        name=experiment_name,
-        initialize_tensorboard_logger=create_tensorboard_logger,
-        wandb_config=wandb_config,
-        ckpt_callback=checkpoint_callback,
-    )
+        auto_resume = resume.AutoResume(
+            resume_from_directory=checkpoint_path,
+            resume_if_exists=resume_if_exists,  # Looks for the -last checkpoint to continue training.
+            resume_ignore_no_checkpoint=True,  # When false this will throw an error with no existing checkpoint.
+            resume_past_end=False,
+        )
+    else:
+        auto_resume = None
 
     trainer = nl.Trainer(
         devices=devices,
@@ -364,10 +372,7 @@ def main(
         data=data_module,
         trainer=trainer,
         log=nemo_logger,
-        resume=resume.AutoResume(
-            resume_if_exists=resume_if_exists,  # Looks for the -last checkpoint to continue training.
-            resume_ignore_no_checkpoint=True,  # When false this will throw an error with no existing checkpoint.
-        ),
+        resume=auto_resume,
     )
     return trainer
 
