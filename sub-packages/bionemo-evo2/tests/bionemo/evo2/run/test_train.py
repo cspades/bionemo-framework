@@ -15,7 +15,7 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-
+import argparse
 import io
 import os
 import re
@@ -23,6 +23,7 @@ import shlex
 import subprocess
 import sys
 from contextlib import redirect_stderr, redirect_stdout
+from typing import Callable
 
 import pytest
 import torch
@@ -32,6 +33,28 @@ from bionemo.evo2.run.train import parse_args, train
 from bionemo.testing.megatron_parallel_state_utils import (
     distributed_model_parallel_state,
 )
+
+
+def run_func_with_std_redirect(args: argparse.Namespace, func: Callable) -> str:
+    """
+    Run a function with output capture.
+    """
+    with distributed_model_parallel_state():
+        stdout_buf, stderr_buf = io.StringIO(), io.StringIO()
+        with redirect_stdout(stdout_buf), redirect_stderr(stderr_buf):
+            func(args=args)
+
+    train_stdout = stdout_buf.getvalue()
+    train_stderr = stderr_buf.getvalue()
+    print("Captured STDOUT:\n", train_stdout)
+    print("Captured STDERR:\n", train_stderr)
+    return train_stdout
+
+
+def extract_global_steps_from_log(log_string):
+    pattern = r"\| global_step: (\d+) \|"
+    matches = re.findall(pattern, log_string)
+    return [int(step) for step in matches]
 
 
 @pytest.mark.timeout(256)  # Optional: fail if the test takes too long.
@@ -53,7 +76,7 @@ def test_train_evo2_runs(tmp_path, num_steps=5):
         f"train_evo2 --mock-data --result-dir {tmp_path} "
         "--model-size 1b_nv --num-layers 4 --hybrid-override-pattern SDH* "
         "--no-activation-checkpointing --add-bias-output "
-        f"--max-steps {num_steps} --warmup-steps 1 "
+        f"--max-steps {num_steps} --warmup-steps 1  --limit-val-batche 1 "
         "--seq-length 128 --hidden-dropout 0.1 --attention-dropout 0.1 "
     )
 
@@ -75,26 +98,6 @@ def test_train_evo2_runs(tmp_path, num_steps=5):
     # Assert that the command completed successfully.
     assert "reduced_train_loss:" in result.stdout
     assert result.returncode == 0, "train_evo2 command failed."
-
-
-def run_train_with_std_redirect(args) -> str:
-    # Run training with output capture
-    with distributed_model_parallel_state():
-        stdout_buf, stderr_buf = io.StringIO(), io.StringIO()
-        with redirect_stdout(stdout_buf), redirect_stderr(stderr_buf):
-            train(args=args)
-
-    train_stdout = stdout_buf.getvalue()
-    train_stderr = stderr_buf.getvalue()
-    print("Captured STDOUT:\n", train_stdout)
-    print("Captured STDERR:\n", train_stderr)
-    return train_stdout
-
-
-def extract_global_steps_from_log(log_string):
-    pattern = r"\| global_step: (\d+) \|"
-    matches = re.findall(pattern, log_string)
-    return [int(step) for step in matches]
 
 
 @pytest.mark.timeout(256)  # Optional: fail if the test takes too long.
@@ -121,7 +124,7 @@ def test_train_evo2_stops(tmp_path, num_steps=500000, early_stop_steps=3):
     )
     command_parts_no_program = shlex.split(command)[1:]
     args = parse_args(args=command_parts_no_program)
-    train_stdout = run_train_with_std_redirect(args)
+    train_stdout = run_func_with_std_redirect(args, train)
 
     # Assert that the command completed successfully.
     assert "reduced_train_loss:" in train_stdout
@@ -239,7 +242,7 @@ def test_train_evo2_stops_at_max_steps_and_continue(tmp_path):
     # Parse args
     command_first_run = small_training_cmd(tmp_path, max_steps_first_run, val_check_interval)
     args_first_run = parse_args(shlex.split(command_first_run)[1:])
-    train_stdout_first_run = run_train_with_std_redirect(args_first_run)
+    train_stdout_first_run = run_func_with_std_redirect(args_first_run, train)
 
     # Assertions
     assert f"Training epoch 0, iteration 0/{max_steps_first_run - 1}" in train_stdout_first_run
@@ -271,7 +274,7 @@ def test_train_evo2_stops_at_max_steps_and_continue(tmp_path):
     # Parse args
     command_second_run = small_training_cmd(tmp_path, max_steps_second_run, val_check_interval)
     args_second_run = parse_args(shlex.split(command_second_run)[1:])
-    train_stdout_second_run = run_train_with_std_redirect(args_second_run)
+    train_stdout_second_run = run_func_with_std_redirect(args_second_run, train)
 
     # Assertions
     assert f"Training epoch 0, iteration 0/{max_steps_second_run - 1}" not in train_stdout_second_run
