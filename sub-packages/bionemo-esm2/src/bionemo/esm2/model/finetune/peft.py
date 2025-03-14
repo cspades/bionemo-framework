@@ -28,9 +28,11 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from lightning.pytorch.trainer.states import TrainerFn
 from nemo.collections.llm import fn
 from nemo.collections.llm.fn.mixin import FNMixin
 from nemo.collections.llm.peft.lora import LoRA
+from nemo.lightning.pytorch.utils import is_trainer_attached
 from torch import nn
 
 
@@ -66,4 +68,10 @@ class ESM2LoRA(LoRA):
         """
         if name in ["encoder", "embedding"]:
             FNMixin.freeze(m)
+            print("FROZEN", name)
+            for n, p in list(m.named_parameters()):
+                print(n, p.requires_grad)
+        if is_trainer_attached(m) and m.trainer.state.fn == TrainerFn.FITTING:
+            m.train(mode=True)
+
         return m

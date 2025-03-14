@@ -347,7 +347,6 @@ def train_model(
         optimizer.lr_mult = lr_multiplier
 
     module = biobert_lightning_module(config=config, tokenizer=tokenizer, optimizer=optimizer, model_transform=peft)
-
     # Configure our custom Checkpointer
     checkpoint_callback = nl_callbacks.ModelCheckpoint(
         save_last=save_last_checkpoint,
@@ -367,7 +366,7 @@ def train_model(
         ckpt_callback=checkpoint_callback,
     )
 
-    llm.api.train(
+    llm.train(
         model=module,
         data=data_module,
         trainer=trainer,
@@ -377,8 +376,20 @@ def train_model(
             resume_ignore_no_checkpoint=True,  # When false this will throw an error with no existing checkpoint.
         ),
     )
-    breakpoint()
+    assert trainer.model.model_transform is not None
+    model = trainer.model[0].module.module.module
+    assert all(not p.requires_grad for p in model.embedding.parameters())
+    assert all(not p.requires_grad for name, p in model.encoder.named_parameters() if "adapter" not in name)
+    assert all(p.requires_grad for name, p in model.encoder.named_parameters() if "adapter" in name)
+    assert all(p.requires_grad for p in model.classification_head.parameters())
     ckpt_path = Path(checkpoint_callback.last_model_path.replace(".ckpt", ""))
+    for name, param in model.named_parameters():
+        if name == "embedding.word_embeddings.weight":
+            print(param.size())
+            print(param)
+        print(name, param.requires_grad, param.size())
+    print("CHECK POINT", ckpt_path)
+
     return ckpt_path, metric_tracker, trainer
 
 
@@ -609,7 +620,7 @@ def get_parser():
         "--num-steps",
         type=int,
         required=False,
-        default=500000,
+        default=5,
         help="Number of steps to use for training. Default is 500000.",
     )
     parser.add_argument(
@@ -623,7 +634,7 @@ def get_parser():
         "--val-check-interval",
         type=int,
         required=False,
-        default=10000,
+        default=5,
         help="Number of steps between validation. Default is 10000.",
     )
     parser.add_argument(
